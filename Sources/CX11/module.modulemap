@@ -1,0 +1,10 @@
+module CX11 [system] {
+  module Xlib {
+      header "CXlib_umbrealla.h"
+  }
+  module X {
+      header "CX_umbrella.h"
+  }
+  link "X11"
+  export *
+}
