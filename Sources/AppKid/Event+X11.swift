@@ -18,7 +18,7 @@ internal extension EventType {
             ButtonReleaseMask,
             EnterWindowMask,
             LeaveWindowMask,
-            PointerMotionMask,
+//            PointerMotionMask,
 //            PointerMotionHintMask,
 //            Button1MotionMask,
 //            Button2MotionMask,

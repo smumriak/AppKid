@@ -80,13 +80,23 @@ internal extension Application {
             let _ = Event(x11Event: x11Event)
             switch x11Event.type {
             case Expose:
-                XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
                 XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, helloWorldString, Int32(helloWorldString.count))
+                XFlush(display)
                 
             case KeyPress:
+                debugPrint("KeyPress")
+                let blackColor = XBlackPixelOfScreen(screen)
+                XSetForeground(display, screen.pointee.default_gc, blackColor)
+                XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                XFlush(display)
                 break
                 
             case KeyRelease:
+                debugPrint("KeyRelease")
+                let whiteColor = XWhitePixelOfScreen(screen)
+                XSetForeground(display, screen.pointee.default_gc, whiteColor)
+                XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                XFlush(display)
                 break
                 
             case ButtonPress:
