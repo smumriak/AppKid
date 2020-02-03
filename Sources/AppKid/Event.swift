@@ -8,6 +8,7 @@
 import Foundation
 
 public enum EventType {
+    case noEvent
     case leftMouseDown
     case leftMouseUp
     case rightMouseDown
@@ -20,14 +21,14 @@ public enum EventType {
     case keyDown
     case keyUp
     case flagsChanged
-//    case appKidDefined // unimplemented
-//    case systemDefined // unimplemented
+    case appKidDefined
+    case systemDefined
     case applicationDefined
     case periodic
     case cursorUpdate
     case scrollWheel
-    case tabletPoint
-    case tabletProximity
+//    case tabletPoint // unimplemented
+//    case tabletProximity // unimplemented
     case otherMouseDown
     case otherMouseUp
     case otherMouseDragged

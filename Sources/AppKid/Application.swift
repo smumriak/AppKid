@@ -39,40 +39,28 @@ open class Application {
     #endif
     
     internal init () {
-        debugPrint("App initialization")
-        
         guard let display = XOpenDisplay(nil) else {
             fatalError("Could not open X display.")
         }
         
-        debugPrint("Opened display: \(String(describing: display))")
         self.display = display
         self.screen = XDefaultScreenOfDisplay(display)
-        debugPrint("Got screen: \(String(describing: screen))")
         self.rootWindow = Window(x11Window: screen.pointee.root, display: display)
-        debugPrint("Got root window: \(String(describing: rootWindow.x11Window))")
         self.x11FileDescriptor = XConnectionNumber(display)
-        debugPrint("X11 file descriptor: \(self.x11FileDescriptor)")
-        
         self.x11WMDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
     }
     
     public func run() {
-        debugPrint("Run")
-        
         if (delegate == nil) {
             fatalError("Who forgot to specify app delegate? You've forgot to specify app delegate.")
         }
         
-//        #if DEBUG
-        addDebugRunLoopObserver()
-//        #endif
+        #if DEBUG
+//        addDebugRunLoopObserver()
+        #endif
         
         setupX()
         
-        addSimpleWindow()
-        addSimpleWindow()
-        addSimpleWindow()
         addSimpleWindow()
         
         RunLoop.current.run()
