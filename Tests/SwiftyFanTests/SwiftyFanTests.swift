@@ -1,3 +1,10 @@
+//
+//  SwiftyFanTests.swift
+//  SwiftyFan
+//
+//  Created by Serhii Mumriak on 29/1/20.
+//
+
 import XCTest
 import class Foundation.Bundle
 

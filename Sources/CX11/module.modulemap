@@ -1,6 +1,13 @@
+//
+//  module.modulemap
+//  CX11
+//
+//  Created by Serhii Mumriak on 29/1/20.
+//
+
 module CX11 [system] {
   module Xlib {
-      header "CXlib_umbrealla.h"
+      header "CXlib_umbrella.h"
   }
   module X {
       header "CX_umbrella.h"

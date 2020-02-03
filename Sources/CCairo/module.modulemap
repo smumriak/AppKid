@@ -5,7 +5,8 @@
 //  Created by Serhii Mumriak on 29/1/20.
 //
 
-module CEpoll [system] {
-  header "CEpoll_umbrella.h"
+module CCairo [system] {
+  header "CCairo_umbrella.h"
+  link "X11"
   export *
 }

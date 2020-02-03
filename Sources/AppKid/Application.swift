@@ -31,11 +31,11 @@ open class Application {
     internal let rootWindow: Window
     internal let x11FileDescriptor: Int32
     internal var x11WMDeleteWindowAtom: CX11.Atom
+    internal lazy var x11EpollThread = Thread { self.pollForX11Events() }
     
     #if os(Linux)
     internal var x11EpollFileDecriptor: Int32 = -1
     internal let x11EventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
-    internal lazy var x11EpollThread = Thread { self.pollForX11Events() }
     #endif
     
     internal init () {

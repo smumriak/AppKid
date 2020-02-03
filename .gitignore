@@ -10,3 +10,4 @@ xcuserdata
 *.xcuserstate
 *.lock
 .Trashes
+.swiftpm/
