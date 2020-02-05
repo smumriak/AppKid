@@ -7,6 +7,6 @@
 
 module CCairo [system] {
   header "CCairo_umbrella.h"
-  link "X11"
+  link "cairo"
   export *
 }

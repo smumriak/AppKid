@@ -29,7 +29,7 @@ let package = Package(
         .systemLibrary(name: "CEpoll"),
         .systemLibrary(
             name: "CCairo",
-            pkgConfig: "x11 cairo",
+            pkgConfig: "cairo",
             providers: [
                 .apt(["libcairo2-dev"]),
                 .brew(["cairo"])

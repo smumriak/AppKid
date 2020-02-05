@@ -31,7 +31,7 @@ open class Application {
     internal let rootWindow: Window
     internal let x11FileDescriptor: Int32
     internal var x11WMDeleteWindowAtom: CX11.Atom
-    internal lazy var x11EpollThread = Thread { self.pollForX11Events() }
+    internal lazy var x11PollThread = Thread { self.pollForX11Events() }
     
     #if os(Linux)
     internal var x11EpollFileDecriptor: Int32 = -1

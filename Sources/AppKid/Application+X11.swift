@@ -19,9 +19,12 @@ internal let helloWorldString = "Hello, world!"
 
 internal extension Application {
     func setupX() {
-        #if os(Linux)
         XInitThreads()
+        var x11RunLoopSourceContext = CFRunLoopSourceContext1()
+        x11RunLoopSourceContext.version = 1
+        x11RunLoopSourceContext.info = Unmanaged.passRetained(self).toOpaque()
         
+        #if os(Linux)
         x11EpollFileDecriptor = epoll_create1(Int32(EPOLL_CLOEXEC))
         if x11EpollFileDecriptor == -1  {
             fatalError("Failed to create epoll file descriptor")
@@ -35,10 +38,6 @@ internal extension Application {
             close(x11EpollFileDecriptor)
             fatalError("Failed to add file descriptor to epoll")
         }
-        
-        var x11RunLoopSourceContext = CFRunLoopSourceContext1()
-        x11RunLoopSourceContext.version = 1
-        x11RunLoopSourceContext.info = Unmanaged.passRetained(self).toOpaque()
         
         x11RunLoopSourceContext.getPort = {
             if let info = $0 {
@@ -55,6 +54,7 @@ internal extension Application {
                 application.processX11EventsQueue()
             }
         }
+        #endif
         
         let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer(&x11RunLoopSourceContext).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
         
@@ -62,8 +62,7 @@ internal extension Application {
         
         CFRunLoopAddSource(RunLoop.current.getCFRunLoop(), x11RunLoopSource, CFRunLoopCommonModesConstant)
         
-        x11EpollThread.start()
-        #endif
+        x11PollThread.start()
     }
     
     func processX11EventsQueue() {
