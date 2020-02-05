@@ -18,7 +18,7 @@ import Glibc
 internal let helloWorldString = "Hello, world!"
 
 internal extension Application {
-    func setupX() {
+    func setupX11() {
         XInitThreads()
         var x11RunLoopSourceContext = CFRunLoopSourceContext1()
         x11RunLoopSourceContext.version = 1
@@ -62,7 +62,11 @@ internal extension Application {
         
         CFRunLoopAddSource(RunLoop.current.getCFRunLoop(), x11RunLoopSource, CFRunLoopCommonModesConstant)
         
+        x11PollThread.qualityOfService = .userInteractive
         x11PollThread.start()
+    }
+    
+    func destroyX11(){
     }
     
     func processX11EventsQueue() {
@@ -75,43 +79,47 @@ internal extension Application {
             }
             
             let window = windows[windowIndex]
+            let timestamp = CFAbsoluteTimeGetCurrent() - startTime
             
-            let _ = Event(x11Event: x11Event)
-            switch x11Event.type {
-            case Expose:
-                XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, helloWorldString, Int32(helloWorldString.count))
-                XFlush(display)
-                
-            case KeyPress:
-                debugPrint("KeyPress")
-                let blackColor = XBlackPixelOfScreen(screen)
-                XSetForeground(display, screen.pointee.default_gc, blackColor)
-                XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
-                XFlush(display)
-                break
-                
-            case KeyRelease:
-                debugPrint("KeyRelease")
-                let whiteColor = XWhitePixelOfScreen(screen)
-                XSetForeground(display, screen.pointee.default_gc, whiteColor)
-                XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
-                XFlush(display)
-                break
-                
-            case ButtonPress:
-                break
-                
-            case ButtonRelease:
-                break
-                
-            case ClientMessage:
-                if CX11.Atom(x11Event.xclient.data.l.0) == x11WMDeleteWindowAtom {
-                    windows.remove(at: windowIndex)
+            if let event = try? Event(x11Event: x11Event, timestamp: timestamp) {
+                send(event: event)
+            } else {
+                switch x11Event.type {
+                case Expose:
+                    XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, helloWorldString, Int32(helloWorldString.count))
+                    XFlush(display)
+                    
+                case KeyPress:
+//                    debugPrint("KeyPress")
+                    let blackColor = XBlackPixelOfScreen(screen)
+                    XSetForeground(display, screen.pointee.default_gc, blackColor)
+                    XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                    XFlush(display)
+                    break
+                    
+                case KeyRelease:
+//                    debugPrint("KeyRelease")
+                    let whiteColor = XWhitePixelOfScreen(screen)
+                    XSetForeground(display, screen.pointee.default_gc, whiteColor)
+                    XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                    XFlush(display)
+                    break
+                    
+                case ButtonPress:
+                    break
+                    
+                case ButtonRelease:
+                    break
+                    
+                case ClientMessage:
+                    if CX11.Atom(x11Event.xclient.data.l.0) == x11WMDeleteWindowAtom {
+                        windows.remove(at: windowIndex)
+                    }
+                    
+                default:
+    //                debugPrint("Unexpected event left unhandled")
+                    break
                 }
-                
-            default:
-//                debugPrint("Unexpected event left unhandled")
-                break
             }
         }
     }
@@ -127,21 +135,21 @@ internal extension Application {
         let observer = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, CFOptionFlags(kCFRunLoopAllActivities), true, 0) { _, activity in
             switch Int(activity) {
             case kCFRunLoopEntry:
-                debugPrint("Run Loop Activity kCFRunLoopEntry")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopEntry")
             case kCFRunLoopBeforeTimers:
-                debugPrint("Run Loop Activity kCFRunLoopBeforeTimers")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeTimers")
             case kCFRunLoopBeforeSources:
-                debugPrint("Run Loop Activity kCFRunLoopBeforeSources")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeSources")
             case kCFRunLoopBeforeWaiting:
-                debugPrint("Run Loop Activity kCFRunLoopBeforeWaiting")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeWaiting")
             case kCFRunLoopAfterWaiting:
-                debugPrint("Run Loop Activity kCFRunLoopAfterWaiting")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopAfterWaiting")
             case kCFRunLoopExit:
-                debugPrint("Run Loop Activity kCFRunLoopExit")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopExit")
             case kCFRunLoopAllActivities:
-                debugPrint("Run Loop Activity kCFRunLoopAllActivities")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopAllActivities")
             default:
-                debugPrint("Run Loop Activity UNKNOWN")
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity UNKNOWN")
             }
         }
         

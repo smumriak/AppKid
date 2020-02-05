@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import CoreFoundation
 import CX11.X
 import CX11.Xlib
 
-internal extension EventType {
+internal extension Event.EventType {
     static func x11EventMask() -> Int {
         return [
             KeyPressMask,
@@ -41,29 +42,19 @@ internal extension EventType {
             .reduce(NoEventMask, |)
     }
     
-    static let x11ModifierKeySymbols: Set<KeySym> = Set([
-        XK_Shift_L, XK_Shift_R,
-        XK_Control_L, XK_Control_R,
-        XK_Meta_L, XK_Meta_R,
-        XK_Alt_L, XK_Alt_R,
-        XK_Super_L, XK_Super_R,
-        XK_Hyper_L, XK_Hyper_R
-        ]
-        .map { KeySym($0) })
-    
     init?(x11Event: CX11.XEvent) {
         var x11Event = x11Event
         switch x11Event.type {
         case KeyPress:
             let keySymbol = XLookupKeysym(&x11Event.xkey, 0)
-            if EventType.x11ModifierKeySymbols.contains(keySymbol) {
+            if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
                 self = .flagsChanged
             } else {
                 self = .keyDown
             }
         case KeyRelease:
             let keySymbol = XLookupKeysym(&x11Event.xkey, 0)
-            if EventType.x11ModifierKeySymbols.contains(keySymbol) {
+            if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
                 self = .flagsChanged
             } else {
                 self = .keyUp
@@ -162,17 +153,48 @@ internal extension EventType {
         default:
             return nil
         }
+    }
+}
+
+internal extension Event.ModifierFlags {
+    static let x11ModifierKeySymbols: Set<KeySym> = Set([
+        XK_Shift_L, XK_Shift_R,
+        XK_Control_L, XK_Control_R,
+        XK_Meta_L, XK_Meta_R,
+        XK_Alt_L, XK_Alt_R,
+        XK_Super_L, XK_Super_R,
+        XK_Hyper_L, XK_Hyper_R
+        ]
+        .map { KeySym($0) })
+    
+    init(x11KeyMask: UInt32) {
+        self.init(rawValue: 0)
         
-        self = .leftMouseDown
+        switch x11KeyMask {
+        case UInt32(XK_Shift_L), UInt32(XK_Shift_R): formUnion(.shift)
+        case UInt32(XK_Control_L), UInt32(XK_Control_R): formUnion(.control)
+        case UInt32(XK_Meta_L), UInt32(XK_Meta_R): break
+        case UInt32(XK_Alt_L), UInt32(XK_Alt_R): formUnion(.option)
+        case UInt32(XK_Super_L), UInt32(XK_Super_R): formUnion(.command)
+        case UInt32(XK_Hyper_L), UInt32(XK_Hyper_R): break
+        default: break
+        }
     }
 }
 
 internal extension Event {
-    convenience init?(x11Event: CX11.XEvent) {
+    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval) throws {
         guard let type = EventType(x11Event: x11Event) else {
             return nil
         }
         
-        self.init(type: type)
+        switch type {
+        case _ where EventType.mouseEventTypes.contains(type):
+            let buttonEvent = x11Event.xbutton
+            
+            try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: 0, eventNumber: 0, clickCount: 0, pressure: 0.0)
+        default:
+            return nil
+        }
     }
 }

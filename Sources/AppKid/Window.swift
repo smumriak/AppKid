@@ -11,15 +11,17 @@ import CX11.X
 
 open class Window {
     internal var display: Application.Display
+    internal var screen: Application.Screen
     internal var x11Window: CX11.Window
     
     deinit {
         XDestroyWindow(display, x11Window)
     }
     
-    internal init(x11Window: CX11.Window, display: Application.Display = Application.shared.display) {
+    internal init(x11Window: CX11.Window, display: Application.Display = Application.shared.display, screen: Application.Screen = Application.shared.screen) {
         self.x11Window = x11Window
         self.display = display
+        self.screen = screen
     }
     
     convenience init(contentRect: CGRect) {
@@ -29,12 +31,30 @@ open class Window {
         let rootWindow = Application.shared.rootWindow
         let x11Window = XCreateSimpleWindow(display, rootWindow.x11Window, Int32(contentRect.minX), Int32(contentRect.minY), UInt32(contentRect.width), UInt32(contentRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
         
-        XSelectInput(display, x11Window, EventType.x11EventMask())
+        XSelectInput(display, x11Window, Event.EventType.x11EventMask())
         XMapWindow(display, x11Window)
         XSetWMProtocols(display, x11Window, &Application.shared.x11WMDeleteWindowAtom, 1);
         XFlush(display)
         
-        self.init(x11Window: x11Window)
+        self.init(x11Window: x11Window, display: display, screen: screen)
+    }
+    
+    public func send(event: Event) {
+        switch event.type {
+        case .leftMouseDown, .leftMouseDragged:
+            let blackColor = XBlackPixelOfScreen(screen)
+            XSetForeground(display, screen.pointee.default_gc, blackColor)
+            XFillRectangle(display, x11Window, screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
+            XSync(display, 0)
+            
+        case .leftMouseUp:
+            let whiteColor = XWhitePixelOfScreen(screen)
+            XSetForeground(display, screen.pointee.default_gc, whiteColor)
+            XFillRectangle(display, x11Window, screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
+            XSync(display, 0)
+        default:
+            break
+        }
     }
 }
 

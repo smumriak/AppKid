@@ -33,6 +33,8 @@ open class Application {
     internal var x11WMDeleteWindowAtom: CX11.Atom
     internal lazy var x11PollThread = Thread { self.pollForX11Events() }
     
+    internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
+    
     #if os(Linux)
     internal var x11EpollFileDecriptor: Int32 = -1
     internal let x11EventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
@@ -45,9 +47,28 @@ open class Application {
         
         self.display = display
         self.screen = XDefaultScreenOfDisplay(display)
-        self.rootWindow = Window(x11Window: screen.pointee.root, display: display)
+        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen)
         self.x11FileDescriptor = XConnectionNumber(display)
         self.x11WMDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+    }
+    
+    public func window(number windowNumber: Int) -> Window? {
+        return windows.indices.contains(windowNumber) ? windows[windowNumber] : nil
+    }
+    
+    public fileprivate(set) var mainWindow: Window? = nil
+    public fileprivate(set) var keyWindow: Window? = nil
+    
+    public func finishLaunching() {
+        
+    }
+    
+    public func stop() {
+        CFRunLoopStop(RunLoop.current.getCFRunLoop())
+    }
+    
+    public func terminate() {
+        abort()
     }
     
     public func run() {
@@ -59,10 +80,17 @@ open class Application {
 //        addDebugRunLoopObserver()
         #endif
         
-        setupX()
+        setupX11()
         
         addSimpleWindow()
         
+        finishLaunching()
         RunLoop.current.run()
+        
+        destroyX11()
+    }
+    
+    public func send(event: Event) {
+        event.window?.send(event: event)
     }
 }
