@@ -18,38 +18,19 @@ import Glibc
 public protocol ApplicationDelegate: class {}
 
 open class Application {
-    public typealias Display = UnsafeMutablePointer<CX11.Display>
-    public typealias Screen = UnsafeMutablePointer<CX11.Screen>
-    
     public static let shared = Application()
     unowned(unsafe) public var delegate: ApplicationDelegate?
     
+    public fileprivate(set) var isRunning = false
+    public fileprivate(set) var isTerminated = false
+    
     internal(set) public var windows = [Window]()
     internal(set) public var display: Display
-    internal(set) public var screen: Screen
-    
-    internal let rootWindow: Window
-    internal let x11FileDescriptor: Int32
-    internal var x11WMDeleteWindowAtom: CX11.Atom
-    internal lazy var x11PollThread = Thread { self.pollForX11Events() }
     
     internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
     
-    #if os(Linux)
-    internal var x11EpollFileDecriptor: Int32 = -1
-    internal let x11EventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
-    #endif
-    
     internal init () {
-        guard let display = XOpenDisplay(nil) else {
-            fatalError("Could not open X display.")
-        }
-        
-        self.display = display
-        self.screen = XDefaultScreenOfDisplay(display)
-        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen)
-        self.x11FileDescriptor = XConnectionNumber(display)
-        self.x11WMDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+        self.display = Display()
     }
     
     public func window(number windowNumber: Int) -> Window? {
@@ -64,11 +45,13 @@ open class Application {
     }
     
     public func stop() {
+        isRunning = true
         CFRunLoopStop(RunLoop.current.getCFRunLoop())
     }
     
     public func terminate() {
-        abort()
+        isTerminated = true
+        stop()
     }
     
     public func run() {
@@ -76,21 +59,47 @@ open class Application {
             fatalError("Who forgot to specify app delegate? You've forgot to specify app delegate.")
         }
         
+        isRunning = true
+        startTime = CFAbsoluteTimeGetCurrent()
+        
         #if DEBUG
 //        addDebugRunLoopObserver()
         #endif
         
-        setupX11()
-        
         addSimpleWindow()
         
         finishLaunching()
-        RunLoop.current.run()
         
-        destroyX11()
+        repeat {
+            let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true)
+            
+            send(event: event)
+            
+            if isTerminated {
+                return
+            }
+        } while isRunning
+    }
+    
+    public func post(event: Event, atStart: Bool) {
+        display.post(event: event, atStart: atStart)
     }
     
     public func send(event: Event) {
         event.window?.send(event: event)
+    }
+    
+    public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
+        return display.nextEvent(matching: mask, until: date, in: mode, dequeue: dequeue)
+    }
+    
+    internal func addSimpleWindow() {
+        let window = Window(contentRect: CGRect(x: 10.0, y: 10.0, width: 200.0, height: 100.0))
+        
+        windows.append(window)
+    }
+    
+    internal func add(window: Window) {
+        windows.append(window)
     }
 }

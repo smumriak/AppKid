@@ -19,7 +19,7 @@ internal extension Event.EventType {
             ButtonReleaseMask,
             EnterWindowMask,
             LeaveWindowMask,
-//            PointerMotionMask,
+            PointerMotionMask,
 //            PointerMotionHintMask,
 //            Button1MotionMask,
 //            Button2MotionMask,
@@ -29,12 +29,12 @@ internal extension Event.EventType {
 //            ButtonMotionMask,
 //            KeymapStateMask,
             ExposureMask,
-//            VisibilityChangeMask,
-//            StructureNotifyMask,
+            VisibilityChangeMask,
+            StructureNotifyMask,
 //            ResizeRedirectMask,
 //            SubstructureNotifyMask,
 //            SubstructureRedirectMask,
-//            FocusChangeMask,
+            FocusChangeMask,
 //            PropertyChangeMask,
 //            ColormapChangeMask,
 //            OwnerGrabButtonMask,
@@ -88,7 +88,22 @@ internal extension Event.EventType {
             }
             
         case MotionNotify:
-            self = .mouseMoved
+            let state = Int32(x11Event.xmotion.state)
+            
+            switch state {
+            case _ where state & Button1Mask != 0:
+                self = .leftMouseDragged
+            case _ where state & Button2Mask != 0:
+                self = .otherMouseDragged
+            case _ where state & Button3Mask != 0:
+                self = .rightMouseDragged
+            case _ where state & Button4Mask != 0:
+                self = .otherMouseDragged
+            case _ where state & Button5Mask != 0:
+                self = .otherMouseDragged
+            default:
+                self = .mouseMoved
+            }
         case EnterNotify:
             self = .mouseEntered
         case LeaveNotify:
@@ -120,8 +135,10 @@ internal extension Event.EventType {
         case ReparentNotify:
             self = .appKidDefined
         case ConfigureNotify:
+            debugPrint("ConfigureNotify")
             self = .noEvent
         case ConfigureRequest:
+            debugPrint("ConfigureRequest")
             self = .noEvent
         case GravityNotify:
             self = .noEvent
@@ -169,21 +186,19 @@ internal extension Event.ModifierFlags {
     
     init(x11KeyMask: UInt32) {
         self.init(rawValue: 0)
+        let keyMask = Int32(x11KeyMask)
         
-        switch x11KeyMask {
-        case UInt32(XK_Shift_L), UInt32(XK_Shift_R): formUnion(.shift)
-        case UInt32(XK_Control_L), UInt32(XK_Control_R): formUnion(.control)
-        case UInt32(XK_Meta_L), UInt32(XK_Meta_R): break
-        case UInt32(XK_Alt_L), UInt32(XK_Alt_R): formUnion(.option)
-        case UInt32(XK_Super_L), UInt32(XK_Super_R): formUnion(.command)
-        case UInt32(XK_Hyper_L), UInt32(XK_Hyper_R): break
-        default: break
-        }
+        if keyMask & ShiftMask != 0 { formUnion(.shift) }
+        if keyMask & LockMask != 0 { formUnion(.capsLock) }
+        if keyMask & ControlMask != 0 { formUnion(.control) }
+        if keyMask & Mod1Mask != 0 { formUnion(.option) }
+        if keyMask & Mod2Mask != 0 { formUnion(.numericPad) }
+        if keyMask & Mod4Mask != 0 { formUnion(.command) }
     }
 }
 
 internal extension Event {
-    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval) throws {
+    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval, windowNumber: Int) throws {
         guard let type = EventType(x11Event: x11Event) else {
             return nil
         }
@@ -192,7 +207,7 @@ internal extension Event {
         case _ where EventType.mouseEventTypes.contains(type):
             let buttonEvent = x11Event.xbutton
             
-            try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: 0, eventNumber: 0, clickCount: 0, pressure: 0.0)
+            try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
         default:
             return nil
         }
