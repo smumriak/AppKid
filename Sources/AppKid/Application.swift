@@ -135,18 +135,7 @@ open class Application {
     }
     
     public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
-        if let index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) }) {
-            let result = eventQueue[index]
-            
-            if dequeue {
-                eventQueue.remove(at: index)
-            }
-            
-            return result
-        }
-        
-        
-        var index: Array<Event>.Index? = nil
+        var index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
         
         while index == nil {
             let _ = RunLoop.current.run(mode: mode, before: date)
