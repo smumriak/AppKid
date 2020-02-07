@@ -135,10 +135,8 @@ internal extension Event.EventType {
         case ReparentNotify:
             self = .appKidDefined
         case ConfigureNotify:
-            debugPrint("ConfigureNotify")
             self = .noEvent
         case ConfigureRequest:
-            debugPrint("ConfigureRequest")
             self = .noEvent
         case GravityNotify:
             self = .noEvent

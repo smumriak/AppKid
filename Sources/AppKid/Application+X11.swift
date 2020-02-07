@@ -1,8 +1,8 @@
 //
-//  Display.swift
+//  Application+X11.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 5/2/20.
+//  Created by Serhii Mumriak on 1/2/20.
 //
 
 import Foundation
@@ -15,88 +15,9 @@ import CEpoll
 import Glibc
 #endif
 
-internal let helloWorldString = "Hello, world!"
+internal let testString = "And if you gaze long into an abyss, the abyss also gazes into you."
 
-open class Display {
-    internal var eventQueue = [Event]()
-    
-    internal var display: UnsafeMutablePointer<CX11.Display>
-    internal var screen: UnsafeMutablePointer<CX11.Screen>
-    
-    internal let rootWindow: Window
-    
-    internal var displayConnectionFileDescriptor: Int32
-    internal var epollFileDescriptor: Int32
-    internal var eventFileDescriptor: Int32
-    internal var wmDeleteWindowAtom: CX11.Atom
-    
-    internal lazy var pollThread = Thread { self.pollForX11Events() }
-    
-    internal var runLoopSource: CFRunLoopSource? = nil
-    
-    internal var lastClickTimestamp: TimeInterval = 0.0
-    internal var clickCount: Int = 0
-    
-    deinit {
-        destroyX11()
-        close(eventFileDescriptor)
-        close(epollFileDescriptor)
-        XCloseDisplay(display)
-    }
-    
-    public init() {
-        guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
-            fatalError("Could not open X display.")
-        }
-        
-        display = openDisplay
-        screen = XDefaultScreenOfDisplay(display)
-        
-        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen)
-        
-        displayConnectionFileDescriptor = XConnectionNumber(display)
-        
-        #if os(Linux)
-        epollFileDescriptor = epoll_create1(Int32(EPOLL_CLOEXEC))
-        if epollFileDescriptor == -1  {
-            fatalError("Failed to create epoll file descriptor")
-        }
-        eventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
-        #else
-        epollFileDescriptor = -1
-        eventFileDescriptor = -1
-        #endif
-        
-        wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
-        
-        pollThread.qualityOfService = .userInteractive
-        pollThread.name = "X11 poll thread"
-        
-        setupX11()
-    }
-    
-    public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
-        let _ = RunLoop.current.run(mode: mode, before: eventQueue.isEmpty ? date : Date())
-        
-        var result: Event? = nil
-        
-        while result == nil && eventQueue.isEmpty == false {
-            if mask.contains(eventQueue[0].type.mask) {
-                result = eventQueue.removeFirst()
-            } else {
-                _ = eventQueue.removeFirst()
-            }
-        }
-        
-        return result ?? Event(type: .appKidDefined, location: CGPoint.zero, modifierFlags: .none, window: nil)
-    }
-    
-    public func post(event: Event, atStart: Bool) {
-        eventQueue.insert(event, at: atStart ? 0 : eventQueue.count)
-    }
-}
-
-internal extension Display {
+internal extension Application {
     func setupX11() {
         var x11RunLoopSourceContext = CFRunLoopSourceContext1()
         x11RunLoopSourceContext.version = 1
@@ -114,8 +35,8 @@ internal extension Display {
         
         x11RunLoopSourceContext.getPort = {
             if let info = $0 {
-                let display: Display = Unmanaged.fromOpaque(info).takeUnretainedValue()
-                return UnsafeMutableRawPointer(bitPattern: Int(display.eventFileDescriptor))
+                let application: Application = Unmanaged.fromOpaque(info).takeUnretainedValue()
+                return UnsafeMutableRawPointer(bitPattern: Int(application.eventFileDescriptor))
             } else {
                 return UnsafeMutableRawPointer(bitPattern: Int(-1))
             }
@@ -123,8 +44,8 @@ internal extension Display {
         
         x11RunLoopSourceContext.perform = {
             if let info = $0 {
-                let display: Display = Unmanaged.fromOpaque(info).takeUnretainedValue()
-                display.processX11EventsQueue()
+                let application: Application = Unmanaged.fromOpaque(info).takeUnretainedValue()
+                application.processX11EventsQueue()
             }
         }
         #endif
@@ -135,10 +56,29 @@ internal extension Display {
         
         CFRunLoopAddSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
         
+        pollThread.qualityOfService = .userInteractive
+        pollThread.name = "X11 poll thread"
         pollThread.start()
     }
     
     func destroyX11(){
+        pollThread.cancel()
+        
+        if eventFileDescriptor != -1 {
+            close(eventFileDescriptor)
+            eventFileDescriptor = -1
+        }
+        if epollFileDescriptor != -1 {
+            close(epollFileDescriptor)
+            epollFileDescriptor = -1
+        }
+        
+        wmDeleteWindowAtom = UInt(CX11.None)
+        
+        displayConnectionFileDescriptor = -1
+        
+        XCloseDisplay(display)
+        
         CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
     }
     
@@ -149,7 +89,7 @@ internal extension Display {
         #if os(Linux)
         var awokenEvent = epoll_event()
         var one: UInt64 = 1
-        while true {
+        while pollThread.isCancelled == false || pollThread.isFinished == false {
             let result = CEpoll.epoll_wait(epollFileDescriptor, &awokenEvent, 1, -1)
             if (result == 0 || result == -1) { continue }
             CEpoll.write(eventFileDescriptor, &one, 8)
@@ -178,7 +118,7 @@ internal extension Display {
             } else {
                 switch x11Event.type {
                 case Expose:
-                    XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, helloWorldString, Int32(helloWorldString.count))
+                    XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, testString, Int32(testString.count))
                     XFlush(display)
                     
                 case KeyPress:
@@ -211,5 +151,34 @@ internal extension Display {
                 }
             }
         }
+    }
+}
+
+extension Application {
+    func addDebugRunLoopObserver() {
+        #if os(Linux)
+        let observer = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, CFOptionFlags(kCFRunLoopAllActivities), true, 0) { _, activity in
+            switch Int(activity) {
+            case kCFRunLoopEntry:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopEntry")
+            case kCFRunLoopBeforeTimers:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeTimers")
+            case kCFRunLoopBeforeSources:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeSources")
+            case kCFRunLoopBeforeWaiting:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopBeforeWaiting")
+            case kCFRunLoopAfterWaiting:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopAfterWaiting")
+            case kCFRunLoopExit:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopExit")
+            case kCFRunLoopAllActivities:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity kCFRunLoopAllActivities")
+            default:
+                debugPrint("\(CFAbsoluteTimeGetCurrent()): Run Loop Activity UNKNOWN")
+            }
+        }
+        
+        CFRunLoopAddObserver(RunLoop.current.getCFRunLoop(), observer, CFRunLoopCommonModesConstant)
+        #endif
     }
 }

@@ -13,6 +13,9 @@ open class Window {
     internal var display: UnsafeMutablePointer<CX11.Display>
     internal var screen: UnsafeMutablePointer<CX11.Screen>
     internal var x11Window: CX11.Window
+    internal var windowNumber: Int {
+        return Int(x11Window)
+    }
     
     deinit {
         XDestroyWindow(display, x11Window)
@@ -25,15 +28,15 @@ open class Window {
     }
     
     convenience init(contentRect: CGRect) {
-        let display = Application.shared.display.display
-        let screen = Application.shared.display.screen
-           
-        let rootWindow = Application.shared.display.rootWindow
+        let display = Application.shared.display
+        let screen = Application.shared.screen
+        let rootWindow = Application.shared.rootWindow
+        
         let x11Window = XCreateSimpleWindow(display, rootWindow.x11Window, Int32(contentRect.minX), Int32(contentRect.minY), UInt32(contentRect.width), UInt32(contentRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
         
         XSelectInput(display, x11Window, Event.EventType.x11EventMask())
         XMapWindow(display, x11Window)
-        XSetWMProtocols(display, x11Window, &Application.shared.display.wmDeleteWindowAtom, 1);
+        XSetWMProtocols(display, x11Window, &Application.shared.wmDeleteWindowAtom, 1);
         XFlush(display)
         
         self.init(x11Window: x11Window, display: display, screen: screen)
@@ -62,6 +65,9 @@ open class Window {
             XSetForeground(display, screen.pointee.default_gc, whiteColor)
             XFillRectangle(display, x11Window, screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
             XSync(display, 0)
+            
+            Application.shared.terminate()
+            
         default:
             break
         }

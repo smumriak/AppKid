@@ -25,12 +25,53 @@ open class Application {
     public fileprivate(set) var isTerminated = false
     
     internal(set) public var windows = [Window]()
-    internal(set) public var display: Display
+    
+    internal var eventQueue = [Event]()
+    public fileprivate(set) var currentEvent: Event?
     
     internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
     
+    internal var display: UnsafeMutablePointer<CX11.Display>
+    internal var screen: UnsafeMutablePointer<CX11.Screen>
+    
+    internal let rootWindow: Window
+    
+    internal var displayConnectionFileDescriptor: Int32 = -1
+    internal var epollFileDescriptor: Int32 = -1
+    internal var eventFileDescriptor: Int32 = -1
+    internal var wmDeleteWindowAtom: CX11.Atom = UInt(CX11.None)
+    
+    internal lazy var pollThread = Thread { self.pollForX11Events() }
+    
+    internal var runLoopSource: CFRunLoopSource? = nil
+    
+    internal var lastClickTimestamp: TimeInterval = 0.0
+    internal var clickCount: Int = 0
+    
     internal init () {
-        self.display = Display()
+        guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
+            fatalError("Could not open X display.")
+        }
+        
+        display = openDisplay
+        screen = XDefaultScreenOfDisplay(display)
+        
+        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen)
+        
+        displayConnectionFileDescriptor = XConnectionNumber(display)
+        
+        #if os(Linux)
+        epollFileDescriptor = epoll_create1(Int32(EPOLL_CLOEXEC))
+        if epollFileDescriptor == -1  {
+            fatalError("Failed to create epoll file descriptor")
+        }
+        eventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
+        #else
+        epollFileDescriptor = -1
+        eventFileDescriptor = -1
+        #endif
+        
+        wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
     }
     
     public func window(number windowNumber: Int) -> Window? {
@@ -45,7 +86,7 @@ open class Application {
     }
     
     public func stop() {
-        isRunning = true
+        isRunning = false
         CFRunLoopStop(RunLoop.current.getCFRunLoop())
     }
     
@@ -62,6 +103,8 @@ open class Application {
         isRunning = true
         startTime = CFAbsoluteTimeGetCurrent()
         
+        setupX11()
+        
         #if DEBUG
 //        addDebugRunLoopObserver()
         #endif
@@ -76,13 +119,15 @@ open class Application {
             send(event: event)
             
             if isTerminated {
-                return
+                break
             }
         } while isRunning
+        
+        destroyX11()
     }
     
     public func post(event: Event, atStart: Bool) {
-        display.post(event: event, atStart: atStart)
+        eventQueue.insert(event, at: atStart ? 0 : eventQueue.count)
     }
     
     public func send(event: Event) {
@@ -90,7 +135,36 @@ open class Application {
     }
     
     public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
-        return display.nextEvent(matching: mask, until: date, in: mode, dequeue: dequeue)
+        if let index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) }) {
+            let result = eventQueue[index]
+            
+            if dequeue {
+                eventQueue.remove(at: index)
+            }
+            
+            return result
+        }
+        
+        
+        var index: Array<Event>.Index? = nil
+        
+        while index == nil {
+            let _ = RunLoop.current.run(mode: mode, before: date)
+            
+            if isRunning == false || isTerminated == true {
+                return Event(withAppKidEventSubType: .last)
+            } else {
+                index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
+            }
+        }
+        
+        let result = eventQueue[index!]
+        
+        if dequeue {
+            eventQueue.remove(at: index!)
+        }
+        
+        return result
     }
     
     internal func addSimpleWindow() {

@@ -78,6 +78,7 @@ public extension Event {
         case applicationDeactivated
         case windowMoved
         case screenChanged
+        case last // last event before stopping Run Loop
     }
 }
 
@@ -172,7 +173,7 @@ open class Event {
     public internal(set) var buttonNumber: Int = 0
     public internal(set) var eventNumber: Int = 0
     public internal(set) var pressure: Float = 0.0
-    public internal(set) var locationInWindow: CGPoint = .zero
+    public internal(set) var locationInWindow: CGPoint = CGPoint(x: CGFloat.nan, y: CGFloat.nan)
     
     public internal(set) var deltaX: Float = 0.0
     public internal(set) var deltaY: Float = 0.0
@@ -183,6 +184,8 @@ open class Event {
     public internal(set) var scrollingDeltaX: Float = 0.0
     public internal(set) var scrollingDeltaY: Float = 0.0
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
+    
+    internal init() {}
 
     internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, window: Window?) {
         self.type = type
@@ -197,6 +200,34 @@ open class Event {
         }
         
         self.init(type: type, location: location, modifierFlags: modifierFlags, window: Application.shared.window(number: windowNumber))
-        
+    }
+    
+    convenience internal init(withAppKidEventSubType subType: EventSubtype) {
+        self.init()
+        self.type = .appKidDefined
+        self.subType = subType
+    }
+}
+
+extension Event: Equatable {
+    public static func == (lhs: Event, rhs: Event) -> Bool {
+        return lhs.type == rhs.type &&
+            lhs.subType == rhs.subType &&
+            lhs.modifierFlags == rhs.modifierFlags &&
+            lhs.timestamp == rhs.timestamp &&
+            lhs.window == rhs.window &&
+            lhs.windowNumber == rhs.windowNumber &&
+            lhs.clickCount == rhs.clickCount &&
+            lhs.buttonNumber == rhs.buttonNumber &&
+            lhs.eventNumber == rhs.eventNumber &&
+            lhs.pressure == rhs.pressure &&
+            lhs.locationInWindow == rhs.locationInWindow &&
+            lhs.deltaX == rhs.deltaX &&
+            lhs.deltaY == rhs.deltaY &&
+            lhs.deltaZ == rhs.deltaZ &&
+            lhs.hasPreciseScrollingDeltas == rhs.hasPreciseScrollingDeltas &&
+            lhs.scrollingDeltaX == rhs.scrollingDeltaX &&
+            lhs.scrollingDeltaY == rhs.scrollingDeltaY &&
+            lhs.isDirectionInvertedFromDevice == rhs.isDirectionInvertedFromDevice
     }
 }
