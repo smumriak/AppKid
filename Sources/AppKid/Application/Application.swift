@@ -17,7 +17,7 @@ import Glibc
 
 public protocol ApplicationDelegate: class {}
 
-open class Application {
+open class Application: Responder {
     public static let shared = Application()
     unowned(unsafe) public var delegate: ApplicationDelegate?
     
@@ -48,7 +48,7 @@ open class Application {
     internal var lastClickTimestamp: TimeInterval = 0.0
     internal var clickCount: Int = 0
     
-    internal init () {
+    internal override init () {
         guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
             fatalError("Could not open X display.")
         }
@@ -72,6 +72,8 @@ open class Application {
         #endif
         
         wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+        
+        super.init()
     }
     
     public func window(number windowNumber: Int) -> Window? {

@@ -7,6 +7,6 @@
 
 import CCairo
 
-class CGContext {
-    
+open class CGContext {
+    public init() {}
 }

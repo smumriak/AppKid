@@ -8,23 +8,32 @@
 import Foundation
 import CX11.Xlib
 import CX11.X
+import CairoGraphics
 
-open class Window {
+open class Window: View {
     internal var display: UnsafeMutablePointer<CX11.Display>
     internal var screen: UnsafeMutablePointer<CX11.Screen>
     internal var x11Window: CX11.Window
-    internal var windowNumber: Int {
-        return Int(x11Window)
+    internal var windowNumber: Int { Int(x11Window) }
+    internal var mainContext: CairoGraphics.CGContext
+    
+    override public var window: Window? {
+        get { return self }
+        set {}
     }
     
     deinit {
         XDestroyWindow(display, x11Window)
     }
     
-    internal init(x11Window: CX11.Window, display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>) {
+    internal init(x11Window: CX11.Window, display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, contentRect: CGRect = .zero) {
         self.x11Window = x11Window
         self.display = display
         self.screen = screen
+        
+        self.mainContext = CairoGraphics.CGContext()
+        
+        super.init(with: contentRect)
     }
     
     convenience init(contentRect: CGRect) {
@@ -39,7 +48,7 @@ open class Window {
         XSetWMProtocols(display, x11Window, &Application.shared.wmDeleteWindowAtom, 1);
         XFlush(display)
         
-        self.init(x11Window: x11Window, display: display, screen: screen)
+        self.init(x11Window: x11Window, display: display, screen: screen, contentRect: contentRect)
     }
     
     public func post(event: Event, atStart: Bool) {
@@ -74,8 +83,8 @@ open class Window {
     }
 }
 
-extension Window: Equatable {
+extension Window {
     public static func == (lhs: Window, rhs: Window) -> Bool {
-        return lhs.x11Window == rhs.x11Window
+        return lhs === rhs || lhs.x11Window == rhs.x11Window
     }
 }
