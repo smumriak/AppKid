@@ -13,6 +13,10 @@ public struct CGAffineTransform {
     
     public init() {}
     
+    internal init(matrix: cairo_matrix_t) {
+        _matrix = matrix
+    }
+    
     var a: CGFloat {
         get { return CGFloat(_matrix.xx) }
         set { _matrix.xx = Double(newValue) }
@@ -130,8 +134,8 @@ extension CGAffineTransform {
 
 public extension CGPoint {
     func applying(_ t: CGAffineTransform) -> CGPoint {
-        var x: Double = 0.0
-        var y: Double = 0.0
+        var x: Double = .zero
+        var y: Double = .zero
         var transform = t
         
         cairo_matrix_transform_point(&transform._matrix, &x, &y)
@@ -142,8 +146,8 @@ public extension CGPoint {
 
 public extension CGSize {
     func applying(_ t: CGAffineTransform) -> CGSize {
-        var width: Double = 0.0
-        var height: Double = 0.0
+        var width: Double = .zero
+        var height: Double = .zero
         var transform = t
         
         cairo_matrix_transform_distance(&transform._matrix, &width, &height)

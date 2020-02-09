@@ -9,7 +9,7 @@ import Foundation
 import CairoGraphics
 
 public extension CairoGraphics.CGContext {
-    internal static var contexts = [CairoGraphics.CGContext]()
+    internal static var contextsStack = [CairoGraphics.CGContext]()
     internal(set) static var current: CairoGraphics.CGContext? = nil
     
     static func begin(size: CGSize) -> CairoGraphics.CGContext {
@@ -23,13 +23,13 @@ public extension CairoGraphics.CGContext {
     
     static func push(_ context: CairoGraphics.CGContext) {
         if let current = current {
-            contexts.append(current)
+            contextsStack.append(current)
         }
         
         current = context
     }
     
     static func pop() {
-        current = contexts.popLast()
+        current = contextsStack.popLast()
     }
 }

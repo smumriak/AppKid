@@ -45,8 +45,8 @@ open class Application: Responder {
     
     internal var runLoopSource: CFRunLoopSource? = nil
     
-    internal var lastClickTimestamp: TimeInterval = 0.0
-    internal var clickCount: Int = 0
+    internal var lastClickTimestamp: TimeInterval = .zero
+    internal var clickCount: Int = .zero
     
     internal override init () {
         guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {

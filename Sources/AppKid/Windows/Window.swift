@@ -58,6 +58,8 @@ open class Window: View {
     public func send(event: Event) {
         switch event.type {
         case .leftMouseDown, .leftMouseDragged:
+            
+            
             let blackColor = XBlackPixelOfScreen(_screen)
             XSetForeground(_display, _screen.pointee.default_gc, blackColor)
             XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
@@ -70,10 +72,12 @@ open class Window: View {
             XSync(_display, 0)
             
         case .leftMouseUp:
-            let whiteColor = XWhitePixelOfScreen(_screen)
-            XSetForeground(_display, _screen.pointee.default_gc, whiteColor)
-            XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
-            XSync(_display, 0)
+//            let whiteColor = XWhitePixelOfScreen(_screen)
+//            XSetForeground(_display, _screen.pointee.default_gc, whiteColor)
+//            XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
+//            XSync(_display, 0)
+            _graphicsContext.doSomething()
+            break
 
         default:
             break

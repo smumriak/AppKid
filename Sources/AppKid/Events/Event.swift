@@ -165,24 +165,24 @@ open class Event {
     public internal(set) var type: EventType = .noEvent
     public internal(set) var subType: EventSubtype = .none
     public internal(set) var modifierFlags: ModifierFlags = .none
-    public internal(set) var timestamp: TimeInterval = 0.0
+    public internal(set) var timestamp: TimeInterval = .zero
     public internal(set) var window: Window? = nil
     public internal(set) var windowNumber: Int = NSNotFound
     
-    public internal(set) var clickCount: Int = 0
-    public internal(set) var buttonNumber: Int = 0
-    public internal(set) var eventNumber: Int = 0
-    public internal(set) var pressure: Float = 0.0
+    public internal(set) var clickCount: Int = .zero
+    public internal(set) var buttonNumber: Int = .zero
+    public internal(set) var eventNumber: Int = .zero
+    public internal(set) var pressure: CGFloat = .zero
     public internal(set) var locationInWindow: CGPoint = CGPoint(x: CGFloat.nan, y: CGFloat.nan)
     
-    public internal(set) var deltaX: Float = 0.0
-    public internal(set) var deltaY: Float = 0.0
-    public internal(set) var deltaZ: Float = 0.0
+    public internal(set) var deltaX: CGFloat = .zero
+    public internal(set) var deltaY: CGFloat = .zero
+    public internal(set) var deltaZ: CGFloat = .zero
     
     public internal(set) var hasPreciseScrollingDeltas: Bool = false
     
-    public internal(set) var scrollingDeltaX: Float = 0.0
-    public internal(set) var scrollingDeltaY: Float = 0.0
+    public internal(set) var scrollingDeltaX: CGFloat = .zero
+    public internal(set) var scrollingDeltaY: CGFloat = .zero
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
     
     internal init() {}
@@ -194,7 +194,7 @@ open class Event {
         self.window = window
     }
     
-    convenience public init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: Float) throws {
+    convenience public init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
         guard EventType.mouseEventTypes.contains(type) else {
             throw EventCreationError.incompatibleEventType(validEventTypes: EventType.mouseEventTypes)
         }
