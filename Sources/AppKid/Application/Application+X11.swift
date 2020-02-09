@@ -102,7 +102,7 @@ internal extension Application {
         while XPending(display) != 0 {
             XNextEvent(display, &x11Event)
             
-            guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.x11Window == x11Event.xany.window }) else {
+            guard let windowNumber = Application.shared.windows.firstIndex(where: { $0._x11Window == x11Event.xany.window }) else {
                 continue
             }
             
@@ -118,20 +118,20 @@ internal extension Application {
             } else {
                 switch x11Event.type {
                 case Expose:
-                    XDrawString(display, window.x11Window, screen.pointee.default_gc, 10, 70, testString, Int32(testString.count))
+                    XDrawString(display, window._x11Window, screen.pointee.default_gc, 10, 70, testString, Int32(testString.count))
                     XFlush(display)
                     
                 case KeyPress:
                     let blackColor = XBlackPixelOfScreen(screen)
                     XSetForeground(display, screen.pointee.default_gc, blackColor)
-                    XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                    XFillRectangle(display, window._x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
                     XFlush(display)
                     break
                     
                 case KeyRelease:
                     let whiteColor = XWhitePixelOfScreen(screen)
                     XSetForeground(display, screen.pointee.default_gc, whiteColor)
-                    XFillRectangle(display, window.x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
+                    XFillRectangle(display, window._x11Window, screen.pointee.default_gc, 20, 20, 10, 10)
                     XFlush(display)
                     break
                     

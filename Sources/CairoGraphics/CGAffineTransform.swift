@@ -9,33 +9,33 @@ import CCairo
 import Foundation
 
 public struct CGAffineTransform {
-    fileprivate var matrix = cairo_matrix_t()
+    internal fileprivate(set) var _matrix = cairo_matrix_t()
     
     public init() {}
     
     var a: CGFloat {
-        get { return CGFloat(matrix.xx) }
-        set { matrix.xx = Double(newValue) }
+        get { return CGFloat(_matrix.xx) }
+        set { _matrix.xx = Double(newValue) }
     }
     var b: CGFloat {
-        get { return CGFloat(matrix.xy) }
-        set { matrix.xy = Double(newValue) }
+        get { return CGFloat(_matrix.xy) }
+        set { _matrix.xy = Double(newValue) }
     }
     var c: CGFloat {
-        get { return CGFloat(matrix.yx) }
-        set { matrix.yx = Double(newValue) }
+        get { return CGFloat(_matrix.yx) }
+        set { _matrix.yx = Double(newValue) }
     }
     var d: CGFloat {
-        get { return CGFloat(matrix.yy) }
-        set { matrix.yy = Double(newValue) }
+        get { return CGFloat(_matrix.yy) }
+        set { _matrix.yy = Double(newValue) }
     }
     var tx: CGFloat {
-        get { return  CGFloat(matrix.x0) }
-        set { matrix.x0 = Double(newValue) }
+        get { return  CGFloat(_matrix.x0) }
+        set { _matrix.x0 = Double(newValue) }
     }
     var ty: CGFloat {
-        get { return CGFloat(matrix.y0) }
-        set { matrix.y0 = Double(newValue) }
+        get { return CGFloat(_matrix.y0) }
+        set { _matrix.y0 = Double(newValue) }
     }
 }
 
@@ -52,29 +52,29 @@ fileprivate extension cairo_matrix_t {
 
 extension CGAffineTransform: Equatable {
     public static func == (lhs: CGAffineTransform, rhs: CGAffineTransform) -> Bool {
-        return lhs.matrix == rhs.matrix
+        return lhs._matrix == rhs._matrix
     }
 }
 
 extension CGAffineTransform {
     public static var identity: CGAffineTransform = {
         var result = CGAffineTransform()
-        cairo_matrix_init_identity(&result.matrix)
+        cairo_matrix_init_identity(&result._matrix)
         return result
     }()
 }
 
 extension CGAffineTransform {
     public init(translationX tx: CGFloat, y ty: CGFloat) {
-        cairo_matrix_init_translate(&matrix, Double(tx), Double(ty))
+        cairo_matrix_init_translate(&_matrix, Double(tx), Double(ty))
     }
     
     public init(scaleX sx: CGFloat, y sy: CGFloat) {
-        cairo_matrix_init_scale(&matrix, Double(sx), Double(sy))
+        cairo_matrix_init_scale(&_matrix, Double(sx), Double(sy))
     }
     
     public init(rotationAngle angle: CGFloat) {
-        cairo_matrix_init_rotate(&matrix, Double(angle))
+        cairo_matrix_init_rotate(&_matrix, Double(angle))
     }
     
     var isIdentity: Bool {
@@ -84,7 +84,7 @@ extension CGAffineTransform {
     public func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform {
         var result = self
         
-        cairo_matrix_translate(&result.matrix, Double(tx), Double(ty))
+        cairo_matrix_translate(&result._matrix, Double(tx), Double(ty))
         
         return result
     }
@@ -92,7 +92,7 @@ extension CGAffineTransform {
     public func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform {
         var result = self
         
-        cairo_matrix_scale(&result.matrix, Double(sx), Double(sy))
+        cairo_matrix_scale(&result._matrix, Double(sx), Double(sy))
         
         return result
     }
@@ -100,7 +100,7 @@ extension CGAffineTransform {
     public func rotated(by angle: CGFloat) -> CGAffineTransform {
         var result = self
         
-        cairo_matrix_rotate(&result.matrix, Double(angle))
+        cairo_matrix_rotate(&result._matrix, Double(angle))
         
         return result
     }
@@ -108,7 +108,7 @@ extension CGAffineTransform {
     public func inverted() -> CGAffineTransform {
         var result = self
         
-        let success = cairo_matrix_invert(&result.matrix)
+        let success = cairo_matrix_invert(&result._matrix)
         
         if (success == CAIRO_STATUS_INVALID_MATRIX) {
             return self
@@ -119,10 +119,10 @@ extension CGAffineTransform {
     
     public func concatenating(_ t2: CGAffineTransform) -> CGAffineTransform {
         var result = CGAffineTransform()
-        var lhs = matrix
-        var rhs = t2.matrix
+        var lhs = _matrix
+        var rhs = t2._matrix
         
-        cairo_matrix_multiply(&result.matrix, &lhs, &rhs)
+        cairo_matrix_multiply(&result._matrix, &lhs, &rhs)
         
         return result
     }
@@ -134,7 +134,7 @@ public extension CGPoint {
         var y: Double = 0.0
         var transform = t
         
-        cairo_matrix_transform_point(&transform.matrix, &x, &y)
+        cairo_matrix_transform_point(&transform._matrix, &x, &y)
         
         return CGPoint(x: x, y: y)
     }
@@ -146,7 +146,7 @@ public extension CGSize {
         var height: Double = 0.0
         var transform = t
         
-        cairo_matrix_transform_distance(&transform.matrix, &width, &height)
+        cairo_matrix_transform_distance(&transform._matrix, &width, &height)
         
         return CGSize(width: width, height: height)
     }

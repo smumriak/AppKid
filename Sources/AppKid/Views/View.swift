@@ -40,7 +40,13 @@ open class View: Responder {
     public internal(set) var subviews = [View]()
     public internal(set) weak var window: Window? = nil
     
-    public var needsDisplay = false
+    internal var dirtyRect: CGRect? {
+        didSet {
+            if let dirtyRect = dirtyRect {
+                superview?.setNeedsDisplay(in: convert(dirtyRect, to: superview))
+            }
+        }
+    }
     public var needsLayout = false
     public var hidden = false
     public var alpha: CGFloat = 1.0
@@ -138,12 +144,23 @@ open class View: Responder {
         return rect
     }
     
-    public func display() {}
+    public func draw(in rect: CGRect) {
+        
+    }
     
-    public func displayIfNeeded() {
-        if needsDisplay {
-            display()
-            needsDisplay = false
+    public func setNeedsDisplay() {
+        setNeedsDisplay(in: bounds)
+    }
+    
+    public func setNeedsDisplay(in rect: CGRect) {
+        if let dirtyRect = dirtyRect {
+            let minX = min(dirtyRect.minX, rect.minX)
+            let minY = min(dirtyRect.minY, rect.minY)
+            let maxX = max(dirtyRect.maxX, rect.maxX)
+            let maxY = max(dirtyRect.maxY, rect.maxY)
+            self.dirtyRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        } else {
+            dirtyRect = rect
         }
     }
     
