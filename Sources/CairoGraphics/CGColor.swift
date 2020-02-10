@@ -7,7 +7,7 @@
 
 import Foundation
 
-// placeholder because color spaces are hard
+// palkovnik:TODO: placeholder because color spaces are hard
 public struct CGColor {
     public var red: CGFloat = .zero
     public var green: CGFloat = .zero

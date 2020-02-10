@@ -22,6 +22,11 @@ open class Window: View {
         set {}
     }
     
+    override public var transform: CairoGraphics.CGAffineTransform {
+        get { return .identity }
+        set {}
+    }
+    
     deinit {
         XDestroyWindow(_display, _x11Window)
     }
@@ -34,6 +39,8 @@ open class Window: View {
         _graphicsContext = CairoGraphics.CGContext(display: display, window: x11Window)
         
         super.init(with: contentRect)
+        
+        transformsAreValid = true
     }
     
     convenience init(contentRect: CGRect) {
@@ -58,25 +65,18 @@ open class Window: View {
     public func send(event: Event) {
         switch event.type {
         case .leftMouseDown, .leftMouseDragged:
-            
-            
-            let blackColor = XBlackPixelOfScreen(_screen)
-            XSetForeground(_display, _screen.pointee.default_gc, blackColor)
-            XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
-            XSync(_display, 0)
+            _graphicsContext.saveState()
+            _graphicsContext.setFillColor(.black)
+            _graphicsContext.fill(CGRect(origin: event.locationInWindow, size: CGSize(width: 20.0, height: 20.0)))
+            _graphicsContext.restoreState()
             
         case .rightMouseDown, .rightMouseDragged:
-            let blackColor = XWhitePixelOfScreen(_screen)
-            XSetForeground(_display, _screen.pointee.default_gc, blackColor)
-            XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
-            XSync(_display, 0)
+            _graphicsContext.saveState()
+            _graphicsContext.setFillColor(.white)
+            _graphicsContext.fill(CGRect(origin: event.locationInWindow, size: CGSize(width: 20.0, height: 20.0)))
+            _graphicsContext.restoreState()
             
         case .leftMouseUp:
-//            let whiteColor = XWhitePixelOfScreen(_screen)
-//            XSetForeground(_display, _screen.pointee.default_gc, whiteColor)
-//            XFillRectangle(_display, _x11Window, _screen.pointee.default_gc, Int32(event.locationInWindow.x - 10.0), Int32(event.locationInWindow.y - 10.0), 20, 20)
-//            XSync(_display, 0)
-            _graphicsContext.doSomething()
             break
 
         default:
@@ -84,10 +84,48 @@ open class Window: View {
         }
     }
     
-    public override func draw(in rect: CGRect) {
+    override func invalidateTransforms() {}
+    
+    override func rebuildTransformsIfNeeded() {
+        _transformToWindow = .identity
+        _transformFromWindow = .identity
+    }
+    
+    public override func draw(_ rect: CGRect) {
         CairoGraphics.CGContext.push(_graphicsContext)
-        // missing convert
-        super.draw(in: rect)
+        _graphicsContext.saveState()
+        super.draw(rect)
+        
+        var renderViewStack = subviews.filter {
+            let transformedBounds = $0.bounds.applying($0.transform)
+            return $0.convert(transformedBounds, to: self).intersects(rect)
+        }
+        
+        repeat {
+            guard let currentView = renderViewStack.first else { continue }
+            renderViewStack.removeFirst()
+            
+            let targetRect = currentView.superview?.convert(rect, from: self) ?? rect
+            
+            let intersectionRect = currentView.frame.intersection(targetRect)
+            
+            if intersectionRect.isNull == false {
+                let convertedRect = convert(intersectionRect, to: currentView)
+                
+                let subviewsToRender = currentView.subviews.filter {
+                    let transformedBounds = $0.bounds.applying($0.transform)
+                    return $0.convert(transformedBounds, to: currentView.superview ?? self).intersects(convertedRect)
+                }
+                
+                renderViewStack.insert(contentsOf: subviewsToRender, at: 0)
+                
+                _graphicsContext.concatenate(currentView.transformToWindow)
+                currentView.draw(currentView.bounds)
+                _graphicsContext.concatenate(currentView.transformFromWindow)
+            }
+        } while renderViewStack.isEmpty == false
+        
+        _graphicsContext.restoreState()
         CairoGraphics.CGContext.pop()
     }
 }

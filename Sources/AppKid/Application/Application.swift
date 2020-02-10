@@ -9,6 +9,7 @@ import Foundation
 import CoreFoundation
 import CX11.Xlib
 import CX11.X
+import CairoGraphics
 
 #if os(Linux)
 import CEpoll
@@ -56,7 +57,13 @@ open class Application: Responder {
         display = openDisplay
         screen = XDefaultScreenOfDisplay(display)
         
-        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen)
+        var rootWindowAttributes = XWindowAttributes()
+        if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
+            fatalError("Can not get window attributes")
+        }
+        let contentRect = CGRect(x: Int(rootWindowAttributes.x), y: Int(rootWindowAttributes.y), width: Int(rootWindowAttributes.height), height: Int(rootWindowAttributes.height))
+        
+        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen, contentRect: contentRect)
         
         displayConnectionFileDescriptor = XConnectionNumber(display)
         
@@ -159,9 +166,24 @@ open class Application: Responder {
     }
     
     internal func addSimpleWindow() {
-        let window = Window(contentRect: CGRect(x: 10.0, y: 10.0, width: 200.0, height: 100.0))
+        let window = Window(contentRect: CGRect(x: 10.0, y: 10.0, width: 400.0, height: 400.0))
         
         windows.append(window)
+        
+        let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
+        subview1.backgroundColor = .green
+        
+        let subview2 = View(with: CGRect(x: 30.0, y: 50.0, width: 50.0, height: 30.0))
+        subview2.backgroundColor = .red
+        subview2.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 4.0)
+        
+        subview1.add(subview: subview2)
+        
+        let subview3 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
+        subview3.backgroundColor = .blue
+        
+        window.add(subview: subview1)
+        window.add(subview: subview3)
     }
     
     internal func add(window: Window) {

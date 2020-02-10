@@ -164,11 +164,11 @@ public extension CGContext {
     }
     
     func addArc(tangent1End: CGPoint, tangent2End: CGPoint, radius: CGFloat) {
-        // nope
+        // palkovnik:TODO: Implement
     }
     
     func addEllipse(in rect: CGRect) {
-        // nope
+        // palkovnik:TODO: Implement
     }
     
     func addPath(_ path: CGPath) {
@@ -298,26 +298,5 @@ public extension CGContext {
     func concatenate(_ transform: CGAffineTransform) {
         var matrix = transform._matrix
         cairo_transform(_context, &matrix)
-    }
-}
-
-public extension CGContext {
-    func doSomething() {
-        saveState()
-        
-//        cairo_set_source_rgba(_context, 1.0, 0.0, 0.0, 1.0);
-        setFillColor(CGColor.red)
-        
-        beginPath()
-        move(to: .zero)
-        addLine(to: CGPoint(x: size.width, y: 0.0))
-        addLine(to: CGPoint(x: size.width, y: size.height))
-        addLine(to: CGPoint(x: 0.0, y: size.height))
-        addLine(to: .zero)
-        closePath()
-        
-        fillPath()
-        
-        restoreState()
     }
 }

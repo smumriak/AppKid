@@ -9,32 +9,50 @@ import Foundation
 import CairoGraphics
 
 open class View: Responder {
-    fileprivate var _frame: CGRect
     fileprivate var _bounds: CGRect
+    fileprivate var _center: CGPoint
     
     public var frame: CGRect {
         get {
-            return _frame
+            let transform = CairoGraphics.CGAffineTransform.identity
+                .translatedBy(x: _bounds.midX, y: _bounds.midY)
+                .concatenating(self.transform)
+                .translatedBy(x: -_bounds.midX, y: -_bounds.midY)
+            
+            var result = _bounds.applying(transform)
+            result.origin.x = center.x - result.width / 2.0
+            result.origin.y = center.y - result.height / 2.0
+            
+            return result
         }
         set {
-            _frame = newValue
-            _bounds.size = newValue.size
+            // palkovnik:TODO: Implement inverse setting of origin and bounds from frame. also transforms can break things
+//            let transformedFrame = newValue.applying(transform.inverted())
+            let transformedFrame = newValue
+            _bounds.size = transformedFrame.size
+            _center = CGPoint(x: transformedFrame.midX, y: transformedFrame.midY)
         }
     }
+    
     public var bounds: CGRect {
         get {
             return _bounds
         }
         set {
             _bounds = newValue
-            _frame.size = newValue.size
         }
     }
+    
     public var center: CGPoint {
         get {
-            return CGPoint(x: frame.midX, y: frame.midY)
+            return _center
+        }
+        set {
+            _center = newValue
         }
     }
+    
+    public var anchorPoint = CGPoint(x: 0.5, y: 0.5)
     
     public internal(set) weak var superview: View? = nil
     public internal(set) var subviews = [View]()
@@ -52,19 +70,32 @@ open class View: Responder {
     public var alpha: CGFloat = 1.0
     public var userInteractionEnabled = true
     public var transform: CairoGraphics.CGAffineTransform = .identity
+    public var backgroundColor: CairoGraphics.CGColor = .white
+    
+    internal var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
+    internal var transformToWindow: CairoGraphics.CGAffineTransform {
+        rebuildTransformsIfNeeded()
+        return _transformToWindow
+    }
+    internal var _transformFromWindow: CairoGraphics.CGAffineTransform = .identity
+    internal var transformFromWindow: CairoGraphics.CGAffineTransform {
+        rebuildTransformsIfNeeded()
+        return _transformFromWindow
+    }
+    internal var transformsAreValid = false
     
     public init(with frame: CGRect) {
-        _frame = frame
         _bounds = CGRect(origin: .zero, size: frame.size)
+        _center = CGPoint(x: frame.midX, y: frame.midY)
         
         super.init()
     }
     
-    public func add(_ subview: View) {
-        insert(subview, at: subviews.count)
+    public func add(subview: View) {
+        insert(subview: subview, at: subviews.count)
     }
     
-    public func insert(_ subview: View, at index: Array<View>.Index) {
+    public func insert(subview: View, at index: Array<View>.Index) {
         subview.removeFromSuperView()
         
         subview.willMove(toWindow: window)
@@ -110,42 +141,64 @@ open class View: Responder {
     
     public func didMoveToWindow() {}
     
-    public func convert(_ point: CGPoint, from view: View?) -> CGPoint {
-        return point
+    internal func rebuildTransformsIfNeeded() {
+        if transformsAreValid { return }
+        
+        transformsAreValid = true
+        
+        if window == nil && superview == nil {
+            _transformToWindow = .identity
+            _transformFromWindow = .identity
+        } else {
+            let superviewTransformToWindow = superview?.transformToWindow ?? .identity
+            // palkovnik:TODO: don't forget to add bounds transform
+//            let boundsScaleTransform = CGAffineTransform.init(scaleX: frame.width / bounds.width, y: frame.height / bounds.height)
+            
+            _transformToWindow =
+                CairoGraphics.CGAffineTransform.identity
+                    .concatenating(CGAffineTransform(translationX: -self.bounds.width / 2.0, y: -self.bounds.height / 2.0))
+                    .concatenating(self.transform)
+                    .concatenating(CGAffineTransform(translationX: self.bounds.width / 2.0, y: self.bounds.height / 2.0))
+                    .concatenating(CGAffineTransform(translationX: center.x - bounds.width / 2.0, y: center.y - bounds.height / 2.0))
+                    .concatenating(superviewTransformToWindow)
+            
+            _transformFromWindow = _transformToWindow.inverted()
+        }
+    }
+    
+    internal func invalidateTransforms() {
+        transformsAreValid = false
     }
     
     public func convert(_ point: CGPoint, to view: View?) -> CGPoint {
-//        if window == nil {
-//            fatalError("Converting points in invalid conditions")
-//        }
-//
-//        let interestedView = view ?? window!
-//
-//        if window != interestedView.window || window == nil || interestedView.window == nil{
-//            fatalError("Converting points in invalid conditions")
-//        }
-//
-//        if self == interestedView.superview {
-//            return point - interestedView.frame.origin
-//        } else if interestedView == self.superview {
-//            return point + frame.origin
-//        } else {
-//
-//        }
-//
-        return point
+        let toView = view ?? window
+        
+        let transformFromWindow = toView?.transformFromWindow ?? .identity
+        
+        return point.applying(transformToWindow).applying(transformFromWindow)
+    }
+    
+    public func convert(_ point: CGPoint, from view: View?) -> CGPoint {
+        let fromView = view ?? window
+        
+        let transformToWindow = fromView?.transformToWindow ?? .identity
+        
+        return point.applying(transformToWindow).applying(transformFromWindow)
+    }
+    
+    public func convert(_ rect: CGRect, to view: View?) -> CGRect {
+        return rect
     }
     
     public func convert(_ rect: CGRect, from view: View?) -> CGRect {
         return rect
     }
-
-    public func convert(_ rect: CGRect, to view: View?) -> CGRect {
-        return rect
-    }
     
-    public func draw(in rect: CGRect) {
+    public func draw(_ rect: CGRect) {
+        guard let context = CairoGraphics.CGContext.current else { return }
         
+        context.setFillColor(backgroundColor)
+        context.fill(rect)
     }
     
     public func setNeedsDisplay() {

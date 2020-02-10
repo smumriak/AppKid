@@ -110,6 +110,8 @@ extension CGAffineTransform {
     }
     
     public func inverted() -> CGAffineTransform {
+        if self.isIdentity { return self}
+        
         var result = self
         
         let success = cairo_matrix_invert(&result._matrix)
@@ -122,7 +124,7 @@ extension CGAffineTransform {
     }
     
     public func concatenating(_ t2: CGAffineTransform) -> CGAffineTransform {
-        var result = CGAffineTransform()
+        var result = self
         var lhs = _matrix
         var rhs = t2._matrix
         
@@ -134,8 +136,8 @@ extension CGAffineTransform {
 
 public extension CGPoint {
     func applying(_ t: CGAffineTransform) -> CGPoint {
-        var x: Double = .zero
-        var y: Double = .zero
+        var x = Double(self.x)
+        var y = Double(self.y)
         var transform = t
         
         cairo_matrix_transform_point(&transform._matrix, &x, &y)
@@ -146,8 +148,8 @@ public extension CGPoint {
 
 public extension CGSize {
     func applying(_ t: CGAffineTransform) -> CGSize {
-        var width: Double = .zero
-        var height: Double = .zero
+        var width = Double(self.width)
+        var height = Double(self.height)
         var transform = t
         
         cairo_matrix_transform_distance(&transform._matrix, &width, &height)
