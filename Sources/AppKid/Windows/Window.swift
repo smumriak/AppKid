@@ -15,7 +15,7 @@ open class Window: View {
     internal var _screen: UnsafeMutablePointer<CX11.Screen>
     internal var _x11Window: CX11.Window
     internal var _windowNumber: Int { Int(_x11Window) }
-    internal var _graphicsContext: CairoGraphics.CGContext! // it's optional because it has to be destroyed **before** X11 window is destroyed. check `deinit`
+    internal var _graphicsContext: X11RenderContext! // it's optional because it has to be destroyed **before** X11 window is destroyed. check `deinit`
     
     override public var window: Window? {
         get { return self }
@@ -30,6 +30,7 @@ open class Window: View {
     deinit {
         _graphicsContext = nil
         XDestroyWindow(_display, _x11Window)
+        XSync(_display, 0)
     }
     
     internal init(x11Window: CX11.Window, display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, contentRect: CGRect = .zero) {
@@ -37,7 +38,7 @@ open class Window: View {
         _display = display
         _screen = screen
         
-        _graphicsContext = CairoGraphics.CGContext(display: display, window: x11Window)
+        _graphicsContext = X11RenderContext(display: display, window: x11Window)
         
         super.init(with: contentRect)
         
@@ -65,6 +66,16 @@ open class Window: View {
     
     public func send(event: Event) {
         switch event.type {
+        case .appKidDefined:
+            switch event.subType {
+            case .windowExposed, .windowResized:
+                _graphicsContext.updateSurface(display: _display, window: _x11Window)
+                draw(bounds)
+                
+            default:
+                break
+            }
+            
         case .leftMouseDown, .leftMouseDragged:
             _graphicsContext.saveState()
             _graphicsContext.setFillColor(.black)

@@ -135,7 +135,7 @@ internal extension Event.EventType {
         case ReparentNotify:
             self = .appKidDefined
         case ConfigureNotify:
-            self = .noEvent
+            self = .appKidDefined
         case ConfigureRequest:
             self = .noEvent
         case GravityNotify:
@@ -206,6 +206,23 @@ internal extension Event {
             let buttonEvent = x11Event.xbutton
             
             try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+            
+        case .appKidDefined:
+            switch x11Event.xany.type {
+            case Expose:
+                self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
+                
+            case ClientMessage:
+                self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                
+            case ConfigureNotify:
+                self.init(withAppKidEventSubType: .windowResized, windowNumber: windowNumber)
+                
+            default:
+                self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
+            }
+            
+        
         default:
             return nil
         }

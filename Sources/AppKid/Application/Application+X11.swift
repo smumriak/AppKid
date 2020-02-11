@@ -106,7 +106,6 @@ internal extension Application {
                 continue
             }
             
-            let window = Application.shared.windows[windowNumber]
             let timestamp = CFAbsoluteTimeGetCurrent() - Application.shared.startTime
             
             if let event = try? Event(x11Event: x11Event, timestamp: timestamp, windowNumber: windowNumber) {
@@ -114,29 +113,18 @@ internal extension Application {
                     continue
                 }
                 
+                if event.type == .appKidDefined {
+                    if event.subType == .message {
+                        if CX11.Atom(x11Event.xclient.data.l.0) == wmDeleteWindowAtom {
+                            Application.shared.windows.remove(at: windowNumber)
+                            return
+                        }
+                    }
+                }
+                
                 post(event: event, atStart: false)
             } else {
                 switch x11Event.type {
-                case Expose:
-                    window.draw(window.bounds)
-                    
-                case KeyPress:
-                    break
-                    
-                case KeyRelease:
-                    break
-                    
-                case ButtonPress:
-                    break
-                    
-                case ButtonRelease:
-                    break
-                    
-                case ClientMessage:
-                    if CX11.Atom(x11Event.xclient.data.l.0) == wmDeleteWindowAtom {
-                        Application.shared.windows.remove(at: windowNumber)
-                    }
-                    
                 default:
                     break
                 }

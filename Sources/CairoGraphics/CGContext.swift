@@ -41,10 +41,10 @@ open class CGContext {
         _state.defaultPattern = cairo_get_source(_context)
     }
     
-    public convenience init(surface: OpaquePointer, size: CGSize) {
-        let context = cairo_create(surface)!
-        self.init(cairoContext: context, size: size)
-        cairo_destroy(context)
+    public init(surface: OpaquePointer, size: CGSize) {
+        self._context = cairo_create(surface)!
+        self.size = size
+        _state.defaultPattern = cairo_get_source(_context)
     }
     
     public convenience init(_ context: CGContext) {

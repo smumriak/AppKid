@@ -77,7 +77,9 @@ public extension Event {
         case applicationActivated
         case applicationDeactivated
         case windowMoved
+        case windowResized
         case screenChanged
+        case message // client message from X11
         case last // last event before stopping Run Loop
     }
 }
@@ -167,7 +169,7 @@ open class Event {
     public internal(set) var modifierFlags: ModifierFlags = .none
     public internal(set) var timestamp: TimeInterval = .zero
     public internal(set) var window: Window? = nil
-    public internal(set) var windowNumber: Int = NSNotFound
+    public internal(set) var windowNumber: Int
     
     public internal(set) var clickCount: Int = .zero
     public internal(set) var buttonNumber: Int = .zero
@@ -185,13 +187,12 @@ open class Event {
     public internal(set) var scrollingDeltaY: CGFloat = .zero
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
     
-    internal init() {}
-
-    internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, window: Window?) {
+    internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, windowNumber: Int) {
         self.type = type
         self.locationInWindow = location
         self.modifierFlags = modifierFlags
-        self.window = window
+        self.windowNumber = windowNumber
+        self.window = Application.shared.window(number: windowNumber)
     }
     
     convenience public init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
@@ -199,12 +200,11 @@ open class Event {
             throw EventCreationError.incompatibleEventType(validEventTypes: EventType.mouseEventTypes)
         }
         
-        self.init(type: type, location: location, modifierFlags: modifierFlags, window: Application.shared.window(number: windowNumber))
+        self.init(type: type, location: location, modifierFlags: modifierFlags, windowNumber: windowNumber)
     }
     
-    convenience internal init(withAppKidEventSubType subType: EventSubtype) {
-        self.init()
-        self.type = .appKidDefined
+    convenience internal init(withAppKidEventSubType subType: EventSubtype, windowNumber: Int) {
+        self.init(type: .appKidDefined, location: .zero, modifierFlags: .none, windowNumber: windowNumber)
         self.subType = subType
     }
 }

@@ -150,7 +150,7 @@ open class Application: Responder {
             let _ = RunLoop.current.run(mode: mode, before: date)
             
             if isRunning == false || isTerminated == true {
-                return Event(withAppKidEventSubType: .last)
+                return Event(withAppKidEventSubType: .last, windowNumber: NSNotFound)
             } else {
                 index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
             }
