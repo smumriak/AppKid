@@ -12,12 +12,11 @@ import CairoGraphics
 import CCairo
 
 internal class X11RenderContext: CairoGraphics.CGContext {
-    var surface: OpaquePointer
+    var surface: UnsafeMutablePointer<cairo_surface_t>
     
     deinit {
-        // do not destroy surface here - cairo context will do that for you it CGContext's deinit
         #if os(Linux)
-        cairo_surface_destroy(surface)
+        surface.release()
         #endif
     }
     
@@ -28,7 +27,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
         }
         #if os(Linux)
         surface = cairo_xlib_surface_create(display, window, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
-//        cairo_xlib_surface_set_size(surface, windowAttributes.width, windowAttributes.height)
+        cairo_xlib_surface_set_size(surface, windowAttributes.width, windowAttributes.height)
         super.init(surface: surface, size: CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height)))
         #else
         fatalError("Running on non-Linux targets is not supported at the moment")

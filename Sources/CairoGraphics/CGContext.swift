@@ -26,22 +26,29 @@ public enum CGLineJoin: Int {
 }
 
 open class CGContext {
-    internal var _context: OpaquePointer
+    internal var _context: UnsafeMutablePointer<cairo_t> {
+        willSet {
+            _context.release()
+        }
+        didSet {
+            _context.retain()
+        }
+    }
     internal var _state = CGContextState()
     internal var _statesStack: [CGContextState] = []
     public internal(set) var size: CGSize
     
     deinit {
-        cairo_destroy(_context)
+        _context.release()
     }
     
-    internal init(cairoContext: OpaquePointer, size: CGSize) {
-        self._context = cairo_reference(cairoContext)
+    internal init(cairoContext: UnsafeMutablePointer<cairo_t>, size: CGSize) {
+        self._context = cairoContext.retain()
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
     }
     
-    public init(surface: OpaquePointer, size: CGSize) {
+    public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
         self._context = cairo_create(surface)!
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)

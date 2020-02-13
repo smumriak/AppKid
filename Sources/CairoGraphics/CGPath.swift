@@ -15,7 +15,7 @@ open class CGPath {
         cairo_path_destroy(_path)
     }
     
-    internal init?(currentPath context: OpaquePointer) {
+    internal init?(currentPath context: UnsafeMutablePointer<cairo_t>) {
         if let path = cairo_copy_path(context) {
             _path = path
         } else {
