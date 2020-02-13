@@ -70,6 +70,12 @@ open class Window: View {
             switch event.subType {
             case .windowExposed, .windowResized:
                 _graphicsContext.updateSurface(display: _display, window: _x11Window)
+                var windowAttributes = XWindowAttributes()
+                if XGetWindowAttributes(_display, _x11Window, &windowAttributes) == 0 {
+                    fatalError("Can not get window attributes")
+                }
+                bounds.size = CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height))
+                center = CGPoint(x: CGFloat(windowAttributes.x) + bounds.width / 2.0, y:CGFloat(windowAttributes.y) + bounds.height / 2.0)
                 draw(bounds)
                 
             default:
