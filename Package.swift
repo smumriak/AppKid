@@ -35,6 +35,14 @@ let package = Package(
                 .brew(["cairo"])
             ]
         ),
+        .systemLibrary(
+            name: "CPango",
+            pkgConfig: "pango",
+            providers: [
+                .apt(["libpango1.0-dev libglib2.0-dev"]),
+                .brew(["pango glib"])
+            ]
+        ),
         .target(
             name: "SwiftyFan",
             dependencies: ["AppKid"]
@@ -45,7 +53,7 @@ let package = Package(
         ),
         .target(
             name: "CairoGraphics",
-            dependencies: ["CCairo"]
+            dependencies: ["CCairo", "CPango"]
         ),
         .testTarget(
             name: "SwiftyFanTests",

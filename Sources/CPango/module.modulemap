@@ -1,0 +1,12 @@
+//
+//  module.modulemap
+//  SwiftyFan
+//
+//  Created by Serhii Mumriak on 12/2/20.
+//
+
+module CPango [system] {
+  header "CPango_umbrella.h"
+  link "pango-1.0"
+  export *
+}
