@@ -8,15 +8,15 @@
 import Foundation
 import CCairo
 
-public protocol CairoReferrableType {
+public protocol CairoReferableType {
     var retainFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
     var releaseFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> () { get }
 }
 
-public extension UnsafeMutablePointer where Pointee: CairoReferrableType {
+public extension UnsafeMutablePointer where Pointee: CairoReferableType {
     @discardableResult
-    func retain() -> UnsafeMutablePointer<Pointee>! {
-        return pointee.retainFunc(self)
+    func retain() -> UnsafeMutablePointer<Pointee> {
+        return pointee.retainFunc(self)!
     }
     
     func release() {
@@ -24,7 +24,7 @@ public extension UnsafeMutablePointer where Pointee: CairoReferrableType {
     }
 }
 
-extension cairo_t: CairoReferrableType {
+extension cairo_t: CairoReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_t>?) -> (UnsafeMutablePointer<cairo_t>?) {
         return cairo_reference
     }
@@ -34,7 +34,7 @@ extension cairo_t: CairoReferrableType {
     }
 }
 
-extension cairo_surface_t: CairoReferrableType {
+extension cairo_surface_t: CairoReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_surface_t>?) -> (UnsafeMutablePointer<cairo_surface_t>?) {
         return cairo_surface_reference
     }
@@ -45,7 +45,7 @@ extension cairo_surface_t: CairoReferrableType {
 
 }
 
-extension cairo_pattern_t: CairoReferrableType {
+extension cairo_pattern_t: CairoReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_pattern_t>?) -> (UnsafeMutablePointer<cairo_pattern_t>?) {
         return cairo_pattern_reference
     }

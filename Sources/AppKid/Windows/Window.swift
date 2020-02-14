@@ -54,7 +54,7 @@ open class Window: View {
         case .appKidDefined:
             switch event.subType {
             case .windowExposed, .windowResized:
-                _graphicsContext.updateSurface(display: nativeWindow.display, window: nativeWindow.windowID)
+                _graphicsContext.updateSurface()
                 let currentRect = nativeWindow.currentRect
                 bounds.size = currentRect.size
                 center = CGPoint(x: currentRect.midX, y:currentRect.midY)

@@ -12,14 +12,16 @@ import CairoGraphics
 import CCairo
 
 internal class X11RenderContext: CairoGraphics.CGContext {
-    var surface: UnsafeMutablePointer<cairo_surface_t>
-    var nativeWindow: X11NativeWindow
-    
-    deinit {
-        #if os(Linux)
-        surface.release()
-        #endif
+    var surfacePointer: CairoPointer<cairo_surface_t>
+    var surface: UnsafeMutablePointer<cairo_surface_t> {
+        get {
+            return surfacePointer.pointer
+        }
+        set {
+            surfacePointer.pointer = newValue
+        }
     }
+    var nativeWindow: X11NativeWindow
     
     init(nativeWindow: X11NativeWindow) {
         var windowAttributes = XWindowAttributes()
@@ -27,8 +29,12 @@ internal class X11RenderContext: CairoGraphics.CGContext {
             fatalError("Can not get window attributes")
         }
         #if os(Linux)
-        surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
+        let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
+        surfacePointer = CairoPointer(with: surface)
+
         cairo_xlib_surface_set_size(surface, windowAttributes.width, windowAttributes.height)
+        surface.release()
+
         self.nativeWindow = nativeWindow
         
         super.init(surface: surface, size: CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height)))
@@ -37,13 +43,10 @@ internal class X11RenderContext: CairoGraphics.CGContext {
         #endif
     }
 
-    func updateSurface(display: UnsafeMutablePointer<CX11.Display>, window: CX11.Window) {
-        var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display, window, &windowAttributes) == 0 {
-            fatalError("Can not get window attributes")
-        }
+    func updateSurface() {
         #if os(Linux)
-        cairo_xlib_surface_set_size(surface, windowAttributes.width, windowAttributes.height)
+        let currentRect = nativeWindow.currentIntRect
+        cairo_xlib_surface_set_size(surface, currentRect.width, currentRect.height)
         #endif
     }
 }
