@@ -14,16 +14,20 @@ internal final class X11NativeWindow {
     fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
     fileprivate(set) var windowID: CX11.Window
     fileprivate(set) var rootWindowID: CX11.Window?
+    var attributes: XWindowAttributes {
+        var windowAttributes = XWindowAttributes()
+        if XGetWindowAttributes(display, windowID, &windowAttributes) == 0 {
+            fatalError("Can not get window attributes for window with ID: \(windowID)")
+        }
+        return windowAttributes
+    }
+
     var currentRect: CGRect {
         return currentIntRect.cgRect
     }
     
     var currentIntRect: Rect<Int32> {
-        var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display, windowID, &windowAttributes) == 0 {
-            fatalError("Can not get window attributes")
-        }
-        return Rect<Int32>(x11WindowAttributes: windowAttributes)
+        return Rect<Int32>(x11WindowAttributes: attributes)
     }
 
     var isRoot: Bool {

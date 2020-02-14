@@ -59,7 +59,7 @@ open class Application: Responder {
         
         var rootWindowAttributes = XWindowAttributes()
         if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
-            fatalError("Can not get window attributes")
+            fatalError("Can not get root window attributes")
         }
         let nativeRootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
         self.rootWindow = Window(nativeWindow: nativeRootWindow)

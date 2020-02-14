@@ -24,15 +24,10 @@ internal class X11RenderContext: CairoGraphics.CGContext {
     var nativeWindow: X11NativeWindow
     
     init(nativeWindow: X11NativeWindow) {
-        var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(nativeWindow.display, nativeWindow.windowID, &windowAttributes) == 0 {
-            fatalError("Can not get window attributes")
-        }
+        let windowAttributes = nativeWindow.attributes
         #if os(Linux)
         let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
         surfacePointer = CairoPointer(with: surface)
-
-        cairo_xlib_surface_set_size(surface, windowAttributes.width, windowAttributes.height)
         surface.release()
 
         self.nativeWindow = nativeWindow
