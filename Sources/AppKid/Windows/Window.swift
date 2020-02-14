@@ -11,11 +11,10 @@ import CX11.X
 import CairoGraphics
 
 open class Window: View {
-    internal var _display: UnsafeMutablePointer<CX11.Display>
-    internal var _screen: UnsafeMutablePointer<CX11.Screen>
-    internal var _x11Window: CX11.Window
-    internal var _windowNumber: Int { Int(_x11Window) }
-    internal var _graphicsContext: X11RenderContext! // it's optional because it has to be destroyed **before** X11 window is destroyed. check `deinit`
+    internal var nativeWindow: X11NativeWindow
+    
+    internal var _windowNumber: Int { Int(nativeWindow.windowID) }
+    internal var _graphicsContext: X11RenderContext
     
     override public var window: Window? {
         get { return self }
@@ -27,37 +26,23 @@ open class Window: View {
         set {}
     }
     
-    deinit {
-        _graphicsContext = nil
-        XDestroyWindow(_display, _x11Window)
-        XSync(_display, 0)
-    }
-    
-    internal init(x11Window: CX11.Window, display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, contentRect: CGRect = .zero) {
-        _x11Window = x11Window
-        _display = display
-        _screen = screen
+    internal init(nativeWindow: X11NativeWindow) {
+        self.nativeWindow = nativeWindow
+        _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
         
-        _graphicsContext = X11RenderContext(display: display, window: x11Window)
-        
-        super.init(with: contentRect)
+        super.init(with: nativeWindow.currentRect)
         
         transformsAreValid = true
     }
-    
+
     convenience init(contentRect: CGRect) {
         let display = Application.shared.display
         let screen = Application.shared.screen
         let rootWindow = Application.shared.rootWindow
-        
-        let x11Window = XCreateSimpleWindow(display, rootWindow._x11Window, Int32(contentRect.minX), Int32(contentRect.minY), UInt32(contentRect.width), UInt32(contentRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
-        
-        XSelectInput(display, x11Window, Event.EventType.x11EventMask())
-        XMapWindow(display, x11Window)
-        XSetWMProtocols(display, x11Window, &Application.shared.wmDeleteWindowAtom, 1);
-        XFlush(display)
-        
-        self.init(x11Window: x11Window, display: display, screen: screen, contentRect: contentRect)
+
+        let nativeWindow = X11NativeWindow(display: display, screen: screen, rect: contentRect, parent: rootWindow.nativeWindow.windowID)
+
+        self.init(nativeWindow: nativeWindow)
     }
     
     public func post(event: Event, atStart: Bool) {
@@ -69,13 +54,10 @@ open class Window: View {
         case .appKidDefined:
             switch event.subType {
             case .windowExposed, .windowResized:
-                _graphicsContext.updateSurface(display: _display, window: _x11Window)
-                var windowAttributes = XWindowAttributes()
-                if XGetWindowAttributes(_display, _x11Window, &windowAttributes) == 0 {
-                    fatalError("Can not get window attributes")
-                }
-                bounds.size = CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height))
-                center = CGPoint(x: CGFloat(windowAttributes.x) + bounds.width / 2.0, y:CGFloat(windowAttributes.y) + bounds.height / 2.0)
+                _graphicsContext.updateSurface(display: nativeWindow.display, window: nativeWindow.windowID)
+                let currentRect = nativeWindow.currentRect
+                bounds.size = currentRect.size
+                center = CGPoint(x: currentRect.midX, y:currentRect.midY)
                 draw(bounds)
                 
             default:
@@ -146,12 +128,12 @@ open class Window: View {
         _graphicsContext.restoreState()
         CairoGraphics.CGContext.pop()
         
-        XSync(_display, 0)
+        XSync(nativeWindow.display, 0)
     }
 }
 
 extension Window {
     public static func == (lhs: Window, rhs: Window) -> Bool {
-        return lhs === rhs || lhs._x11Window == rhs._x11Window
+        return lhs === rhs || lhs.nativeWindow == rhs.nativeWindow
     }
 }

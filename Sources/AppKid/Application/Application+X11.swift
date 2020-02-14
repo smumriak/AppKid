@@ -102,7 +102,7 @@ internal extension Application {
         while XPending(display) != 0 {
             XNextEvent(display, &x11Event)
             
-            guard let windowNumber = Application.shared.windows.firstIndex(where: { $0._x11Window == x11Event.xany.window }) else {
+            guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
                 continue
             }
             

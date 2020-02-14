@@ -61,9 +61,8 @@ open class Application: Responder {
         if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
             fatalError("Can not get window attributes")
         }
-        let contentRect = CGRect(x: Int(rootWindowAttributes.x), y: Int(rootWindowAttributes.y), width: Int(rootWindowAttributes.height), height: Int(rootWindowAttributes.height))
-        
-        self.rootWindow = Window(x11Window: screen.pointee.root, display: display, screen: screen, contentRect: contentRect)
+        let nativeRootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
+        self.rootWindow = Window(nativeWindow: nativeRootWindow)
         
         displayConnectionFileDescriptor = XConnectionNumber(display)
         
