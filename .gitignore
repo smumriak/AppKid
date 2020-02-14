@@ -11,3 +11,5 @@ xcuserdata
 *.lock
 .Trashes
 .swiftpm/
+
+SwiftyFan.executable.link
