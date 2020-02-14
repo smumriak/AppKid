@@ -5,7 +5,7 @@
         {
             "label": "swift-build",
             "type": "shell",
-            "command": "swift build -v --build-path ~/Library/Developer/Xcode/DerivedData/SwiftyFan-`uname` && ln -s ~/Library/Developer/Xcode/DerivedData/SwiftyFan-`uname`/debug/SwiftyFan ./SwiftyFan.executable.link"
+            "command": "swift build -v --build-path ~/Library/Developer/Xcode/DerivedData/SwiftyFan-`uname` && ln -sf ~/Library/Developer/Xcode/DerivedData/SwiftyFan-`uname`/debug/SwiftyFan ./SwiftyFan.executable.link"
         }
     ]
 }
