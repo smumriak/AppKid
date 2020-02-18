@@ -57,8 +57,8 @@ open class Window: View {
                 _graphicsContext.updateSurface()
                 let currentRect = nativeWindow.currentRect
                 bounds.size = currentRect.size
-                center = CGPoint(x: currentRect.midX, y:currentRect.midY)
-                draw(bounds)
+                center = CGPoint(x: bounds.midX, y:bounds.midY)
+                render()
                 
             default:
                 break
@@ -90,45 +90,33 @@ open class Window: View {
         _transformToWindow = .identity
         _transformFromWindow = .identity
     }
-    
-    public override func draw(_ rect: CGRect) {
+
+    public func render() {
         CairoGraphics.CGContext.push(_graphicsContext)
         _graphicsContext.saveState()
-        super.draw(rect)
-        
-        var renderViewStack = subviews.filter {
-            let transformedBounds = $0.bounds.applying($0.transform)
-            return $0.convert(transformedBounds, to: self).intersects(rect)
-        }
-        
-        repeat {
-            guard let currentView = renderViewStack.first else { continue }
-            renderViewStack.removeFirst()
-            
-            let targetRect = currentView.superview?.convert(rect, from: self) ?? rect
-            
-            let intersectionRect = currentView.frame.intersection(targetRect)
-            
-            if intersectionRect.isNull == false {
-                let convertedRect = convert(intersectionRect, to: currentView)
-                
-                let subviewsToRender = currentView.subviews.filter {
-                    let transformedBounds = $0.bounds.applying($0.transform)
-                    return $0.convert(transformedBounds, to: currentView.superview ?? self).intersects(convertedRect)
-                }
-                
-                renderViewStack.insert(contentsOf: subviewsToRender, at: 0)
-                
-                _graphicsContext.concatenate(currentView.transformToWindow)
-                currentView.draw(currentView.bounds)
-                _graphicsContext.concatenate(currentView.transformFromWindow)
-            }
-        } while renderViewStack.isEmpty == false
-        
+
+        render(view: self, in: _graphicsContext)
+
         _graphicsContext.restoreState()
         CairoGraphics.CGContext.pop()
-        
+
         XSync(nativeWindow.display, 0)
+    }
+
+    fileprivate func render(view: View, in context: CairoGraphics.CGContext) {
+        context.translateBy(x: view.center.x, y: view.center.y)
+        context.concatenate(view.transform)
+
+        view.render(in: context)
+
+        context.translateBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
+        for subview in view.subviews {
+            render(view: subview, in: context)
+        }
+        context.translateBy(x: view.bounds.width * 0.5, y: view.bounds.height * 0.5)
+
+        context.concatenate(view.transform.inverted())
+        context.translateBy(x: -view.center.x, y: -view.center.y)
     }
 }
 

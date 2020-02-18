@@ -69,7 +69,11 @@ open class View: Responder {
     public var hidden = false
     public var alpha: CGFloat = 1.0
     public var userInteractionEnabled = true
-    public var transform: CairoGraphics.CGAffineTransform = .identity
+    public var transform: CairoGraphics.CGAffineTransform = .identity {
+        didSet {
+            invalidateTransforms()
+        }
+    }
     public var backgroundColor: CairoGraphics.CGColor = .white
     
     internal var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
@@ -168,6 +172,9 @@ open class View: Responder {
     
     internal func invalidateTransforms() {
         transformsAreValid = false
+        for view in subviews {
+            view.invalidateTransforms()
+        }
     }
     
     public func convert(_ point: CGPoint, to view: View?) -> CGPoint {
@@ -193,12 +200,17 @@ open class View: Responder {
     public func convert(_ rect: CGRect, from view: View?) -> CGRect {
         return rect
     }
-    
-    public func draw(_ rect: CGRect) {
-        guard let context = CairoGraphics.CGContext.current else { return }
-        
+
+    public func render(in context: CairoGraphics.CGContext) {
         context.setFillColor(backgroundColor)
-        context.fill(rect)
+        var displayRect = bounds
+        displayRect.origin.x = -bounds.width * 0.5
+        displayRect.origin.y = -bounds.height * 0.5
+        context.fill(displayRect)
+
+        context.setFillColor(.black)
+        displayRect.size = CGSize(width: 10.0, height: 10.0)
+        context.fill(displayRect)
     }
     
     public func setNeedsDisplay() {

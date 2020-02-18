@@ -24,4 +24,5 @@ public extension CGColor {
     
     static let black = CGColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
     static let white = CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
+    static let gray = CGColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0)
 }

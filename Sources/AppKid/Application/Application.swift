@@ -165,24 +165,37 @@ open class Application: Responder {
     }
     
     internal func addSimpleWindow() {
-        let window = Window(contentRect: CGRect(x: 10.0, y: 10.0, width: 400.0, height: 400.0))
+        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         
         windows.append(window)
         
         let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
         subview1.backgroundColor = .green
+        subview1.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 6)
         
-        let subview2 = View(with: CGRect(x: 30.0, y: 50.0, width: 50.0, height: 30.0))
+        let subview2 = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
         subview2.backgroundColor = .red
-        subview2.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 4.0)
-        
+        subview2.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
+
+        let subview3 = View(with: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
+        subview3.backgroundColor = .gray
+        subview3.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi)
+
+        subview2.add(subview: subview3)
         subview1.add(subview: subview2)
-        
-        let subview3 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
-        subview3.backgroundColor = .blue
+
+        let subview4 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
+        subview4.backgroundColor = .blue
+        window.add(subview: subview4)
+
+        Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak window, weak subview1, weak subview2, weak subview3]  _ in
+            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
+            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
+            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
+            window?.render()
+        }
         
         window.add(subview: subview1)
-        window.add(subview: subview3)
     }
     
     internal func add(window: Window) {
