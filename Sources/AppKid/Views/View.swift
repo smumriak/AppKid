@@ -205,8 +205,6 @@ open class View: Responder {
     public func render(in context: CairoGraphics.CGContext) {
         context.setFillColor(backgroundColor)
         var displayRect = bounds
-        displayRect.origin.x = -bounds.width * 0.5
-        displayRect.origin.y = -bounds.height * 0.5
         context.fill(displayRect)
 
         context.setFillColor(.black)

@@ -1,5 +1,5 @@
 //
-//  CairoPointerStorage.swift
+//  CReferablePointerStorage.swift
 //  CairoGraphics
 //
 //  Created by Serhii Mumriak on 13/2/20.
@@ -8,9 +8,25 @@
 import Foundation
 import CCairo
 
-public final class CairoPointer<Pointee> where Pointee: CairoReferableType {
-    public typealias CairoPointer_t = UnsafeMutablePointer<Pointee>
-    public var pointer: CairoPointer_t {
+public protocol CReferableType {
+    var retainFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
+    var releaseFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> () { get }
+}
+
+public extension UnsafeMutablePointer where Pointee: CReferableType {
+    @discardableResult
+    func retain() -> UnsafeMutablePointer<Pointee> {
+        return pointee.retainFunc(self)!
+    }
+
+    func release() {
+        pointee.releaseFunc(self)
+    }
+}
+
+public final class CReferablePointer<Pointee> where Pointee: CReferableType {
+    public typealias CReferablePointer_t = UnsafeMutablePointer<Pointee>
+    public var pointer: CReferablePointer_t {
         willSet {
             pointer.release()
         }
@@ -23,11 +39,11 @@ public final class CairoPointer<Pointee> where Pointee: CairoReferableType {
         pointer.release()
     }
 
-    public init(with pointer: CairoPointer_t) {
+    public init(with pointer: CReferablePointer_t) {
         self.pointer = pointer.retain()
     }
     
-    public init(other: CairoPointer<Pointee>) {
+    public init(other: CReferablePointer<Pointee>) {
         self.pointer = other.pointer.retain()
     }
 }

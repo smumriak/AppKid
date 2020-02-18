@@ -1,6 +1,6 @@
 //
 //  CGBitmapContext.swift
-//  AppKid
+//  CairoGraphics
 //
 //  Created by Serhii Mumriak on 8/2/20.
 //

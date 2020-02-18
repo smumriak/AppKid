@@ -12,7 +12,7 @@ import CairoGraphics
 import CCairo
 
 internal class X11RenderContext: CairoGraphics.CGContext {
-    var surfacePointer: CairoPointer<cairo_surface_t>
+    var surfacePointer: CReferablePointer<cairo_surface_t>
     var surface: UnsafeMutablePointer<cairo_surface_t> {
         get {
             return surfacePointer.pointer
@@ -27,7 +27,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
         let windowAttributes = nativeWindow.attributes
         #if os(Linux)
         let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
-        surfacePointer = CairoPointer(with: surface)
+        surfacePointer = CReferablePointer(with: surface)
         surface.release()
 
         self.nativeWindow = nativeWindow

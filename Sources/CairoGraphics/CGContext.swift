@@ -26,7 +26,7 @@ public enum CGLineJoin: Int {
 }
 
 open class CGContext {
-    internal var _contextPointer: CairoPointer<cairo_t>
+    internal var _contextPointer: CReferablePointer<cairo_t>
     internal var _context: UnsafeMutablePointer<cairo_t> {
         get {
             return _contextPointer.pointer
@@ -39,16 +39,26 @@ open class CGContext {
     internal var _state = CGContextState()
     internal var _statesStack: [CGContextState] = []
     public internal(set) var size: CGSize
+
+    public var shouldAntialias = false {
+        didSet {
+            if shouldAntialias {
+                cairo_set_antialias(_context, CAIRO_ANTIALIAS_SUBPIXEL)
+            } else {
+                cairo_set_antialias(_context, CAIRO_ANTIALIAS_DEFAULT)
+            }
+        }
+    }
     
     internal init(cairoContext: UnsafeMutablePointer<cairo_t>, size: CGSize) {
-        self._contextPointer = CairoPointer(with: cairoContext)
+        self._contextPointer = CReferablePointer(with: cairoContext)
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
     }
     
     public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
         let cairoContext = cairo_create(surface)!
-        self._contextPointer = CairoPointer(with: cairoContext)
+        self._contextPointer = CReferablePointer(with: cairoContext)
         cairoContext.release()
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)

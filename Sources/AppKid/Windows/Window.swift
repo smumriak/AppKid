@@ -29,6 +29,7 @@ open class Window: View {
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
         _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
+        _graphicsContext.shouldAntialias = true
         
         super.init(with: nativeWindow.currentRect)
         
@@ -104,12 +105,13 @@ open class Window: View {
         context.translateBy(x: view.center.x, y: view.center.y)
         context.concatenate(view.transform)
 
+        context.translateBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
         view.render(in: context)
 
-        context.translateBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
         for subview in view.subviews {
             render(view: subview, in: context)
         }
+        
         context.translateBy(x: view.bounds.width * 0.5, y: view.bounds.height * 0.5)
 
         context.concatenate(view.transform.inverted())

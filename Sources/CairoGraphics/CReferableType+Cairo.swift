@@ -1,5 +1,5 @@
 //
-//  UnsafeMutablePointer+Cairo.swift
+//  CReferableType+Cairo.swift
 //  CairoGraphics
 //
 //  Created by Serhii Mumriak on 12/2/20.
@@ -8,23 +8,7 @@
 import Foundation
 import CCairo
 
-public protocol CairoReferableType {
-    var retainFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
-    var releaseFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> () { get }
-}
-
-public extension UnsafeMutablePointer where Pointee: CairoReferableType {
-    @discardableResult
-    func retain() -> UnsafeMutablePointer<Pointee> {
-        return pointee.retainFunc(self)!
-    }
-    
-    func release() {
-        pointee.releaseFunc(self)
-    }
-}
-
-extension cairo_t: CairoReferableType {
+extension cairo_t: CReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_t>?) -> (UnsafeMutablePointer<cairo_t>?) {
         return cairo_reference
     }
@@ -34,7 +18,7 @@ extension cairo_t: CairoReferableType {
     }
 }
 
-extension cairo_surface_t: CairoReferableType {
+extension cairo_surface_t: CReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_surface_t>?) -> (UnsafeMutablePointer<cairo_surface_t>?) {
         return cairo_surface_reference
     }
@@ -45,7 +29,7 @@ extension cairo_surface_t: CairoReferableType {
 
 }
 
-extension cairo_pattern_t: CairoReferableType {
+extension cairo_pattern_t: CReferableType {
     public var retainFunc: (UnsafeMutablePointer<cairo_pattern_t>?) -> (UnsafeMutablePointer<cairo_pattern_t>?) {
         return cairo_pattern_reference
     }

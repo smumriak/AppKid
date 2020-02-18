@@ -20,7 +20,7 @@ internal class CGContextState {
         }
     }
     
-    var fillColor: CGColor = .transparent {
+    var fillColor: CGColor = .clear {
         didSet {
             if let fillPattern = fillPattern {
                 cairo_pattern_destroy(fillPattern)
@@ -41,7 +41,7 @@ internal class CGContextState {
         }
     }
     
-    var strokeColor: CGColor = .transparent {
+    var strokeColor: CGColor = .clear {
         didSet {
             let pattern = cairo_pattern_create_rgba(Double(strokeColor.red), Double(strokeColor.green), Double(strokeColor.blue), Double(strokeColor.alpha))
             strokePattern = pattern
@@ -61,7 +61,7 @@ internal class CGContextState {
         }
     }
     
-    var shadowColor: CGColor = .transparent
+    var shadowColor: CGColor = .clear
     var shadowOffset: CGSize = .zero
     var shadowRadius: CGFloat = .zero
     
