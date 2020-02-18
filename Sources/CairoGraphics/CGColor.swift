@@ -26,3 +26,18 @@ public extension CGColor {
     static let white = CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
     static let gray = CGColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0)
 }
+
+extension CGColor: Equatable {
+    public static func == (lhs: CGColor, rhs: CGColor) -> Bool {
+        return lhs.red == rhs.red &&
+            lhs.green == rhs.green &&
+            lhs.blue == rhs.blue &&
+            lhs.alpha == rhs.alpha
+    }
+}
+
+public extension CGColor {
+    var negative: CGColor {
+        return CGColor(red: alpha - red, green: alpha - green, blue: alpha - blue, alpha: alpha)
+    }
+}

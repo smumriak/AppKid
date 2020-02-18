@@ -170,14 +170,17 @@ open class Application: Responder {
         windows.append(window)
         
         let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
+        subview1.tag = 1
         subview1.backgroundColor = .green
-        subview1.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 6)
+        subview1.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
         
         let subview2 = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
+        subview2.tag = 2
         subview2.backgroundColor = .red
         subview2.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
 
         let subview3 = View(with: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
+        subview3.tag = 3
         subview3.backgroundColor = .gray
         subview3.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi)
 
@@ -185,15 +188,16 @@ open class Application: Responder {
         subview1.add(subview: subview2)
 
         let subview4 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
+        subview4.tag = 4
         subview4.backgroundColor = .blue
         window.add(subview: subview4)
-
-        Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak window, weak subview1, weak subview2, weak subview3]  _ in
-            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
-            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
-            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
-            window?.render()
-        }
+//
+//        Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak window, weak subview1, weak subview2, weak subview3]  _ in
+//            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
+//            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
+//            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
+//            window?.render()
+//        }
         
         window.add(subview: subview1)
     }

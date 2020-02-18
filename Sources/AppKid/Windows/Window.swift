@@ -65,19 +65,16 @@ open class Window: View {
             }
             
         case .leftMouseDown, .leftMouseDragged:
-            _graphicsContext.saveState()
-            _graphicsContext.setFillColor(.black)
-            _graphicsContext.fill(CGRect(origin: event.locationInWindow, size: CGSize(width: 20.0, height: 20.0)))
-            _graphicsContext.restoreState()
+            break
             
         case .rightMouseDown, .rightMouseDragged:
-            _graphicsContext.saveState()
-            _graphicsContext.setFillColor(.white)
-            _graphicsContext.fill(CGRect(origin: event.locationInWindow, size: CGSize(width: 20.0, height: 20.0)))
-            _graphicsContext.restoreState()
+            break
             
         case .leftMouseUp:
-            break
+            if let view = hitTest(event.locationInWindow) {
+                view.backgroundColor = view.backgroundColor.negative
+                render()
+            }
 
         default:
             break

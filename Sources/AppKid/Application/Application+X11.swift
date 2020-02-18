@@ -19,6 +19,16 @@ internal let testString = "And if you gaze long into an abyss, the abyss also ga
 
 internal extension Application {
     func setupX11() {
+        XSetErrorHandler { display, event -> Int32 in
+            Application.shared.terminate()
+            return 0
+        }
+
+        XSetIOErrorHandler { display -> Int32 in
+            Application.shared.terminate()
+            return 0
+        }
+
         var x11RunLoopSourceContext = CFRunLoopSourceContext1()
         x11RunLoopSourceContext.version = 1
         x11RunLoopSourceContext.info = Unmanaged.passRetained(self).toOpaque()

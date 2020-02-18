@@ -9,6 +9,7 @@ import Foundation
 import CairoGraphics
 
 open class View: Responder {
+    var tag: UInt = 0
     fileprivate var _bounds: CGRect
     fileprivate var _center: CGPoint
     
@@ -231,30 +232,39 @@ open class View: Responder {
     
     open func hitTest(_ point: CGPoint) -> View? {
         var interestPoint = point
+
+        if self.point(inside: interestPoint) == false {
+             return nil
+        }
+
         var result: View = self
         var found = false
 
-        repeat {
+        traverse: repeat {
             let reversedSubviews = result.subviews.reversed()
-            
+
             if reversedSubviews.count > 0 {
                 for subview in reversedSubviews {
                     if !subview.userInteractionEnabled || subview.hidden || subview.alpha < 0.01 {
                         continue
                     }
-                    
+
                     let convertedPoint = result.convert(interestPoint, to: subview)
-                    
+
                     if subview.point(inside: convertedPoint) {
                         result = subview
                         interestPoint = convertedPoint
+
+                        continue traverse
                     }
                 }
+
+                found = true
             } else {
                 found = true
             }
         } while !found
-        
+
         return result
     }
     
