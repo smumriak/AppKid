@@ -85,7 +85,6 @@ open class Window: View {
         case .leftMouseUp:
             if let view = hitTest(event.locationInWindow) {
                 view.backgroundColor = view.backgroundColor.negative
-                render()
             }
 
         default:
