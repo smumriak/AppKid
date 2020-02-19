@@ -11,6 +11,7 @@
 struct _cairo {};
 struct _cairo_surface {};
 struct _cairo_pattern {};
+struct _cairo_font_options {};
 
 #include <cairo.h>
 #if defined(__linux__)

@@ -71,6 +71,14 @@ public class TextLayout {
 
         pango_layout_set_text(layout, string.cString(using: .utf8), -1)
 
+        let fontOptions = cairo_font_options_create()!
+        cairo_font_options_set_antialias(fontOptions, CAIRO_ANTIALIAS_GOOD)
+        cairo_font_options_set_hint_style(fontOptions, CAIRO_HINT_STYLE_FULL)
+        cairo_font_options_set_hint_metrics(fontOptions, CAIRO_HINT_METRICS_ON)
+        cairo_font_options_set_subpixel_order(fontOptions, CAIRO_SUBPIXEL_ORDER_DEFAULT)
+        pango_cairo_context_set_font_options(pangoContext, fontOptions)
+        cairo_font_options_destroy(fontOptions)
+
         context.move(to: rect.origin)
         cairo_set_source_rgb(context._context, 1.0, 0.0, 0.0)
         pango_cairo_show_layout(context._context, layout)
