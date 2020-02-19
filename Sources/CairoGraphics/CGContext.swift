@@ -43,9 +43,9 @@ open class CGContext {
     public var shouldAntialias = false {
         didSet {
             if shouldAntialias {
-                cairo_set_antialias(_context, CAIRO_ANTIALIAS_SUBPIXEL)
+                cairo_set_antialias(_context, CAIRO_ANTIALIAS_GOOD)
             } else {
-                cairo_set_antialias(_context, CAIRO_ANTIALIAS_DEFAULT)
+                cairo_set_antialias(_context, CAIRO_ANTIALIAS_NONE)
             }
         }
     }
@@ -291,9 +291,15 @@ public extension CGContext {
 
 public extension CGContext {
     var ctm: CGAffineTransform {
-        var matrix = cairo_matrix_t()
-        cairo_get_matrix(_context, &matrix)
-        return CGAffineTransform(matrix: matrix)
+        get {
+            var matrix = cairo_matrix_t()
+            cairo_get_matrix(_context, &matrix)
+            return CGAffineTransform(matrix: matrix)
+        }
+        set {
+            var matrix = newValue._matrix
+            cairo_set_matrix(_context, &matrix)
+        }
     }
     
     func setIdentityTransform() {

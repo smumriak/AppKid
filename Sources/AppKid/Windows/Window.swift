@@ -30,18 +30,28 @@ open class Window: View {
         self.nativeWindow = nativeWindow
         _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
         _graphicsContext.shouldAntialias = true
-        
-        super.init(with: nativeWindow.currentRect)
+
+        var frame = nativeWindow.currentRect
+        frame.size.width /= nativeWindow.displayScale
+        frame.size.height /= nativeWindow.displayScale
+
+        super.init(with: frame)
         
         transformsAreValid = true
     }
 
-    convenience init(contentRect: CGRect) {
+    public convenience required init(contentRect: CGRect) {
         let display = Application.shared.display
         let screen = Application.shared.screen
         let rootWindow = Application.shared.rootWindow
+        let displayScale = Application.shared.displayScale
 
-        let nativeWindow = X11NativeWindow(display: display, screen: screen, rect: contentRect, parent: rootWindow.nativeWindow.windowID)
+        var scaledContentRect = contentRect
+        scaledContentRect.size.width *= displayScale
+        scaledContentRect.size.height *= displayScale
+
+        let nativeWindow = X11NativeWindow(display: display, screen: screen, rect: scaledContentRect, parent: rootWindow.windowID)
+        nativeWindow.displayScale = displayScale
 
         self.init(nativeWindow: nativeWindow)
     }
@@ -56,10 +66,11 @@ open class Window: View {
             switch event.subType {
             case .windowExposed, .windowResized:
                 _graphicsContext.updateSurface()
-                let currentRect = nativeWindow.currentRect
+                var currentRect = nativeWindow.currentRect
+                currentRect.size.width /= nativeWindow.displayScale
+                currentRect.size.height /= nativeWindow.displayScale
                 bounds.size = currentRect.size
                 center = CGPoint(x: bounds.midX, y:bounds.midY)
-                render()
                 
             default:
                 break
@@ -92,6 +103,7 @@ open class Window: View {
     public func render() {
         CairoGraphics.CGContext.push(_graphicsContext)
         _graphicsContext.saveState()
+        _graphicsContext.scaleBy(x: nativeWindow.displayScale, y: nativeWindow.displayScale)
 
         render(view: self, in: _graphicsContext)
 

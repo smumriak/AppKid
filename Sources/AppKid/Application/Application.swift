@@ -34,8 +34,17 @@ open class Application: Responder {
     
     internal var display: UnsafeMutablePointer<CX11.Display>
     internal var screen: UnsafeMutablePointer<CX11.Screen>
+
+    // palkovnik:TODO: This code should be moved to Screen class when refactoring will be performed
+    lazy var displayScale: CGFloat = {
+        if let gtkDisplayScale = gtkDisplayScale {
+            return CGFloat(gtkDisplayScale)
+        } else {
+            return 1.0
+        }
+    }()
     
-    internal let rootWindow: Window
+    internal let rootWindow: X11NativeWindow
     
     internal var displayConnectionFileDescriptor: CInt = -1
     internal var epollFileDescriptor: CInt = -1
@@ -61,8 +70,7 @@ open class Application: Responder {
         if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
             fatalError("Can not get root window attributes")
         }
-        let nativeRootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
-        self.rootWindow = Window(nativeWindow: nativeRootWindow)
+        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
         
         displayConnectionFileDescriptor = XConnectionNumber(display)
         
@@ -80,6 +88,8 @@ open class Application: Responder {
         wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
         
         super.init()
+
+        rootWindow.displayScale = displayScale
     }
     
     public func window(number windowNumber: Int) -> Window? {
@@ -139,7 +149,9 @@ open class Application: Responder {
     }
     
     public func send(event: Event) {
+        currentEvent = event
         event.window?.send(event: event)
+        currentEvent = nil
     }
     
     public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
@@ -196,11 +208,14 @@ open class Application: Responder {
         subview4.backgroundColor = .blue
         window.add(subview: subview4)
 
-        let _ = Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak window, weak subview1, weak subview2, weak subview3]  _ in
+        let _ = Timer.scheduledTimer(withTimeInterval: 1 / 60.0, repeats: true) { [weak window] _ in
+            window?.render()
+        }
+
+        let _ = Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak subview1, weak subview2, weak subview3]  _ in
             subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
             subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
             subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
-            window?.render()
         }
         
         window.add(subview: subview1)

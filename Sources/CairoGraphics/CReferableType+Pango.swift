@@ -22,3 +22,18 @@ extension PangoLayout: CReferableType {
         }
     }
 }
+
+extension PangoContext: CReferableType {
+    public var retainFunc: (UnsafeMutablePointer<PangoContext>?) -> (UnsafeMutablePointer<PangoContext>?) {
+        return {
+            return g_object_ref(UnsafeMutableRawPointer($0))?
+                .assumingMemoryBound(to: PangoContext.self)
+        }
+    }
+
+    public var releaseFunc: (UnsafeMutablePointer<PangoContext>?) -> () {
+        return {
+            return g_object_unref(UnsafeMutableRawPointer($0))
+        }
+    }
+}

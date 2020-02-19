@@ -12,6 +12,7 @@ import CairoGraphics
 open class Label: View {
     public var text: String? = nil
     public var textColor: CairoGraphics.CGColor = .black
+    internal var layout = TextLayout()
 
     public override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
@@ -27,8 +28,7 @@ open class Label: View {
 
     public func renderText(in context: CairoGraphics.CGContext, textRect: CGRect) {
         if let text = text {
-            let layout = TextLayout(context: context)
-            layout.render(string: text, in: textRect)
+            layout.render(string: text, in: context, rect: textRect)
         }
     }
 }

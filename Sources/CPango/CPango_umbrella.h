@@ -10,6 +10,7 @@
 
 struct _PangoLayout {};
 struct _PangoFontDescription {};
+struct _PangoContext {};
 
 #include <pango/pango.h>
 #include <pango/pangocairo.h>

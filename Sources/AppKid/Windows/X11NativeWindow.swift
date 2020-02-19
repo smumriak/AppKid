@@ -41,6 +41,8 @@ internal final class X11NativeWindow {
             XFlush(display)
         }
     }
+
+    var displayScale: CGFloat = 1.0
     
     internal init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, windowID: CX11.Window, rootWindowID: CX11.Window?) {
         self.display = display
