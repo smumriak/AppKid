@@ -86,7 +86,7 @@ public extension Event {
 
 public extension Event {
     struct ModifierFlags: OptionSet {
-        public typealias RawValue = UInt32
+        public typealias RawValue = UInt
         public let rawValue: RawValue
         
         public init(rawValue: RawValue) {

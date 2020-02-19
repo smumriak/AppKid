@@ -26,8 +26,8 @@ internal final class X11NativeWindow {
         return currentIntRect.cgRect
     }
     
-    var currentIntRect: Rect<Int32> {
-        return Rect<Int32>(x11WindowAttributes: attributes)
+    var currentIntRect: Rect<CInt> {
+        return Rect<CInt>(x11WindowAttributes: attributes)
     }
 
     var isRoot: Bool {
@@ -52,8 +52,8 @@ internal final class X11NativeWindow {
 
 extension X11NativeWindow {
     convenience init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, rect: CGRect, parent rootWindowID: CX11.Window) {
-        let intRect: Rect<Int32> = rect.rect()
-        let windowID = XCreateSimpleWindow(display, rootWindowID, intRect.x, intRect.y, UInt32(intRect.width), UInt32(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
+        let intRect: Rect<CInt> = rect.rect()
+        let windowID = XCreateSimpleWindow(display, rootWindowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
         
         XSelectInput(display, windowID, Event.EventType.x11EventMask())
         XMapWindow(display, windowID)
@@ -77,7 +77,7 @@ internal struct Rect<StorageType> where StorageType: BinaryInteger {
     var height: StorageType
 }
 
-extension Rect where StorageType == Int32 {
+extension Rect where StorageType == CInt {
     init(x11WindowAttributes windowAttributes: XWindowAttributes) {
         self.init(x: windowAttributes.x, y: windowAttributes.y, width: windowAttributes.width, height: windowAttributes.height)
     }

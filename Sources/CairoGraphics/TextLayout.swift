@@ -43,8 +43,8 @@ public class TextLayout {
 
         pango_layout_set_text(layout, string.cString(using: .utf8), -1)
 
-        pango_layout_set_width(layout, Int32(rect.width.rounded(.down)) * PANGO_SCALE)
-        pango_layout_set_height(layout, Int32(rect.height.rounded(.down)) * PANGO_SCALE)
+        pango_layout_set_width(layout, CInt(rect.width.rounded(.down)) * PANGO_SCALE)
+        pango_layout_set_height(layout, CInt(rect.height.rounded(.down)) * PANGO_SCALE)
         pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER)
 
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END)

@@ -60,7 +60,7 @@ internal extension Event.EventType {
                 self = .keyUp
             }
         case ButtonPress:
-            switch Int32(x11Event.xbutton.button) {
+            switch CInt(x11Event.xbutton.button) {
             case Button1:
                 self = .leftMouseDown
             case Button2:
@@ -74,7 +74,7 @@ internal extension Event.EventType {
             }
             
         case ButtonRelease:
-            switch Int32(x11Event.xbutton.button) {
+            switch CInt(x11Event.xbutton.button) {
             case Button1:
                 self = .leftMouseUp
             case Button2:
@@ -88,7 +88,7 @@ internal extension Event.EventType {
             }
             
         case MotionNotify:
-            let state = Int32(x11Event.xmotion.state)
+            let state = CInt(x11Event.xmotion.state)
             
             switch state {
             case _ where state & Button1Mask != 0:
@@ -182,9 +182,9 @@ internal extension Event.ModifierFlags {
         ]
         .map { KeySym($0) })
     
-    init(x11KeyMask: UInt32) {
+    init(x11KeyMask: CUnsignedInt) {
         self.init(rawValue: 0)
-        let keyMask = Int32(x11KeyMask)
+        let keyMask = CInt(x11KeyMask)
         
         if keyMask & ShiftMask != 0 { formUnion(.shift) }
         if keyMask & LockMask != 0 { formUnion(.capsLock) }

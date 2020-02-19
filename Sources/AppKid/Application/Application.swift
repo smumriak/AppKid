@@ -37,9 +37,9 @@ open class Application: Responder {
     
     internal let rootWindow: Window
     
-    internal var displayConnectionFileDescriptor: Int32 = -1
-    internal var epollFileDescriptor: Int32 = -1
-    internal var eventFileDescriptor: Int32 = -1
+    internal var displayConnectionFileDescriptor: CInt = -1
+    internal var epollFileDescriptor: CInt = -1
+    internal var eventFileDescriptor: CInt = -1
     internal var wmDeleteWindowAtom: CX11.Atom = UInt(CX11.None)
     
     internal lazy var pollThread = Thread { self.pollForX11Events() }
@@ -67,11 +67,11 @@ open class Application: Responder {
         displayConnectionFileDescriptor = XConnectionNumber(display)
         
         #if os(Linux)
-        epollFileDescriptor = epoll_create1(Int32(EPOLL_CLOEXEC))
+        epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
         if epollFileDescriptor == -1  {
             fatalError("Failed to create epoll file descriptor")
         }
-        eventFileDescriptor = CEpoll.eventfd(0, Int32(CEpoll.EFD_CLOEXEC) | Int32(CEpoll.EFD_NONBLOCK))
+        eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
         #else
         epollFileDescriptor = -1
         eventFileDescriptor = -1

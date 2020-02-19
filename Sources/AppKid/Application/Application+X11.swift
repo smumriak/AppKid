@@ -19,12 +19,12 @@ internal let testString = "And if you gaze long into an abyss, the abyss also ga
 
 internal extension Application {
     func setupX11() {
-        XSetErrorHandler { display, event -> Int32 in
+        XSetErrorHandler { display, event -> CInt in
             Application.shared.terminate()
             return 0
         }
 
-        XSetIOErrorHandler { display -> Int32 in
+        XSetIOErrorHandler { display -> CInt in
             Application.shared.terminate()
             return 0
         }
