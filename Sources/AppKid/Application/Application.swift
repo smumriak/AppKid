@@ -199,10 +199,6 @@ open class Application: Responder {
         subview2.add(subview: subview3)
         subview1.add(subview: subview2)
 
-        let label = Label(with: window.bounds)
-        label.backgroundColor = .clear
-        label.text = testString
-
         let subview4 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
         subview4.tag = 4
         subview4.backgroundColor = .blue
@@ -220,7 +216,12 @@ open class Application: Responder {
         
         window.add(subview: subview1)
 
-        window.add(subview: label)
+        let button = Button(with: CGRect(x: 100.0, y: 100.0, width: 80.0, height: 44.0))
+        button.backgroundColor = .clear
+        button.set(title: "Normal", for: .normal)
+        button.set(title: "Selected", for: .selected)
+        button.set(title: "Highlighted", for: .highlighted)
+        window.add(subview: button)
     }
     
     internal func add(window: Window) {

@@ -10,7 +10,11 @@ import CoreFoundation
 import CairoGraphics
 
 open class Label: View {
-    public var text: String? = nil
+    public var text: String? = nil {
+        didSet {
+            layout.text = text ?? ""
+        }
+    }
     public var textColor: CairoGraphics.CGColor = .black
     internal var layout = TextLayout()
 
@@ -27,8 +31,6 @@ open class Label: View {
     }
 
     public func renderText(in context: CairoGraphics.CGContext, textRect: CGRect) {
-        if let text = text {
-            layout.render(string: text, in: context, rect: textRect)
-        }
+        layout.render(in: context, rect: textRect)
     }
 }

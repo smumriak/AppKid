@@ -203,13 +203,8 @@ open class View: Responder {
     }
 
     public func render(in context: CairoGraphics.CGContext) {
-        context.setFillColor(backgroundColor)
-        var displayRect = bounds
-        context.fill(displayRect)
-
-        context.setFillColor(.black)
-        displayRect.size = CGSize(width: 10.0, height: 10.0)
-        context.fill(displayRect)
+        context.fillColor = backgroundColor
+        context.fill(bounds)
     }
     
     public func setNeedsDisplay() {

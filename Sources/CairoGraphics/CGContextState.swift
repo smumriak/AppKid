@@ -11,71 +11,49 @@ import CCairo
 internal class CGContextState {
     var alpha: CGFloat = .zero
     
-    var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0) {
-        willSet {
-            defaultPattern.release()
+    fileprivate var defaultPatternPointer: CReferablePointer<cairo_pattern_t> = CReferablePointer(with: cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0))
+    var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> {
+        get {
+            return defaultPatternPointer.pointer
         }
-        didSet {
-            defaultPattern.retain()
+        set {
+            defaultPatternPointer = CReferablePointer(with: newValue)
         }
     }
-    
+
     var fillColor: CGColor = .clear {
         didSet {
-            if let fillPattern = fillPattern {
-                cairo_pattern_destroy(fillPattern)
-            }
-            fillPattern = cairo_pattern_create_rgba(Double(fillColor.red), Double(fillColor.green), Double(fillColor.blue), Double(fillColor.alpha))
+            fillPatternPointer = fillColor.cairoPattern
         }
     }
-    var fillPattern: UnsafeMutablePointer<cairo_pattern_t>? = nil {
-        willSet {
-            if let fillPattern = fillPattern {
-                fillPattern.release()
-            }
+    fileprivate lazy var fillPatternPointer: CReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate(set) var fillPattern: UnsafeMutablePointer<cairo_pattern_t> {
+        get {
+            return fillPatternPointer.pointer
         }
-        didSet {
-            if let fillPattern = fillPattern {
-                fillPattern.retain()
-            }
+        set {
+            fillPatternPointer = CReferablePointer(with: newValue)
         }
     }
     
     var strokeColor: CGColor = .clear {
         didSet {
-            let pattern = cairo_pattern_create_rgba(Double(strokeColor.red), Double(strokeColor.green), Double(strokeColor.blue), Double(strokeColor.alpha))
-            strokePattern = pattern
-            pattern?.release()
+            strokePatternPointer = strokeColor.cairoPattern
         }
     }
-    var strokePattern: UnsafeMutablePointer<cairo_pattern_t>? = nil {
-        willSet {
-            if let strokePattern = strokePattern {
-                strokePattern.release()
-            }
+    fileprivate lazy var strokePatternPointer: CReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate(set) var strokePattern: UnsafeMutablePointer<cairo_pattern_t> {
+        get {
+            return strokePatternPointer.pointer
         }
-        didSet {
-            if let strokePattern = strokePattern {
-                strokePattern.retain()
-            }
+        set {
+            strokePatternPointer = CReferablePointer(with: newValue)
         }
     }
     
     var shadowColor: CGColor = .clear
     var shadowOffset: CGSize = .zero
     var shadowRadius: CGFloat = .zero
-    
-    deinit {
-        cairo_pattern_destroy(defaultPattern)
-        
-        if let fillPattern = fillPattern {
-            cairo_pattern_destroy(fillPattern)
-        }
-        
-        if let strokePattern = strokePattern {
-            cairo_pattern_destroy(strokePattern)
-        }
-    }
 }
 
 

@@ -11,14 +11,14 @@ import CPango
 extension PangoLayout: CReferableType {
     public var retainFunc: (UnsafeMutablePointer<PangoLayout>?) -> (UnsafeMutablePointer<PangoLayout>?) {
         return {
-            return g_object_ref(UnsafeMutableRawPointer($0))?
+            return g_object_ref(gpointer($0))?
                 .assumingMemoryBound(to: PangoLayout.self)
         }
     }
 
     public var releaseFunc: (UnsafeMutablePointer<PangoLayout>?) -> () {
         return {
-            return g_object_unref(UnsafeMutableRawPointer($0))
+            return g_object_unref(gpointer($0))
         }
     }
 }
@@ -26,14 +26,14 @@ extension PangoLayout: CReferableType {
 extension PangoContext: CReferableType {
     public var retainFunc: (UnsafeMutablePointer<PangoContext>?) -> (UnsafeMutablePointer<PangoContext>?) {
         return {
-            return g_object_ref(UnsafeMutableRawPointer($0))?
+            return g_object_ref(gpointer($0))?
                 .assumingMemoryBound(to: PangoContext.self)
         }
     }
 
     public var releaseFunc: (UnsafeMutablePointer<PangoContext>?) -> () {
         return {
-            return g_object_unref(UnsafeMutableRawPointer($0))
+            return g_object_unref(gpointer($0))
         }
     }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CCairo
 
 // palkovnik:TODO: placeholder because color spaces are hard
 public struct CGColor {
@@ -39,5 +40,11 @@ extension CGColor: Equatable {
 public extension CGColor {
     var negative: CGColor {
         return CGColor(red: alpha - red, green: alpha - green, blue: alpha - blue, alpha: alpha)
+    }
+}
+
+internal extension CGColor {
+    var cairoPattern: CReferablePointer<cairo_pattern_t> {
+        return CReferablePointer(with: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha)))
     }
 }

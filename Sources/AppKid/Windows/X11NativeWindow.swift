@@ -59,7 +59,7 @@ extension X11NativeWindow {
         
         XSelectInput(display, windowID, Event.EventType.x11EventMask())
         XMapWindow(display, windowID)
-        XSetWMProtocols(display, windowID, &Application.shared.wmDeleteWindowAtom, 1);
+        XSetWMProtocols(display, windowID, &Application.shared.wmDeleteWindowAtom, 1)
         XFlush(display)
         
         self.init(display: display, screen: screen, windowID: windowID, rootWindowID: rootWindowID)

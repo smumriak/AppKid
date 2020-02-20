@@ -13,6 +13,11 @@ public protocol CReferableType {
     var releaseFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> () { get }
 }
 
+public protocol CNonReferableType {
+    var copyFunc: (_ pointer: UnsafePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
+    var destroyFunc: (_ pointer: UnsafeMutablePointer<Self>?) -> () { get }
+}
+
 public extension UnsafeMutablePointer where Pointee: CReferableType {
     @discardableResult
     func retain() -> UnsafeMutablePointer<Pointee> {
@@ -21,6 +26,16 @@ public extension UnsafeMutablePointer where Pointee: CReferableType {
 
     func release() {
         pointee.releaseFunc(self)
+    }
+}
+
+public extension UnsafeMutablePointer where Pointee: CNonReferableType {
+    func copy() -> UnsafeMutablePointer<Pointee> {
+        return pointee.copyFunc(self)!
+    }
+
+    func destroy() {
+        pointee.destroyFunc(self)
     }
 }
 
@@ -45,5 +60,22 @@ public final class CReferablePointer<Pointee> where Pointee: CReferableType {
     
     public init(other: CReferablePointer<Pointee>) {
         self.pointer = other.pointer.retain()
+    }
+}
+
+public final class CNonReferablePointer<Pointee> where Pointee: CNonReferableType {
+    public typealias CNonReferablePointer_t = UnsafeMutablePointer<Pointee>
+    public var pointer: CNonReferablePointer_t
+
+    deinit {
+        pointer.destroy()
+    }
+
+    public init(with pointer: CNonReferablePointer_t) {
+        self.pointer = pointer
+    }
+
+    public init(copy other: CNonReferablePointer<Pointee>) {
+        self.pointer = other.pointer.copy()
     }
 }

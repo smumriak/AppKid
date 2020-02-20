@@ -29,7 +29,10 @@ open class Responder {
     open func keyDown(with event: Event) {}
     open func keyUp(with event: Event) {}
     open func flagsChanged(with event: Event) {}
-    
+
+    open var canBecomeFirstResponder: Bool { return false }
     open func becomeFirstResponder() -> Bool { return false }
+    open var canResignFirstResponder: Bool { return false }
     open func resignFirstResponder() -> Bool { return false }
+    open var isFirstResponder: Bool { return false }
 }

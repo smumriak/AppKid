@@ -32,7 +32,7 @@ open class CGContext {
             return _contextPointer.pointer
         }
         set {
-            _contextPointer.pointer = newValue
+            _contextPointer = CReferablePointer(with: newValue)
         }
     }
 
@@ -195,12 +195,8 @@ public extension CGContext {
 
 public extension CGContext {
     func fillPath(using rule: CGPathFillRule = .winding) {
-        if let fillPattern = _state.fillPattern {
-            cairo_set_source(_context, fillPattern)
-        } else {
-            cairo_set_source(_context, _state.defaultPattern)
-        }
-        
+        cairo_set_source(_context, _state.fillPattern)
+
         switch rule {
         case .winding:
             cairo_set_fill_rule(_context, CAIRO_FILL_RULE_WINDING)
@@ -221,12 +217,7 @@ public extension CGContext {
     }
     
     func strokePath() {
-        if let strokePattern = _state.strokePattern {
-            cairo_set_source(_context, strokePattern)
-        } else {
-            cairo_set_source(_context, _state.defaultPattern)
-        }
-        
+        cairo_set_source(_context, _state.strokePattern)
         cairo_stroke(_context)
     }
 }
@@ -248,44 +239,88 @@ public extension CGContext {
 }
 
 public extension CGContext {
-    func setFillColor(_ color: CGColor) {
-        _state.fillColor = color
+    var fillColor: CGColor {
+        get {
+            return _state.fillColor
+        }
+        set {
+            _state.fillColor = newValue
+        }
     }
     
-    func setStrokeColor(_ color: CGColor) {
-        _state.strokeColor = color
+    var strokeColor: CGColor {
+        get {
+            return _state.strokeColor
+        }
+        set {
+            _state.strokeColor = newValue
+        }
     }
-    
-    func setLineWidth(_ width: CGFloat) {
-        cairo_set_line_width(_context, Double(width))
+
+    var lineWidth: CGFloat {
+        get {
+            return CGFloat(cairo_get_line_width(_context))
+        }
+        set {
+            cairo_set_line_width(_context, Double(newValue))
+        }
     }
-    
-    func setLineCap(_ cap: CGLineCap) {
-        let lineCap: cairo_line_cap_t = {
-            switch cap {
-            case .butt: return CAIRO_LINE_CAP_BUTT
-            case .round: return CAIRO_LINE_CAP_ROUND
-            case .square: return CAIRO_LINE_CAP_SQUARE
+
+    var lineCap: CGLineCap {
+        get {
+            let lineCap = cairo_get_line_cap(_context)
+
+            switch lineCap {
+            case CAIRO_LINE_CAP_BUTT: return .butt
+            case CAIRO_LINE_CAP_ROUND: return .round
+            case CAIRO_LINE_CAP_SQUARE: return .square
+            default: fatalError("Invalid line cap in cairo context")
             }
-        }()
-        
-        cairo_set_line_cap(_context, lineCap)
+        }
+        set {
+            let lineCap: cairo_line_cap_t = {
+                switch newValue {
+                case .butt: return CAIRO_LINE_CAP_BUTT
+                case .round: return CAIRO_LINE_CAP_ROUND
+                case .square: return CAIRO_LINE_CAP_SQUARE
+                }
+            }()
+
+            cairo_set_line_cap(_context, lineCap)
+        }
     }
-    
-    func setLineJoin(_ join: CGLineJoin) {
-        let lineJoin: cairo_line_join_t = {
-            switch join {
-            case .miter: return CAIRO_LINE_JOIN_MITER
-            case .round: return CAIRO_LINE_JOIN_ROUND
-            case .bevel: return CAIRO_LINE_JOIN_BEVEL
+
+    var lineJoin: CGLineJoin {
+        get {
+            let lineJoin = cairo_get_line_join(_context)
+
+            switch lineJoin {
+            case CAIRO_LINE_JOIN_MITER: return .miter
+            case CAIRO_LINE_JOIN_ROUND: return .round
+            case CAIRO_LINE_JOIN_BEVEL: return .bevel
+            default: fatalError("Invalid line join in cairo context")
             }
-        }()
-        
-        cairo_set_line_join(_context, lineJoin)
+        }
+        set {
+            let lineJoin: cairo_line_join_t = {
+                switch newValue {
+                case .miter: return CAIRO_LINE_JOIN_MITER
+                case .round: return CAIRO_LINE_JOIN_ROUND
+                case .bevel: return CAIRO_LINE_JOIN_BEVEL
+                }
+            }()
+
+            cairo_set_line_join(_context, lineJoin)
+        }
     }
-    
-    func setMiterLimit(_ limit: CGFloat) {
-        cairo_set_miter_limit(_context, Double(limit))
+
+    var miterLimit: CGFloat {
+        get {
+            return CGFloat(cairo_get_miter_limit(_context))
+        }
+        set {
+            cairo_set_miter_limit(_context, Double(newValue))
+        }
     }
 }
 

@@ -26,7 +26,6 @@ extension cairo_surface_t: CReferableType {
     public var releaseFunc: (UnsafeMutablePointer<cairo_surface_t>?) -> () {
         return cairo_surface_destroy
     }
-
 }
 
 extension cairo_pattern_t: CReferableType {
@@ -37,5 +36,4 @@ extension cairo_pattern_t: CReferableType {
     public var releaseFunc: (UnsafeMutablePointer<cairo_pattern_t>?) -> () {
         return cairo_pattern_destroy
     }
-
 }

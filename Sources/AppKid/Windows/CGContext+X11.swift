@@ -18,7 +18,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
             return surfacePointer.pointer
         }
         set {
-            surfacePointer.pointer = newValue
+            surfacePointer = CReferablePointer(with: newValue)
         }
     }
     var nativeWindow: X11NativeWindow

@@ -7,9 +7,13 @@
 
 import Foundation
 
-public class Control: View {
-    var isEnabled = true
-    
+open class Control: View {
+    public var isEnabled = true
+    public var isSelected = false
+    public var isHighlighted = false
+
+    internal(set) public var state: State = .normal
+
     public typealias Action = (_ sender: Control) -> ()
     fileprivate var targetWrappers = [ControlInvokable]()
 
@@ -38,5 +42,30 @@ fileprivate final class TargetWrapper<TargetType: AnyObject> : ControlInvokable 
         if let target = target {
             action(target)(sender)
         }
+    }
+}
+
+public extension Control {
+    struct State: OptionSet {
+        public typealias RawValue = UInt
+        public let rawValue: RawValue
+
+        public init(rawValue: RawValue) {
+            self.rawValue = rawValue
+        }
+
+        public static var normal = State(rawValue: 0)
+        public static var highlighted = State(rawValue: 1 << 0)
+        public static var disabled = State(rawValue: 1 << 1)
+        public static var selected = State(rawValue: 1 << 2)
+        public static var focused = State(rawValue: 1 << 3)
+        public static var application = State(rawValue: 1 << 4)
+    }
+
+}
+
+extension Control.State: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
     }
 }
