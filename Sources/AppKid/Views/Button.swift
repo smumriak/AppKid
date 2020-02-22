@@ -57,4 +57,16 @@ open class Button: Control {
         context.lineWidth = 2.0
         context.stroke(bounds)
     }
+
+    open override func mouseDown(with event: Event) {
+        debugPrint("Mouse down")
+    }
+
+    open override func mouseDragged(with event: Event) {
+        debugPrint("Mouse dragged")
+    }
+
+    open override func mouseUp(with event: Event) {
+        debugPrint("Mouseu up")
+    }
 }

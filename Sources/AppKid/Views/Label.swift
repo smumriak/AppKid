@@ -18,6 +18,12 @@ open class Label: View {
     public var textColor: CairoGraphics.CGColor = .black
     internal var layout = TextLayout()
 
+    public override init(with frame: CGRect) {
+        super.init(with: frame)
+
+        userInteractionEnabled = false
+    }
+
     public override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
 

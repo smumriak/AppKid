@@ -17,7 +17,7 @@ open class Control: View {
     public typealias Action = (_ sender: Control) -> ()
     fileprivate var targetWrappers = [ControlInvokable]()
 
-    public func set<TargetType: AnyObject>(target: TargetType?, action: @escaping (TargetType) -> Action) {
+    public func add<TargetType: AnyObject>(target: TargetType?, action: @escaping (TargetType) -> Action) {
         if let target = target {
             let targetWrapper = TargetWrapper(target: target, action: action)
             targetWrappers.append(targetWrapper)
@@ -61,7 +61,6 @@ public extension Control {
         public static var focused = State(rawValue: 1 << 3)
         public static var application = State(rawValue: 1 << 4)
     }
-
 }
 
 extension Control.State: Hashable {

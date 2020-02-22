@@ -206,6 +206,8 @@ internal extension Event {
             let buttonEvent = x11Event.xbutton
             
             try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+
+            buttonNumber = Int(x11Event.xbutton.button)
             
         case .appKidDefined:
             switch x11Event.xany.type {
@@ -221,7 +223,6 @@ internal extension Event {
             default:
                 self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
             }
-            
         
         default:
             return nil

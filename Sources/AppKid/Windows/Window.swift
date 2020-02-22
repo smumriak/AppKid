@@ -15,6 +15,10 @@ open class Window: View {
     
     internal var _windowNumber: Int { Int(nativeWindow.windowID) }
     internal var _graphicsContext: X11RenderContext
+
+    fileprivate var leftMouseDownView: View? = nil
+    fileprivate var rightMouseDownView: View? = nil
+    fileprivate var otherMouseDownView: View? = nil
     
     override public var window: Window? {
         get { return self }
@@ -61,37 +65,30 @@ open class Window: View {
     }
     
     public func send(event: Event) {
-        switch event.type {
-        case .appKidDefined:
-            switch event.subType {
-            case .windowExposed, .windowResized:
-                _graphicsContext.updateSurface()
-                var currentRect = nativeWindow.currentRect
-                currentRect.size.width /= nativeWindow.displayScale
-                currentRect.size.height /= nativeWindow.displayScale
-                bounds.size = currentRect.size
-                center = CGPoint(x: bounds.midX, y:bounds.midY)
-                
+        if Event.EventType.mouseEventTypes.contains(event.type) {
+            sendMouseEvent(event)
+        } else {
+            switch event.type {
+            case .appKidDefined:
+                switch event.subType {
+                case .windowExposed, .windowResized:
+                    _graphicsContext.updateSurface()
+                    var currentRect = nativeWindow.currentRect
+                    currentRect.size.width /= nativeWindow.displayScale
+                    currentRect.size.height /= nativeWindow.displayScale
+                    bounds.size = currentRect.size
+                    center = CGPoint(x: bounds.midX, y:bounds.midY)
+
+                default:
+                    break
+                }
+
             default:
                 break
             }
-            
-        case .leftMouseDown, .leftMouseDragged:
-            break
-            
-        case .rightMouseDown, .rightMouseDragged:
-            break
-            
-        case .leftMouseUp:
-            if let view = hitTest(event.locationInWindow) {
-                view.backgroundColor = view.backgroundColor.negative
-            }
-
-        default:
-            break
         }
     }
-    
+
     override func invalidateTransforms() {}
     
     override func rebuildTransformsIfNeeded() {
@@ -133,5 +130,82 @@ open class Window: View {
 extension Window {
     public static func == (lhs: Window, rhs: Window) -> Bool {
         return lhs === rhs || lhs.nativeWindow == rhs.nativeWindow
+    }
+}
+
+fileprivate extension Window {
+    func sendMouseEvent(_ event: Event) {
+        switch event.type {
+        case .leftMouseDown:
+            leftMouseDownView = hitTest(event.locationInWindow) ?? self
+            leftMouseDownView?.mouseDown(with: event)
+
+            repeat {
+                let nextEvent = Application.shared.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+
+                Application.shared.send(event: nextEvent)
+
+                if nextEvent.type == .leftMouseUp {
+                    Application.shared.discardEvent(matching: .any, before: nextEvent)
+                    break
+                }
+            } while true
+
+        case .leftMouseDragged:
+            leftMouseDownView?.mouseDragged(with: event)
+
+        case .leftMouseUp:
+            leftMouseDownView?.mouseUp(with: event)
+            leftMouseDownView = nil
+
+        case .rightMouseDown:
+            rightMouseDownView = hitTest(event.locationInWindow) ?? self
+            rightMouseDownView?.rightMouseDown(with: event)
+
+            repeat {
+                let nextEvent = Application.shared.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+
+                Application.shared.send(event: nextEvent)
+
+                if nextEvent.type == .rightMouseUp {
+                    Application.shared.discardEvent(matching: .any, before: nextEvent)
+                    break
+                }
+            } while true
+
+        case .rightMouseDragged:
+            rightMouseDownView?.rightMouseDragged(with: event)
+
+        case .rightMouseUp:
+            rightMouseDownView?.rightMouseUp(with: event)
+            rightMouseDownView = nil
+
+        case .otherMouseDown:
+            otherMouseDownView = hitTest(event.locationInWindow) ?? self
+            otherMouseDownView?.otherMouseDown(with: event)
+
+            repeat {
+                let nextEvent = Application.shared.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+
+                Application.shared.send(event: nextEvent)
+
+                if nextEvent.type == .otherMouseUp {
+                    Application.shared.discardEvent(matching: .any, before: nextEvent)
+                    break
+                }
+            } while true
+
+        case .otherMouseDragged:
+            otherMouseDownView?.otherMouseDragged(with: event)
+
+        case .otherMouseUp:
+            otherMouseDownView?.otherMouseUp(with: event)
+            otherMouseDownView = nil
+
+        default:
+            guard let handler = Responder.mouseEventTypeToHandler[event.type] else { return }
+            let view = hitTest(event.locationInWindow) ?? self
+            handler(view)(event)
+        }
     }
 }

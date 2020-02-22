@@ -16,6 +16,10 @@ import CEpoll
 import Glibc
 #endif
 
+extension RunLoop.Mode {
+    public static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
+}
+
 public protocol ApplicationDelegate: class {}
 
 open class Application: Responder {
@@ -120,7 +124,14 @@ open class Application: Responder {
         
         isRunning = true
         startTime = CFAbsoluteTimeGetCurrent()
-        
+
+        #if os(Linux)
+        let trackingCFRunLoopMode = CFStringCreateWithCString(nil, RunLoop.Mode.tracking.rawValue, CFStringEncoding(kCFStringEncodingASCII))
+        #else
+        let trackingCFRunLoopMode = CFRunLoopMode(rawValue: RunLoop.Mode.tracking.rawValue as CFString)
+        #endif
+        CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
+
         setupX11()
         
         #if DEBUG
@@ -175,17 +186,29 @@ open class Application: Responder {
         
         return result
     }
-    
-    internal func addSimpleWindow() {
-        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
-        
+
+    public func discardEvent(matching mask: Event.EventTypeMask, before event: Event) {
+        guard let index = eventQueue.firstIndex(where: { $0.timestamp >= event.timestamp }) else { return }
+
+        eventQueue.removeSubrange(0..<index)
+    }
+
+    internal func add(window: Window) {
         windows.append(window)
-        
+    }
+}
+
+internal extension Application {
+    func addSimpleWindow() {
+        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+
+        windows.append(window)
+
         let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
         subview1.tag = 1
         subview1.backgroundColor = .green
         subview1.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
-        
+
         let subview2 = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
         subview2.tag = 2
         subview2.backgroundColor = .red
@@ -204,16 +227,6 @@ open class Application: Responder {
         subview4.backgroundColor = .blue
         window.add(subview: subview4)
 
-        let _ = Timer.scheduledTimer(withTimeInterval: 1 / 60.0, repeats: true) { [weak window] _ in
-            window?.render()
-        }
-
-        let _ = Timer.scheduledTimer(withTimeInterval: 1/60.0, repeats: true) { [weak subview1, weak subview2, weak subview3]  _ in
-            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
-            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
-            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
-        }
-        
         window.add(subview: subview1)
 
         let button = Button(with: CGRect(x: 100.0, y: 100.0, width: 80.0, height: 44.0))
@@ -222,9 +235,19 @@ open class Application: Responder {
         button.set(title: "Selected", for: .selected)
         button.set(title: "Highlighted", for: .highlighted)
         window.add(subview: button)
+
+        let renderTimer = Timer(timeInterval: 1 / 60.0, repeats: true) { [weak window] _ in
+            window?.render()
+        }
+
+        let transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [weak subview1, weak subview2, weak subview3]  _ in
+            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
+            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
+            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
+        }
+
+        RunLoop.current.add(renderTimer, forMode: .common)
+        RunLoop.current.add(transformTimer, forMode: .common)
     }
-    
-    internal func add(window: Window) {
-        windows.append(window)
-    }
+
 }

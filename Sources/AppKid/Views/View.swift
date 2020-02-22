@@ -264,6 +264,77 @@ open class View: Responder {
     open func point(inside point: CGPoint) -> Bool {
         return bounds.contains(point)
     }
+
+    // MARK: Responder
+
+    open override func mouseDown(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.mouseDown(with: event)
+        }
+        debugPrint("Left Down: \(event.buttonNumber)")
+    }
+
+    open override func mouseDragged(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.mouseDragged(with: event)
+        }
+        debugPrint("Left Dragged: \(event.buttonNumber)")
+    }
+
+    open override func mouseUp(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.mouseUp(with: event)
+        }
+        debugPrint("Left Up: \(event.buttonNumber)")
+    }
+
+    open override func rightMouseDown(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.rightMouseDown(with: event)
+        }
+        debugPrint("Right Down: \(event.buttonNumber)")
+    }
+
+    open override func rightMouseDragged(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.rightMouseDragged(with: event)
+        }
+        debugPrint("Right Dragged: \(event.buttonNumber)")
+    }
+
+    open override func rightMouseUp(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.rightMouseUp(with: event)
+        }
+        debugPrint("Right Up: \(event.buttonNumber)")
+    }
+
+    open override func otherMouseDown(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.otherMouseDown(with: event)
+        }
+        debugPrint("Other Down: \(event.buttonNumber)")
+    }
+
+    open override func otherMouseDragged(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.otherMouseDragged(with: event)
+        }
+        debugPrint("Other Dragged: \(event.buttonNumber)")
+    }
+
+    open override func otherMouseUp(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.otherMouseUp(with: event)
+        }
+        debugPrint("Other Up: \(event.buttonNumber)")
+    }
+
+    open override func scrollWheel(with event: Event) {
+        if !userInteractionEnabled {
+            nextResponder?.scrollWheel(with: event)
+        }
+    }
 }
 
 extension View: Equatable {
