@@ -115,7 +115,7 @@ open class Window: View {
         _graphicsContext.restoreState()
         CairoGraphics.CGContext.pop()
 
-        nativeWindow.sync()
+        nativeWindow.flush()
     }
 
     fileprivate func render(view: View, in context: CairoGraphics.CGContext) {

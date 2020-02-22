@@ -43,7 +43,7 @@ internal final class X11NativeWindow {
 
             XSelectInput(display, windowID, mask)
 
-            sync()
+            flush()
         }
     }
     
@@ -51,7 +51,7 @@ internal final class X11NativeWindow {
         if !isRoot {
             // checking if this is not a root window. root window has rootWindowID as nil
             XDestroyWindow(display, windowID)
-            sync()
+            flush()
         }
     }
 
@@ -64,7 +64,7 @@ internal final class X11NativeWindow {
         self.rootWindowID = rootWindowID
     }
 
-    func sync() {
+    func flush() {
         XSync(display, 0)
     }
 }
@@ -80,7 +80,7 @@ extension X11NativeWindow {
         
         self.init(display: display, screen: screen, windowID: windowID, rootWindowID: rootWindowID)
 
-        sync()
+        flush()
     }
 }
 
