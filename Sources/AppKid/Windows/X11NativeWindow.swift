@@ -38,7 +38,7 @@ internal final class X11NativeWindow {
         if !isRoot {
             // checking if this is not a root window. root window has rootWindowID as nil
             XDestroyWindow(display, windowID)
-            XFlush(display)
+            sync()
         }
     }
 
@@ -50,6 +50,10 @@ internal final class X11NativeWindow {
         self.windowID = windowID
         self.rootWindowID = rootWindowID
     }
+
+    func sync() {
+        XSync(display, 0)
+    }
 }
 
 extension X11NativeWindow {
@@ -60,9 +64,10 @@ extension X11NativeWindow {
         XSelectInput(display, windowID, Event.EventType.x11EventMask())
         XMapWindow(display, windowID)
         XSetWMProtocols(display, windowID, &Application.shared.wmDeleteWindowAtom, 1)
-        XFlush(display)
         
         self.init(display: display, screen: screen, windowID: windowID, rootWindowID: rootWindowID)
+
+        sync()
     }
 }
 
