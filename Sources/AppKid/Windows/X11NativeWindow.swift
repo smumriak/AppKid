@@ -36,7 +36,7 @@ internal final class X11NativeWindow {
 
     var acceptsMouseMovedEvents: Bool = false {
         didSet {
-            var mask = Event.EventType.x11EventMask()
+            var mask = Event.EventType.defaultX11EventsMask
             if acceptsMouseMovedEvents {
                 mask |= PointerMotionMask
             }
@@ -74,7 +74,7 @@ extension X11NativeWindow {
         let intRect: Rect<CInt> = rect.rect()
         let windowID = XCreateSimpleWindow(display, rootWindowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
         
-        XSelectInput(display, windowID, Event.EventType.x11EventMask())
+        XSelectInput(display, windowID, Event.EventType.defaultX11EventsMask)
         XMapWindow(display, windowID)
         XSetWMProtocols(display, windowID, &Application.shared.wmDeleteWindowAtom, 1)
         

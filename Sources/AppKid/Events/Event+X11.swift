@@ -11,7 +11,7 @@ import CX11.X
 import CX11.Xlib
 
 internal extension Event.EventType {
-    static func x11EventMask() -> Int {
+    static let defaultX11EventsMask: Int = {
         return [
             KeyPressMask,
             KeyReleaseMask,
@@ -40,7 +40,7 @@ internal extension Event.EventType {
 //            OwnerGrabButtonMask,
             ]
             .reduce(NoEventMask, |)
-    }
+    }()
     
     init?(x11Event: CX11.XEvent) {
         var x11Event = x11Event
