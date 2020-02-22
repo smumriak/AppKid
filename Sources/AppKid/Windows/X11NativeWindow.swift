@@ -33,6 +33,19 @@ internal final class X11NativeWindow {
     var isRoot: Bool {
         return screen.pointee.root == windowID
     }
+
+    var acceptsMouseMovedEvents: Bool = false {
+        didSet {
+            var mask = Event.EventType.x11EventMask()
+            if acceptsMouseMovedEvents {
+                mask |= PointerMotionMask
+            }
+
+            XSelectInput(display, windowID, mask)
+
+            sync()
+        }
+    }
     
     deinit {
         if !isRoot {

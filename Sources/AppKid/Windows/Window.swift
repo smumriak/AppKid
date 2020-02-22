@@ -29,6 +29,15 @@ open class Window: View {
         get { return .identity }
         set {}
     }
+
+    public var acceptsMouseMovedEvents: Bool {
+        get {
+            return nativeWindow.acceptsMouseMovedEvents
+        }
+        set {
+            nativeWindow.acceptsMouseMovedEvents = newValue
+        }
+    }
     
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
