@@ -65,7 +65,7 @@ internal final class X11NativeWindow {
     }
 
     func flush() {
-        XSync(display, 0)
+        XFlush(display)
     }
 }
 
