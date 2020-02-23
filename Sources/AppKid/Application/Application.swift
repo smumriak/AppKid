@@ -29,7 +29,8 @@ open class Application: Responder {
     public fileprivate(set) var isRunning = false
     public fileprivate(set) var isTerminated = false
     
-    internal(set) public var windows = [Window]()
+    fileprivate(set) public var windows: [Window] = []
+    internal var renderers: [Renderer] = []
     
     internal var eventQueue = [Event]()
     public fileprivate(set) var currentEvent: Event?
@@ -53,7 +54,7 @@ open class Application: Responder {
     internal var displayConnectionFileDescriptor: CInt = -1
     internal var epollFileDescriptor: CInt = -1
     internal var eventFileDescriptor: CInt = -1
-    internal var wmDeleteWindowAtom: CX11.Atom = UInt(CX11.None)
+    internal var wmDeleteWindowAtom: CX11.Atom = CUnsignedLong(CX11.None)
     
     internal lazy var pollThread = Thread { self.pollForX11Events() }
     
@@ -61,6 +62,18 @@ open class Application: Responder {
     
     internal var lastClickTimestamp: TimeInterval = .zero
     internal var clickCount: Int = .zero
+
+    internal lazy var renderTimer: Timer = {
+        return Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
+            for i in 0..<self.windows.count {
+                self.renderers[i].render(window: self.windows[i])
+            }
+        }
+    }()
+
+    deinit {
+        XCloseDisplay(display)
+    }
     
     internal override init () {
         guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
@@ -75,22 +88,7 @@ open class Application: Responder {
             fatalError("Can not get root window attributes")
         }
         rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
-        
-        displayConnectionFileDescriptor = XConnectionNumber(display)
-        
-        #if os(Linux)
-        epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
-        if epollFileDescriptor == -1  {
-            fatalError("Failed to create epoll file descriptor")
-        }
-        eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
-        #else
-        epollFileDescriptor = -1
-        eventFileDescriptor = -1
-        #endif
-        
-        wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
-        
+                
         super.init()
 
         rootWindow.displayScale = displayScale
@@ -195,14 +193,25 @@ open class Application: Responder {
 
     internal func add(window: Window) {
         windows.append(window)
+        renderers.append(Renderer(context: window._graphicsContext))
+    }
+
+    internal func remove(window: Window) {
+        if let index = windows.firstIndex(of: window) {
+            remove(windowNumer: index)
+        }
+    }
+
+    internal func remove(windowNumer index: Array<Window>.Index) {
+        // order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
+        renderers.remove(at: index)
+        windows.remove(at: index)
     }
 }
 
 internal extension Application {
     func addSimpleWindow() {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
-
-        windows.append(window)
 
         let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
         subview1.tag = 1
@@ -236,9 +245,7 @@ internal extension Application {
         button.set(title: "Highlighted", for: .highlighted)
         window.add(subview: button)
 
-        let renderTimer = Timer(timeInterval: 1 / 60.0, repeats: true) { [weak window] _ in
-            window?.render()
-        }
+        add(window: window)
 
         let transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [weak subview1, weak subview2, weak subview3]  _ in
             subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
@@ -246,8 +253,6 @@ internal extension Application {
             subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
         }
 
-        RunLoop.current.add(renderTimer, forMode: .common)
         RunLoop.current.add(transformTimer, forMode: .common)
     }
-
 }

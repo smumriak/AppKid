@@ -19,6 +19,21 @@ internal let testString = "And if you gaze long into an abyss, the abyss also ga
 
 internal extension Application {
     func setupX11() {
+        displayConnectionFileDescriptor = XConnectionNumber(display)
+
+        #if os(Linux)
+        epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
+        if epollFileDescriptor == -1  {
+            fatalError("Failed to create epoll file descriptor")
+        }
+        eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
+        #else
+        epollFileDescriptor = -1
+        eventFileDescriptor = -1
+        #endif
+
+        wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+
         XSetErrorHandler { display, event -> CInt in
             Application.shared.terminate()
             return 0
@@ -63,8 +78,10 @@ internal extension Application {
         let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer(&x11RunLoopSourceContext).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
         
         runLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, x11RunLoopSourceContextPointer)
-        
-        CFRunLoopAddSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+
+        let currentRunloop = RunLoop.current
+        CFRunLoopAddSource(currentRunloop.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+        currentRunloop.add(renderTimer, forMode: .common)
         
         pollThread.qualityOfService = .userInteractive
         pollThread.name = "X11 poll thread"
@@ -73,6 +90,11 @@ internal extension Application {
     
     func destroyX11(){
         pollThread.cancel()
+
+        renderTimer.invalidate()
+        CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+
+        wmDeleteWindowAtom = CUnsignedLong(CX11.None)
         
         if eventFileDescriptor != -1 {
             close(eventFileDescriptor)
@@ -83,13 +105,7 @@ internal extension Application {
             epollFileDescriptor = -1
         }
         
-        wmDeleteWindowAtom = UInt(CX11.None)
-        
         displayConnectionFileDescriptor = -1
-        
-        XCloseDisplay(display)
-        
-        CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
     }
     
     func pollForX11Events() {
@@ -126,7 +142,7 @@ internal extension Application {
                 if event.type == .appKidDefined {
                     if event.subType == .message {
                         if CX11.Atom(x11Event.xclient.data.l.0) == wmDeleteWindowAtom {
-                            Application.shared.windows.remove(at: windowNumber)
+                            Application.shared.remove(windowNumer: windowNumber)
                             return
                         }
                     }

@@ -110,36 +110,6 @@ open class Window: View {
 
     override func invalidateTransforms() {}
     override func rebuildTransformsIfNeeded() {}
-
-    public func render() {
-        CairoGraphics.CGContext.push(_graphicsContext)
-        _graphicsContext.saveState()
-        _graphicsContext.scaleBy(x: nativeWindow.displayScale, y: nativeWindow.displayScale)
-
-        render(view: self, in: _graphicsContext)
-
-        _graphicsContext.restoreState()
-        CairoGraphics.CGContext.pop()
-
-        nativeWindow.flush()
-    }
-
-    fileprivate func render(view: View, in context: CairoGraphics.CGContext) {
-        context.translateBy(x: view.center.x, y: view.center.y)
-        context.concatenate(view.transform)
-
-        context.translateBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
-        view.render(in: context)
-
-        for subview in view.subviews {
-            render(view: subview, in: context)
-        }
-        
-        context.translateBy(x: view.bounds.width * 0.5, y: view.bounds.height * 0.5)
-
-        context.concatenate(view.transform.inverted())
-        context.translateBy(x: -view.center.x, y: -view.center.y)
-    }
 }
 
 extension Window {
