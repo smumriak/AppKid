@@ -8,11 +8,49 @@
 import Foundation
 
 open class Control: View {
-    public var isEnabled = true
-    public var isSelected = false
-    public var isHighlighted = false
+    public var isEnabled: Bool {
+        get {
+            return state.contains(.disabled) == false
+        }
+        set {
+            if newValue {
+                state = state.subtracting(.disabled)
+            } else {
+                state = state.union(.disabled)
+            }
+        }
+    }
 
-    internal(set) public var state: State = .normal
+    public var isSelected: Bool {
+        get {
+            return state.contains(.selected)
+        }
+        set {
+            if newValue {
+                state = state.union(.selected)
+            } else {
+                state = state.subtracting(.selected)
+            }
+        }
+    }
+
+    public var isHighlighted: Bool {
+        get {
+            return state.contains(.highlighted)
+        }
+        set {
+            if newValue {
+                state = state.union(.highlighted)
+            } else {
+                state = state.subtracting(.highlighted)
+            }
+        }
+    }
+
+    internal(set) public var state: State = .normal {
+        didSet {
+        }
+    }
 
     public typealias Action = (_ sender: Control) -> ()
     fileprivate var targetWrappers = [ControlInvokable]()

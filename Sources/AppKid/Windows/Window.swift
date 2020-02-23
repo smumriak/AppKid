@@ -16,9 +16,19 @@ open class Window: View {
     internal var _windowNumber: Int { Int(nativeWindow.windowID) }
     internal var _graphicsContext: X11RenderContext
 
+    override var transformToWindow: CairoGraphics.CGAffineTransform {
+        return .identity
+    }
+
+    override var transformFromWindow: CairoGraphics.CGAffineTransform {
+        return .identity
+    }
+
     fileprivate var leftMouseDownView: View? = nil
     fileprivate var rightMouseDownView: View? = nil
     fileprivate var otherMouseDownView: View? = nil
+
+    fileprivate(set) public var firstResponder: Responder? = nil
     
     override public var window: Window? {
         get { return self }
@@ -99,11 +109,7 @@ open class Window: View {
     }
 
     override func invalidateTransforms() {}
-    
-    override func rebuildTransformsIfNeeded() {
-        _transformToWindow = .identity
-        _transformFromWindow = .identity
-    }
+    override func rebuildTransformsIfNeeded() {}
 
     public func render() {
         CairoGraphics.CGContext.push(_graphicsContext)

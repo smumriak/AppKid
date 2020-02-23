@@ -101,7 +101,7 @@ public class TextLayout {
         }
 
         context.move(to: rect.origin)
-        cairo_set_source_rgb(context._context, 1.0, 0.0, 0.0)
+        cairo_set_source(context._context, textColor.cairoPattern.pointer)
         pango_cairo_show_layout(context._context, layout)
     }
 }

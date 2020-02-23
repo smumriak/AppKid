@@ -52,7 +52,9 @@ open class View: Responder {
             _center = newValue
         }
     }
-    
+
+    public var masksToBounds = true
+    public var cornerRaidus: CGFloat = 0.0
     public var anchorPoint = CGPoint(x: 0.5, y: 0.5)
     
     public internal(set) weak var superview: View? = nil
@@ -77,12 +79,12 @@ open class View: Responder {
     }
     public var backgroundColor: CairoGraphics.CGColor = .white
     
-    internal var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
+    fileprivate var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
     internal var transformToWindow: CairoGraphics.CGAffineTransform {
         rebuildTransformsIfNeeded()
         return _transformToWindow
     }
-    internal var _transformFromWindow: CairoGraphics.CGAffineTransform = .identity
+    fileprivate var _transformFromWindow: CairoGraphics.CGAffineTransform = .identity
     internal var transformFromWindow: CairoGraphics.CGAffineTransform {
         rebuildTransformsIfNeeded()
         return _transformFromWindow
@@ -204,6 +206,10 @@ open class View: Responder {
 
     public func render(in context: CairoGraphics.CGContext) {
         context.fillColor = backgroundColor
+        if masksToBounds {
+
+        }
+
         context.fill(bounds)
     }
     
@@ -271,63 +277,54 @@ open class View: Responder {
         if !userInteractionEnabled {
             nextResponder?.mouseDown(with: event)
         }
-        debugPrint("Left Down: \(event.buttonNumber)")
     }
 
     open override func mouseDragged(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.mouseDragged(with: event)
         }
-        debugPrint("Left Dragged: \(event.buttonNumber)")
     }
 
     open override func mouseUp(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.mouseUp(with: event)
         }
-        debugPrint("Left Up: \(event.buttonNumber)")
     }
 
     open override func rightMouseDown(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.rightMouseDown(with: event)
         }
-        debugPrint("Right Down: \(event.buttonNumber)")
     }
 
     open override func rightMouseDragged(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.rightMouseDragged(with: event)
         }
-        debugPrint("Right Dragged: \(event.buttonNumber)")
     }
 
     open override func rightMouseUp(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.rightMouseUp(with: event)
         }
-        debugPrint("Right Up: \(event.buttonNumber)")
     }
 
     open override func otherMouseDown(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.otherMouseDown(with: event)
         }
-        debugPrint("Other Down: \(event.buttonNumber)")
     }
 
     open override func otherMouseDragged(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.otherMouseDragged(with: event)
         }
-        debugPrint("Other Dragged: \(event.buttonNumber)")
     }
 
     open override func otherMouseUp(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.otherMouseUp(with: event)
         }
-        debugPrint("Other Up: \(event.buttonNumber)")
     }
 
     open override func scrollWheel(with event: Event) {

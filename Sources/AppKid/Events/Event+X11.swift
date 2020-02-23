@@ -207,7 +207,7 @@ internal extension Event {
             
             try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
-            buttonNumber = Int(x11Event.xbutton.button)
+            buttonNumber = Int(buttonEvent.button)
             
         case .appKidDefined:
             switch x11Event.xany.type {
