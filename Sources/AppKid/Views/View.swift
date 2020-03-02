@@ -10,8 +10,16 @@ import CairoGraphics
 
 open class View: Responder {
     var tag: UInt = 0
-    fileprivate var _bounds: CGRect
-    fileprivate var _center: CGPoint
+    fileprivate var _bounds: CGRect {
+        didSet {
+            invalidateTransforms()
+        }
+    }
+    fileprivate var _center: CGPoint {
+        didSet {
+            invalidateTransforms()
+        }
+    }
     
     public var frame: CGRect {
         get {
@@ -206,9 +214,6 @@ open class View: Responder {
 
     public func render(in context: CairoGraphics.CGContext) {
         context.fillColor = backgroundColor
-        if masksToBounds {
-
-        }
 
         context.fill(bounds)
     }
@@ -282,6 +287,9 @@ open class View: Responder {
     open override func mouseDragged(with event: Event) {
         if !userInteractionEnabled {
             nextResponder?.mouseDragged(with: event)
+        }
+        if let point = superview?.convert(event.locationInWindow, from: window) {
+            center = point
         }
     }
 

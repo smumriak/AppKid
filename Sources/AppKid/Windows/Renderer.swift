@@ -35,6 +35,12 @@ internal final class Renderer {
             .translatedBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
 
         context.ctm = transform
+
+        if view.masksToBounds {
+            context.addRect(view.bounds)
+            context.clip()
+        }
+
         view.render(in: context)
 
         for subview in view.subviews {

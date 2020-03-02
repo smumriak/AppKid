@@ -48,6 +48,11 @@ open class Window: View {
             nativeWindow.acceptsMouseMovedEvents = newValue
         }
     }
+
+    public override var masksToBounds: Bool {
+        get { return true }
+        set {}
+    }
     
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
