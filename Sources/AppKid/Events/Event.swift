@@ -93,7 +93,7 @@ public extension Event {
             self.rawValue = rawValue
         }
         
-        public static let none = ModifierFlags(rawValue: 0)
+        public static let none = ModifierFlags([])
         public static let capsLock = ModifierFlags(rawValue: 1 << 16)
         public static let shift = ModifierFlags(rawValue: 1 << 17)
         public static let control = ModifierFlags(rawValue: 1 << 18)
@@ -113,7 +113,7 @@ public extension Event {
         public init(rawValue: RawValue) {
             self.rawValue = rawValue
         }
-        public static let none = EventTypeMask(rawValue: 0)
+        public static let none = EventTypeMask([])
         public static let leftMouseDown = EventTypeMask(rawValue: 1 << EventType.leftMouseDown.rawValue)
         public static let leftMouseUp = EventTypeMask(rawValue: 1 << EventType.leftMouseUp.rawValue)
         public static let rightMouseDown = EventTypeMask(rawValue: 1 << EventType.rightMouseDown.rawValue)

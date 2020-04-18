@@ -74,13 +74,18 @@ internal extension Application {
             }
         }
         #endif
-        
-        let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer(&x11RunLoopSourceContext).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
-        
-        runLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, x11RunLoopSourceContextPointer)
 
         let currentRunloop = RunLoop.current
+
+
+        let runLoopSource: CFRunLoopSource = withUnsafeMutablePointer(to: &x11RunLoopSourceContext) {
+            let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer($0).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
+
+            return CFRunLoopSourceCreate(kCFAllocatorDefault, 0, x11RunLoopSourceContextPointer)!
+        }
+
         CFRunLoopAddSource(currentRunloop.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+
         currentRunloop.add(renderTimer, forMode: .common)
         
         pollThread.qualityOfService = .userInteractive
