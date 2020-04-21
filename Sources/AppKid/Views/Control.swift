@@ -8,6 +8,8 @@
 import Foundation
 
 open class Control: View {
+    var lastLocationsForMouseButton: [Int: CGPoint] = [:]
+
     open var isEnabled: Bool {
         get {
             return state.contains(.disabled) == false
@@ -52,12 +54,127 @@ open class Control: View {
     // MARK: Mouse Events
 
     open override func mouseDown(with event: Event) {
+        isHighlighted = true
+        lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
+
+        sendActions(for: .mouseDown, with: event)
     }
 
     open override func mouseDragged(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
+        lastLocationsForMouseButton[event.buttonNumber] = location
+
+        if point(inside: location) {
+            isHighlighted = true
+
+            if point(inside: previousLocation) {
+                sendActions(for: .mouseDragInside, with: event)
+            } else {
+                sendActions(for: .mouseDragEnter, with: event)
+            }
+        } else {
+            isHighlighted = false
+
+            if point(inside: previousLocation) {
+                sendActions(for: .mouseDragExit, with: event)
+            } else {
+                sendActions(for: .mouseDragOutside, with: event)
+            }
+        }
     }
 
     open override func mouseUp(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        if point(inside: location) {
+            sendActions(for: .mouseUpInside, with: event)
+        } else {
+            sendActions(for: .mouseUpOutside, with: event)
+        }
+
+        lastLocationsForMouseButton.removeValue(forKey: event.buttonNumber)
+
+        isHighlighted = false
+    }
+
+    open override func rightMouseDown(with event: Event) {
+        lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
+
+        sendActions(for: .rightMouseDown, with: event)
+    }
+
+    open override func rightMouseDragged(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
+        lastLocationsForMouseButton[event.buttonNumber] = location
+
+        if point(inside: location) {
+            if point(inside: previousLocation) {
+                sendActions(for: .rightMouseDragInside, with: event)
+            } else {
+                sendActions(for: .rightMouseDragEnter, with: event)
+            }
+        } else {
+            if point(inside: previousLocation) {
+                sendActions(for: .rightMouseDragExit, with: event)
+            } else {
+                sendActions(for: .rightMouseDragOutside, with: event)
+            }
+        }
+    }
+
+    open override func rightMouseUp(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        if point(inside: location) {
+            sendActions(for: .rightMouseUpInside, with: event)
+        } else {
+            sendActions(for: .rightMouseUpOutside, with: event)
+        }
+
+        lastLocationsForMouseButton.removeValue(forKey: event.buttonNumber)
+    }
+
+    open override func otherMouseDown(with event: Event) {
+        lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
+
+        sendActions(for: .otherMouseDown, with: event)
+    }
+
+    open override func otherMouseDragged(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
+        lastLocationsForMouseButton[event.buttonNumber] = location
+
+        if point(inside: location) {
+            if point(inside: previousLocation) {
+                sendActions(for: .otherMouseDragInside, with: event)
+            } else {
+                sendActions(for: .otherMouseDragEnter, with: event)
+            }
+        } else {
+            if point(inside: previousLocation) {
+                sendActions(for: .otherMouseDragExit, with: event)
+            } else {
+                sendActions(for: .otherMouseDragOutside, with: event)
+            }
+        }
+    }
+
+    open override func otherMouseUp(with event: Event) {
+        let location = convert(event.locationInWindow, from: window)
+
+        if point(inside: location) {
+            sendActions(for: .otherMouseUpInside, with: event)
+        } else {
+            sendActions(for: .otherMouseUpOutside, with: event)
+        }
+
+        lastLocationsForMouseButton.removeValue(forKey: event.buttonNumber)
     }
 
     // MARK: Mouse Tracking
@@ -74,11 +191,11 @@ open class Control: View {
     }
 
     // MARK: Actions
-    public typealias Action = (_ sender: Control) -> ()
+    public typealias Action = (_ sender: Control, _ event: Event) -> ()
 
     fileprivate var actions: Set<ActionIdentifier> = []
 
-    open func add(action: @escaping Action, for event: ControlEvent) -> some ActionIdentifier {
+    open func addAction(for event: ControlEvent, action: @escaping Action) -> ActionIdentifier {
         let actionIndentifier = ActionIdentifier(action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -104,6 +221,14 @@ open class Control: View {
 
     open func removeAllActions() {
         actions.removeAll()
+    }
+
+    open func sendActions(for controlEvents: Control.ControlEvent, with event: Event) {
+        actions.forEach {
+            if !$0.event.intersection(controlEvents).isEmpty {
+                $0.action(self, event)
+            }
+        }
     }
 }
 

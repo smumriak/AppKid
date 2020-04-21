@@ -82,23 +82,6 @@ open class Button: Control {
         context.lineWidth = 2.0
         context.stroke(bounds)
     }
-
-    open override func mouseDown(with event: Event) {
-        isHighlighted = true
-    }
-
-    open override func mouseDragged(with event: Event) {
-        let location = convert(event.locationInWindow, from: window)
-        if point(inside: location) {
-            isHighlighted = true
-        } else {
-            isHighlighted = false
-        }
-    }
-
-    open override func mouseUp(with event: Event) {
-        isHighlighted = false
-    }
 }
 
 public extension Button {
