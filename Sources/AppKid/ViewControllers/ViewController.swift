@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 20/4/20.
+//  Created by Serhii Mumriak on 20.04.2020.
 //
 
 import Foundation

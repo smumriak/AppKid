@@ -2,7 +2,7 @@
 //  TextLayout.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 17/2/20.
+//  Created by Serhii Mumriak on 17.02.2020.
 //
 
 import Foundation

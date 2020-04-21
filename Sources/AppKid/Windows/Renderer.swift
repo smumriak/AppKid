@@ -2,7 +2,7 @@
 //  Renderer.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 22/2/20.
+//  Created by Serhii Mumriak on 22.02.2020.
 //
 
 import Foundation

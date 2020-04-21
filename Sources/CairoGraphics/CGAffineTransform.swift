@@ -2,7 +2,7 @@
 //  CGAffineTransform.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 7/2/20.
+//  Created by Serhii Mumriak on 07.02.2020.
 //
 
 import CCairo

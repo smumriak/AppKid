@@ -2,7 +2,7 @@
 //  CPango_umbrella.h
 //  SwiftyFan
 //
-//  Created by Serhii Mumriak on 12/2/20.
+//  Created by Serhii Mumriak on 12.02.2020.
 //
 
 #ifndef CPango_umbrella_h

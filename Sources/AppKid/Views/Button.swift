@@ -2,7 +2,7 @@
 //  Button.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 19/2/20.
+//  Created by Serhii Mumriak on 19.02.2020.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  CFRunLoop+Constants.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 31/1/20.
+//  Created by Serhii Mumriak on 31.01.2020.
 //
 
 import CoreFoundation

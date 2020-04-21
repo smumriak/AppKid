@@ -2,7 +2,7 @@
 //  Event.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 1/2/20.
+//  Created by Serhii Mumriak on 01.02.2020.
 //
 
 import Foundation

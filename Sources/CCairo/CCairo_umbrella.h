@@ -2,7 +2,7 @@
 //  CCairo_umbrella.h
 //  SwiftyFan
 //
-//  Created by Serhii Mumriak on 3/2/20.
+//  Created by Serhii Mumriak on 03.02.2020.
 //
 
 #ifndef CCairo_umbrella_h

@@ -2,7 +2,7 @@
 //  CGContextState.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 9/2/20.
+//  Created by Serhii Mumriak on 09.02.2020.
 //
 
 import Foundation

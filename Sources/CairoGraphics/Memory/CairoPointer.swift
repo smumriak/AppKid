@@ -2,7 +2,7 @@
 //  CReferablePointerStorage.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 13/2/20.
+//  Created by Serhii Mumriak on 13.02.2020.
 //
 
 import Foundation

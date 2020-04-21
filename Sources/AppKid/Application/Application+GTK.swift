@@ -2,7 +2,7 @@
 //  Application+GTK.swift
 //  AppKid
 //
-//  Created by Serhii Mumriak on 18/2/20.
+//  Created by Serhii Mumriak on 18.02.2020.
 //
 
 import Foundation

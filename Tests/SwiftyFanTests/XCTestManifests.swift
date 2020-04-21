@@ -2,7 +2,7 @@
 //  XCTestManifests.swift
 //  SwiftyFan
 //
-//  Created by Serhii Mumriak on 29/1/20.
+//  Created by Serhii Mumriak on 29.01.2020.
 //
 
 import XCTest

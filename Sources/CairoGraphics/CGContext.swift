@@ -2,7 +2,7 @@
 //  CGContext.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 3/2/20.
+//  Created by Serhii Mumriak on 03.02.2020.
 //
 
 import Foundation

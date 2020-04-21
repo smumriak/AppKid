@@ -2,7 +2,7 @@
 //  CEpoll_umbrella.h
 //  SwiftyFan
 //
-//  Created by Serhii Mumriak on 29/1/20.
+//  Created by Serhii Mumriak on 29.01.2020.
 //
 
 #ifndef CEpoll_umbrella_h

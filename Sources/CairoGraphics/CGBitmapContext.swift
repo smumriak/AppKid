@@ -2,7 +2,7 @@
 //  CGBitmapContext.swift
 //  CairoGraphics
 //
-//  Created by Serhii Mumriak on 8/2/20.
+//  Created by Serhii Mumriak on 08.02.2020.
 //
 
 import Foundation
