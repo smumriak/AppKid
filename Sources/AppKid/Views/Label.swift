@@ -10,21 +10,40 @@ import CoreFoundation
 import CairoGraphics
 
 open class Label: View {
-    public var text: String? = nil {
+    open var text: String? = nil {
         didSet {
             layout.text = text ?? ""
         }
     }
-    public var textColor: CairoGraphics.CGColor = .black
+    open var textColor: CairoGraphics.CGColor = .black {
+        didSet {
+            layout.textColor = textColor
+        }
+    }
+
+    open var font: Font = .systemFont(ofSize: 17) {
+        didSet {
+            layout.font = font
+        }
+    }
+
     internal var layout = TextLayout()
+
+    // MARK: Initialization
 
     public override init(with frame: CGRect) {
         super.init(with: frame)
 
         userInteractionEnabled = false
+        
+        layout.text = text ?? ""
+        layout.textColor = textColor
+        layout.font = font
     }
 
-    public override func render(in context: CairoGraphics.CGContext) {
+    // MARK: Rendering
+
+    open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
 
         let textRect = self.textRect(for: bounds, limitedToNumberOfLines: 0)
@@ -32,11 +51,11 @@ open class Label: View {
         renderText(in: context, textRect: textRect)
     }
 
-    public func textRect(for bounds: CGRect, limitedToNumberOfLines numberOfLinex: Int) -> CGRect {
+    open func textRect(for bounds: CGRect, limitedToNumberOfLines numberOfLinex: Int) -> CGRect {
         return bounds
     }
 
-    public func renderText(in context: CairoGraphics.CGContext, textRect: CGRect) {
+    open func renderText(in context: CairoGraphics.CGContext, textRect: CGRect) {
         layout.render(in: context, rect: textRect)
     }
 }

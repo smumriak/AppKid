@@ -20,20 +20,28 @@ extension RunLoop.Mode {
     public static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
 }
 
-public protocol ApplicationDelegate: class {}
+public protocol ApplicationDelegate: class {
+    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
+    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
+}
+
+public extension ApplicationDelegate {
+    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
+    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
+}
 
 open class Application: Responder {
     public static let shared = Application()
-    unowned(unsafe) public var delegate: ApplicationDelegate?
+    unowned(unsafe) open var delegate: ApplicationDelegate?
     
-    public fileprivate(set) var isRunning = false
-    public fileprivate(set) var isTerminated = false
+    open fileprivate(set) var isRunning = false
+    open fileprivate(set) var isTerminated = false
     
-    fileprivate(set) public var windows: [Window] = []
+    fileprivate(set) open var windows: [Window] = []
     internal var renderers: [Renderer] = []
     
     internal var eventQueue = [Event]()
-    public fileprivate(set) var currentEvent: Event?
+    open fileprivate(set) var currentEvent: Event?
     
     internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
     
@@ -74,6 +82,8 @@ open class Application: Responder {
     deinit {
         XCloseDisplay(display)
     }
+
+    // MARK: Initialization
     
     internal override init () {
         guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
@@ -94,28 +104,26 @@ open class Application: Responder {
         rootWindow.displayScale = displayScale
     }
     
-    public func window(number windowNumber: Int) -> Window? {
+    open func window(number windowNumber: Int) -> Window? {
         return windows.indices.contains(windowNumber) ? windows[windowNumber] : nil
     }
     
-    public fileprivate(set) var mainWindow: Window? = nil
-    public fileprivate(set) var keyWindow: Window? = nil
-    
-    public func finishLaunching() {
-        
-    }
-    
-    public func stop() {
+    open fileprivate(set) var mainWindow: Window? = nil
+    open fileprivate(set) var keyWindow: Window? = nil
+
+    // MARK: Run Loop
+
+    open func stop() {
         isRunning = false
         CFRunLoopStop(RunLoop.current.getCFRunLoop())
     }
     
-    public func terminate() {
+    open func terminate() {
         isTerminated = true
         stop()
     }
     
-    public func run() {
+    open func run() {
         if (delegate == nil) {
             fatalError("Who forgot to specify app delegate? You've forgot to specify app delegate.")
         }
@@ -135,10 +143,9 @@ open class Application: Responder {
         #if DEBUG
 //        addDebugRunLoopObserver()
         #endif
-        
-        addSimpleWindow()
-        
-        finishLaunching()
+
+        let _ = delegate?.application(self, willFinishLaunchingWithOptions: nil)
+        let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)
         
         repeat {
             let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true)
@@ -152,18 +159,20 @@ open class Application: Responder {
         
         destroyX11()
     }
-    
-    public func post(event: Event, atStart: Bool) {
+
+    // MARK: Events
+
+    open func post(event: Event, atStart: Bool) {
         eventQueue.insert(event, at: atStart ? 0 : eventQueue.count)
     }
     
-    public func send(event: Event) {
+    open func send(event: Event) {
         currentEvent = event
         event.window?.send(event: event)
         currentEvent = nil
     }
     
-    public func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
+    open func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
         var index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
         
         while index == nil {
@@ -185,74 +194,39 @@ open class Application: Responder {
         return result
     }
 
-    public func discardEvent(matching mask: Event.EventTypeMask, before event: Event) {
+    open func discardEvent(matching mask: Event.EventTypeMask, before event: Event) {
         guard let index = eventQueue.firstIndex(where: { $0.timestamp >= event.timestamp }) else { return }
 
         eventQueue.removeSubrange(0..<index)
     }
 
-    internal func add(window: Window) {
+    // MARK: Windows
+
+    open func add(window: Window) {
         windows.append(window)
         renderers.append(Renderer(context: window._graphicsContext))
     }
 
-    internal func remove(window: Window) {
+    open func remove(window: Window) {
         if let index = windows.firstIndex(of: window) {
             remove(windowNumer: index)
         }
     }
 
-    internal func remove(windowNumer index: Array<Window>.Index) {
-        // order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
+    open func remove(windowNumer index: Array<Window>.Index) {
+        //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         renderers.remove(at: index)
         windows.remove(at: index)
     }
 }
 
-internal extension Application {
-    func addSimpleWindow() {
-        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+public extension Application {
+    struct LaunchOptionsKey : Hashable, Equatable, RawRepresentable {
+        public typealias RawValue = String
+        public let rawValue: RawValue
 
-        let subview1 = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
-        subview1.tag = 1
-        subview1.backgroundColor = .green
-        subview1.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
-
-        let subview2 = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
-        subview2.tag = 2
-        subview2.backgroundColor = .red
-        subview2.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
-
-        let subview3 = View(with: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
-        subview3.tag = 3
-        subview3.backgroundColor = .gray
-        subview3.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi)
-
-        subview2.add(subview: subview3)
-        subview1.add(subview: subview2)
-
-        let subview4 = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
-        subview4.tag = 4
-        subview4.backgroundColor = .blue
-        window.add(subview: subview4)
-
-        window.add(subview: subview1)
-
-        let button = Button(with: CGRect(x: 100.0, y: 100.0, width: 80.0, height: 44.0))
-        button.backgroundColor = .clear
-        button.set(title: "Normal", for: .normal)
-        button.set(title: "Selected", for: .selected)
-        button.set(title: "Highlighted", for: .highlighted)
-        window.add(subview: button)
-
-        add(window: window)
-
-        let transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [weak subview1, weak subview2, weak subview3]  _ in
-            subview1?.transform = subview1?.transform.rotated(by: .pi / 120) ?? .identity
-            subview2?.transform = subview2?.transform.rotated(by: -.pi / 80) ?? .identity
-            subview3?.transform = subview3?.transform.rotated(by: .pi / 20) ?? .identity
+        public init(rawValue: RawValue) {
+            self.rawValue = rawValue
         }
-
-        RunLoop.current.add(transformTimer, forMode: .common)
     }
 }

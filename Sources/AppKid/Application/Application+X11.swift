@@ -15,8 +15,6 @@ import CEpoll
 import Glibc
 #endif
 
-internal let testString = "And if you gaze long into an abyss, the abyss also gazes into you."
-
 internal extension Application {
     func setupX11() {
         displayConnectionFileDescriptor = XConnectionNumber(display)
@@ -77,7 +75,6 @@ internal extension Application {
 
         let currentRunloop = RunLoop.current
 
-
         let runLoopSource: CFRunLoopSource = withUnsafeMutablePointer(to: &x11RunLoopSourceContext) {
             let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer($0).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
 
@@ -133,13 +130,15 @@ internal extension Application {
         while XPending(display) != 0 {
             XNextEvent(display, &x11Event)
             
-            guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
+            guard let windowNumber = windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
                 continue
             }
+
+            let window = windows[windowNumber]
             
             let timestamp = CFAbsoluteTimeGetCurrent() - Application.shared.startTime
             
-            if let event = try? Event(x11Event: x11Event, timestamp: timestamp, windowNumber: windowNumber) {
+            if let event = try? Event(x11Event: x11Event, timestamp: timestamp, windowNumber: windowNumber, displayScale: window.nativeWindow.displayScale) {
                 if event.type == .noEvent {
                     continue
                 }

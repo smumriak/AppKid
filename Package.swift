@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftyFan",
     platforms: [
-        .macOS(.v10_12)
+        .macOS(.v10_15)
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.

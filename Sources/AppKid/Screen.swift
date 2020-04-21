@@ -7,6 +7,6 @@
 
 import Foundation
 
-public class Screen {
+open class Screen {
     
 }

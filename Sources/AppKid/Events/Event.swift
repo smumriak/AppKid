@@ -73,6 +73,7 @@ public extension Event {
     enum EventSubtype: UInt {
         case none
         // AppKidDefined Type
+        case windowMapped
         case windowExposed
         case applicationActivated
         case applicationDeactivated
@@ -163,7 +164,7 @@ public extension Event {
     }
 }
 
-open class Event {
+public class Event {
     public internal(set) var type: EventType = .noEvent
     public internal(set) var subType: EventSubtype = .none
     public internal(set) var modifierFlags: ModifierFlags = .none

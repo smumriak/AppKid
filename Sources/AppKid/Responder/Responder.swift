@@ -8,31 +8,57 @@
 import Foundation
 
 open class Responder {
-    public internal(set) weak var nextResponder: Responder? = nil
-    public fileprivate(set) var acceptsFirstResponder = true
-    
-    open func mouseDown(with event: Event) {}
-    open func rightMouseDown(with event: Event) {}
-    open func otherMouseDown(with event: Event) {}
-    open func mouseUp(with event: Event) {}
-    open func rightMouseUp(with event: Event) {}
-    open func otherMouseUp(with event: Event) {}
-    open func mouseMoved(with event: Event) {}
-    open func mouseDragged(with event: Event) {}
-    open func rightMouseDragged(with event: Event) {}
-    open func otherMouseDragged(with event: Event) {}
-    open func scrollWheel(with event: Event) {}
-    open func mouseEntered(with event: Event) {}
-    open func mouseExited(with event: Event) {}
-    open func keyDown(with event: Event) {}
-    open func keyUp(with event: Event) {}
-    open func flagsChanged(with event: Event) {}
+    open var nextResponder: Responder? { return nil }
+
+    internal func responderWindow() -> Window? { return nil }
+
+    open func mouseDown(with event: Event) { nextResponder?.mouseDown(with: event) }
+    open func rightMouseDown(with event: Event) { nextResponder?.rightMouseDown(with: event) }
+    open func otherMouseDown(with event: Event) { nextResponder?.otherMouseDown(with: event) }
+    open func mouseUp(with event: Event) { nextResponder?.mouseUp(with: event) }
+    open func rightMouseUp(with event: Event) { nextResponder?.rightMouseUp(with: event) }
+    open func otherMouseUp(with event: Event) { nextResponder?.otherMouseUp(with: event) }
+    open func mouseMoved(with event: Event) { nextResponder?.mouseMoved(with: event) }
+    open func mouseDragged(with event: Event) { nextResponder?.mouseDragged(with: event) }
+    open func rightMouseDragged(with event: Event) { nextResponder?.rightMouseDragged(with: event) }
+    open func otherMouseDragged(with event: Event) { nextResponder?.otherMouseDragged(with: event) }
+    open func scrollWheel(with event: Event) { nextResponder?.scrollWheel(with: event) }
+    open func mouseEntered(with event: Event) { nextResponder?.mouseEntered(with: event) }
+    open func mouseExited(with event: Event) { nextResponder?.mouseExited(with: event) }
+    open func keyDown(with event: Event) { nextResponder?.keyDown(with: event) }
+    open func keyUp(with event: Event) { nextResponder?.keyUp(with: event) }
+    open func flagsChanged(with event: Event) { nextResponder?.flagsChanged(with: event) }
 
     open var canBecomeFirstResponder: Bool { return false }
-    open func becomeFirstResponder() -> Bool { return false }
-    open var canResignFirstResponder: Bool { return false }
-    open func resignFirstResponder() -> Bool { return false }
-    open var isFirstResponder: Bool { return false }
+    open var canResignFirstResponder: Bool { return true }
+
+    open func becomeFirstResponder() -> Bool {
+        if canBecomeFirstResponder {
+            responderWindow()?.firstResponder = self
+
+            return true
+        } else {
+            return false
+        }
+    }
+
+    open func resignFirstResponder() -> Bool {
+        if canResignFirstResponder {
+            if responderWindow()?.firstResponder === self {
+                responderWindow()?.firstResponder = nil
+
+                return true
+            } else {
+                return false
+            }
+        } else {
+            return false
+        }
+    }
+    
+    open var isFirstResponder: Bool {
+        return responderWindow()?.firstResponder === self
+    }
 }
 
 internal extension Responder {
@@ -51,4 +77,10 @@ internal extension Responder {
         .mouseEntered: Responder.mouseEntered,
         .mouseExited: Responder.mouseExited,
     ]
+}
+
+extension Responder: Equatable {
+    public static func == (lhs: Responder, rhs: Responder) -> Bool {
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    }
 }

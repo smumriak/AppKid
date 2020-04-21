@@ -129,7 +129,7 @@ internal extension Event.EventType {
         case UnmapNotify:
             self = .noEvent
         case MapNotify:
-            self = .noEvent
+            self = .appKidDefined
         case MapRequest:
             self = .noEvent
         case ReparentNotify:
@@ -196,7 +196,7 @@ internal extension Event.ModifierFlags {
 }
 
 internal extension Event {
-    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval, windowNumber: Int) throws {
+    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval, windowNumber: Int, displayScale: CGFloat) throws {
         guard let type = EventType(x11Event: x11Event) else {
             return nil
         }
@@ -204,13 +204,17 @@ internal extension Event {
         switch type {
         case _ where EventType.mouseEventTypes.contains(type):
             let buttonEvent = x11Event.xbutton
-            
-            try self.init(withMouseEventType: type, location: CGPoint(x: Int(buttonEvent.x), y: Int(buttonEvent.y)), modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+
+            let location = CGPoint(x: CGFloat(buttonEvent.x) / displayScale, y: CGFloat(buttonEvent.y) / displayScale)
+            try self.init(withMouseEventType: type, location: location, modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(buttonEvent.button)
             
         case .appKidDefined:
             switch x11Event.xany.type {
+            case MapNotify:
+                self.init(withAppKidEventSubType: .windowMapped, windowNumber: windowNumber)
+
             case Expose:
                 self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 

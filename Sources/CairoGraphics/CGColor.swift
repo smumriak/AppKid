@@ -14,18 +14,42 @@ public struct CGColor {
     public var green: CGFloat = .zero
     public var blue: CGFloat = .zero
     public var alpha: CGFloat = 1.0
+
+    public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
+    }
+
+    public init(white: CGFloat, alpha: CGFloat = 1.0) {
+        self.red = white
+        self.green = white
+        self.blue = white
+        self.alpha = alpha
+    }
 }
 
 public extension CGColor {
-    static let clear = CGColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0)
+    static var black = CGColor(white: 0.0)
+    static var darkGray = CGColor(white: 1.0 / 3.0)
+    static var lightGray = CGColor(white: 2.0 / 3.0)
+    static var white = CGColor(white: 1.0)
+    static var gray = CGColor(white: 0.5)
+
+    static var red = CGColor(red: 1.0, green: 0.0, blue: 0.0)
+    static var green = CGColor(red: 0.0, green: 1.0, blue: 0.0)
+    static var blue = CGColor(red: 0.0, green: 0.0, blue: 1.0)
+
+    static var cyan = CGColor(red: 0.0, green: 1.0, blue: 1.0)
+    static var yellow = CGColor(red: 1.0, green: 1.0, blue: 0.0)
+    static var magenta = CGColor(red: 1.0, green: 0.0, blue: 1.0)
     
-    static let red = CGColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 1.0)
-    static let green = CGColor(red: 0.0, green: 1.0, blue: 0.0, alpha: 1.0)
-    static let blue = CGColor(red: 0.0, green: 0.0, blue: 1.0, alpha: 1.0)
-    
-    static let black = CGColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 1.0)
-    static let white = CGColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-    static let gray = CGColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 1.0)
+    static var orange = CGColor(red: 1.0, green: 0.5, blue: 0.0)
+    static var purple = CGColor(red: 0.5, green: 0.0, blue: 0.5)
+    static var brown = CGColor(red: 0.6, green: 0.4, blue: 0.2)
+
+    static var clear = CGColor(white: 0.0, alpha: 0.0)
 }
 
 extension CGColor: Equatable {

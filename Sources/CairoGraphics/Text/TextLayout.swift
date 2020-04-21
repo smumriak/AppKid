@@ -9,7 +9,7 @@ import Foundation
 import CPango
 import CCairo
 
-public class TextLayout {
+open class TextLayout {
     fileprivate var hasChanged = false
 
     var layoutPointer: CReferablePointer<PangoLayout>
@@ -31,20 +31,20 @@ public class TextLayout {
         }
     }
     
-    public var font: Font = .systemFont(ofSize: 17) {
+    open var font: Font = .systemFont(ofSize: 17) {
         didSet {
             pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
             hasChanged = true
         }
     }
 
-    public var text: String = "" {
+    open var text: String = "" {
         didSet {
             pango_layout_set_text(layout, text.cString(using: .utf8), -1)
         }
     }
 
-    public var textColor: CGColor = .black
+    open var textColor: CGColor = .black
     
     public init() {
         let pangoContext = pango_font_map_create_context(pango_cairo_font_map_get_default())!
@@ -67,9 +67,10 @@ public class TextLayout {
         pango_layout_set_wrap(layout, PANGO_WRAP_WORD)
         pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END)
 
-        //        pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER)
-        //palkovnik:FIXME: Figure out why center alignment produces invalid positions
-        //use following code to produce debug information for forum questions
+        pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER)
+
+        //palkovnik:FIXME: Figure out why center alignment produces invalid positions. Use following code to produce debug information for forum questions
+        //UPD 17.02.2020. The issue does no longer reproduce. Meanwhile pango update to version 1.44.7 was pushed to pop!_os
         //        var position = PangoRectangle()
         //        pango_layout_index_to_pos(layout, 0, &position)
         //        debugPrint("Position: \(position)")
@@ -79,7 +80,7 @@ public class TextLayout {
         //        debugPrint("Pixel width: \(pixelWidth), pixel height: \(pixelHeight)")
     }
 
-    public func render(in context: CGContext, rect: CGRect) {
+    open func render(in context: CGContext, rect: CGRect) {
         if text.isEmpty { return }
         
         pango_cairo_update_context(context._context, pangoContext)

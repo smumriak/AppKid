@@ -38,9 +38,9 @@ open class CGContext {
 
     internal var _state = CGContextState()
     internal var _statesStack: [CGContextState] = []
-    public internal(set) var size: CGSize
+    open internal(set) var size: CGSize
 
-    public var shouldAntialias = false {
+    open var shouldAntialias = false {
         didSet {
             if shouldAntialias {
                 cairo_set_antialias(_context, CAIRO_ANTIALIAS_GOOD)
@@ -213,7 +213,11 @@ public extension CGContext {
         case .evenOdd:
             cairo_set_fill_rule(_context, CAIRO_FILL_RULE_EVEN_ODD)
         }
-        cairo_clip(_context)
+        cairo_clip_preserve(_context)
+    }
+
+    func resetClip() {
+        cairo_reset_clip(_context)
     }
     
     func strokePath() {

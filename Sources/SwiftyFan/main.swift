@@ -7,10 +7,6 @@
 
 import AppKid
 
-class AppDelegate: ApplicationDelegate {
-
-}
-
 let appDelegate = AppDelegate()
 let application = Application.shared
 application.delegate = appDelegate

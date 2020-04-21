@@ -86,7 +86,7 @@ extension X11NativeWindow {
 
 extension X11NativeWindow: Equatable {
     static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
-        return lhs === rhs || lhs.windowID == rhs.windowID
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
     }
 }
 

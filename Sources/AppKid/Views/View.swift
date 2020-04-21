@@ -9,10 +9,14 @@ import Foundation
 import CairoGraphics
 
 open class View: Responder {
-    var tag: UInt = 0
+    open var tag: UInt = 0
+    internal weak var viewDelegate: ViewController? = nil
+
+    // MARK: Geometry
     fileprivate var _bounds: CGRect {
         didSet {
             invalidateTransforms()
+            setNeedsLayout()
         }
     }
     fileprivate var _center: CGPoint {
@@ -21,7 +25,7 @@ open class View: Responder {
         }
     }
     
-    public var frame: CGRect {
+    open var frame: CGRect {
         get {
             let transform = CairoGraphics.CGAffineTransform.identity
                 .translatedBy(x: _bounds.midX, y: _bounds.midY)
@@ -40,10 +44,12 @@ open class View: Responder {
             let transformedFrame = newValue
             _bounds.size = transformedFrame.size
             _center = CGPoint(x: transformedFrame.midX, y: transformedFrame.midY)
+
+            setNeedsLayout()
         }
     }
     
-    public var bounds: CGRect {
+    open var bounds: CGRect {
         get {
             return _bounds
         }
@@ -52,7 +58,7 @@ open class View: Responder {
         }
     }
     
-    public var center: CGPoint {
+    open var center: CGPoint {
         get {
             return _center
         }
@@ -61,32 +67,12 @@ open class View: Responder {
         }
     }
 
-    public var masksToBounds = true
-    public var cornerRaidus: CGFloat = 0.0
-    public var anchorPoint = CGPoint(x: 0.5, y: 0.5)
-    
-    public internal(set) weak var superview: View? = nil
-    public internal(set) var subviews = [View]()
-    public internal(set) weak var window: Window? = nil
-    
-    internal var dirtyRect: CGRect? {
-        didSet {
-            if let dirtyRect = dirtyRect {
-                superview?.setNeedsDisplay(in: convert(dirtyRect, to: superview))
-            }
-        }
-    }
-    public var needsLayout = false
-    public var hidden = false
-    public var alpha: CGFloat = 1.0
-    public var userInteractionEnabled = true
-    public var transform: CairoGraphics.CGAffineTransform = .identity {
+    open var transform: CairoGraphics.CGAffineTransform = .identity {
         didSet {
             invalidateTransforms()
         }
     }
-    public var backgroundColor: CairoGraphics.CGColor = .white
-    
+
     fileprivate var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
     internal var transformToWindow: CairoGraphics.CGAffineTransform {
         rebuildTransformsIfNeeded()
@@ -98,6 +84,52 @@ open class View: Responder {
         return _transformFromWindow
     }
     internal var transformsAreValid = false
+
+    open var masksToBounds = true
+    open var cornerRaidus: CGFloat = 0.0
+    open var anchorPoint = CGPoint(x: 0.5, y: 0.5)
+
+    // MARK: View Hierarchy
+    
+    open internal(set) weak var superview: View? = nil
+    open internal(set) var subviews = [View]()
+    open internal(set) weak var window: Window? = nil
+    
+    internal var dirtyRect: CGRect? {
+        didSet {
+            if let dirtyRect = dirtyRect {
+                superview?.setNeedsDisplay(in: convert(dirtyRect, to: superview))
+            }
+        }
+    }
+
+    // MARK: Layout
+    open var needsLayout = false
+
+    open func setNeedsLayout() {
+        needsLayout = true
+    }
+
+    open func layoutIfNeeded() {
+        if needsLayout {
+            viewDelegate?.viewWillLayoutSubviews()
+
+            layoutSubviews()
+
+            viewDelegate?.viewDidLayoutSubviews()
+        }
+    }
+
+    open func layoutSubviews() {}
+
+
+    open var hidden = false
+    open var alpha: CGFloat = 1.0
+    open var userInteractionEnabled = true
+
+    open var backgroundColor: CairoGraphics.CGColor = .white
+
+    // MARK: Init
     
     public init(with frame: CGRect) {
         _bounds = CGRect(origin: .zero, size: frame.size)
@@ -105,12 +137,15 @@ open class View: Responder {
         
         super.init()
     }
-    
-    public func add(subview: View) {
+
+    // MARK: View Hierarchy Manipulation
+
+    //palkovnik:TODO: How does window get set when view hierarchy is created before inserting to window?
+    open func add(subview: View) {
         insert(subview: subview, at: subviews.count)
     }
     
-    public func insert(subview: View, at index: Array<View>.Index) {
+    open func insert(subview: View, at index: Array<View>.Index) {
         subview.removeFromSuperView()
         
         subview.willMove(toWindow: window)
@@ -119,6 +154,8 @@ open class View: Responder {
         subviews.insert(subview, at: index)
         subview.superview = self
         subview.window = window
+
+        subview.invalidateTransforms()
         
         subview.didMoveToSuperview()
         subview.didMoveToWindow()
@@ -126,7 +163,7 @@ open class View: Responder {
         didAddSubview(subview)
     }
     
-    public func removeFromSuperView() {
+    open func removeFromSuperView() {
         guard let superview = superview else { return }
         
         superview.willRemoveSubview(self)
@@ -140,21 +177,19 @@ open class View: Responder {
         didMoveToWindow()
     }
     
-    public func didAddSubview(_ subview: View) {
-        subview.nextResponder = self
+    open func didAddSubview(_ subview: View) {
     }
     
-    public func willRemoveSubview(_ subview: View) {
-        subview.nextResponder = nil
+    open func willRemoveSubview(_ subview: View) {
     }
     
-    public func willMove(toSuperview superview: View?) {}
+    open func willMove(toSuperview superview: View?) {}
     
-    public func didMoveToSuperview() {}
+    open func didMoveToSuperview() {}
     
-    public func willMove(toWindow window: Window?) {}
+    open func willMove(toWindow window: Window?) {}
     
-    public func didMoveToWindow() {}
+    open func didMoveToWindow() {}
     
     internal func rebuildTransformsIfNeeded() {
         if transformsAreValid { return }
@@ -187,8 +222,10 @@ open class View: Responder {
             view.invalidateTransforms()
         }
     }
+
+    // MARK: Geometry conversion
     
-    public func convert(_ point: CGPoint, to view: View?) -> CGPoint {
+    open func convert(_ point: CGPoint, to view: View?) -> CGPoint {
         let toView = view ?? window
         
         let transformFromWindow = toView?.transformFromWindow ?? .identity
@@ -196,7 +233,7 @@ open class View: Responder {
         return point.applying(transformToWindow).applying(transformFromWindow)
     }
     
-    public func convert(_ point: CGPoint, from view: View?) -> CGPoint {
+    open func convert(_ point: CGPoint, from view: View?) -> CGPoint {
         let fromView = view ?? window
         
         let transformToWindow = fromView?.transformToWindow ?? .identity
@@ -204,25 +241,27 @@ open class View: Responder {
         return point.applying(transformToWindow).applying(transformFromWindow)
     }
     
-    public func convert(_ rect: CGRect, to view: View?) -> CGRect {
+    open func convert(_ rect: CGRect, to view: View?) -> CGRect {
         return rect
     }
     
-    public func convert(_ rect: CGRect, from view: View?) -> CGRect {
+    open func convert(_ rect: CGRect, from view: View?) -> CGRect {
         return rect
     }
 
-    public func render(in context: CairoGraphics.CGContext) {
+    // MARK: Rendering
+
+    open func render(in context: CairoGraphics.CGContext) {
         context.fillColor = backgroundColor
 
         context.fill(bounds)
     }
     
-    public func setNeedsDisplay() {
+    open func setNeedsDisplay() {
         setNeedsDisplay(in: bounds)
     }
     
-    public func setNeedsDisplay(in rect: CGRect) {
+    open func setNeedsDisplay(in rect: CGRect) {
         if let dirtyRect = dirtyRect {
             let minX = min(dirtyRect.minX, rect.minX)
             let minY = min(dirtyRect.minY, rect.minY)
@@ -233,6 +272,8 @@ open class View: Responder {
             dirtyRect = rect
         }
     }
+
+    // MARK: Hit Test
     
     open func hitTest(_ point: CGPoint) -> View? {
         var interestPoint = point
@@ -278,10 +319,12 @@ open class View: Responder {
 
     // MARK: Responder
 
-    open override func mouseDown(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.mouseDown(with: event)
-        }
+    internal override func responderWindow() -> Window? {
+        return window
+    }
+
+    open override var nextResponder: Responder? {
+        return viewDelegate ?? superview ?? super.nextResponder
     }
 
     open override func mouseDragged(with event: Event) {
@@ -292,59 +335,13 @@ open class View: Responder {
             center = point
         }
     }
-
-    open override func mouseUp(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.mouseUp(with: event)
-        }
-    }
-
-    open override func rightMouseDown(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.rightMouseDown(with: event)
-        }
-    }
-
-    open override func rightMouseDragged(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.rightMouseDragged(with: event)
-        }
-    }
-
-    open override func rightMouseUp(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.rightMouseUp(with: event)
-        }
-    }
-
-    open override func otherMouseDown(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.otherMouseDown(with: event)
-        }
-    }
-
-    open override func otherMouseDragged(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.otherMouseDragged(with: event)
-        }
-    }
-
-    open override func otherMouseUp(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.otherMouseUp(with: event)
-        }
-    }
-
-    open override func scrollWheel(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.scrollWheel(with: event)
-        }
-    }
 }
 
-extension View: Equatable {
-    public static func == (lhs: View, rhs: View) -> Bool {
-        return lhs === rhs
+// MARK: Equatable
+
+public extension View {
+    static func == (lhs: View, rhs: View) -> Bool {
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 }
 
