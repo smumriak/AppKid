@@ -14,4 +14,7 @@
 #define __CK_ENUM_ATTRIBUTES __attribute__((enum_extensibility(open)))
 #define AK_ENUM(_type, _name) enum __CK_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
 
+#define __CF_CLOSED_ENUM_ATTRIBUTES __attribute__((enum_extensibility(closed)))
+#define AK_CLOSED_ENUM(_type, _name) enum __CF_CLOSED_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
+
 #endif

@@ -159,7 +159,6 @@ public extension Event {
 public extension Event {
     enum EventCreationError: Error {
         case unparsableEvent
-        case unknownEventType
         case eventIgnored
         case noWindow
         case incompatibleEventType(validEventTypes: Set<EventType>)

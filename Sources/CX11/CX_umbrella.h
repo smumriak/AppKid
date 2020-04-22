@@ -16,7 +16,7 @@
 
 #include "../CCore/CCore_umbrella.h"
 
-typedef AK_ENUM(int32_t, X11EventType) {
+typedef AK_CLOSED_ENUM(int32_t, X11EventType) {
     X11EventTypeKeyPress = KeyPress,
     X11EventTypeKeyRelease = KeyRelease,
     X11EventTypeButtonPress = ButtonPress,
@@ -81,5 +81,34 @@ typedef AK_OPTIONS(int32_t, X11EventTypeMask) {
     X11EventTypeMaskColormapChange = ColormapChangeMask,
     X11EventTypeMaskOwnerGrabButton = OwnerGrabButtonMask
 };
+
+typedef AK_CLOSED_ENUM(int32_t, X11EventButtonName) {
+    X11EventButtonNameOne = Button1,
+    X11EventButtonNameTwo = Button2,
+    X11EventButtonNameThree = Button3,
+    X11EventButtonNameFour = Button4,
+    X11EventButtonNameFive = Button5
+};
+
+typedef AK_OPTIONS(int32_t, X11EventButtonMask) {
+    X11EventButtonMaskOne = Button1Mask,
+    X11EventButtonMaskTwo = Button2Mask,
+    X11EventButtonMaskThree = Button3Mask,
+    X11EventButtonMaskFour = Button4Mask,
+    X11EventButtonMaskFive = Button5Mask,
+    X11EventButtonMaskAny = AnyModifier
+};
+
+typedef AK_OPTIONS(int32_t, X11EventKeyMask) {
+    X11EventKeyMaskShift = ShiftMask,
+    X11EventKeyMaskLock = LockMask,
+    X11EventKeyMaskControl = ControlMask,
+    X11EventKeyMaskMod1 = Mod1Mask,
+    X11EventKeyMaskMod2 = Mod2Mask,
+    X11EventKeyMaskMod3 = Mod3Mask,
+    X11EventKeyMaskMod4 = Mod4Mask,
+    X11EventKeyMaskMod5 = Mod5Mask
+};
+
 
 #endif

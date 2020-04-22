@@ -12,7 +12,7 @@
 
 #include "../CCore/CCore_umbrella.h"
 
-typedef AK_ENUM(int32_t, XInput2EventType) {
+typedef AK_CLOSED_ENUM(int32_t, XInput2EventType) {
     XInput2EventTypeDeviceChanged = XI_DeviceChanged,
     XInput2EventTypeKeyPress = XI_KeyPress,
     XInput2EventTypeKeyRelease = XI_KeyRelease,

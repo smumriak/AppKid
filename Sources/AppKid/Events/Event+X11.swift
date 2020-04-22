@@ -20,51 +20,51 @@ extension X11EventTypeMask {
     static let basic: X11EventTypeMask = [.keyboard, .mouse, .buttonMotion, .enterLeave, .focusChange, .geometry]
 }
 
-internal extension Event.EventType {
-    init?(x11Event: XEvent) {
-        var event = x11Event
-        guard let type = X11EventType(rawValue: event.type) else {
-            self = .noEvent
-            return
+fileprivate extension XEvent {
+    var eventTypeFromXEvent: Event.EventType {
+        guard let type = X11EventType(rawValue: type) else {
+            return .noEvent
         }
 
         switch type {
         case .keyPress, .keyRelease:
-            self = Self.keyboardEventType(for: &event, type: type)
+            return keyboardEventType
 
         case .buttonPress:
-            self = Self.mouseDownEvent(for: CInt(event.xbutton.button))
+            return mouseDownEvent
 
         case .buttonRelease:
-            self = Self.mouseUpEvent(for: CInt(event.xbutton.button))
+            return mouseUpEvent
 
         case .motionNotify:
-            self = Self.mouseDraggedEvent(for: CInt(event.xmotion.state))
+            return mouseDraggedEvent
 
         case .enterNotify:
-            self = .mouseEntered
+            return .mouseEntered
 
         case .leaveNotify:
-            self = .mouseExited
+            return .mouseExited
 
         case .expose, .graphicsExpose, .noExpose, .mapNotify, .reparentNotify, .configureNotify, .clientMessage:
-            self = .appKidDefined
+            return .appKidDefined
 
         case .mappingNotify:
-            self = .systemDefined
-            
-        default: self = .noEvent
+            return .systemDefined
+
+        default:
+            return .noEvent
         }
     }
 }
 
-fileprivate extension Event.EventType {
-    static func keyboardEventType(for event: inout XEvent, type: X11EventType) -> Self {
-        let keySymbol = XLookupKeysym(&event.xkey, 0)
+fileprivate extension XEvent {
+    var keyboardEventType: Event.EventType {
+        var mutableCopy = self
+        let keySymbol = XLookupKeysym(&mutableCopy.xkey, 0)
         if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
             return .flagsChanged
         } else {
-            switch type {
+            switch X11EventType(rawValue: type) {
             case .keyPress: return .keyDown
             case .keyRelease: return .keyUp
             default: return .noEvent
@@ -72,35 +72,59 @@ fileprivate extension Event.EventType {
         }
     }
 
-    static func mouseUpEvent(for buttonNumber: CInt) -> Self {
-        switch buttonNumber {
-        case Button1: return .leftMouseUp
-        case Button2: return .otherMouseUp
-        case Button3: return .rightMouseUp
-        case Button4, Button5: return .scrollWheel
-        default: return .otherMouseUp
+    var mouseDownEvent: Event.EventType {
+        guard let buttonName = X11EventButtonName(rawValue: CInt(xbutton.button)) else {
+            return .otherMouseDown
+        }
+
+        switch buttonName {
+        case .one: return .leftMouseDown
+        case .two: return .otherMouseDown
+        case .three: return .rightMouseDown
+        case .four, .five: return .scrollWheel
         }
     }
 
-    static func mouseDownEvent(for buttonNumber: CInt) -> Self {
-        switch buttonNumber {
-        case Button1: return .leftMouseDown
-        case Button2: return .otherMouseDown
-        case Button3: return .rightMouseDown
-        case Button4, Button5: return .scrollWheel
-        default: return .otherMouseDown
-        }
-    }
+    var mouseDraggedEvent: Event.EventType {
+        let buttonMask = X11EventButtonMask(rawValue: CInt(xmotion.state))
 
-    static func mouseDraggedEvent(for state: CInt) -> Self {
-        switch state {
-        case _ where state & Button1Mask != 0: return .leftMouseDragged
-        case _ where state & Button2Mask != 0: return .otherMouseDragged
-        case _ where state & Button3Mask != 0: return .rightMouseDragged
-        case _ where state & Button4Mask != 0: return .otherMouseDragged
-        case _ where state & Button5Mask != 0: return .otherMouseDragged
+        switch buttonMask {
+        case .one: return .leftMouseDragged
+        case .two: return .otherMouseDragged
+        case .three: return .rightMouseDragged
+        case .four, .five: return .otherMouseDragged
         default: return .mouseMoved
         }
+    }
+
+    var mouseUpEvent: Event.EventType {
+        guard let buttonName = X11EventButtonName(rawValue: CInt(xbutton.button)) else {
+            return .otherMouseUp
+        }
+
+        switch buttonName {
+        case .one: return .leftMouseUp
+        case .two: return .otherMouseUp
+        case .three: return .rightMouseUp
+        case .four, .five: return .scrollWheel
+        }
+    }
+}
+
+fileprivate extension XButtonEvent {
+    var modifierFlags: Event.ModifierFlags {
+        var result: Event.ModifierFlags = []
+
+        let keyMask = X11EventKeyMask(rawValue: CInt(state))
+
+        if keyMask.contains(.shift) { result.formUnion(.shift) }
+        if keyMask.contains(.lock) { result.formUnion(.capsLock) }
+        if keyMask.contains(.control) { result.formUnion(.control) }
+        if keyMask.contains(.mod1) { result.formUnion(.option) }
+        if keyMask.contains(.mod2) { result.formUnion(.numericPad) }
+        if keyMask.contains(.mod4) { result.formUnion(.command) }
+
+        return result
     }
 }
 
@@ -114,25 +138,11 @@ internal extension Event.ModifierFlags {
         XK_Hyper_L, XK_Hyper_R
         ]
         .map { KeySym($0) })
-
-    init(x11KeyMask: CUnsignedInt) {
-        self.init(rawValue: 0)
-        let keyMask = CInt(x11KeyMask)
-
-        if keyMask & ShiftMask != 0 { formUnion(.shift) }
-        if keyMask & LockMask != 0 { formUnion(.capsLock) }
-        if keyMask & ControlMask != 0 { formUnion(.control) }
-        if keyMask & Mod1Mask != 0 { formUnion(.option) }
-        if keyMask & Mod2Mask != 0 { formUnion(.numericPad) }
-        if keyMask & Mod4Mask != 0 { formUnion(.command) }
-    }
 }
 
 internal extension Event {
     convenience init(x11Event: XEvent, timestamp: TimeInterval, displayScale: CGFloat) throws {
-        guard let type = EventType(x11Event: x11Event) else {
-            throw EventCreationError.unknownEventType
-        }
+        let type = x11Event.eventTypeFromXEvent
 
         guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
             throw EventCreationError.noWindow
@@ -143,7 +153,7 @@ internal extension Event {
             let buttonEvent = x11Event.xbutton
 
             let location = CGPoint(x: CGFloat(buttonEvent.x) / displayScale, y: CGFloat(buttonEvent.y) / displayScale)
-            try self.init(withMouseEventType: type, location: location, modifierFlags: ModifierFlags(x11KeyMask: buttonEvent.state), timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+            try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(buttonEvent.button)
             

@@ -20,42 +20,43 @@ internal extension XInput2EventTypeMask {
     static let basic: XInput2EventTypeMask = [.keyboard, .mouse, .motion, .enterLeave, .focus]
 }
 
-fileprivate extension XEvent {
-    var eventTypeFromXInput2Event: Event.EventType {
-        guard let type = XInput2EventType(rawValue: xcookie.evtype) else {
-            return .noEvent
+internal extension Event.EventType {
+    init(xInput2Event: XEvent) {
+        guard let type = XInput2EventType(rawValue: xInput2Event.xcookie.evtype) else {
+            self = .noEvent
+            return
         }
 
         switch type {
         case .keyPress, .keyRelease:
-            return keyboardEventType
+            self = Self.keyboardEventType(for: xInput2Event.deviceEvent, type: type)
 
         case .buttonPress, .buttonRelease:
-            return mouseEventType
+            self = Self.mouseEventType(for: xInput2Event.deviceEvent, type: type)
 
         case .enter:
-            return .mouseEntered
-
+            self = .mouseEntered
+            
         case .leave:
-            return .mouseExited
-
+            self = .mouseExited
+            
         default:
-            return .noEvent
+            self = .noEvent
         }
     }
 }
 
-fileprivate extension XEvent {
-    var keyboardEventType: Event.EventType {
-        switch XInput2EventType(rawValue: xcookie.evtype) {
+fileprivate extension Event.EventType {
+    static func keyboardEventType(for event: XIDeviceEvent, type: XInput2EventType) -> Self {
+        switch type {
         case .keyPress: return .keyDown
         case .keyRelease: return .keyUp
         default: return .noEvent
         }
     }
 
-    var mouseEventType: Event.EventType {
-        switch XInput2EventType(rawValue: xcookie.evtype) {
+    static func mouseEventType(for event: XIDeviceEvent, type: XInput2EventType) -> Self {
+        switch type {
         case .buttonPress: return .leftMouseDown
         case .buttonRelease: return .leftMouseUp
         default: return .noEvent
@@ -65,7 +66,7 @@ fileprivate extension XEvent {
 
 internal extension Event {
     convenience init(xInput2Event: XEvent, timestamp: TimeInterval, displayScale: CGFloat) throws {
-        let type = xInput2Event.eventTypeFromXInput2Event
+        let type = EventType(xInput2Event: xInput2Event)
 
         if type == .noEvent {
             throw EventCreationError.eventIgnored
@@ -79,6 +80,7 @@ internal extension Event {
 
         switch type {
         case _ where EventType.mouseEventTypes.contains(type):
+            debugPrint("Making mouse event")
             let deviceEvent = xInput2Event.deviceEvent
 
             let location = CGPoint(x: CGFloat(deviceEvent.event_x) / displayScale, y: CGFloat(deviceEvent.event_y) / displayScale)
