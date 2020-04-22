@@ -140,14 +140,16 @@ open class View: Responder {
 
     // MARK: View Hierarchy Manipulation
 
-    //palkovnik:TODO: How does window get set when view hierarchy is created before inserting to window?
     open func add(subview: View) {
         insert(subview: subview, at: subviews.count)
     }
     
     open func insert(subview: View, at index: Array<View>.Index) {
         subview.removeFromSuperView()
-        
+
+        subview.traverseSubviews(includingSelf: true) {
+            $0.willMove(toWindow: window)
+        }
         subview.willMove(toWindow: window)
         subview.willMove(toSuperview: self)
         
@@ -155,10 +157,14 @@ open class View: Responder {
         subview.superview = self
         subview.window = window
 
-        subview.invalidateTransforms()
+        subview.traverseSubviews(includingSelf: true) {
+            $0.invalidateTransforms()
+        }
         
         subview.didMoveToSuperview()
-        subview.didMoveToWindow()
+        subview.traverseSubviews(includingSelf: true) {
+            $0.didMoveToWindow()
+        }
         
         didAddSubview(subview)
     }
@@ -315,6 +321,16 @@ open class View: Responder {
     
     open func point(inside point: CGPoint) -> Bool {
         return bounds.contains(point)
+    }
+
+    internal func traverseSubviews(includingSelf: Bool = false, closure: (_ view: View) -> ()) {
+        if includingSelf {
+            closure(self)
+        }
+
+        subviews.forEach {
+            $0.traverseSubviews(includingSelf: true, closure: closure)
+        }
     }
 
     // MARK: Responder
