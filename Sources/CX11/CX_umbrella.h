@@ -14,11 +14,7 @@
 
 #include <X11/X.h>
 
-#define __CK_OPTIONS_ATTRIBUTES __attribute__((flag_enum,enum_extensibility(open)))
-#define AK_OPTIONS(_type, _name) enum __CK_OPTIONS_ATTRIBUTES _name : _type _name; enum _name : _type
-
-#define __CK_ENUM_ATTRIBUTES __attribute__((enum_extensibility(open)))
-#define AK_ENUM(_type, _name) enum __CK_ENUM_ATTRIBUTES _name : _type _name; enum _name : _type
+#include "../CCore/CCore_umbrella.h"
 
 typedef AK_ENUM(int32_t, X11EventType) {
     X11EventTypeKeyPress = KeyPress,

@@ -14,4 +14,6 @@
 #include <unistd.h>
 #endif
 
+#include "../CCore/CCore_umbrella.h"
+
 #endif

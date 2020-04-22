@@ -15,4 +15,6 @@ struct _PangoContext {};
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 
+#include "../CCore/CCore_umbrella.h"
+
 #endif
