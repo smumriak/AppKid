@@ -26,6 +26,14 @@ let package = Package(
                 .brew(["xquartz"])
             ]
         ),
+        .systemLibrary(
+            name: "CXInput2",
+            pkgConfig: "xi",
+            providers: [
+                .apt(["libxi-dev"]),
+                .brew(["xquartz"])
+            ]
+        ),
         .systemLibrary(name: "CEpoll"),
         .systemLibrary(
             name: "CCairo",
@@ -49,7 +57,7 @@ let package = Package(
         ),
         .target(
             name: "AppKid",
-            dependencies: ["CX11", "CEpoll", "CairoGraphics"]
+            dependencies: ["CX11", "CXInput2", "CEpoll", "CairoGraphics"]
         ),
         .target(
             name: "CairoGraphics",

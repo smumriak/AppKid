@@ -6,12 +6,12 @@
 //
 
 module CX11 [system] {
-  module Xlib {
-      header "CXlib_umbrella.h"
-  }
-  module X {
-      header "CX_umbrella.h"
-  }
-  link "X11"
-  export *
+    module Xlib {
+        header "CXlib_umbrella.h"
+    }
+    module X {
+        header "CX_umbrella.h"
+    }
+    link "X11"
+    export *
 }

@@ -1,5 +1,5 @@
 //
-//  Application+GTK.swift
+//  DisplayServer+GTK.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 18.02.2020.
@@ -8,7 +8,7 @@
 import Foundation
 
 // palkovnik:TODO: This code should be moved to Screen class when refactoring will be performed
-internal extension Application {
+internal extension DisplayServer {
     typealias gdk_display_open_f = @convention(c) (UnsafePointer<Int8>?) -> OpaquePointer?
     typealias gdk_display_close_f = @convention(c) (OpaquePointer?) -> ()
 

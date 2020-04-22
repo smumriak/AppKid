@@ -8,6 +8,7 @@
 import Foundation
 import CX11.Xlib
 import CX11.X
+import CXInput2
 import CairoGraphics
 
 open class Window: View {
@@ -71,19 +72,9 @@ open class Window: View {
     }
 
     public convenience required init(contentRect: CGRect) {
-        let application = Application.shared
+        let displayServer = Application.shared.displayServer
 
-        let display = application.display
-        let screen = application.screen
-        let rootWindow = application.rootWindow
-        let displayScale = application.displayScale
-
-        var scaledContentRect = contentRect
-        scaledContentRect.size.width *= displayScale
-        scaledContentRect.size.height *= displayScale
-
-        let nativeWindow = X11NativeWindow(display: display, screen: screen, rect: scaledContentRect, parent: rootWindow.windowID)
-        nativeWindow.displayScale = displayScale
+        let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect)
 
         self.init(nativeWindow: nativeWindow)
     }

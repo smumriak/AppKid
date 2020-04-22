@@ -6,7 +6,7 @@
 //
 
 module CCairo [system] {
-  header "CCairo_umbrella.h"
-  link "cairo"
-  export *
+    header "CCairo_umbrella.h"
+    link "cairo"
+    export *
 }

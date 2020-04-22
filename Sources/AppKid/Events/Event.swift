@@ -46,9 +46,7 @@ public extension Event {
 //        case pressure = 34
 //        case directTouch = 37
 //        case changeMode = 38
-        
-        
-        
+
         static let mouseEventTypes: Set<EventType> = [
             .leftMouseDown,
             .leftMouseUp,
@@ -81,7 +79,7 @@ public extension Event {
         case windowResized
         case screenChanged
         case message // client message from X11
-        case last // last event before stopping Run Loop
+        case terminate // last event before stopping Run Loop
     }
 }
 
@@ -160,6 +158,10 @@ public extension Event {
 
 public extension Event {
     enum EventCreationError: Error {
+        case unparsableEvent
+        case unknownEventType
+        case eventIgnored
+        case noWindow
         case incompatibleEventType(validEventTypes: Set<EventType>)
     }
 }
@@ -205,7 +207,7 @@ public class Event {
     }
     
     convenience internal init(withAppKidEventSubType subType: EventSubtype, windowNumber: Int) {
-        self.init(type: .appKidDefined, location: .zero, modifierFlags: .none, windowNumber: windowNumber)
+        self.init(type: .appKidDefined, location: CGPoint(x: CGFloat.nan, y: CGFloat.nan), modifierFlags: .none, windowNumber: windowNumber)
         self.subType = subType
     }
 }

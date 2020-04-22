@@ -63,7 +63,7 @@ class RootViewController: ViewController {
         return result
     }()
 
-    lazy var button: Button = {
+    var button: Button = {
         let result = Button(with: CGRect(x: 100.0, y: 100.0, width: 140.0, height: 44.0))
 
         result.backgroundColor = .clear
@@ -79,6 +79,16 @@ class RootViewController: ViewController {
         return result
     }()
 
+    lazy var transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview]  _ in
+        greenSubview.transform = greenSubview.transform.rotated(by: .pi / 120)
+        redSubview.transform = redSubview.transform.rotated(by: -.pi / 80)
+        graySubview.transform = graySubview.transform.rotated(by: .pi / 20)
+    }
+
+    deinit {
+        transformTimer.invalidate()
+    }
+
     override init() {
         super.init()
     }
@@ -93,13 +103,13 @@ class RootViewController: ViewController {
         view.add(subview: label)
         view.add(subview: button)
 
-        let transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [weak greenSubview, weak redSubview, weak graySubview]  _ in
-            greenSubview?.transform = greenSubview?.transform.rotated(by: .pi / 120) ?? .identity
-            redSubview?.transform = redSubview?.transform.rotated(by: -.pi / 80) ?? .identity
-            graySubview?.transform = graySubview?.transform.rotated(by: .pi / 20) ?? .identity
-        }
-
         RunLoop.current.add(transformTimer, forMode: .common)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+
     }
 
     override func viewDidLayoutSubviews() {

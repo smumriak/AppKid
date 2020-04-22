@@ -9,164 +9,97 @@ import Foundation
 import CoreFoundation
 import CX11.X
 import CX11.Xlib
+import CXInput2
+
+extension X11EventTypeMask {
+    static let keyboard: X11EventTypeMask = [.keyPress, .keyRelease]
+    static let mouse: X11EventTypeMask = [.buttonPress, .buttonRelease]
+    static let enterLeave: X11EventTypeMask = [.enterWindow, .leaveWindow]
+    static let geometry: X11EventTypeMask = [.exposure, .visibilityChange, .structureNotify]
+
+    static let basic: X11EventTypeMask = [.keyboard, .mouse, .buttonMotion, .enterLeave, .focusChange, .geometry]
+}
 
 internal extension Event.EventType {
-    static let defaultX11EventsMask: Int = {
-        return [
-            KeyPressMask,
-            KeyReleaseMask,
-            ButtonPressMask,
-            ButtonReleaseMask,
-            EnterWindowMask,
-            LeaveWindowMask,
-//            PointerMotionMask,
-//            PointerMotionHintMask,
-//            Button1MotionMask,
-//            Button2MotionMask,
-//            Button3MotionMask,
-//            Button4MotionMask,
-//            Button5MotionMask,
-            ButtonMotionMask,
-//            KeymapStateMask,
-            ExposureMask,
-            VisibilityChangeMask,
-            StructureNotifyMask,
-//            ResizeRedirectMask,
-//            SubstructureNotifyMask,
-//            SubstructureRedirectMask,
-            FocusChangeMask,
-//            PropertyChangeMask,
-//            ColormapChangeMask,
-//            OwnerGrabButtonMask,
-            ]
-            .reduce(NoEventMask, |)
-    }()
-    
-    init?(x11Event: CX11.XEvent) {
-        var x11Event = x11Event
-        switch x11Event.type {
-        case KeyPress:
-            let keySymbol = XLookupKeysym(&x11Event.xkey, 0)
-            if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
-                self = .flagsChanged
-            } else {
-                self = .keyDown
-            }
-        case KeyRelease:
-            let keySymbol = XLookupKeysym(&x11Event.xkey, 0)
-            if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
-                self = .flagsChanged
-            } else {
-                self = .keyUp
-            }
-        case ButtonPress:
-            switch CInt(x11Event.xbutton.button) {
-            case Button1:
-                self = .leftMouseDown
-            case Button2:
-                self = .otherMouseDown
-            case Button3:
-                self = .rightMouseDown
-            case Button4, Button5:
-                self = .scrollWheel
-            default:
-                self = .otherMouseDown
-            }
-            
-        case ButtonRelease:
-            switch CInt(x11Event.xbutton.button) {
-            case Button1:
-                self = .leftMouseUp
-            case Button2:
-                self = .otherMouseUp
-            case Button3:
-                self = .rightMouseUp
-            case Button4, Button5:
-                self = .scrollWheel
-            default:
-                self = .otherMouseUp
-            }
-            
-        case MotionNotify:
-            let state = CInt(x11Event.xmotion.state)
-            
-            switch state {
-            case _ where state & Button1Mask != 0:
-                self = .leftMouseDragged
-            case _ where state & Button2Mask != 0:
-                self = .otherMouseDragged
-            case _ where state & Button3Mask != 0:
-                self = .rightMouseDragged
-            case _ where state & Button4Mask != 0:
-                self = .otherMouseDragged
-            case _ where state & Button5Mask != 0:
-                self = .otherMouseDragged
-            default:
-                self = .mouseMoved
-            }
-        case EnterNotify:
+    init?(x11Event: XEvent) {
+        var event = x11Event
+        guard let type = X11EventType(rawValue: event.type) else {
+            self = .noEvent
+            return
+        }
+
+        switch type {
+        case .keyPress, .keyRelease:
+            self = Self.keyboardEventType(for: &event, type: type)
+
+        case .buttonPress:
+            self = Self.mouseDownEvent(for: CInt(event.xbutton.button))
+
+        case .buttonRelease:
+            self = Self.mouseUpEvent(for: CInt(event.xbutton.button))
+
+        case .motionNotify:
+            self = Self.mouseDraggedEvent(for: CInt(event.xmotion.state))
+
+        case .enterNotify:
             self = .mouseEntered
-        case LeaveNotify:
+
+        case .leaveNotify:
             self = .mouseExited
-        case FocusIn:
-            self = .noEvent
-        case FocusOut:
-            self = .noEvent
-        case KeymapNotify:
-            self = .noEvent
-        case Expose:
+
+        case .expose, .graphicsExpose, .noExpose, .mapNotify, .reparentNotify, .configureNotify, .clientMessage:
             self = .appKidDefined
-        case GraphicsExpose:
-            self = .appKidDefined
-        case NoExpose:
-            self = .appKidDefined
-        case VisibilityNotify:
-            self = .noEvent
-        case CreateNotify:
-            self = .noEvent
-        case DestroyNotify:
-            self = .noEvent
-        case UnmapNotify:
-            self = .noEvent
-        case MapNotify:
-            self = .appKidDefined
-        case MapRequest:
-            self = .noEvent
-        case ReparentNotify:
-            self = .appKidDefined
-        case ConfigureNotify:
-            self = .appKidDefined
-        case ConfigureRequest:
-            self = .noEvent
-        case GravityNotify:
-            self = .noEvent
-        case ResizeRequest:
-            self = .noEvent
-        case CirculateNotify:
-            self = .noEvent
-        case CirculateRequest:
-            self = .noEvent
-        case PropertyNotify:
-            self = .noEvent
-        case SelectionClear:
-            self = .noEvent
-        case SelectionRequest:
-            self = .noEvent
-        case SelectionNotify:
-            self = .noEvent
-        case ColormapNotify:
-            self = .noEvent
-        case ClientMessage:
-            self = .appKidDefined
-        case MappingNotify:
+
+        case .mappingNotify:
             self = .systemDefined
-        case GenericEvent:
-            self = .noEvent
-        case LASTEvent:
-            self = .noEvent
             
-        default:
-            return nil
+        default: self = .noEvent
+        }
+    }
+}
+
+fileprivate extension Event.EventType {
+    static func keyboardEventType(for event: inout XEvent, type: X11EventType) -> Self {
+        let keySymbol = XLookupKeysym(&event.xkey, 0)
+        if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
+            return .flagsChanged
+        } else {
+            switch type {
+            case .keyPress: return .keyDown
+            case .keyRelease: return .keyUp
+            default: return .noEvent
+            }
+        }
+    }
+
+    static func mouseUpEvent(for buttonNumber: CInt) -> Self {
+        switch buttonNumber {
+        case Button1: return .leftMouseUp
+        case Button2: return .otherMouseUp
+        case Button3: return .rightMouseUp
+        case Button4, Button5: return .scrollWheel
+        default: return .otherMouseUp
+        }
+    }
+
+    static func mouseDownEvent(for buttonNumber: CInt) -> Self {
+        switch buttonNumber {
+        case Button1: return .leftMouseDown
+        case Button2: return .otherMouseDown
+        case Button3: return .rightMouseDown
+        case Button4, Button5: return .scrollWheel
+        default: return .otherMouseDown
+        }
+    }
+
+    static func mouseDraggedEvent(for state: CInt) -> Self {
+        switch state {
+        case _ where state & Button1Mask != 0: return .leftMouseDragged
+        case _ where state & Button2Mask != 0: return .otherMouseDragged
+        case _ where state & Button3Mask != 0: return .rightMouseDragged
+        case _ where state & Button4Mask != 0: return .otherMouseDragged
+        case _ where state & Button5Mask != 0: return .otherMouseDragged
+        default: return .mouseMoved
         }
     }
 }
@@ -181,11 +114,11 @@ internal extension Event.ModifierFlags {
         XK_Hyper_L, XK_Hyper_R
         ]
         .map { KeySym($0) })
-    
+
     init(x11KeyMask: CUnsignedInt) {
         self.init(rawValue: 0)
         let keyMask = CInt(x11KeyMask)
-        
+
         if keyMask & ShiftMask != 0 { formUnion(.shift) }
         if keyMask & LockMask != 0 { formUnion(.capsLock) }
         if keyMask & ControlMask != 0 { formUnion(.control) }
@@ -196,9 +129,13 @@ internal extension Event.ModifierFlags {
 }
 
 internal extension Event {
-    convenience init?(x11Event: CX11.XEvent, timestamp: TimeInterval, windowNumber: Int, displayScale: CGFloat) throws {
+    convenience init(x11Event: XEvent, timestamp: TimeInterval, displayScale: CGFloat) throws {
         guard let type = EventType(x11Event: x11Event) else {
-            return nil
+            throw EventCreationError.unknownEventType
+        }
+
+        guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
+            throw EventCreationError.noWindow
         }
         
         switch type {
@@ -229,7 +166,7 @@ internal extension Event {
             }
         
         default:
-            return nil
+            throw EventCreationError.unparsableEvent
         }
     }
 }

@@ -6,6 +6,6 @@
 //
 
 module CEpoll [system] {
-  header "CEpoll_umbrella.h"
-  export *
+    header "CEpoll_umbrella.h"
+    export *
 }

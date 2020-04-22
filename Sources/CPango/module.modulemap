@@ -6,10 +6,10 @@
 //
 
 module CPango [system] {
-  header "CPango_umbrella.h"
-  link "pango-1.0"
-  link "pangocairo-1.0"
-  link "gobject-2.0"
-  link "glib-2.0"
-  export *
+    header "CPango_umbrella.h"
+    link "pango-1.0"
+    link "pangocairo-1.0"
+    link "gobject-2.0"
+    link "glib-2.0"
+    export *
 }

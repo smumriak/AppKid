@@ -9,6 +9,7 @@ import Foundation
 import CoreFoundation
 import CX11.Xlib
 import CX11.X
+import CXInput2
 import CairoGraphics
 
 #if os(Linux)
@@ -16,8 +17,8 @@ import CEpoll
 import Glibc
 #endif
 
-extension RunLoop.Mode {
-    public static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
+public extension RunLoop.Mode {
+    static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
 }
 
 public protocol ApplicationDelegate: class {
@@ -33,6 +34,8 @@ public extension ApplicationDelegate {
 open class Application: Responder {
     public static let shared = Application()
     unowned(unsafe) open var delegate: ApplicationDelegate?
+
+    internal var displayServer: DisplayServer
     
     open fileprivate(set) var isRunning = false
     open fileprivate(set) var isTerminated = false
@@ -44,27 +47,6 @@ open class Application: Responder {
     open fileprivate(set) var currentEvent: Event?
     
     internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
-    
-    internal var display: UnsafeMutablePointer<CX11.Display>
-    internal var screen: UnsafeMutablePointer<CX11.Screen>
-
-    // palkovnik:TODO: This code should be moved to Screen class when refactoring will be performed
-    lazy var displayScale: CGFloat = {
-        if let gtkDisplayScale = gtkDisplayScale {
-            return CGFloat(gtkDisplayScale)
-        } else {
-            return 1.0
-        }
-    }()
-    
-    internal let rootWindow: X11NativeWindow
-    
-    internal var displayConnectionFileDescriptor: CInt = -1
-    internal var epollFileDescriptor: CInt = -1
-    internal var eventFileDescriptor: CInt = -1
-    internal var wmDeleteWindowAtom: CX11.Atom = CUnsignedLong(CX11.None)
-    
-    internal lazy var pollThread = Thread { self.pollForX11Events() }
     
     internal var runLoopSource: CFRunLoopSource? = nil
     
@@ -79,29 +61,12 @@ open class Application: Responder {
         }
     }()
 
-    deinit {
-        XCloseDisplay(display)
-    }
-
     // MARK: Initialization
     
     internal override init () {
-        guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
-            fatalError("Could not open X display.")
-        }
-        
-        display = openDisplay
-        screen = XDefaultScreenOfDisplay(display)
-        
-        var rootWindowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
-            fatalError("Can not get root window attributes")
-        }
-        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, rootWindowID: nil)
-                
-        super.init()
+        displayServer = DisplayServer()
 
-        rootWindow.displayScale = displayScale
+        super.init()
     }
     
     open func window(number windowNumber: Int) -> Window? {
@@ -138,11 +103,9 @@ open class Application: Responder {
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
-        setupX11()
-        
-        #if DEBUG
-//        addDebugRunLoopObserver()
-        #endif
+        displayServer.setupX11()
+
+        RunLoop.current.add(renderTimer, forMode: .common)
 
         let _ = delegate?.application(self, willFinishLaunchingWithOptions: nil)
         let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)
@@ -156,8 +119,9 @@ open class Application: Responder {
                 break
             }
         } while isRunning
-        
-        destroyX11()
+
+        renderTimer.invalidate()
+        displayServer.destroyX11()
     }
 
     // MARK: Events
@@ -179,7 +143,7 @@ open class Application: Responder {
             let _ = RunLoop.current.run(mode: mode, before: date)
             
             if isRunning == false || isTerminated == true {
-                return Event(withAppKidEventSubType: .last, windowNumber: NSNotFound)
+                return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
             } else {
                 index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
             }
