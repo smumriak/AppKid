@@ -60,6 +60,18 @@ public extension Event {
             .otherMouseUp,
             .otherMouseDragged
         ]
+
+        static let mouseDownEventTypes: Set<EventType> = [
+            .leftMouseDown,
+            .rightMouseDown,
+            .otherMouseDown
+        ]
+
+        static let mouseUpEventTypes: Set<EventType> = [
+            .leftMouseUp,
+            .rightMouseUp,
+            .otherMouseUp
+        ]
         
         var mask: EventTypeMask {
             return EventTypeMask(rawValue: 1 << rawValue)
@@ -157,11 +169,27 @@ public extension Event {
 }
 
 public extension Event {
-    enum EventCreationError: Error {
-        case unparsableEvent
-        case eventIgnored
-        case noWindow
+    enum EventCreationError: Error, CustomDebugStringConvertible {
+        case eventIgnored(description: String)
+        case nativeEventIgnored(description: String)
+        case noWindow(description: String)
         case incompatibleEventType(validEventTypes: Set<EventType>)
+
+        public var debugDescription: String {
+            switch self {
+            case .eventIgnored(let description):
+                return "Event ignored. " + description
+            case .nativeEventIgnored(let description):
+                return "Native event ignored. " + description
+            case .noWindow(let description):
+                return "No window for event. " + description
+            case .incompatibleEventType(let validEventTypes):
+                let validEventTypesString = validEventTypes
+                    .map { String(reflecting: $0) }
+                    .joined(separator: ", ")
+                return "Incompatible event type. Valied event types: " + validEventTypesString
+            }
+        }
     }
 }
 
@@ -231,5 +259,15 @@ extension Event: Equatable {
             lhs.scrollingDeltaX == rhs.scrollingDeltaX &&
             lhs.scrollingDeltaY == rhs.scrollingDeltaY &&
             lhs.isDirectionInvertedFromDevice == rhs.isDirectionInvertedFromDevice
+    }
+}
+
+internal extension Event {
+    var isAnyMouseDownEvent: Bool {
+        return EventType.mouseDownEventTypes.contains(type)
+    }
+
+    var isAnyMouseUpEvent: Bool {
+        return EventType.mouseUpEventTypes.contains(type)
     }
 }

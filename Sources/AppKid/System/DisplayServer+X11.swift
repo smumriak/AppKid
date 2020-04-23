@@ -160,20 +160,24 @@ internal extension DisplayServer {
             let event: Event
 
             do {
-                if x11Event.xcookie.type == GenericEvent && x11Event.xcookie.extension == x11Context.xInput2ExtensionOpcode {
-                    if XGetEventData(display, &x11Event.xcookie) != 0 {
-                        defer {
-                            XFreeEventData(display, &x11Event.xcookie)
-                        }
+                if x11Event.isCookie(with: x11Context.xInput2ExtensionOpcode)  {
+                    guard XGetEventData(display, &x11Event.xcookie) != 0 else { continue }
 
-                        event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayScale: displayScale)
-                    } else {
-                        continue
+                    defer {
+                        XFreeEventData(display, &x11Event.xcookie)
                     }
+
+                    //palkovnik:Hacking XInput2 event to have button number for motion events
+                    if x11Event.xcookie.xInput2EventType == .motion {
+                        x11Event.deviceEvent.detail = x11Context.currentPressedMouseButton.rawValue
+                    }
+
+                    event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayServer: self)
                 } else {
-                    event = try Event(x11Event: x11Event, timestamp: timestamp, displayScale: displayScale)
+                    event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
                 }
             } catch {
+//                debugPrint("Failed to pase X11 Event with error: \(error)")
                 continue
             }
             
@@ -188,6 +192,17 @@ internal extension DisplayServer {
                         return
                     }
                 }
+            }
+
+            switch event.type {
+            case _ where event.isAnyMouseDownEvent && x11Context.currentPressedMouseButton == .none:
+                x11Context.currentPressedMouseButton = event.xInput2Button
+
+            case _ where event.isAnyMouseUpEvent && x11Context.currentPressedMouseButton == event.xInput2Button:
+                x11Context.currentPressedMouseButton = .none
+
+            default:
+                break
             }
 
             application.post(event: event, atStart: false)

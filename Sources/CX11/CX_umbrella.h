@@ -16,7 +16,7 @@
 
 #include "../CCore/CCore_umbrella.h"
 
-typedef AK_CLOSED_ENUM(int32_t, X11EventType) {
+typedef AK_ENUM(int32_t, X11EventType) {
     X11EventTypeKeyPress = KeyPress,
     X11EventTypeKeyRelease = KeyRelease,
     X11EventTypeButtonPress = ButtonPress,

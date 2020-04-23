@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class Control: View {
+open class Control: View, ControlProtocol {
     var lastLocationsForMouseButton: [Int: CGPoint] = [:]
 
     open var isEnabled: Bool {
@@ -191,67 +191,7 @@ open class Control: View {
     }
 
     // MARK: Actions
-    public typealias Action = (_ sender: Control, _ event: Event) -> ()
-
-    fileprivate var actions: Set<ActionIdentifier> = []
-
-    open func addAction(for event: ControlEvent, action: @escaping Action) -> ActionIdentifier {
-        let actionIndentifier = ActionIdentifier(action: action, event: event)
-
-        actions.insert(actionIndentifier)
-
-        return actionIndentifier
-    }
-
-    open func remove(actionIdentifier: ActionIdentifier, for event: ControlEvent? = nil) {
-        guard actions.contains(actionIdentifier) else {
-            return
-        }
-
-        if let event = event {
-            actionIdentifier.event.remove(event)
-        } else {
-            actionIdentifier.event = []
-        }
-
-        if actionIdentifier.event == [] {
-            actions.remove(actionIdentifier)
-        }
-    }
-
-    open func removeAllActions() {
-        actions.removeAll()
-    }
-
-    open func sendActions(for controlEvents: Control.ControlEvent, with event: Event) {
-        actions.forEach {
-            if !$0.event.intersection(controlEvents).isEmpty {
-                $0.action(self, event)
-            }
-        }
-    }
-}
-
-public final class ActionIdentifier {
-    fileprivate let action: Control.Action
-    fileprivate var event: Control.ControlEvent
-
-    init(action: @escaping Control.Action, event: Control.ControlEvent) {
-        self.action = action
-        self.event = event
-    }
-}
-
-extension ActionIdentifier: Equatable {
-    public static func == (lhs: ActionIdentifier, rhs: ActionIdentifier) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
-    }
-}
-
-extension ActionIdentifier: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
-    }
+    public var actions: Set<ActionIdentifier> = []
 }
 
 public extension Control {
@@ -269,12 +209,6 @@ public extension Control {
         public static var selected = State(rawValue: 1 << 2)
         public static var focused = State(rawValue: 1 << 3)
         public static var application = State(rawValue: 1 << 4)
-    }
-}
-
-extension Control.State: Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }
 
@@ -325,7 +259,7 @@ public extension Control {
 
         public static var applicationReserved = ControlEvent(rawValue: 1 << 36)
         public static var systemReserved = ControlEvent(rawValue: 1 << 37)
-        
+
         public static var allEvents = ControlEvent(rawValue: RawValue.max)
     }
 }

@@ -63,18 +63,18 @@ class RootViewController: ViewController {
         return result
     }()
 
-    var button: Button = {
+    lazy var button: Button = {
         let result = Button(with: CGRect(x: 100.0, y: 100.0, width: 140.0, height: 44.0))
 
         result.backgroundColor = .clear
 
-        result.set(title: "Normal", for: .normal)
-        result.set(title: "Selected", for: .selected)
-        result.set(title: "Highlighted", for: .highlighted)
+        result.set(title: "Spawn Window", for: .normal)
 
         result.set(textColor: .magenta, for: .normal)
         result.set(textColor: .magenta, for: .selected)
         result.set(textColor: .magenta, for: .highlighted)
+
+        result.add(target: self, action: RootViewController.buttonDidTap, for: .mouseUpInside)
 
         return result
     }()
@@ -108,13 +108,37 @@ class RootViewController: ViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-
-
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
         label.frame = view.bounds
+    }
+
+    weak var draggedView: View? = nil
+
+    override func mouseDown(with event: Event) {
+        let point = view.convert(event.locationInWindow, from: view.window)
+        if let hitTestView = view.hitTest(point), hitTestView != view {
+            draggedView = hitTestView
+        }
+    }
+
+    override func mouseDragged(with event: Event) {
+        if let draggedView = draggedView {
+            draggedView.center = draggedView.superview?.convert(event.locationInWindow, from: view.window) ?? draggedView.center
+        }
+    }
+
+    override func mouseUp(with event: Event) {
+        draggedView = nil
+    }
+
+    fileprivate func buttonDidTap(sender: Button) {
+        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+        window.rootViewController = RootViewController()
+
+        Application.shared.add(window: window)
     }
 }

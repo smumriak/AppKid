@@ -24,11 +24,13 @@ public extension RunLoop.Mode {
 public protocol ApplicationDelegate: class {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
+    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool
 }
 
 public extension ApplicationDelegate {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
+    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool { return false }
 }
 
 open class Application: Responder {
@@ -181,6 +183,10 @@ open class Application: Responder {
         //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         renderers.remove(at: index)
         windows.remove(at: index)
+
+        if windows.isEmpty && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
+            stop()
+        }
     }
 }
 

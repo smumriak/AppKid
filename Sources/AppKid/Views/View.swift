@@ -342,15 +342,6 @@ open class View: Responder {
     open override var nextResponder: Responder? {
         return viewDelegate ?? superview ?? super.nextResponder
     }
-
-    open override func mouseDragged(with event: Event) {
-        if !userInteractionEnabled {
-            nextResponder?.mouseDragged(with: event)
-        }
-        if let point = superview?.convert(event.locationInWindow, from: window) {
-            center = point
-        }
-    }
 }
 
 // MARK: Equatable

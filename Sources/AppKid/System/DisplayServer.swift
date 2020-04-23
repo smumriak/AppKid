@@ -17,7 +17,7 @@ import CEpoll
 import Glibc
 #endif
 
-fileprivate let kEnableXInput2 = true
+internal let kEnableXInput2 = true
 
 internal class DisplayServer {
     var x11Context = X11Context()

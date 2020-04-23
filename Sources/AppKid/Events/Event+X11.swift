@@ -11,22 +11,9 @@ import CX11.X
 import CX11.Xlib
 import CXInput2
 
-extension X11EventTypeMask {
-    static let keyboard: X11EventTypeMask = [.keyPress, .keyRelease]
-    static let mouse: X11EventTypeMask = [.buttonPress, .buttonRelease]
-    static let enterLeave: X11EventTypeMask = [.enterWindow, .leaveWindow]
-    static let geometry: X11EventTypeMask = [.exposure, .visibilityChange, .structureNotify]
-
-    static let basic: X11EventTypeMask = [.keyboard, .mouse, .buttonMotion, .enterLeave, .focusChange, .geometry]
-}
-
 fileprivate extension XEvent {
     var eventTypeFromXEvent: Event.EventType {
-        guard let type = X11EventType(rawValue: type) else {
-            return .noEvent
-        }
-
-        switch type {
+        switch x11EventType {
         case .keyPress, .keyRelease:
             return keyboardEventType
 
@@ -64,7 +51,7 @@ fileprivate extension XEvent {
         if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
             return .flagsChanged
         } else {
-            switch X11EventType(rawValue: type) {
+            switch x11EventType {
             case .keyPress: return .keyDown
             case .keyRelease: return .keyUp
             default: return .noEvent
@@ -73,22 +60,17 @@ fileprivate extension XEvent {
     }
 
     var mouseDownEvent: Event.EventType {
-        guard let buttonName = X11EventButtonName(rawValue: CInt(xbutton.button)) else {
-            return .otherMouseDown
-        }
-
-        switch buttonName {
+        switch xbutton.buttonName {
         case .one: return .leftMouseDown
         case .two: return .otherMouseDown
         case .three: return .rightMouseDown
         case .four, .five: return .scrollWheel
+        default: return .otherMouseDown
         }
     }
 
     var mouseDraggedEvent: Event.EventType {
-        let buttonMask = X11EventButtonMask(rawValue: CInt(xmotion.state))
-
-        switch buttonMask {
+        switch xmotion.buttonMask {
         case .one: return .leftMouseDragged
         case .two: return .otherMouseDragged
         case .three: return .rightMouseDragged
@@ -98,15 +80,12 @@ fileprivate extension XEvent {
     }
 
     var mouseUpEvent: Event.EventType {
-        guard let buttonName = X11EventButtonName(rawValue: CInt(xbutton.button)) else {
-            return .otherMouseUp
-        }
-
-        switch buttonName {
+        switch xbutton.buttonName {
         case .one: return .leftMouseUp
         case .two: return .otherMouseUp
         case .three: return .rightMouseUp
         case .four, .five: return .scrollWheel
+        default: return .otherMouseUp
         }
     }
 }
@@ -141,18 +120,24 @@ internal extension Event.ModifierFlags {
 }
 
 internal extension Event {
-    convenience init(x11Event: XEvent, timestamp: TimeInterval, displayScale: CGFloat) throws {
+    convenience init(x11Event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
         let type = x11Event.eventTypeFromXEvent
+        
+        if type == .noEvent {
+            let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
+            throw EventCreationError.nativeEventIgnored(description: "X11 event type: \(eventString)")
+        }
 
         guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
-            throw EventCreationError.noWindow
+            let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
+            throw EventCreationError.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }
         
         switch type {
         case _ where EventType.mouseEventTypes.contains(type):
             let buttonEvent = x11Event.xbutton
 
-            let location = CGPoint(x: CGFloat(buttonEvent.x) / displayScale, y: CGFloat(buttonEvent.y) / displayScale)
+            let location = CGPoint(x: CGFloat(buttonEvent.x) / displayServer.displayScale, y: CGFloat(buttonEvent.y) / displayServer.displayScale)
             try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(buttonEvent.button)
@@ -176,7 +161,7 @@ internal extension Event {
             }
         
         default:
-            throw EventCreationError.unparsableEvent
+            throw EventCreationError.eventIgnored(description: "Event type: \(type)")
         }
     }
 }

@@ -34,19 +34,20 @@ internal final class X11NativeWindow {
         return screen.pointee.root == windowID
     }
 
-    var acceptsMouseMovedEvents: Bool = false
-//    {
-//        didSet {
-//            var mask = X11EventTypeMask.basic
-//            if acceptsMouseMovedEvents {
-//                mask.formUnion(.pointerMotion)
-//            }
-//
-//            XSelectInput(display, windowID, Int(mask.rawValue))
-//
-//            flush()
-//        }
-//    }
+    var acceptsMouseMovedEvents: Bool = false {
+        didSet {
+            if !kEnableXInput2 {
+                var mask = X11EventTypeMask.basic
+                if acceptsMouseMovedEvents {
+                    mask.formUnion(.pointerMotion)
+                }
+
+                XSelectInput(display, windowID, Int(mask.rawValue))
+
+                flush()
+            }
+        }
+    }
     
     deinit {
         if !isRoot {

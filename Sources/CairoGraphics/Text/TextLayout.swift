@@ -70,7 +70,7 @@ open class TextLayout {
         pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER)
 
         //palkovnik:FIXME: Figure out why center alignment produces invalid positions. Use following code to produce debug information for forum questions
-        //UPD 17.02.2020. The issue does no longer reproduce. Meanwhile pango update to version 1.44.7 was pushed to pop!_os
+        //UPD 17.04.2020. The issue does no longer reproduce. Meanwhile pango update to version 1.44.7 was pushed to pop!_os
         //        var position = PangoRectangle()
         //        pango_layout_index_to_pos(layout, 0, &position)
         //        debugPrint("Position: \(position)")
