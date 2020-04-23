@@ -114,16 +114,20 @@ open class Window: View {
                     shouldPerformRootViewControllerSetup = true
 
                 case .windowExposed:
-                    if shouldPerformRootViewControllerSetup {
+                    if isMapped && shouldPerformRootViewControllerSetup {
                         setupRootViewController()
 
                         shouldPerformRootViewControllerSetup = false
                     }
 
-                    updateSurface()
+                    if isMapped {
+                        updateSurface()
+                    }
 
                 case .windowResized:
-                    updateSurface()
+                    if isMapped {
+                        updateSurface()
+                    }
 
                 default:
                     break

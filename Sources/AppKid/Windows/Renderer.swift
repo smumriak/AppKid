@@ -41,10 +41,16 @@ internal final class Renderer {
             context.clip()
         }
 
-        view.render(in: context)
+        if let window = view.window {
+            view.render(in: context)
 
-        for subview in view.subviews {
-            render(view: subview, in: context, with: transform)
+            for subview in view.subviews {
+                let frameInWindowSpace = view.convert(subview.frame, to: window)
+                
+                if frameInWindowSpace.intersects(window.bounds) {
+                    render(view: subview, in: context, with: transform)
+                }
+            }
         }
 
         context.restoreState()

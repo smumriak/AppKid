@@ -150,22 +150,19 @@ open class View: Responder {
         subview.traverseSubviews(includingSelf: true) {
             $0.willMove(toWindow: window)
         }
-        subview.willMove(toWindow: window)
         subview.willMove(toSuperview: self)
         
         subviews.insert(subview, at: index)
         subview.superview = self
-        subview.window = window
+
+        subview.didMoveToSuperview()
 
         subview.traverseSubviews(includingSelf: true) {
+            $0.window = window
             $0.invalidateTransforms()
-        }
-        
-        subview.didMoveToSuperview()
-        subview.traverseSubviews(includingSelf: true) {
             $0.didMoveToWindow()
         }
-        
+
         didAddSubview(subview)
     }
     
@@ -174,27 +171,30 @@ open class View: Responder {
         
         superview.willRemoveSubview(self)
         
-        willMove(toWindow: nil)
+        traverseSubviews(includingSelf: true) {
+            $0.willMove(toWindow: nil)
+        }
+
         willMove(toSuperview: nil)
         if let index = superview.subviews.firstIndex(of: self) {
             superview.subviews.remove(at: index)
         }
+        self.superview = nil
+
         didMoveToSuperview()
-        didMoveToWindow()
+
+        traverseSubviews(includingSelf: true) {
+            $0.window = nil
+            $0.invalidateTransforms()
+            $0.didMoveToWindow()
+        }
     }
     
-    open func didAddSubview(_ subview: View) {
-    }
-    
-    open func willRemoveSubview(_ subview: View) {
-    }
-    
+    open func didAddSubview(_ subview: View) {}
+    open func willRemoveSubview(_ subview: View) {}
     open func willMove(toSuperview superview: View?) {}
-    
     open func didMoveToSuperview() {}
-    
     open func willMove(toWindow window: Window?) {}
-    
     open func didMoveToWindow() {}
     
     internal func rebuildTransformsIfNeeded() {
