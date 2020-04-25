@@ -16,24 +16,18 @@ internal extension DisplayServer {
     typealias gdk_monitor_get_scale_factor_f = @convention(c) (OpaquePointer?) -> CInt
 
     var gtkDisplayScale: CInt? {
-        guard let handle = dlopen("libgdk-3.so", RTLD_NOW) else { return nil }
+        return try? DylibWrapper.perform(on: "libgdk-3.so") {
+            let gdk_display_open: gdk_display_open_f = try $0.loadCFunction(with: "gdk_display_open")
+            let gdk_display_close: gdk_display_close_f = try $0.loadCFunction(with: "gdk_display_close")
+            guard let gtkDisplay = gdk_display_open(display.pointee.display_name) else { return nil }
+            defer { gdk_display_close(gtkDisplay) }
 
-        guard let gdk_display_open_type_erased = dlsym(handle, "gdk_display_open") else { return nil }
-        guard let gdk_display_close_type_erased = dlsym(handle, "gdk_display_close") else { return nil }
-        let gdk_display_open = unsafeBitCast(gdk_display_open_type_erased, to: gdk_display_open_f.self)
-        let gdk_display_close = unsafeBitCast(gdk_display_close_type_erased, to: gdk_display_close_f.self)
+            let gdk_display_get_primary_monitor: gdk_display_get_primary_monitor_f = try $0.loadCFunction(with: "gdk_display_get_primary_monitor")
+            guard let gtkMonitor = gdk_display_get_primary_monitor(gtkDisplay) else { return nil }
 
-        guard let gtkDisplay = gdk_display_open(display.pointee.display_name) else { return nil }
+            let gdk_monitor_get_scale_factor: gdk_monitor_get_scale_factor_f = try $0.loadCFunction(with: "gdk_monitor_get_scale_factor")
 
-        defer { gdk_display_close(gtkDisplay) }
-
-        guard let gdk_display_get_primary_monitor_type_erased = dlsym(handle, "gdk_display_get_primary_monitor") else { return nil }
-        let gdk_display_get_primary_monitor = unsafeBitCast(gdk_display_get_primary_monitor_type_erased, to: gdk_display_get_primary_monitor_f.self)
-        guard let gtkMonitor = gdk_display_get_primary_monitor(gtkDisplay) else { return nil }
-
-        guard let gdk_monitor_get_scale_factor_type_erased = dlsym(handle, "gdk_monitor_get_scale_factor") else { return nil }
-        let gdk_monitor_get_scale_factor = unsafeBitCast(gdk_monitor_get_scale_factor_type_erased, to: gdk_monitor_get_scale_factor_f.self)
-
-        return gdk_monitor_get_scale_factor(gtkMonitor)
+            return gdk_monitor_get_scale_factor(gtkMonitor)
+        }
     }
 }

@@ -48,7 +48,8 @@ fileprivate extension XEvent {
     var keyboardEventType: Event.EventType {
         var mutableCopy = self
         let keySymbol = XLookupKeysym(&mutableCopy.xkey, 0)
-        if Event.ModifierFlags.x11ModifierKeySymbols.contains(keySymbol) {
+        //palkovnik:WORKAROUND:swift generates intializer that actually allows initialization with invalid value :/
+        if let x11ModifierKeySymbol = X11ModifierKeySymbol(rawValue: keySymbol), x11ModifierKeySymbol.isValidRawValue {
             return .flagsChanged
         } else {
             switch x11EventType {
@@ -107,18 +108,6 @@ fileprivate extension XButtonEvent {
     }
 }
 
-internal extension Event.ModifierFlags {
-    static let x11ModifierKeySymbols: Set<KeySym> = Set([
-        XK_Shift_L, XK_Shift_R,
-        XK_Control_L, XK_Control_R,
-        XK_Meta_L, XK_Meta_R,
-        XK_Alt_L, XK_Alt_R,
-        XK_Super_L, XK_Super_R,
-        XK_Hyper_L, XK_Hyper_R
-        ]
-        .map { KeySym($0) })
-}
-
 internal extension Event {
     convenience init(x11Event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
         let type = x11Event.eventTypeFromXEvent
@@ -134,7 +123,7 @@ internal extension Event {
         }
         
         switch type {
-        case _ where EventType.mouseEventTypes.contains(type):
+        case _ where type.isAnyMouse:
             let buttonEvent = x11Event.xbutton
 
             let location = CGPoint(x: CGFloat(buttonEvent.x) / displayServer.displayScale, y: CGFloat(buttonEvent.y) / displayServer.displayScale)

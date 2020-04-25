@@ -103,39 +103,18 @@ open class Window: View {
     }
     
     open func send(event: Event) {
-        if Event.EventType.mouseEventTypes.contains(event.type) {
+        switch event.type {
+        case _ where event.type.isAnyMouse:
             sendMouseEvent(event)
-        } else {
-            switch event.type {
-            case .appKidDefined:
-                switch event.subType {
-                case .windowMapped:
-                    isMapped = true
-                    shouldPerformRootViewControllerSetup = true
 
-                case .windowExposed:
-                    if isMapped && shouldPerformRootViewControllerSetup {
-                        setupRootViewController()
+        case _ where event.type.isAnyKeyboard:
+            sendKeyboardEvent(event)
 
-                        shouldPerformRootViewControllerSetup = false
-                    }
+        case .appKidDefined:
+            handleAppKidEvent(event)
 
-                    if isMapped {
-                        updateSurface()
-                    }
-
-                case .windowResized:
-                    if isMapped {
-                        updateSurface()
-                    }
-
-                default:
-                    break
-                }
-
-            default:
-                break
-            }
+        default:
+            break
         }
     }
 
@@ -177,6 +156,8 @@ open class Window: View {
 
     internal func setupRootViewController() {
         if let rootViewController = rootViewController {
+            rootViewController.loadViewIfNeeded()
+            
             rootViewController.beginAppearanceTransition(isAppearing: true, animated: false)
 
             rootViewController.view.frame = bounds
@@ -195,6 +176,8 @@ extension Window {
 }
 
 fileprivate extension Window {
+    // MARK: Send Mouse Event
+
     func sendMouseEvent(_ event: Event) {
         let application = Application.shared
 
@@ -269,6 +252,50 @@ fileprivate extension Window {
             guard let handler = Responder.mouseEventTypeToHandler[event.type] else { return }
             let view = hitTest(event.locationInWindow) ?? self
             handler(view)(event)
+        }
+    }
+
+    // MARK: Send Keyboard Event
+
+    func sendKeyboardEvent(_ event: Event) {
+        switch event.type {
+        case .keyDown:
+            firstResponder?.keyDown(with: event)
+
+        case .keyUp:
+            firstResponder?.keyUp(with: event)
+
+        default:
+            break
+        }
+    }
+
+    // MARK: Handle AppKid Event
+
+    func handleAppKidEvent(_ event: Event) {
+        switch event.subType {
+        case .windowMapped:
+            isMapped = true
+            shouldPerformRootViewControllerSetup = true
+
+        case .windowExposed:
+            if isMapped && shouldPerformRootViewControllerSetup {
+                setupRootViewController()
+
+                shouldPerformRootViewControllerSetup = false
+            }
+
+            if isMapped {
+                updateSurface()
+            }
+
+        case .windowResized:
+            if isMapped {
+                updateSurface()
+            }
+
+        default:
+            break
         }
     }
 }

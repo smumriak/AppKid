@@ -46,32 +46,6 @@ public extension Event {
 //        case pressure = 34
 //        case directTouch = 37
 //        case changeMode = 38
-
-        static let mouseEventTypes: Set<EventType> = [
-            .leftMouseDown,
-            .leftMouseUp,
-            .rightMouseDown,
-            .rightMouseUp,
-            .mouseMoved,
-            .leftMouseDragged,
-            .rightMouseDragged,
-            .scrollWheel,
-            .otherMouseDown,
-            .otherMouseUp,
-            .otherMouseDragged
-        ]
-
-        static let mouseDownEventTypes: Set<EventType> = [
-            .leftMouseDown,
-            .rightMouseDown,
-            .otherMouseDown
-        ]
-
-        static let mouseUpEventTypes: Set<EventType> = [
-            .leftMouseUp,
-            .rightMouseUp,
-            .otherMouseUp
-        ]
         
         var mask: EventTypeMask {
             return EventTypeMask(rawValue: 1 << rawValue)
@@ -168,12 +142,45 @@ public extension Event {
     }
 }
 
+public extension Event.EventTypeMask {
+    static let anyMouse: Self = [
+        .anyMouseDown,
+        .anyMouseUp,
+        .anyMouseDragged,
+        .mouseMoved,
+        .scrollWheel
+    ]
+
+    static let anyMouseDown: Self = [
+        .leftMouseDown,
+        .rightMouseDown,
+        .otherMouseDown
+    ]
+
+    static let anyMouseUp: Self = [
+        .leftMouseUp,
+        .rightMouseUp,
+        .otherMouseUp
+    ]
+
+    static let anyMouseDragged: Self = [
+        .leftMouseDragged,
+        .rightMouseDragged,
+        .otherMouseDragged,
+    ]
+
+    static let anyKeyboard: Self = [
+        .keyDown,
+        .keyUp
+    ]
+}
+
 public extension Event {
     enum EventCreationError: Error, CustomDebugStringConvertible {
         case eventIgnored(description: String)
         case nativeEventIgnored(description: String)
         case noWindow(description: String)
-        case incompatibleEventType(validEventTypes: Set<EventType>)
+        case incompatibleEventType
 
         public var debugDescription: String {
             switch self {
@@ -183,11 +190,8 @@ public extension Event {
                 return "Native event ignored. " + description
             case .noWindow(let description):
                 return "No window for event. " + description
-            case .incompatibleEventType(let validEventTypes):
-                let validEventTypesString = validEventTypes
-                    .map { String(reflecting: $0) }
-                    .joined(separator: ", ")
-                return "Incompatible event type. Valied event types: " + validEventTypesString
+            case .incompatibleEventType:
+                return "Incompatible event type"
             }
         }
     }
@@ -216,6 +220,11 @@ public class Event {
     public internal(set) var scrollingDeltaX: CGFloat = .zero
     public internal(set) var scrollingDeltaY: CGFloat = .zero
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
+
+    public var isARepeat: Bool = false
+    public var keyCode: UInt32 = 0
+    public var characters: String? = nil
+    public var charactersIgnoringModifiers: String? = nil
     
     internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, windowNumber: Int) {
         self.type = type
@@ -226,8 +235,8 @@ public class Event {
     }
     
     convenience public init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
-        guard EventType.mouseEventTypes.contains(type) else {
-            throw EventCreationError.incompatibleEventType(validEventTypes: EventType.mouseEventTypes)
+        guard type.isAnyMouse else {
+            throw EventCreationError.incompatibleEventType
         }
         
         self.init(type: type, location: location, modifierFlags: modifierFlags, windowNumber: windowNumber)
@@ -262,12 +271,46 @@ extension Event: Equatable {
     }
 }
 
+internal extension Event.EventType {
+    var isAnyMouse: Bool {
+        return Event.EventTypeMask.anyMouse.contains(mask)
+    }
+
+    var isAnyMouseDown: Bool {
+        return Event.EventTypeMask.anyMouseDown.contains(mask)
+    }
+
+    var isAnyMouseUp: Bool {
+        return Event.EventTypeMask.anyMouseUp.contains(mask)
+    }
+
+    var isAnyMouseDragged: Bool {
+        return Event.EventTypeMask.anyMouseDragged.contains(mask)
+    }
+
+    var isAnyKeyboard: Bool {
+        return Event.EventTypeMask.anyKeyboard.contains(mask)
+    }
+}
+
 internal extension Event {
+    var isAnyMouseEvent: Bool {
+        return type.isAnyMouse
+    }
+
     var isAnyMouseDownEvent: Bool {
-        return EventType.mouseDownEventTypes.contains(type)
+        return type.isAnyMouseDown
     }
 
     var isAnyMouseUpEvent: Bool {
-        return EventType.mouseUpEventTypes.contains(type)
+        return type.isAnyMouseUp
+    }
+
+    var isAnyMouseDraggedEvent: Bool {
+        return type.isAnyMouseDragged
+    }
+
+    var isAnyKeyboardEvent: Bool {
+        return type.isAnyKeyboard
     }
 }

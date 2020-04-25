@@ -110,5 +110,4 @@ typedef AK_OPTIONS(int32_t, X11EventKeyMask) {
     X11EventKeyMaskMod5 = Mod5Mask
 };
 
-
 #endif

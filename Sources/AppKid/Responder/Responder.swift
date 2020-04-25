@@ -32,8 +32,10 @@ open class Responder {
     open var canBecomeFirstResponder: Bool { return false }
     open var canResignFirstResponder: Bool { return true }
 
+    @discardableResult
     open func becomeFirstResponder() -> Bool {
         if canBecomeFirstResponder {
+            responderWindow()?.firstResponder?.resignFirstResponder()
             responderWindow()?.firstResponder = self
 
             return true
@@ -42,6 +44,7 @@ open class Responder {
         }
     }
 
+    @discardableResult
     open func resignFirstResponder() -> Bool {
         if canResignFirstResponder {
             if responderWindow()?.firstResponder === self {

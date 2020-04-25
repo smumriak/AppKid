@@ -9,12 +9,12 @@ import Foundation
 import CairoGraphics
 
 open class Button: Control {
-    var stateToTitle: [Control.State: String] = [:]
-    var stateToTextColor: [Control.State: CairoGraphics.CGColor] = [:]
+    var stateToTitle: [State: String] = [:]
+    var stateToTextColor: [State: CairoGraphics.CGColor] = [:]
 
     fileprivate(set) open var titleLabel: Label?
 
-    open override var state: Control.State {
+    open override var state: State {
         didSet {
             updateText()
         }
@@ -34,7 +34,7 @@ open class Button: Control {
         add(subview: titleLabel)
     }
 
-    open func set(title: String?, for state: Control.State) {
+    open func set(title: String?, for state: State) {
         if let title = title {
             stateToTitle[state] = title
         } else {
@@ -45,7 +45,7 @@ open class Button: Control {
         setNeedsLayout()
     }
 
-    open func set(textColor: CairoGraphics.CGColor?, for state: Control.State) {
+    open func set(textColor: CairoGraphics.CGColor?, for state: State) {
         if let textColor = textColor {
             stateToTextColor[state] = textColor
         } else {

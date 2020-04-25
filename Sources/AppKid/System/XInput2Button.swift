@@ -90,7 +90,7 @@ internal extension XIDeviceEvent {
 
 internal extension Event {
     var xInput2Button: XInput2Button {
-        guard EventType.mouseEventTypes.contains(type) else {
+        guard EventTypeMask.anyMouse.contains(type.mask) else {
             return .none
         }
 

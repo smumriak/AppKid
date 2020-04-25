@@ -21,4 +21,5 @@ internal struct X11Context {
     var wmDeleteWindowAtom: CX11.Atom = CUnsignedLong(CX11.None)
 
     var currentPressedMouseButton: XInput2Button = .none
+    var currentModifierFlags: Event.ModifierFlags = .none
 }

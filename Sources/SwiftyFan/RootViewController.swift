@@ -55,7 +55,8 @@ class RootViewController: ViewController {
     let label: Label = {
         let result = Label(with: .zero)
 
-        result.text = testString
+//        result.text = testString
+        result.text = ""
         result.textColor = .purple
         result.font = .systemFont(ofSize: 48.0)
         result.backgroundColor = .clear
@@ -106,6 +107,12 @@ class RootViewController: ViewController {
         RunLoop.current.add(transformTimer, forMode: .common)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        becomeFirstResponder()
+    }
+
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
     }
@@ -135,10 +142,29 @@ class RootViewController: ViewController {
         draggedView = nil
     }
 
+    override func keyDown(with event: Event) {
+        event.characters.map {
+            if event.isARepeat {
+                label.text = "Repeat: " + $0
+            } else {
+                label.text = $0
+            }
+//            label.text?.append($0)
+        }
+    }
+
     fileprivate func buttonDidTap(sender: Button) {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         window.rootViewController = RootViewController()
 
         Application.shared.add(window: window)
+    }
+
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+
+    override var canResignFirstResponder: Bool {
+        return true
     }
 }
