@@ -9,11 +9,11 @@ import Foundation
 
 // palkovnik:TODO: This code should be moved to Screen class when refactoring will be performed
 internal extension DisplayServer {
-    typealias gdk_display_open_f = @convention(c) (UnsafePointer<Int8>?) -> OpaquePointer?
-    typealias gdk_display_close_f = @convention(c) (OpaquePointer?) -> ()
+    typealias gdk_display_open_f = @convention(c) (UnsafePointer<Int8>) -> OpaquePointer?
+    typealias gdk_display_close_f = @convention(c) (OpaquePointer) -> ()
 
-    typealias gdk_display_get_primary_monitor_f = @convention(c) (OpaquePointer?) -> (OpaquePointer?)
-    typealias gdk_monitor_get_scale_factor_f = @convention(c) (OpaquePointer?) -> CInt
+    typealias gdk_display_get_primary_monitor_f = @convention(c) (OpaquePointer) -> (OpaquePointer?)
+    typealias gdk_monitor_get_scale_factor_f = @convention(c) (OpaquePointer) -> CInt
 
     var gtkDisplayScale: CInt? {
         return try? DylibWrapper.perform(on: "libgdk-3.so") {

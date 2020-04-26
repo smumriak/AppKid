@@ -144,12 +144,12 @@ class RootViewController: ViewController {
 
     override func keyDown(with event: Event) {
         event.characters.map {
-            if event.isARepeat {
-                label.text = "Repeat: " + $0
-            } else {
-                label.text = $0
-            }
-//            label.text?.append($0)
+//            if event.isARepeat {
+//                label.text = "Repeat: " + $0
+//            } else {
+//                label.text = $0
+//            }
+            label.text?.append($0)
         }
     }
 

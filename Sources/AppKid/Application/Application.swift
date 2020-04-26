@@ -12,11 +12,6 @@ import CX11.X
 import CXInput2
 import CairoGraphics
 
-#if os(Linux)
-import CEpoll
-import Glibc
-#endif
-
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
 }

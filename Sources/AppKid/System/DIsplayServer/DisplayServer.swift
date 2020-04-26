@@ -22,8 +22,11 @@ internal let kEnableXInput2 = true
 internal class DisplayServer {
     var x11Context = X11Context()
 
-    internal var display: UnsafeMutablePointer<CX11.Display>
-    internal var screen: UnsafeMutablePointer<CX11.Screen>
+    internal let display: UnsafeMutablePointer<CX11.Display>
+    internal let screen: UnsafeMutablePointer<CX11.Screen>
+
+    internal var inputMethod: XIM?
+    internal let inputStyle: XIMStyle?
 
     internal lazy var pollThread = Thread { self.pollForX11Events() }
 
@@ -42,6 +45,10 @@ internal class DisplayServer {
     // MARK: Deinitialization
 
     deinit {
+        inputMethod.map {
+            _ = XCloseIM($0)
+        }
+
         XCloseDisplay(display)
     }
 
@@ -75,6 +82,40 @@ internal class DisplayServer {
             fatalError("Can not get root window attributes")
         }
 
+        inputMethod = XOpenIM(display, nil, nil, nil)
+
+        inputStyle = inputMethod.flatMap {
+            var stylesOptional: UnsafeMutablePointer<XIMStyles>? = nil
+
+            XGetInputMethodStyles($0, &stylesOptional)
+            defer {
+                stylesOptional.map {
+                    _ = XFree($0)
+                }
+            }
+
+            guard let styles = stylesOptional, let supportedStyles = styles.pointee.supported_styles else {
+                return nil
+            }
+
+            for i in 0..<Int(styles.pointee.count_styles) {
+                let style = supportedStyles + i
+                if style.pointee == XIMPreeditNothing | XIMStatusNothing {
+                    return style.pointee
+                }
+            }
+
+            return nil
+        }
+
+        if inputStyle == nil {
+            inputMethod.map {
+                _ = XCloseIM($0)
+            }
+            
+            inputMethod = nil
+        }
+
         rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root)
 
         rootWindow.displayScale = displayScale
@@ -89,6 +130,8 @@ extension DisplayServer {
 
         let intRect: Rect<CInt> = scaledContentRect.rect()
         let windowID = XCreateSimpleWindow(display, rootWindow.windowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
+
+        XSetStandardProperties(display, windowID, "Window", nil, 0, nil, 0, nil)
 
         if kEnableXInput2 {
             XSelectInput(display, windowID, Int(X11EventTypeMask.geometry.rawValue))
@@ -111,6 +154,10 @@ extension DisplayServer {
 
         let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID)
         result.displayScale = displayScale
+
+        if let inputMethod = inputMethod, let inputStyle = inputStyle {
+            result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowID)
+        }
 
         result.flush()
 

@@ -50,13 +50,39 @@ internal extension XEvent {
     }
 }
 
+internal extension XIDeviceEvent {
+    var generatedKeyPressedEvent: XKeyPressedEvent {
+        return XKeyPressedEvent(type: KeyPress,
+                                serial: serial,
+                                send_event: send_event,
+                                display: display,
+                                window: event,
+                                root: root,
+                                subwindow: child,
+                                time: time,
+                                x: CInt(event_x),
+                                y: CInt(event_y),
+                                x_root: CInt(root_x),
+                                y_root: CInt(root_y),
+                                state: UInt32(mods.effective | group.effective << 13),
+                                keycode: CUnsignedInt(detail),
+                                same_screen: 1)
+    }
+}
+
 internal extension X11EventTypeMask {
     static let keyboard: X11EventTypeMask = [.keyPress, .keyRelease]
     static let mouse: X11EventTypeMask = [.buttonPress, .buttonRelease]
     static let enterLeave: X11EventTypeMask = [.enterWindow, .leaveWindow]
     static let geometry: X11EventTypeMask = [.exposure, .visibilityChange, .structureNotify]
 
-    static let basic: X11EventTypeMask = [.keyboard, .mouse, .buttonMotion, .enterLeave, .focusChange, .geometry]
+    static let basic: X11EventTypeMask = [
+        .keyboard,
+        .mouse,
+        .buttonMotion,
+        .enterLeave,
+        .focusChange,
+        .geometry]
 }
 
 internal extension XInput2EventTypeMask {
@@ -65,5 +91,10 @@ internal extension XInput2EventTypeMask {
     static let enterLeave: XInput2EventTypeMask = [.enter, .leave]
     static let focus: XInput2EventTypeMask = [.focusIn, .focusOut]
 
-    static let basic: XInput2EventTypeMask = [.keyboard, .mouse, .motion, .enterLeave, .focus]
+    static let basic: XInput2EventTypeMask = [
+        .keyboard,
+        .mouse,
+        .motion,
+        .enterLeave,
+        .focus]
 }

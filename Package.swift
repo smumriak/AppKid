@@ -13,6 +13,11 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
+    products: [
+        .executable(name: "SwiftyFan", targets: ["SwiftyFan"]),
+        .library(name: "AppKid", type: .dynamic, targets: ["AppKid"]),
+        .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"]),
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
@@ -47,7 +52,7 @@ let package = Package(
             name: "CPango",
             pkgConfig: "pango",
             providers: [
-                .apt(["libpango1.0-dev libglib2.0-dev"]),
+                .apt(["libpango1.0-dev"]),
                 .brew(["pango glib"])
             ]
         ),

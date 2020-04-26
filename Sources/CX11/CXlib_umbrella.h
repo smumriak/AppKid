@@ -15,6 +15,9 @@
 #define NeedWidePrototypes 1
 #endif
 
+struct _XIM {};
+struct _XIC {};
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
@@ -40,5 +43,13 @@ typedef AK_ENUM(KeySym, X11ModifierKeySymbol) {
     X11ModifierKeySymbolModeSwitch = XK_Mode_switch,
     X11ModifierKeySymbolLevel3Shift = XK_ISO_Level3_Shift
 };
+
+static inline char *XGetInputMethodStyles(XIM inputMethod, XIMStyles **styles) {
+    return XGetIMValues(inputMethod, XNQueryInputStyle, styles, NULL);
+}
+
+static inline XIC XCreateInputContext(XIM inputMethod, XIMStyle style, Window window) {
+    return XCreateIC(inputMethod, XNInputStyle, style, XNClientWindow, window, XNFocusWindow, window, NULL);
+}
 
 #endif

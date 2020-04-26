@@ -70,6 +70,7 @@ internal extension Event {
         }
 
         let window = application.windows[windowNumber]
+        let nativeWindow = window.nativeWindow
 
         if type == .mouseMoved && window.acceptsMouseMovedEvents == false {
             throw EventCreationError.eventIgnored(description: "Window does not accept mouse move event.")
@@ -87,14 +88,23 @@ internal extension Event {
             let currentModifierFlags = displayServer.x11Context.currentModifierFlags
             let keyCode = UInt32(deviceEvent.detail)
             var keySymbol: KeySym = KeySym(NoSymbol)
-            let shifted = currentModifierFlags.contains(.shift)
-//            var group: CInt = 0
+            var lookupString: String? = nil
 
-            for groupIndex in CInt(0)..<8 {
-                keySymbol = XkbKeycodeToKeysym(displayServer.display, keyCode, groupIndex, shifted ? 1 : 0)
-                if keySymbol != NoSymbol {
-//                    group = groupIndex
-                    break
+            if let inputContext = nativeWindow.inputContext {
+                var fakeEvent = deviceEvent.generatedKeyPressedEvent
+                var buffer = UnsafeMutablePointer<Int8>.allocate(capacity: 32)
+                defer {
+                    buffer.deallocate()
+                }
+                buffer.initialize(to: 0)
+
+                var status: CInt = 0
+
+                let bytesWritten = Xutf8LookupString(inputContext, &fakeEvent, buffer, 32, &keySymbol, &status)
+
+                if status == XLookupChars || status == XLookupBoth {
+                    buffer[Int(bytesWritten)] = 0
+                    lookupString = String(cString: buffer, encoding: .utf8)
                 }
             }
 
@@ -117,8 +127,8 @@ internal extension Event {
 
                 } else {
                     self.init(type: type, location: location, modifierFlags: displayServer.x11Context.currentModifierFlags, windowNumber: windowNumber)
-                    characters = String(cString: XKeysymToString(keySymbol))
 
+                    characters = lookupString.flatMap { $0.isEmpty ? nil : $0 }
                     isARepeat = deviceEvent.flags & XIKeyRepeat != 0
                 }
 

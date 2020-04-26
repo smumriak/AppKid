@@ -48,16 +48,17 @@ internal final class X11NativeWindow {
             }
         }
     }
+
+    var displayScale: CGFloat = 1.0
+
+    var inputContext: XIC? = nil
     
     deinit {
         if !isRoot {
-            // checking if this is not a root window. root window has rootWindowID as nil
             XDestroyWindow(display, windowID)
             flush()
         }
     }
-
-    var displayScale: CGFloat = 1.0
     
     internal init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, windowID: CX11.Window) {
         self.display = display
