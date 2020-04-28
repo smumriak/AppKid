@@ -17,35 +17,28 @@ open class View: Responder {
         didSet {
             invalidateTransforms()
             setNeedsLayout()
+            setNeedsDisplay()
         }
     }
     fileprivate var _center: CGPoint {
         didSet {
             invalidateTransforms()
+            setNeedsDisplay()
         }
     }
     
     open var frame: CGRect {
         get {
-            let transform = CairoGraphics.CGAffineTransform.identity
-                .translatedBy(x: _bounds.midX, y: _bounds.midY)
-                .concatenating(self.transform)
-                .translatedBy(x: -_bounds.midX, y: -_bounds.midY)
+            let size = _bounds.applying(transform).standardized.size
+            let origin = CGPoint(x: center.x - size.width / 2.0, y: center.y - size.height / 2.0)
             
-            var result = _bounds.applying(transform)
-            result.origin.x = center.x - result.width / 2.0
-            result.origin.y = center.y - result.height / 2.0
-            
-            return result
+            return CGRect(origin: origin, size: size)
         }
         set {
-            // palkovnik:TODO: Implement inverse setting of origin and bounds from frame. also transforms can break things
-//            let transformedFrame = newValue.applying(transform.inverted())
-            let transformedFrame = newValue
-            _bounds.size = transformedFrame.size
-            _center = CGPoint(x: transformedFrame.midX, y: transformedFrame.midY)
+            let size = newValue.size.applying(transform.inverted())
 
-            setNeedsLayout()
+            bounds = CGRect(origin: .zero, size: size)
+            center = CGPoint(x: newValue.midX, y: newValue.midY)
         }
     }
     
@@ -64,12 +57,15 @@ open class View: Responder {
         }
         set {
             _center = newValue
+
+            setNeedsDisplay()
         }
     }
 
     open var transform: CairoGraphics.CGAffineTransform = .identity {
         didSet {
             invalidateTransforms()
+            setNeedsDisplay()
         }
     }
 
@@ -105,6 +101,8 @@ open class View: Responder {
 
     // MARK: Layout
     open var needsLayout = false
+    open var autoresizingMaks: AutoresizingMask = .none
+    open var autoresizesSubviews = true
 
     open func setNeedsLayout() {
         needsLayout = true
@@ -120,7 +118,13 @@ open class View: Responder {
         }
     }
 
-    open func layoutSubviews() {}
+    open func layoutSubviews() {
+        layoutBelowIfNeeeded()
+    }
+
+    internal func layoutBelowIfNeeeded() {
+
+    }
 
 
     open var hidden = false
@@ -361,3 +365,4 @@ fileprivate extension CGPoint {
         return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 }
+

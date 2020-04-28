@@ -85,7 +85,6 @@ internal extension Event {
             buttonNumber = Int(deviceEvent.detail)
 
         case _ where type.isAnyKeyboard:
-            let currentModifierFlags = displayServer.x11Context.currentModifierFlags
             let keyCode = UInt32(deviceEvent.detail)
             var keySymbol: KeySym = KeySym(NoSymbol)
             var lookupString: String? = nil

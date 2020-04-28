@@ -213,53 +213,54 @@ public extension Control {
 }
 
 public extension Control {
-    struct ControlEvent : OptionSet {
+    struct ControlEvent: OptionSet {
         public typealias RawValue = UInt64
         public let rawValue: RawValue
+        
         public init(rawValue: RawValue) {
             self.rawValue = rawValue
         }
 
-        public static var mouseDown = ControlEvent(rawValue: 1 << 1)
-        public static var mouseDownRepeat = ControlEvent(rawValue: 1 << 2)
-        public static var mouseDragInside = ControlEvent(rawValue: 1 << 3)
-        public static var mouseDragOutside = ControlEvent(rawValue: 1 << 4)
-        public static var mouseDragEnter = ControlEvent(rawValue: 1 << 5)
-        public static var mouseDragExit = ControlEvent(rawValue: 1 << 6)
-        public static var mouseUpInside = ControlEvent(rawValue: 1 << 7)
-        public static var mouseUpOutside = ControlEvent(rawValue: 1 << 8)
-        public static var mouseCancel = ControlEvent(rawValue: 1 << 9)
+        public static var mouseDown = Self(rawValue: 1 << 1)
+        public static var mouseDownRepeat = Self(rawValue: 1 << 2)
+        public static var mouseDragInside = Self(rawValue: 1 << 3)
+        public static var mouseDragOutside = Self(rawValue: 1 << 4)
+        public static var mouseDragEnter = Self(rawValue: 1 << 5)
+        public static var mouseDragExit = Self(rawValue: 1 << 6)
+        public static var mouseUpInside = Self(rawValue: 1 << 7)
+        public static var mouseUpOutside = Self(rawValue: 1 << 8)
+        public static var mouseCancel = Self(rawValue: 1 << 9)
 
-        public static var rightMouseDown = ControlEvent(rawValue: 1 << 10)
-        public static var rightMouseDownRepeat = ControlEvent(rawValue: 1 << 11)
-        public static var rightMouseDragInside = ControlEvent(rawValue: 1 << 12)
-        public static var rightMouseDragOutside = ControlEvent(rawValue: 1 << 13)
-        public static var rightMouseDragEnter = ControlEvent(rawValue: 1 << 14)
-        public static var rightMouseDragExit = ControlEvent(rawValue: 1 << 15)
-        public static var rightMouseUpInside = ControlEvent(rawValue: 1 << 16)
-        public static var rightMouseUpOutside = ControlEvent(rawValue: 1 << 17)
-        public static var rightMouseCancel = ControlEvent(rawValue: 1 << 18)
+        public static var rightMouseDown = Self(rawValue: 1 << 10)
+        public static var rightMouseDownRepeat = Self(rawValue: 1 << 11)
+        public static var rightMouseDragInside = Self(rawValue: 1 << 12)
+        public static var rightMouseDragOutside = Self(rawValue: 1 << 13)
+        public static var rightMouseDragEnter = Self(rawValue: 1 << 14)
+        public static var rightMouseDragExit = Self(rawValue: 1 << 15)
+        public static var rightMouseUpInside = Self(rawValue: 1 << 16)
+        public static var rightMouseUpOutside = Self(rawValue: 1 << 17)
+        public static var rightMouseCancel = Self(rawValue: 1 << 18)
 
-        public static var otherMouseDown = ControlEvent(rawValue: 1 << 19)
-        public static var otherMouseDownRepeat = ControlEvent(rawValue: 1 << 20)
-        public static var otherMouseDragInside = ControlEvent(rawValue: 1 << 21)
-        public static var otherMouseDragOutside = ControlEvent(rawValue: 1 << 22)
-        public static var otherMouseDragEnter = ControlEvent(rawValue: 1 << 23)
-        public static var otherMouseDragExit = ControlEvent(rawValue: 1 << 24)
-        public static var otherMouseUpInside = ControlEvent(rawValue: 1 << 25)
-        public static var otherMouseUpOutside = ControlEvent(rawValue: 1 << 26)
-        public static var otherMouseCancel = ControlEvent(rawValue: 1 << 27)
+        public static var otherMouseDown = Self(rawValue: 1 << 19)
+        public static var otherMouseDownRepeat = Self(rawValue: 1 << 20)
+        public static var otherMouseDragInside = Self(rawValue: 1 << 21)
+        public static var otherMouseDragOutside = Self(rawValue: 1 << 22)
+        public static var otherMouseDragEnter = Self(rawValue: 1 << 23)
+        public static var otherMouseDragExit = Self(rawValue: 1 << 24)
+        public static var otherMouseUpInside = Self(rawValue: 1 << 25)
+        public static var otherMouseUpOutside = Self(rawValue: 1 << 26)
+        public static var otherMouseCancel = Self(rawValue: 1 << 27)
 
-        public static var valueChanged = ControlEvent(rawValue: 1 << 28)
-        public static var primaryActionTriggered = ControlEvent(rawValue: 1 << 29)
-        public static var editingDidBegin = ControlEvent(rawValue: 1 << 30)
-        public static var editingChanged = ControlEvent(rawValue: 1 << 31)
-        public static var editingDidEnd = ControlEvent(rawValue: 1 << 32)
-        public static var editingDidEndOnExit = ControlEvent(rawValue: 1 << 33)
+        public static var valueChanged = Self(rawValue: 1 << 28)
+        public static var primaryActionTriggered = Self(rawValue: 1 << 29)
+        public static var editingDidBegin = Self(rawValue: 1 << 30)
+        public static var editingChanged = Self(rawValue: 1 << 31)
+        public static var editingDidEnd = Self(rawValue: 1 << 32)
+        public static var editingDidEndOnExit = Self(rawValue: 1 << 33)
 
-        public static var applicationReserved = ControlEvent(rawValue: 1 << 36)
-        public static var systemReserved = ControlEvent(rawValue: 1 << 37)
+        public static var applicationReserved = Self(rawValue: 1 << 36)
+        public static var systemReserved = Self(rawValue: 1 << 37)
 
-        public static var allEvents = ControlEvent(rawValue: RawValue.max)
+        public static var allEvents = Self(rawValue: RawValue.max)
     }
 }
