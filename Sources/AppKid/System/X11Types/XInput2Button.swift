@@ -47,7 +47,7 @@ internal enum XInput2Button: RawRepresentable {
 
     var downEventType: Event.EventType {
         switch self {
-        case .none: return .noEvent
+        case .none: return .none
         case .left: return .leftMouseDown
         case .right: return .rightMouseDown
         case .middle: return .otherMouseDown
@@ -71,12 +71,12 @@ internal enum XInput2Button: RawRepresentable {
 
     var upEventType: Event.EventType {
         switch self {
-        case .none: return .noEvent
+        case .none: return .none
         case .left: return .leftMouseUp
         case .right: return .rightMouseUp
         case .middle: return .otherMouseUp
-        case .scrollUp: return .scrollWheel
-        case .scrollDown: return .scrollWheel
+        case .scrollUp: return .none // scroll wheel events are only handled for button down state
+        case .scrollDown: return .none // scroll wheel events are only handled for button down state
         case .other(_): return .otherMouseUp
         }
     }

@@ -27,7 +27,7 @@ fileprivate extension XEvent {
             return .mouseExited
 
         default:
-            return .noEvent
+            return .none
         }
     }
 }
@@ -37,7 +37,7 @@ fileprivate extension XEvent {
         switch xcookie.xInput2EventType {
         case .keyPress: return .keyDown
         case .keyRelease: return .keyUp
-        default: return .noEvent
+        default: return .none
         }
     }
 
@@ -46,26 +46,27 @@ fileprivate extension XEvent {
         case .buttonPress: return deviceEvent.button.downEventType
         case .buttonRelease: return deviceEvent.button.upEventType
         case .motion: return deviceEvent.button.moveEventType
-        default: return .noEvent
+        default: return .none
         }
     }
 }
 
 internal extension Event {
-    convenience init(xInput2Event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
-        let type = xInput2Event.eventTypeFromXInput2Event
+    convenience init(xInput2Event event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
+//        debugPrint("Event \(String(reflecting: event.deviceEvent))")
+        let type = event.eventTypeFromXInput2Event
 
-        if type == .noEvent {
-            let eventString = xInput2Event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
+        if type == .none {
+            let eventString = event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
             throw EventCreationError.nativeEventIgnored(description: "XInput2 event type: \(eventString)")
         }
 
-        let deviceEvent: XIDeviceEvent = xInput2Event.deviceEvent
+        let deviceEvent = event.deviceEvent
 
         let application = Application.shared
 
         guard let windowNumber = application.windows.firstIndex(where: { $0.nativeWindow.windowID == deviceEvent.event }) else {
-            let eventString = xInput2Event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
+            let eventString = event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
             throw EventCreationError.noWindow(description: "XInput2 event type: \(eventString). Foreign window ID: \(deviceEvent.event)")
         }
 
@@ -76,13 +77,34 @@ internal extension Event {
             throw EventCreationError.eventIgnored(description: "Window does not accept mouse move event.")
         }
 
+        let currentModifierFlags = displayServer.context.currentModifierFlags
+        let displayScale = displayServer.context.scale
+
         switch type {
         case _ where type.isAnyMouse:
-            let deviceEvent = xInput2Event.deviceEvent
-            let location = CGPoint(x: CGFloat(deviceEvent.event_x) / displayServer.displayScale, y: CGFloat(deviceEvent.event_y) / displayServer.displayScale)
-            try self.init(withMouseEventType: type, location: location, modifierFlags: displayServer.x11Context.currentModifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+            let deviceEvent = event.deviceEvent
+            let location = deviceEvent.locationInWindow / displayScale
+            try self.init(withMouseEventType: type, location: location, modifierFlags: displayServer.context.currentModifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(deviceEvent.detail)
+
+            //palkonvnik:TODO:Implement acceledation and deceleration of scrolling
+            switch deviceEvent.button {
+            case .scrollUp:
+                if currentModifierFlags.contains(.shift) {
+                    scrollingDeltaX = -0.1
+                } else {
+                    scrollingDeltaY = -0.1
+                }
+            case .scrollDown:
+                if currentModifierFlags.contains(.shift) {
+                    scrollingDeltaX = 0.1
+                } else {
+                    scrollingDeltaY = 0.1
+                }
+            default:
+                break
+            }
 
         case _ where type.isAnyKeyboard:
             let keyCode = UInt32(deviceEvent.detail)
@@ -117,15 +139,15 @@ internal extension Event {
                     let modifierFlag = x11ModifierKeySymbol.modifierFlag
 
                     if type == .keyDown {
-                        displayServer.x11Context.currentModifierFlags.formUnion(modifierFlag)
+                        displayServer.context.currentModifierFlags.formUnion(modifierFlag)
                     } else {
-                        displayServer.x11Context.currentModifierFlags.formSymmetricDifference(modifierFlag)
+                        displayServer.context.currentModifierFlags.formSymmetricDifference(modifierFlag)
                     }
 
-                    self.init(type: .flagsChanged, location: location, modifierFlags: displayServer.x11Context.currentModifierFlags, windowNumber: windowNumber)
+                    self.init(type: .flagsChanged, location: location, modifierFlags: displayServer.context.currentModifierFlags, windowNumber: windowNumber)
 
                 } else {
-                    self.init(type: type, location: location, modifierFlags: displayServer.x11Context.currentModifierFlags, windowNumber: windowNumber)
+                    self.init(type: type, location: location, modifierFlags: displayServer.context.currentModifierFlags, windowNumber: windowNumber)
 
                     characters = lookupString.flatMap { $0.isEmpty ? nil : $0 }
                     isARepeat = deviceEvent.flags & XIKeyRepeat != 0

@@ -19,18 +19,18 @@ import Glibc
 
 internal extension DisplayServer {
     func setupX11() {
-        x11Context.displayConnectionFileDescriptor = XConnectionNumber(display)
+        context.displayConnectionFileDescriptor = XConnectionNumber(display)
 
         #if os(Linux)
-        x11Context.epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
-        if x11Context.epollFileDescriptor == -1  {
+        context.epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
+        if context.epollFileDescriptor == -1  {
             XCloseDisplay(display)
             fatalError("Failed to create epoll file descriptor")
         }
-        x11Context.eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
+        context.eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
         #endif
 
-        x11Context.wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+        context.wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {
@@ -75,10 +75,10 @@ internal extension DisplayServer {
         #if os(Linux)
         var x11EpollEvent = epoll_event()
         x11EpollEvent.events = EPOLLIN.rawValue | EPOLLET.rawValue
-        x11EpollEvent.data.fd = x11Context.displayConnectionFileDescriptor
+        x11EpollEvent.data.fd = context.displayConnectionFileDescriptor
         
-        guard epoll_ctl(x11Context.epollFileDescriptor, EPOLL_CTL_ADD, x11Context.displayConnectionFileDescriptor, &x11EpollEvent) == 0 else {
-            close(x11Context.epollFileDescriptor)
+        guard epoll_ctl(context.epollFileDescriptor, EPOLL_CTL_ADD, context.displayConnectionFileDescriptor, &x11EpollEvent) == 0 else {
+            close(context.epollFileDescriptor)
             XCloseDisplay(display)
             fatalError("Failed to add file descriptor to epoll")
         }
@@ -86,7 +86,7 @@ internal extension DisplayServer {
         x11RunLoopSourceContext.getPort = {
             if let info = $0 {
                 let displayServer: DisplayServer = Unmanaged.fromOpaque(info).takeUnretainedValue()
-                return UnsafeMutableRawPointer(bitPattern: Int(displayServer.x11Context.eventFileDescriptor))
+                return UnsafeMutableRawPointer(bitPattern: Int(displayServer.context.eventFileDescriptor))
             } else {
                 return UnsafeMutableRawPointer(bitPattern: Int(-1))
             }
@@ -122,14 +122,14 @@ internal extension DisplayServer {
             CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
         }
 
-        if x11Context.eventFileDescriptor != -1 {
-            close(x11Context.eventFileDescriptor)
+        if context.eventFileDescriptor != -1 {
+            close(context.eventFileDescriptor)
         }
-        if x11Context.epollFileDescriptor != -1 {
-            close(x11Context.epollFileDescriptor)
+        if context.epollFileDescriptor != -1 {
+            close(context.epollFileDescriptor)
         }
 
-        x11Context = X11Context()
+        context = DisplayServerContext()
     }
     
     func pollForX11Events() {
@@ -141,9 +141,9 @@ internal extension DisplayServer {
         var awokenEvent = epoll_event()
         var one: UInt64 = 1
         while pollThread.isCancelled == false || pollThread.isFinished == false {
-            let result = CEpoll.epoll_wait(x11Context.epollFileDescriptor, &awokenEvent, 1, -1)
+            let result = CEpoll.epoll_wait(context.epollFileDescriptor, &awokenEvent, 1, -1)
             if (result == 0 || result == -1) { continue }
-            CEpoll.write(x11Context.eventFileDescriptor, &one, 8)
+            CEpoll.write(context.eventFileDescriptor, &one, 8)
         }
         #endif
     }
@@ -161,7 +161,7 @@ internal extension DisplayServer {
             let event: Event
 
             do {
-                if x11Event.isCookie(with: x11Context.xInput2ExtensionOpcode)  {
+                if x11Event.isCookie(with: context.xInput2ExtensionOpcode)  {
                     guard XGetEventData(display, &x11Event.xcookie) != 0 else { continue }
 
                     defer {
@@ -170,7 +170,7 @@ internal extension DisplayServer {
 
                     //palkovnik:Hacking XInput2 event to have button number for motion events
                     if x11Event.xcookie.xInput2EventType == .motion {
-                        x11Event.deviceEvent.detail = x11Context.currentPressedMouseButton.rawValue
+                        x11Event.deviceEvent.detail = context.currentPressedMouseButton.rawValue
                     }
 
                     event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayServer: self)
@@ -182,13 +182,13 @@ internal extension DisplayServer {
                 continue
             }
             
-            if event.type == .noEvent {
+            if event.type == .none {
                 continue
             }
 
             if event.type == .appKidDefined {
                 if event.subType == .message {
-                    if CX11.Atom(x11Event.xclient.data.l.0) == x11Context.wmDeleteWindowAtom {
+                    if CX11.Atom(x11Event.xclient.data.l.0) == context.wmDeleteWindowAtom {
                         application.remove(windowNumer: event.windowNumber)
                         return
                     }
@@ -196,11 +196,11 @@ internal extension DisplayServer {
             }
 
             switch event.type {
-            case _ where event.isAnyMouseDownEvent && x11Context.currentPressedMouseButton == .none:
-                x11Context.currentPressedMouseButton = event.xInput2Button
+            case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
+                context.currentPressedMouseButton = event.xInput2Button
 
-            case _ where event.isAnyMouseUpEvent && x11Context.currentPressedMouseButton == event.xInput2Button:
-                x11Context.currentPressedMouseButton = .none
+            case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
+                context.currentPressedMouseButton = .none
 
             default:
                 break

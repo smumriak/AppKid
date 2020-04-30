@@ -9,7 +9,7 @@ import Foundation
 
 public extension Event {
     enum EventType: UInt {
-        case noEvent = 0
+        case none = 0
         case leftMouseDown = 1
         case leftMouseUp = 2
         case rightMouseDown = 3
@@ -199,7 +199,7 @@ public extension Event {
 }
 
 public class Event {
-    public internal(set) var type: EventType = .noEvent
+    public internal(set) var type: EventType = .none
     public internal(set) var subType: EventSubtype = .none
     public internal(set) var modifierFlags: ModifierFlags = .none
     public internal(set) var timestamp: TimeInterval = .zero

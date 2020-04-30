@@ -49,7 +49,7 @@ open class Control: View, ControlProtocol {
         }
     }
 
-    internal(set) open var state: State = .normal
+    open internal(set) var state: State = .normal
 
     // MARK: Mouse Events
 

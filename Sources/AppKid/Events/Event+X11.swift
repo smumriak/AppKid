@@ -39,7 +39,7 @@ fileprivate extension XEvent {
             return .systemDefined
 
         default:
-            return .noEvent
+            return .none
         }
     }
 }
@@ -55,7 +55,7 @@ fileprivate extension XEvent {
             switch x11EventType {
             case .keyPress: return .keyDown
             case .keyRelease: return .keyUp
-            default: return .noEvent
+            default: return .none
             }
         }
     }
@@ -112,7 +112,7 @@ internal extension Event {
     convenience init(x11Event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
         let type = x11Event.eventTypeFromXEvent
         
-        if type == .noEvent {
+        if type == .none {
             let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
             throw EventCreationError.nativeEventIgnored(description: "X11 event type: \(eventString)")
         }
@@ -121,12 +121,13 @@ internal extension Event {
             let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
             throw EventCreationError.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }
-        
+
+
         switch type {
         case _ where type.isAnyMouse:
             let buttonEvent = x11Event.xbutton
 
-            let location = CGPoint(x: CGFloat(buttonEvent.x) / displayServer.displayScale, y: CGFloat(buttonEvent.y) / displayServer.displayScale)
+            let location = CGPoint(x: CGFloat(buttonEvent.x), y: CGFloat(buttonEvent.y)) / displayServer.context.scale
             try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(buttonEvent.button)

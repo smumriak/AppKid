@@ -60,24 +60,24 @@ extension CGAffineTransform: Equatable {
     }
 }
 
-extension CGAffineTransform {
-    public static var identity: CGAffineTransform = {
+public extension CGAffineTransform {
+    static let identity: CGAffineTransform = {
         var result = CGAffineTransform()
         cairo_matrix_init_identity(&result._matrix)
         return result
     }()
 }
 
-extension CGAffineTransform {
-    public init(translationX tx: CGFloat, y ty: CGFloat) {
+public extension CGAffineTransform {
+    init(translationX tx: CGFloat, y ty: CGFloat) {
         cairo_matrix_init_translate(&_matrix, Double(tx), Double(ty))
     }
     
-    public init(scaleX sx: CGFloat, y sy: CGFloat) {
+    init(scaleX sx: CGFloat, y sy: CGFloat) {
         cairo_matrix_init_scale(&_matrix, Double(sx), Double(sy))
     }
     
-    public init(rotationAngle angle: CGFloat) {
+    init(rotationAngle angle: CGFloat) {
         cairo_matrix_init_rotate(&_matrix, Double(angle))
     }
     
@@ -85,7 +85,7 @@ extension CGAffineTransform {
         return self == .identity
     }
     
-    public func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform {
+    func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform {
         var result = self
         
         cairo_matrix_translate(&result._matrix, Double(tx), Double(ty))
@@ -93,7 +93,7 @@ extension CGAffineTransform {
         return result
     }
     
-    public func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform {
+    func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform {
         var result = self
         
         cairo_matrix_scale(&result._matrix, Double(sx), Double(sy))
@@ -101,7 +101,7 @@ extension CGAffineTransform {
         return result
     }
     
-    public func rotated(by angle: CGFloat) -> CGAffineTransform {
+    func rotated(by angle: CGFloat) -> CGAffineTransform {
         var result = self
         
         cairo_matrix_rotate(&result._matrix, Double(angle))
@@ -109,7 +109,7 @@ extension CGAffineTransform {
         return result
     }
     
-    public func inverted() -> CGAffineTransform {
+    func inverted() -> CGAffineTransform {
         if self.isIdentity { return self}
         
         var result = self
@@ -123,7 +123,7 @@ extension CGAffineTransform {
         }
     }
     
-    public func concatenating(_ t2: CGAffineTransform) -> CGAffineTransform {
+    func concatenating(_ t2: CGAffineTransform) -> CGAffineTransform {
         var result = self
         var lhs = _matrix
         var rhs = t2._matrix

@@ -78,8 +78,43 @@ extension X11NativeWindow: Equatable {
 }
 
 internal struct Rect<StorageType> where StorageType: BinaryInteger {
+    var origin: Point<StorageType>
+    var size: Size<StorageType>
+
+    var x: StorageType {
+        get { origin.x }
+        set { origin.x = newValue }
+    }
+    var y: StorageType {
+        get { origin.y }
+        set { origin.y = newValue}
+    }
+    var width: StorageType {
+        get { size.width }
+        set { size.width = newValue }
+    }
+    var height: StorageType {
+        get { size.height }
+        set { size.height = newValue }
+    }
+
+    init(origin: Point<StorageType>, size: Size<StorageType>) {
+        self.origin = origin
+        self.size = size
+    }
+
+    init(x: StorageType, y: StorageType, width: StorageType, height: StorageType) {
+        self.origin = Point(x: x, y: y)
+        self.size = Size(width: width, height: height)
+    }
+}
+
+internal struct Point<StorageType> where StorageType: BinaryInteger {
     var x: StorageType
     var y: StorageType
+}
+
+internal struct Size<StorageType> where StorageType: BinaryInteger {
     var width: StorageType
     var height: StorageType
 }
@@ -92,13 +127,37 @@ extension Rect where StorageType == CInt {
 
 extension Rect {
     var cgRect: CGRect {
-        return CGRect(x: CGFloat(x), y: CGFloat(y), width: CGFloat(width), height: CGFloat(height))
+        return CGRect(origin: origin.cgPoint, size: size.cgSize)
     }
 }
 
 internal extension CGRect{
     func rect<StorageType>() -> Rect<StorageType> where StorageType: BinaryInteger {
         let standardized = self.standardized
-        return Rect<StorageType>(x: StorageType(standardized.origin.x), y: StorageType(standardized.origin.y), width: StorageType(standardized.width), height: StorageType(standardized.height))
+        return Rect(origin: standardized.origin.point(), size: standardized.size.size())
+    }
+}
+
+extension Point {
+    var cgPoint: CGPoint {
+        return CGPoint(x: CGFloat(x), y: CGFloat(y))
+    }
+}
+
+extension CGPoint {
+    func point<StorageType>() -> Point<StorageType> where StorageType: BinaryInteger {
+        return Point(x: StorageType(x), y: StorageType(y))
+    }
+}
+
+extension Size {
+    var cgSize: CGSize {
+        return CGSize(width: CGFloat(width), height: CGFloat(height))
+    }
+}
+
+extension CGSize {
+    func size<StorageType>() -> Size<StorageType> where StorageType: BinaryInteger {
+        return Size(width: StorageType(width), height: StorageType(height))
     }
 }

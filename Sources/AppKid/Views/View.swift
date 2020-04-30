@@ -37,7 +37,7 @@ open class View: Responder {
         set {
             let size = newValue.size.applying(transform.inverted())
 
-            bounds = CGRect(origin: .zero, size: size)
+            bounds = CGRect(origin: bounds.origin, size: size)
             center = CGPoint(x: newValue.midX, y: newValue.midY)
         }
     }
@@ -211,16 +211,14 @@ open class View: Responder {
             _transformFromWindow = .identity
         } else {
             let superviewTransformToWindow = superview?.transformToWindow ?? .identity
-            // palkovnik:TODO: don't forget to add bounds transform
-//            let boundsScaleTransform = CGAffineTransform.init(scaleX: frame.width / bounds.width, y: frame.height / bounds.height)
-            
-            _transformToWindow =
-                CairoGraphics.CGAffineTransform.identity
-                    .concatenating(CGAffineTransform(translationX: -self.bounds.width / 2.0, y: -self.bounds.height / 2.0))
-                    .concatenating(self.transform)
-                    .concatenating(CGAffineTransform(translationX: self.bounds.width / 2.0, y: self.bounds.height / 2.0))
-                    .concatenating(CGAffineTransform(translationX: center.x - bounds.width / 2.0, y: center.y - bounds.height / 2.0))
-                    .concatenating(superviewTransformToWindow)
+
+            _transformToWindow = CGAffineTransform.identity
+                .concatenating(CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY))
+                .concatenating(CGAffineTransform(translationX: -bounds.width * 0.5, y: -bounds.height * 0.5))
+                .concatenating(transform)
+                .concatenating(CGAffineTransform(translationX: bounds.width * 0.5, y: bounds.height * 0.5))
+                .concatenating(CGAffineTransform(translationX: center.x - bounds.width * 0.5, y: center.y - bounds.height * 0.5))
+                .concatenating(superviewTransformToWindow)
             
             _transformFromWindow = _transformToWindow.inverted()
         }
@@ -252,11 +250,19 @@ open class View: Responder {
     }
     
     open func convert(_ rect: CGRect, to view: View?) -> CGRect {
-        return rect
+        let toView = view ?? window
+
+        let transformFromWindow = toView?.transformFromWindow ?? .identity
+
+        return rect.applying(transformToWindow).applying(transformFromWindow)
     }
     
     open func convert(_ rect: CGRect, from view: View?) -> CGRect {
-        return rect
+        let fromView = view ?? window
+
+        let transformToWindow = fromView?.transformToWindow ?? .identity
+
+        return rect.applying(transformToWindow).applying(transformFromWindow)
     }
 
     // MARK: Rendering
@@ -356,13 +362,8 @@ public extension View {
     }
 }
 
-fileprivate extension CGPoint {
-    static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
-        return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
-    }
-    
-    static func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
-        return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+open class BlueView: View {
+    open override func render(in context: CairoGraphics.CGContext) {
+        super.render(in: context)
     }
 }
-

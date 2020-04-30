@@ -248,6 +248,10 @@ fileprivate extension Window {
             otherMouseDownView?.otherMouseUp(with: event)
             otherMouseDownView = nil
 
+        case .scrollWheel:
+            let view = hitTest(event.locationInWindow) ?? self
+            view.scrollWheel(with: event)
+
         default:
             guard let handler = Responder.mouseEventTypeToHandler[event.type] else { return }
             let view = hitTest(event.locationInWindow) ?? self

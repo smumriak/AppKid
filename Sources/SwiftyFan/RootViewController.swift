@@ -44,8 +44,8 @@ class RootViewController: ViewController {
         return result
     }()
 
-    let blueView: View = {
-        let result = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
+    let blueSubview: View = {
+        let result = BlueView(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
         result.tag = 4
         result.backgroundColor = .blue
 
@@ -80,6 +80,17 @@ class RootViewController: ViewController {
         return result
     }()
 
+    let scrollView: ScrollView = {
+        let result = ScrollView(with: .zero)
+
+        result.backgroundColor = .clear
+
+        result.contentOffset = .zero
+        result.contentSize = CGSize(width: 400, height: 800)
+
+        return result
+    }()
+
     lazy var transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview]  _ in
         greenSubview.transform = greenSubview.transform.rotated(by: .pi / 120)
         redSubview.transform = redSubview.transform.rotated(by: -.pi / 80)
@@ -97,11 +108,13 @@ class RootViewController: ViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.add(subview: greenSubview)
+        view.add(subview: scrollView)
+
+        scrollView.add(subview: greenSubview)
         greenSubview.add(subview: redSubview)
         redSubview.add(subview: graySubview)
-        view.add(subview: blueView)
-        view.add(subview: label)
+        scrollView.add(subview: blueSubview)
+        scrollView.add(subview: label)
         view.add(subview: button)
 
         RunLoop.current.add(transformTimer, forMode: .common)
@@ -121,25 +134,32 @@ class RootViewController: ViewController {
         super.viewDidLayoutSubviews()
 
         label.frame = view.bounds
+
+        if scrollView.transform == .identity {
+            scrollView.frame = CGRect(x: 0.0, y: 0.0, width: 400, height: 400)
+        }
     }
 
     weak var draggedView: View? = nil
+    var draggedViewCenterDelta: CGPoint = .zero
 
     override func mouseDown(with event: Event) {
         let point = view.convert(event.locationInWindow, from: view.window)
-        if let hitTestView = view.hitTest(point), hitTestView != view {
+        if let hitTestView = view.hitTest(point), [redSubview, greenSubview, graySubview, blueSubview].contains(hitTestView) {
             draggedView = hitTestView
+            draggedViewCenterDelta = view.convert(hitTestView.center, from: hitTestView.superview) - point
         }
     }
 
     override func mouseDragged(with event: Event) {
-        if let draggedView = draggedView {
-            draggedView.center = draggedView.superview?.convert(event.locationInWindow, from: view.window) ?? draggedView.center
+        if let draggedView = draggedView, let superview = draggedView.superview {
+            draggedView.center = superview.convert(event.locationInWindow, from: view.window) + draggedViewCenterDelta
         }
     }
 
     override func mouseUp(with event: Event) {
         draggedView = nil
+        draggedViewCenterDelta = .zero
     }
 
     override func keyDown(with event: Event) {
@@ -168,3 +188,4 @@ class RootViewController: ViewController {
         return true
     }
 }
+

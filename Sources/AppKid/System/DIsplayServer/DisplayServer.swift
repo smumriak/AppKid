@@ -20,7 +20,7 @@ import Glibc
 internal let kEnableXInput2 = true
 
 internal class DisplayServer {
-    var x11Context = X11Context()
+    var context = DisplayServerContext()
 
     internal let display: UnsafeMutablePointer<CX11.Display>
     internal let screen: UnsafeMutablePointer<CX11.Screen>
@@ -31,14 +31,6 @@ internal class DisplayServer {
     internal lazy var pollThread = Thread { self.pollForX11Events() }
 
     internal var runLoopSource: CFRunLoopSource? = nil
-
-    lazy var displayScale: CGFloat = {
-        if let gtkDisplayScale = gtkDisplayScale {
-            return CGFloat(gtkDisplayScale)
-        } else {
-            return 1.0
-        }
-    }()
 
     internal let rootWindow: X11NativeWindow
 
@@ -64,7 +56,7 @@ internal class DisplayServer {
         var event: CInt = 0
         var error: CInt = 0
 
-        if XQueryExtension(display, "XInputExtension".cString(using: .ascii), &x11Context.xInput2ExtensionOpcode, &event, &error) == 0 {
+        if XQueryExtension(display, "XInputExtension".cString(using: .ascii), &context.xInput2ExtensionOpcode, &event, &error) == 0 {
             XCloseDisplay(display)
             fatalError("No XInputExtension available")
         }
@@ -118,15 +110,19 @@ internal class DisplayServer {
 
         rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root)
 
-        rootWindow.displayScale = displayScale
+        gtkDisplayScale.map {
+            context.scale = CGFloat($0)
+        }
+
+        rootWindow.displayScale = context.scale
     }
 }
 
 extension DisplayServer {
     func createNativeWindow(contentRect: CGRect) -> X11NativeWindow {
         var scaledContentRect = contentRect
-        scaledContentRect.size.width *= displayScale
-        scaledContentRect.size.height *= displayScale
+        scaledContentRect.size.width *= context.scale
+        scaledContentRect.size.height *= context.scale
 
         let intRect: Rect<CInt> = scaledContentRect.rect()
         let windowID = XCreateSimpleWindow(display, rootWindow.windowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
@@ -150,10 +146,10 @@ extension DisplayServer {
         }
         
         XMapWindow(display, windowID)
-        XSetWMProtocols(display, windowID, &x11Context.wmDeleteWindowAtom, 1)
+        XSetWMProtocols(display, windowID, &context.wmDeleteWindowAtom, 1)
 
         let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID)
-        result.displayScale = displayScale
+        result.displayScale = context.scale
 
         if let inputMethod = inputMethod, let inputStyle = inputStyle {
             result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowID)

@@ -18,7 +18,7 @@ internal final class Renderer {
     func render(window: Window) {
         CairoGraphics.CGContext.push(context)
         
-        let transform = CairoGraphics.CGAffineTransform(scaleX: window.nativeWindow.displayScale, y: window.nativeWindow.displayScale)
+        let transform = CGAffineTransform(scaleX: window.nativeWindow.displayScale, y: window.nativeWindow.displayScale)
 
         render(view: window, in: context, with: transform)
 
@@ -30,14 +30,22 @@ internal final class Renderer {
     fileprivate func render(view: View, in context: CairoGraphics.CGContext, with transform: CairoGraphics.CGAffineTransform) {
         context.saveState()
 
-        let transform = view.transform
-            .concatenating(transform.translatedBy(x: view.center.x, y: view.center.y))
-            .translatedBy(x: -view.bounds.width * 0.5, y: -view.bounds.height * 0.5)
+        let bounds = view.bounds
+        let center = view.center
+
+        //palkovnik:I know it looks like unneeded work with all translations, especially the last two. But it's the easiest way to document what's happening. If this will be a performance bottleneck (lol, there are probably more performance heavy code here) i'll remove it
+        let transform = CairoGraphics.CGAffineTransform.identity
+            .concatenating(CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY))
+            .concatenating(CGAffineTransform(translationX: -bounds.width * 0.5, y: -bounds.height * 0.5))
+            .concatenating(view.transform)
+            .concatenating(CGAffineTransform(translationX: bounds.width * 0.5, y: bounds.height * 0.5))
+            .concatenating(CGAffineTransform(translationX: center.x - bounds.width * 0.5, y: center.y - bounds.height * 0.5))
+            .concatenating(transform)
 
         context.ctm = transform
 
         if view.masksToBounds {
-            context.addRect(view.bounds)
+            context.addRect(bounds)
             context.clip()
         }
 
