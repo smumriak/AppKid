@@ -23,8 +23,6 @@ internal final class Renderer {
         render(view: window, in: context, with: transform)
 
         CairoGraphics.CGContext.pop()
-
-        window.nativeWindow.flush()
     }
     
     fileprivate func render(view: View, in context: CairoGraphics.CGContext, with transform: CairoGraphics.CGAffineTransform) {

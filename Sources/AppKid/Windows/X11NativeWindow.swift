@@ -6,8 +6,10 @@
 //
 
 import Foundation
+
 import CX11.Xlib
 import CX11.X
+import CXInput2
 
 internal final class X11NativeWindow {
     fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
@@ -43,8 +45,6 @@ internal final class X11NativeWindow {
                 }
 
                 XSelectInput(display, windowID, Int(mask.rawValue))
-
-                flush()
             }
         }
     }
@@ -56,7 +56,6 @@ internal final class X11NativeWindow {
     deinit {
         if !isRoot {
             XDestroyWindow(display, windowID)
-            flush()
         }
     }
     
@@ -66,8 +65,38 @@ internal final class X11NativeWindow {
         self.windowID = windowID
     }
 
-    func flush() {
-        XFlush(display)
+    func updateListeningEvents(displayServer: DisplayServer) {
+        if kEnableXInput2 {
+            let eventMasksAndStoragePointers: [(XIEventMask, UnsafeMutablePointer<UInt32>)] = displayServer.context.inputDevices
+                .map { device in
+                    let mask = device.type.mask
+                    let rawMaskPointer = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
+                    rawMaskPointer.initialize(to: UInt32(mask.rawValue))
+
+                    let resultMask = rawMaskPointer.withMemoryRebound(to: UInt8.self, capacity: 4) {
+                        return XIEventMask(deviceid: device.identifier, mask_len: 4 , mask: $0)
+                    }
+
+                    return (resultMask, rawMaskPointer)
+            }
+
+            defer {
+                eventMasksAndStoragePointers.forEach { $0.1.deallocate() }
+            }
+
+            var events = eventMasksAndStoragePointers.map { $0.0 }
+
+            XISelectEvents(displayServer.display, windowID, &events, CInt(events.count))
+            XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.geometry.rawValue))
+        } else {
+            XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.basic.rawValue))
+        }
+
+        XSetWMProtocols(displayServer.display, windowID, &displayServer.context.wmDeleteWindowAtom, 1)
+    }
+
+    func map(displayServer: DisplayServer) {
+        XMapWindow(displayServer.display, windowID)
     }
 }
 

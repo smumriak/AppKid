@@ -30,7 +30,10 @@ internal extension DisplayServer {
         context.eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
         #endif
 
-        context.wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW".cString(using: .ascii), 0)
+        context.wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
+        context.xiTouchPadAtom = XInternAtom(display, XI_TOUCHPAD, 0)
+        context.xiMouseAtom = XInternAtom(display, XI_MOUSE, 0)
+        context.xiKeyvoardAtom = XInternAtom(display, XI_KEYBOARD, 0)
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {
@@ -113,6 +116,8 @@ internal extension DisplayServer {
         pollThread.qualityOfService = .userInteractive
         pollThread.name = "X11 poll thread"
         pollThread.start()
+
+        updateInputDevices()
     }
     
     func destroyX11(){
@@ -207,6 +212,41 @@ internal extension DisplayServer {
             }
 
             application.post(event: event, atStart: false)
+        }
+    }
+
+    func updateInputDevices() {
+        var count: CInt = 0
+        guard let devicesArrayPointer = XIQueryDevice(display, XIAllDevices, &count) else {
+            context.inputDevices = []
+            return
+        }
+
+        defer {
+            XIFreeDeviceInfo(devicesArrayPointer)
+        }
+
+        context.inputDevices = UnsafeBufferPointer(start: devicesArrayPointer, count: Int(count))
+            .filter { [XISlavePointer, XIMasterKeyboard].contains($0.use) }
+            .map { deviceInfo in
+                let valuatorsCount = deviceInfo.classes.map {
+                    UnsafeBufferPointer(start: $0, count: Int(deviceInfo.num_classes))
+                        .compactMap { $0?.pointee }
+                        .filter { $0.type == XIValuatorClass }
+                        .count
+                }.map {
+                    CInt($0)
+                }
+
+                let deviceType: XInput2Device.DeviceType = {
+                    if deviceInfo.use == XISlavePointer {
+                        return .pointer
+                    } else {
+                        return .keyboard
+                    }
+                }()
+
+                return XInput2Device(identifier: deviceInfo.deviceid, valuatorsCount: valuatorsCount ?? 0, type: deviceType)
         }
     }
 }

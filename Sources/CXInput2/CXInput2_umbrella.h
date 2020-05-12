@@ -9,6 +9,7 @@
 #define CXInput2_umbrella_h 1
 
 #include <X11/extensions/XInput2.h>
+#include <X11/extensions/XI.h>
 
 #include "../CCore/CCore_umbrella.h"
 

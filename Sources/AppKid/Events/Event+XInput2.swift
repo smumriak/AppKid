@@ -87,7 +87,7 @@ internal extension Event {
             try self.init(withMouseEventType: type, location: location, modifierFlags: displayServer.context.currentModifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
             buttonNumber = Int(deviceEvent.detail)
-
+            
             //palkonvnik:TODO:Implement acceledation and deceleration of scrolling
             switch deviceEvent.button {
             case .scrollUp:

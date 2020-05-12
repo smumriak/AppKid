@@ -116,6 +116,10 @@ internal class DisplayServer {
 
         rootWindow.displayScale = context.scale
     }
+
+    func flush() {
+        XFlush(display)
+    }
 }
 
 extension DisplayServer {
@@ -127,35 +131,19 @@ extension DisplayServer {
         let intRect: Rect<CInt> = scaledContentRect.rect()
         let windowID = XCreateSimpleWindow(display, rootWindow.windowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
 
-        XSetStandardProperties(display, windowID, "Window", nil, 0, nil, 0, nil)
-
-        if kEnableXInput2 {
-            XSelectInput(display, windowID, Int(X11EventTypeMask.geometry.rawValue))
-
-            var xInput2EventsMask = UInt32(XInput2EventTypeMask.basic.rawValue)
-
-            withUnsafeMutablePointer(to: &xInput2EventsMask) {
-                let reboundPointer = UnsafeMutableRawPointer($0).bindMemory(to: UInt8.self, capacity: 4)
-
-                var xInput2EventMask = XIEventMask(deviceid: XIAllMasterDevices, mask_len: 4 , mask: reboundPointer)
-
-                XISelectEvents(display, windowID, &xInput2EventMask, 1)
-            }
-        } else {
-            XSelectInput(display, windowID, Int(X11EventTypeMask.basic.rawValue))
-        }
-        
-        XMapWindow(display, windowID)
-        XSetWMProtocols(display, windowID, &context.wmDeleteWindowAtom, 1)
-
         let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID)
         result.displayScale = context.scale
+
+        XSetStandardProperties(display, windowID, "Window", nil, 0, nil, 0, nil)
+
+        result.updateListeningEvents(displayServer: self)
+        result.map(displayServer: self)
 
         if let inputMethod = inputMethod, let inputStyle = inputStyle {
             result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowID)
         }
 
-        result.flush()
+        flush()
 
         return result
     }

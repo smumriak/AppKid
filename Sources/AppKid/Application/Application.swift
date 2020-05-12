@@ -55,6 +55,8 @@ open class Application: Responder {
             for i in 0..<self.windows.count {
                 self.renderers[i].render(window: self.windows[i])
             }
+
+            self.displayServer.flush()
         }
     }()
 
