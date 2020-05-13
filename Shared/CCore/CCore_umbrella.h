@@ -1,6 +1,6 @@
 //
 //  CCore_umbrella.h
-//  SwiftyFan
+//  CCore
 //
 //  Created by Serhii Mumriak on 21.04.2020.
 //

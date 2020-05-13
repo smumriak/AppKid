@@ -1,6 +1,6 @@
 //
 //  CCairo_umbrella.h
-//  SwiftyFan
+//  CairoGraphics
 //
 //  Created by Serhii Mumriak on 03.02.2020.
 //
@@ -18,6 +18,6 @@ struct _cairo_font_options {};
 #include <cairo-xlib.h>
 #endif
 
-#include "../CCore/CCore_umbrella.h"
+#include "../../../Shared/CCore/CCore_umbrella.h"
 
 #endif

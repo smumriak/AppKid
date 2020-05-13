@@ -1,6 +1,6 @@
 //
 //  RootViewController.swift
-//  AppKid
+//  SwiftyFan
 //
 //  Created by Serhii Mumriak on 20.04.2020.
 //

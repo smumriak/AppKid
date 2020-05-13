@@ -1,6 +1,6 @@
 //
 //  CPango_umbrella.h
-//  SwiftyFan
+//  CairoGraphics
 //
 //  Created by Serhii Mumriak on 12.02.2020.
 //
@@ -15,6 +15,6 @@ struct _PangoContext {};
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 
-#include "../CCore/CCore_umbrella.h"
+#include "../../../Shared/CCore/CCore_umbrella.h"
 
 #endif
