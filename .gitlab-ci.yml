@@ -4,4 +4,6 @@ stages:
 build_project:
   stage: build
   script:
-    - ./build.sh | xcpretty
+    - ./build.sh
+  tages:
+    - mini
