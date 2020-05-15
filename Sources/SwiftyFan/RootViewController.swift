@@ -8,6 +8,7 @@
 import Foundation
 import AppKid
 import CairoGraphics
+import ContentAnimation
 
 fileprivate let testString = "And if you gaze long into an abyss, the abyss also gazes into you."
 
@@ -118,6 +119,16 @@ class RootViewController: ViewController {
         view.add(subview: button)
 
         RunLoop.current.add(transformTimer, forMode: .common)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        let layer: CALayer = CALayer()
+        debugPrint(layer.position)
+
+        layer.setValue(CGPoint(x: 10.0, y: 15.0), for: "position")
+        debugPrint(layer.position)
     }
 
     override func viewDidAppear(_ animated: Bool) {

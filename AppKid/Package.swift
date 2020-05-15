@@ -17,7 +17,8 @@ let package = Package(
         .library(name: "AppKid", type: .dynamic, targets: ["AppKid"])
     ],
     dependencies: [
-        .package(path: "../CairoGraphics")
+        .package(path: "../CairoGraphics"),
+    	.package(path: "../ContentAnimation")
     ],
     targets: [
         .systemLibrary(
@@ -39,7 +40,7 @@ let package = Package(
         .systemLibrary(name: "CEpoll"),
         .target(
             name: "AppKid",
-            dependencies: ["CX11", "CXInput2", "CEpoll", "CairoGraphics"]
+            dependencies: ["CX11", "CXInput2", "CEpoll", "CairoGraphics", "ContentAnimation"]
         )
     ]
 )

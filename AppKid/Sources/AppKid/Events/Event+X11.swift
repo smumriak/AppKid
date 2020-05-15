@@ -10,6 +10,7 @@ import CoreFoundation
 import CX11.X
 import CX11.Xlib
 import CXInput2
+import CairoGraphics
 
 fileprivate extension XEvent {
     var eventTypeFromXEvent: Event.EventType {

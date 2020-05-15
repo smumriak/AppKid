@@ -18,12 +18,13 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "./AppKid"),
-        .package(path: "./CairoGraphics")
+        .package(path: "./CairoGraphics"),
+        .package(path: "./ContentAnimation")
     ],
     targets: [
         .target(
             name: "SwiftyFan",
-            dependencies: ["AppKid", "CairoGraphics"]
+            dependencies: ["AppKid", "CairoGraphics", "ContentAnimation"]
         ),
         .testTarget(
             name: "SwiftyFanTests",
