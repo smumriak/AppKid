@@ -5,5 +5,5 @@ build_project:
   stage: build
   script:
     - ./build.sh
-  tages:
+  tags:
     - mini
