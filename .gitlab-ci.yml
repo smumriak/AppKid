@@ -4,4 +4,4 @@ stages:
 build_project:
   stage: build
   script:
-    - ./build.sh
+    - swift build -v
