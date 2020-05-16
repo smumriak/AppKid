@@ -11,7 +11,7 @@
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI.h>
 
-#include "../../../Shared/CCore/CCore_umbrella.h"
+#include "../CCore/CCore_umbrella.h"
 
 typedef AK_ENUM(int32_t, XInput2EventType) {
     XInput2EventTypeDeviceChanged = XI_DeviceChanged,

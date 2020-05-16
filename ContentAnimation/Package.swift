@@ -17,15 +17,13 @@ let package = Package(
         .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"])
     ],
     dependencies: [
+        .package(path: "../SharedSystemLibs"),
         .package(path: "../CairoGraphics")
     ],
     targets: [
         .target(
             name: "ContentAnimation",
-            dependencies: ["CairoGraphics"],
-            linkerSettings: [
-                .linkedLibrary("vulkan")
-            ]
+            dependencies: ["CairoGraphics", "CVulkan"]
         )
     ]
 )

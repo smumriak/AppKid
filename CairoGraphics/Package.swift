@@ -17,25 +17,9 @@ let package = Package(
         .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"])
     ],
     dependencies: [
-        // .package(url: /* package url */, from: "1.0.0"),
+        .package(path: "../SharedSystemLibs")
     ],
     targets: [
-        .systemLibrary(
-            name: "CCairo",
-            pkgConfig: "cairo",
-            providers: [
-                .apt(["libcairo2-dev"]),
-                .brew(["cairo"])
-            ]
-        ),
-        .systemLibrary(
-            name: "CPango",
-            pkgConfig: "pango",
-            providers: [
-                .apt(["libpango1.0-dev"]),
-                .brew(["pango glib"])
-            ]
-        ),
         .target(
             name: "CairoGraphics",
             dependencies: ["CCairo", "CPango"]

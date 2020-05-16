@@ -17,27 +17,11 @@ let package = Package(
         .library(name: "AppKid", type: .dynamic, targets: ["AppKid"])
     ],
     dependencies: [
+        .package(path: "../SharedSystemLibs"),
         .package(path: "../CairoGraphics"),
     	.package(path: "../ContentAnimation")
     ],
     targets: [
-        .systemLibrary(
-            name: "CX11",
-            pkgConfig: "x11",
-            providers: [
-                .apt(["libx11-dev"]),
-                .brew(["xquartz"])
-            ]
-        ),
-        .systemLibrary(
-            name: "CXInput2",
-            pkgConfig: "xi",
-            providers: [
-                .apt(["libxi-dev"]),
-                .brew(["xquartz"])
-            ]
-        ),
-        .systemLibrary(name: "CEpoll"),
         .target(
             name: "AppKid",
             dependencies: ["CX11", "CXInput2", "CEpoll", "CairoGraphics", "ContentAnimation"]

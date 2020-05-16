@@ -23,7 +23,7 @@ struct _XIC {};
 #include <X11/Xos.h>
 #include <X11/XKBlib.h>
 
-#include "../../../Shared/CCore/CCore_umbrella.h"
+#include "../CCore/CCore_umbrella.h"
 
 typedef AK_ENUM(KeySym, X11ModifierKeySymbol) {
     X11ModifierKeySymbolLeftShift = XK_Shift_L,

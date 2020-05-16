@@ -1,0 +1,12 @@
+//
+//  module.modulemap
+//  CVulkan
+//
+//  Created by Serhii Mumriak on 29.01.2020.
+//
+
+module CVulkan [system] {
+    header "CVulkan_umbrella.h"
+    link "vulkan"
+    export *
+}

@@ -17,6 +17,7 @@ let package = Package(
         .executable(name: "SwiftyFan", targets: ["SwiftyFan"])
     ],
     dependencies: [
+        .package(path: "SharedSystemLibs"),
         .package(path: "./AppKid"),
         .package(path: "./CairoGraphics"),
         .package(path: "./ContentAnimation")

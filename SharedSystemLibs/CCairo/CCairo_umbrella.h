@@ -18,6 +18,6 @@ struct _cairo_font_options {};
 #include <cairo-xlib.h>
 #endif
 
-#include "../../../Shared/CCore/CCore_umbrella.h"
+#include "../CCore/CCore_umbrella.h"
 
 #endif
