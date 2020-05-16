@@ -1,13 +1,6 @@
 stages:
-  - buildMac
   - buildLinux
-
-build_project_mac:
-  stage: buildMac
-  script:
-    - swift build -v
-  tags:
-    - mini
+  - buildMac
 
 build_project_linux:
   stage: buildLinux
@@ -16,4 +9,9 @@ build_project_linux:
   tags:
     - swiftybuilder
     
-
+build_project_mac:
+  stage: buildMac
+  script:
+    - swift build -v
+  tags:
+    - mini
