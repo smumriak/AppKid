@@ -2,6 +2,6 @@ stages:
   - build
 
 build_project:
-  stage: buil
+  stage: build
   script:
     - swift build -v
