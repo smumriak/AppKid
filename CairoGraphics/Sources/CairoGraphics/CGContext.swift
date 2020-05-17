@@ -7,6 +7,7 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
 public enum CGPathFillRule: Int {
     case winding
@@ -26,13 +27,13 @@ public enum CGLineJoin: Int {
 }
 
 open class CGContext {
-    internal var _contextPointer: CReferablePointer<cairo_t>
+    internal var _contextPointer: ReferablePointer<cairo_t>
     internal var _context: UnsafeMutablePointer<cairo_t> {
         get {
             return _contextPointer.pointer
         }
         set {
-            _contextPointer = CReferablePointer(with: newValue)
+            _contextPointer = ReferablePointer(with: newValue)
         }
     }
 
@@ -51,14 +52,14 @@ open class CGContext {
     }
     
     internal init(cairoContext: UnsafeMutablePointer<cairo_t>, size: CGSize) {
-        self._contextPointer = CReferablePointer(with: cairoContext)
+        self._contextPointer = ReferablePointer(with: cairoContext)
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
     }
     
     public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
         let cairoContext = cairo_create(surface)!
-        self._contextPointer = CReferablePointer(with: cairoContext)
+        self._contextPointer = ReferablePointer(with: cairoContext)
         cairoContext.release()
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)

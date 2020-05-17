@@ -18,13 +18,21 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
+        .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics"),
     	.package(path: "../ContentAnimation")
     ],
     targets: [
         .target(
             name: "AppKid",
-            dependencies: ["CX11", "CXInput2", "CEpoll", "CairoGraphics", "ContentAnimation"]
+            dependencies: [
+                "CX11",
+                "CXInput2",
+                "CEpoll",
+                "CairoGraphics",
+                "ContentAnimation",
+                "TinyFoundation"
+            ]
         )
     ]
 )

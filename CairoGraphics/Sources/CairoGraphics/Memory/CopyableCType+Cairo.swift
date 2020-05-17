@@ -1,5 +1,5 @@
 //
-//  CNonReferableType+Cairo.swift
+//  CopyableCType+Cairo.swift
 //  CairoGraphics
 //
 //  Created by Serhii Mumriak on 19.02.2020.
@@ -7,8 +7,9 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
-extension cairo_font_options_t: CNonReferableType {
+extension cairo_font_options_t: CopyableCType {
     public var copyFunc: (UnsafePointer<cairo_font_options_t>?) -> (UnsafeMutablePointer<cairo_font_options_t>?) {
         return cairo_font_options_copy
     }
@@ -26,7 +27,7 @@ public extension cairo_path_data_type_t {
     static var closePath = cairo_path_data_type_t(rawValue: 3)
 }
 
-extension cairo_path_t: CNonReferableType {
+extension cairo_path_t: CopyableCType {
     public var copyFunc: (UnsafePointer<cairo_path_t>?) -> (UnsafeMutablePointer<cairo_path_t>?) {
         return {
             guard let path = $0 else {

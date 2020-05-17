@@ -1,5 +1,5 @@
 //
-//  CReferableType+Pango.swift
+//  ReferableCType+Pango.swift
 //  CairoGraphics
 //
 //  Created by Serhii Mumriak on 17.02.2020.
@@ -7,8 +7,9 @@
 
 import Foundation
 import CPango
+import TinyFoundation
 
-extension PangoLayout: CReferableType {
+extension PangoLayout: ReferableCType {
     public var retainFunc: (UnsafeMutablePointer<PangoLayout>?) -> (UnsafeMutablePointer<PangoLayout>?) {
         return {
             return g_object_ref(gpointer($0))?
@@ -23,7 +24,7 @@ extension PangoLayout: CReferableType {
     }
 }
 
-extension PangoContext: CReferableType {
+extension PangoContext: ReferableCType {
     public var retainFunc: (UnsafeMutablePointer<PangoContext>?) -> (UnsafeMutablePointer<PangoContext>?) {
         return {
             return g_object_ref(gpointer($0))?

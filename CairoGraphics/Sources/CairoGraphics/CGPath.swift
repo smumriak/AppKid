@@ -7,21 +7,22 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
 open class CGPath {
-    internal var _pathPointer: CNonReferablePointer<cairo_path_t>
+    internal var _pathPointer: CopyablePointer<cairo_path_t>
     internal var _path: UnsafeMutablePointer<cairo_path_t> {
         get {
             return _pathPointer.pointer
         }
         set {
-            _pathPointer = CNonReferablePointer(with: newValue)
+            _pathPointer = CopyablePointer(with: newValue)
         }
     }
     
     internal init?(currentPath context: UnsafeMutablePointer<cairo_t>) {
         if let path = cairo_copy_path(context) {
-            _pathPointer = CNonReferablePointer(with: path)
+            _pathPointer = CopyablePointer(with: path)
         } else {
             return nil
         }

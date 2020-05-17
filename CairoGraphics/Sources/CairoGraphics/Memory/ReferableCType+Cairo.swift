@@ -1,5 +1,5 @@
 //
-//  CReferableType+Cairo.swift
+//  ReferableCType+Cairo.swift
 //  CairoGraphics
 //
 //  Created by Serhii Mumriak on 12.02.2020.
@@ -7,8 +7,9 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
-extension cairo_t: CReferableType {
+extension cairo_t: ReferableCType {
     public var retainFunc: (UnsafeMutablePointer<cairo_t>?) -> (UnsafeMutablePointer<cairo_t>?) {
         return cairo_reference
     }
@@ -18,7 +19,7 @@ extension cairo_t: CReferableType {
     }
 }
 
-extension cairo_surface_t: CReferableType {
+extension cairo_surface_t: ReferableCType {
     public var retainFunc: (UnsafeMutablePointer<cairo_surface_t>?) -> (UnsafeMutablePointer<cairo_surface_t>?) {
         return cairo_surface_reference
     }
@@ -28,7 +29,7 @@ extension cairo_surface_t: CReferableType {
     }
 }
 
-extension cairo_pattern_t: CReferableType {
+extension cairo_pattern_t: ReferableCType {
     public var retainFunc: (UnsafeMutablePointer<cairo_pattern_t>?) -> (UnsafeMutablePointer<cairo_pattern_t>?) {
         return cairo_pattern_reference
     }

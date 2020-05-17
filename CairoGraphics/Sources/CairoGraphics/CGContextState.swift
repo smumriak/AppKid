@@ -7,17 +7,18 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
 internal class CGContextState {
     var alpha: CGFloat = .zero
     
-    fileprivate var defaultPatternPointer: CReferablePointer<cairo_pattern_t> = CReferablePointer(with: cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0))
+    fileprivate var defaultPatternPointer: ReferablePointer<cairo_pattern_t> = ReferablePointer(with: cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0))
     var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return defaultPatternPointer.pointer
         }
         set {
-            defaultPatternPointer = CReferablePointer(with: newValue)
+            defaultPatternPointer = ReferablePointer(with: newValue)
         }
     }
 
@@ -26,13 +27,13 @@ internal class CGContextState {
             fillPatternPointer = fillColor.cairoPattern
         }
     }
-    fileprivate lazy var fillPatternPointer: CReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate lazy var fillPatternPointer: ReferablePointer<cairo_pattern_t> = defaultPatternPointer
     fileprivate(set) var fillPattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return fillPatternPointer.pointer
         }
         set {
-            fillPatternPointer = CReferablePointer(with: newValue)
+            fillPatternPointer = ReferablePointer(with: newValue)
         }
     }
     
@@ -41,13 +42,13 @@ internal class CGContextState {
             strokePatternPointer = strokeColor.cairoPattern
         }
     }
-    fileprivate lazy var strokePatternPointer: CReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate lazy var strokePatternPointer: ReferablePointer<cairo_pattern_t> = defaultPatternPointer
     fileprivate(set) var strokePattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return strokePatternPointer.pointer
         }
         set {
-            strokePatternPointer = CReferablePointer(with: newValue)
+            strokePatternPointer = ReferablePointer(with: newValue)
         }
     }
     

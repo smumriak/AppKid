@@ -10,15 +10,16 @@ import CX11.Xlib
 import CX11.X
 import CairoGraphics
 import CCairo
+import TinyFoundation
 
 internal class X11RenderContext: CairoGraphics.CGContext {
-    var surfacePointer: CReferablePointer<cairo_surface_t>
+    var surfacePointer: ReferablePointer<cairo_surface_t>
     var surface: UnsafeMutablePointer<cairo_surface_t> {
         get {
             return surfacePointer.pointer
         }
         set {
-            surfacePointer = CReferablePointer(with: newValue)
+            surfacePointer = ReferablePointer(with: newValue)
         }
     }
     var nativeWindow: X11NativeWindow
@@ -27,7 +28,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
         let windowAttributes = nativeWindow.attributes
         #if os(Linux)
         let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
-        surfacePointer = CReferablePointer(with: surface)
+        surfacePointer = ReferablePointer(with: surface)
         surface.release()
 
         self.nativeWindow = nativeWindow

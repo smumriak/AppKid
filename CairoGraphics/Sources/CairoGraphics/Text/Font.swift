@@ -8,6 +8,7 @@
 import Foundation
 import CPango
 import CCairo
+import TinyFoundation
 
 public struct Font {
     fileprivate(set) public var familyName: String
@@ -26,8 +27,8 @@ public struct Font {
         self.weight = weight
     }
 
-    lazy var cairoFontDescription: CNonReferablePointer<PangoFontDescription> = {
-        let result = CNonReferablePointer(with: pango_font_description_new())
+    lazy var cairoFontDescription: CopyablePointer<PangoFontDescription> = {
+        let result = CopyablePointer(with: pango_font_description_new())
         pango_font_description_set_family(result.pointer, familyName)
         pango_font_description_set_weight(result.pointer, weight.pangoWeight)
         pango_font_description_set_absolute_size(result.pointer, Double(size * CGFloat(PANGO_SCALE)))

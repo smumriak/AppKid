@@ -17,15 +17,22 @@ let package = Package(
         .executable(name: "SwiftyFan", targets: ["SwiftyFan"])
     ],
     dependencies: [
-        .package(path: "SharedSystemLibs"),
+        .package(path: "./TinyFoundation"),
         .package(path: "./AppKid"),
         .package(path: "./CairoGraphics"),
-        .package(path: "./ContentAnimation")
+        .package(path: "./ContentAnimation"),
+        .package(path: "./SharedSystemLibs"),
     ],
     targets: [
         .target(
             name: "SwiftyFan",
-            dependencies: ["AppKid", "CairoGraphics", "ContentAnimation"]
+            dependencies: [
+                "AppKid",
+                "CairoGraphics",
+                "ContentAnimation",
+                "TinyFoundation",
+                "CVulkan"
+            ]
         ),
         .testTarget(
             name: "SwiftyFanTests",

@@ -17,12 +17,17 @@ let package = Package(
         .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"])
     ],
     dependencies: [
-        .package(path: "../SharedSystemLibs")
+        .package(path: "../SharedSystemLibs"),
+        .package(path: "../TinyFoundation")
     ],
     targets: [
         .target(
             name: "CairoGraphics",
-            dependencies: ["CCairo", "CPango"]
+            dependencies: [
+                "CCairo",
+                "CPango",
+                "TinyFoundation"
+            ]
         )
     ]
 )

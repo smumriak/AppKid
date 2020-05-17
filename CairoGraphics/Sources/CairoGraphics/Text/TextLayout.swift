@@ -8,26 +8,27 @@
 import Foundation
 import CPango
 import CCairo
+import TinyFoundation
 
 open class TextLayout {
     fileprivate var hasChanged = false
 
-    var layoutPointer: CReferablePointer<PangoLayout>
+    var layoutPointer: ReferablePointer<PangoLayout>
     var layout: UnsafeMutablePointer<PangoLayout> {
         get {
             return layoutPointer.pointer
         }
         set {
-            layoutPointer = CReferablePointer(with: newValue)
+            layoutPointer = ReferablePointer(with: newValue)
         }
     }
-    var pangoContextPointer: CReferablePointer<PangoContext>
+    var pangoContextPointer: ReferablePointer<PangoContext>
     var pangoContext: UnsafeMutablePointer<PangoContext> {
         get {
             return pangoContextPointer.pointer
         }
         set {
-            pangoContextPointer = CReferablePointer(with: newValue)
+            pangoContextPointer = ReferablePointer(with: newValue)
         }
     }
     
@@ -48,16 +49,16 @@ open class TextLayout {
     
     public init() {
         let pangoContext = pango_font_map_create_context(pango_cairo_font_map_get_default())!
-        pangoContextPointer = CReferablePointer(with: pangoContext)
+        pangoContextPointer = ReferablePointer(with: pangoContext)
         pangoContext.release()
 
         let layout = pango_layout_new(pangoContext)!
-        layoutPointer = CReferablePointer(with: layout)
+        layoutPointer = ReferablePointer(with: layout)
         layout.release()
 
         pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
 
-        let fontOptions = CNonReferablePointer(with: cairo_font_options_create())
+        let fontOptions = CopyablePointer(with: cairo_font_options_create())
         cairo_font_options_set_antialias(fontOptions.pointer, CAIRO_ANTIALIAS_GOOD)
         cairo_font_options_set_hint_style(fontOptions.pointer, CAIRO_HINT_STYLE_FULL)
         cairo_font_options_set_hint_metrics(fontOptions.pointer, CAIRO_HINT_METRICS_ON)

@@ -18,12 +18,17 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
+        .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics")
     ],
     targets: [
         .target(
             name: "ContentAnimation",
-            dependencies: ["CairoGraphics", "CVulkan"]
+            dependencies: [
+                "CairoGraphics",
+                "TinyFoundation",
+                "CVulkan"
+            ]
         )
     ]
 )

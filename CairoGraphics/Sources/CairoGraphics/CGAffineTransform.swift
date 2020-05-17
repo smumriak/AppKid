@@ -7,6 +7,7 @@
 
 import CCairo
 import Foundation
+import TinyFoundation
 
 public struct CGAffineTransform {
     internal fileprivate(set) var _matrix = cairo_matrix_t()

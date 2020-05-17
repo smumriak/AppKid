@@ -7,6 +7,7 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
 // palkovnik:TODO: placeholder because color spaces are hard
 public struct CGColor {
@@ -68,7 +69,7 @@ public extension CGColor {
 }
 
 internal extension CGColor {
-    var cairoPattern: CReferablePointer<cairo_pattern_t> {
-        return CReferablePointer(with: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha)))
+    var cairoPattern: ReferablePointer<cairo_pattern_t> {
+        return ReferablePointer(with: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha)))
     }
 }
