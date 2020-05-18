@@ -20,10 +20,6 @@ public extension UnsafeMutablePointer where Pointee: CopyableCType {
 public final class CopyablePointer<Pointee>: DestructablePointer<Pointee> where Pointee: CopyableCType{
     public typealias CopyablePointer_t = UnsafeMutablePointer<Pointee>
 
-    deinit {
-        pointer.destroy()
-    }
-
     public override init(with pointer: CopyablePointer_t) {
         super.init(with: pointer)
     }
