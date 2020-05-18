@@ -18,9 +18,9 @@ public extension UnsafeMutablePointer where Pointee: CopyableCType {
 }
 
 public final class CopyablePointer<Pointee>: DestructablePointer<Pointee> where Pointee: CopyableCType{
-    public typealias CopyablePointer_t = UnsafeMutablePointer<Pointee>
+    public typealias Pointer_t = UnsafeMutablePointer<Pointee>
 
-    public override init(with pointer: CopyablePointer_t) {
+    public required init(with pointer: Pointer_t) {
         super.init(with: pointer)
     }
 

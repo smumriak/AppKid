@@ -22,6 +22,7 @@ let package = Package(
         .package(path: "./CairoGraphics"),
         .package(path: "./ContentAnimation"),
         .package(path: "./SharedSystemLibs"),
+        .package(path: "./Volcano")
     ],
     targets: [
         .target(
@@ -31,7 +32,7 @@ let package = Package(
                 "CairoGraphics",
                 "ContentAnimation",
                 "TinyFoundation",
-                "CVulkan"
+                "Volcano"
             ]
         ),
         .testTarget(

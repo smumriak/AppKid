@@ -23,9 +23,9 @@ public extension UnsafeMutablePointer where Pointee: ReferableCType {
     }
 }
 
-public final class ReferablePointer<Pointee> where Pointee: ReferableCType {
-    public typealias ReferablePointer_t = UnsafeMutablePointer<Pointee>
-    public var pointer: ReferablePointer_t {
+public final class ReferablePointer<Pointee>: SmartPointer where Pointee: ReferableCType {
+    public typealias Pointer_t = UnsafeMutablePointer<Pointee>
+    public var pointer: Pointer_t {
         willSet {
             pointer.release()
         }
@@ -38,7 +38,7 @@ public final class ReferablePointer<Pointee> where Pointee: ReferableCType {
         pointer.release()
     }
 
-    public init(with pointer: ReferablePointer_t) {
+    public required init(with pointer: Pointer_t) {
         self.pointer = pointer.retain()
     }
     
