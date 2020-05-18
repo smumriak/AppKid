@@ -1,5 +1,5 @@
 //
-//  DestructableCType.swift
+//  DestructablePointer.swift
 //  TinyFoundation
 //
 //  Created by Serhii Mumriak on 17.05.2020.
