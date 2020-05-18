@@ -14,7 +14,7 @@ let package = Package(
         .macOS(.v10_15)
     ],
     products: [
-        .library(name: "TinyFoundation", targets: ["TinyFoundation"])
+        .library(name: "TinyFoundation", type: .dynamic, targets: ["TinyFoundation"])
     ],
     targets: [
         .target(name: "TinyFoundation")
