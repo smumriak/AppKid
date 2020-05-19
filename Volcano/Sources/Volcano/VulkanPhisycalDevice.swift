@@ -9,22 +9,20 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
+extension VkPhysicalDevice_T: VulkanEntityFactory {}
+
 public final class VulkanPhysicalDevice: VulkanEntity<SimplePointer<VkPhysicalDevice_T>> {
-    var properties: VkPhysicalDeviceProperties = VkPhysicalDeviceProperties()
+    public let properties: VkPhysicalDeviceProperties
+    public let queueFamiliesProperties: [VkQueueFamilyProperties]
 
     internal override init(instance: VulkanInstance, handlePointer: SimplePointer<VkPhysicalDevice_T>) throws {
-        try super.init(instance: instance, handlePointer: handlePointer)
+        properties = try handlePointer.loadData(using: vkGetPhysicalDeviceProperties)
+        queueFamiliesProperties = try handlePointer.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)
 
-        try vulkanInvoke {
-            vkGetPhysicalDeviceProperties(handle, &properties)
-        }
+        try super.init(instance: instance, handlePointer: handlePointer)
     }
 
-    public var newLogicalDevice: VulkanDevice {
-        do {
-            return try VulkanDevice(physicalDevice: self)
-        } catch {
-            fatalError("Failed to create vulkan logical device with error: \(error)")
-        }
+    public func createLogicalDevice() throws -> VulkanDevice {
+        return try VulkanDevice(physicalDevice: self)
     }
 }

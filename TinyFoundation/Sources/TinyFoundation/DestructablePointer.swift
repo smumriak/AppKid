@@ -17,15 +17,10 @@ public extension UnsafeMutablePointer where Pointee: DestructableCType {
     }
 }
 
-public class DestructablePointer<Pointee>: SmartPointer where Pointee: DestructableCType {
-    public typealias Pointer_t = UnsafeMutablePointer<Pointee>
-    public var pointer: Pointer_t
+public class DestructablePointer<Pointee>: CustomDestructablePointer<Pointee> where Pointee: DestructableCType {
+    public typealias Pointee = Pointee
 
-    deinit {
-        pointer.destroy()
-    }
-
-    required public init(with pointer: Pointer_t) {
-        self.pointer = pointer
+    public init(with pointer: Pointer_t) {
+        super.init(with: pointer, destructor: pointer.pointee.destroyFunc)
     }
 }

@@ -27,14 +27,16 @@ internal extension DestructablePointer where Pointee == VkDevice_T {
     }
 }
 
+extension VkDevice_T: VulkanEntityFactory {}
+
 public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
     public unowned let physicalDevice: VulkanPhysicalDevice
 
-    internal let createSwapchainKHR: PFN_vkCreateSwapchainKHR
-    internal let destroySwapchainKHR: PFN_vkDestroySwapchainKHR
-    internal let getSwapchainImagesKHR: PFN_vkGetSwapchainImagesKHR
-    internal let acquireNextImageKHR: PFN_vkAcquireNextImageKHR
-    internal let queuePresentKHR: PFN_vkQueuePresentKHR
+    internal let vkCreateSwapchainKHR: PFN_vkCreateSwapchainKHR
+    internal let vkDestroySwapchainKHR: PFN_vkDestroySwapchainKHR
+    internal let vkGetSwapchainImagesKHR: PFN_vkGetSwapchainImagesKHR
+    internal let vkAcquireNextImageKHR: PFN_vkAcquireNextImageKHR
+    internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
 
     internal init(physicalDevice: VulkanPhysicalDevice) throws {
         var deviceQueueCreationInfo = VkDeviceQueueCreateInfo()
@@ -73,19 +75,15 @@ public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
         deviceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
         deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointerpointer)
 
-        var deviceOptional: VkDevice?
-        try vulkanInvoke {
-            vkCreateDevice(physicalDevice.handle, &deviceCreationInfo, nil, &deviceOptional)
-        }
-
         self.physicalDevice = physicalDevice
-        let handlePointer = DestructablePointer(with: deviceOptional!)
+        let devicePointer: VkDevice = try physicalDevice.handle.createEntity(info: &deviceCreationInfo, using: vkCreateDevice)
+        let handlePointer = DestructablePointer(with: devicePointer)
 
-        createSwapchainKHR = try handlePointer.loadFunction(with: "vkCreateSwapchainKHR")
-        destroySwapchainKHR = try handlePointer.loadFunction(with: "vkDestroySwapchainKHR")
-        getSwapchainImagesKHR = try handlePointer.loadFunction(with: "vkGetSwapchainImagesKHR")
-        acquireNextImageKHR = try handlePointer.loadFunction(with: "vkAcquireNextImageKHR")
-        queuePresentKHR = try handlePointer.loadFunction(with: "vkQueuePresentKHR")
+        vkCreateSwapchainKHR = try handlePointer.loadFunction(with: "vkCreateSwapchainKHR")
+        vkDestroySwapchainKHR = try handlePointer.loadFunction(with: "vkDestroySwapchainKHR")
+        vkGetSwapchainImagesKHR = try handlePointer.loadFunction(with: "vkGetSwapchainImagesKHR")
+        vkAcquireNextImageKHR = try handlePointer.loadFunction(with: "vkAcquireNextImageKHR")
+        vkQueuePresentKHR = try handlePointer.loadFunction(with: "vkQueuePresentKHR")
 
         try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
     }

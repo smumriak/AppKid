@@ -8,7 +8,8 @@
 import Foundation
 
 public final class SimplePointer<Pointee>: SmartPointer {
-    public typealias Pointer_t = UnsafeMutablePointer<Pointee>
+    public typealias Pointee = Pointee
+    
     public var pointer: Pointer_t
 
     public init(with pointer: Pointer_t) {

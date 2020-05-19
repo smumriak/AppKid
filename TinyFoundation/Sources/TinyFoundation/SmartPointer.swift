@@ -8,8 +8,8 @@
 import Foundation
 
 public protocol SmartPointer {
-    associatedtype Pointer_t
+    associatedtype Pointee
+    typealias Pointer_t = UnsafeMutablePointer<Pointee>
+    
     var pointer: Pointer_t { get set }
-
-    init(with pointer: Pointer_t)
 }

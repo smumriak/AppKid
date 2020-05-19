@@ -34,14 +34,20 @@ struct VkDescriptorSet_T {};
 struct VkFramebuffer_T {};
 struct VkCommandPool_T {};
 struct VkSurfaceKHR_T {};
-
-#include <vulkan/vulkan.h>
+struct VkSwapchainKHR_T {};
 
 #if defined(__linux__)
-#define VK_USE_PLATFORM_XLIB_KHR
 
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <X11/Xlib.h>
+#include <vulkan/vulkan.h>
 #include <vulkan/vulkan_xlib.h>
+
+#else
+
+#define VK_USE_PLATFORM_MACOS_MVK
+#include <vulkan/vulkan.h>
+
 #endif
 
 #include "../CCore/CCore_umbrella.h"

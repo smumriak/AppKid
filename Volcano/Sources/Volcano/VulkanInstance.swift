@@ -27,17 +27,19 @@ internal extension DestructablePointer where Pointee == VkInstance_T {
     }
 }
 
-public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T>> {
-    internal let getPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
-    internal let getPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
-    internal let getPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
-    internal let getPhysicalDeviceSurfacePresentModesKHR: PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
+extension VkInstance_T: VulkanEntityFactory {}
 
+public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T>> {
+    internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
+    internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+    internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
+    internal let vkGetPhysicalDeviceSurfacePresentModesKHR: PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
+    
     public init() {
         do {
             var applicationInfo = VkApplicationInfo()
             applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO
-            applicationInfo.apiVersion =  (1 << 22) | (0 << 12) | 0
+            applicationInfo.apiVersion =  (1 << 22) | (2 << 12) | 0
 
             var instanceCreationInfo = VkInstanceCreateInfo()
             instanceCreationInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
@@ -74,10 +76,10 @@ public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T
 
             let handlePointer = DestructablePointer(with: instanceOptional!)
 
-            getPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceSupportKHR")
-            getPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
-            getPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceFormatsKHR")
-            getPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfacePresentModesKHR")
+            vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceSupportKHR")
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
+            vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceFormatsKHR")
+            vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfacePresentModesKHR")
 
             super.init(handlePointer: handlePointer)
         } catch {
