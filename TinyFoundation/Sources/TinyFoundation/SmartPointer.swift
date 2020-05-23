@@ -13,3 +13,10 @@ public protocol SmartPointer {
     
     var pointer: Pointer_t { get set }
 }
+
+public extension SmartPointer {
+    var pointee: Pointee {
+        get { return pointer.pointee }
+        set { pointer.pointee = newValue }
+    }
+}

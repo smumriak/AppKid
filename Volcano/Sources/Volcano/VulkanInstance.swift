@@ -27,13 +27,27 @@ internal extension DestructablePointer where Pointee == VkInstance_T {
     }
 }
 
-extension VkInstance_T: VulkanEntityFactory {}
+extension VkInstance_T: EntityFactory {}
+extension VkInstance_T: DataLoader {}
 
 public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
     internal let vkGetPhysicalDeviceSurfacePresentModesKHR: PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
+
+    public internal(set) lazy var physicalDevices: [VulkanPhysicalDevice] = {
+        do {
+            return try loadDataArray(using: vkEnumeratePhysicalDevices)
+                .compactMap { $0 }
+                .map { try VulkanPhysicalDevice(instance: self, handlePointer: SimplePointer(with: $0)) }
+                .sorted(by: >)
+        } catch {
+            fatalError("Could not query vulkan devices with error: \(error)")
+        }
+    }()
+
+    public internal(set) lazy var discreteGPUDevices: VulkanPhysicalDevice? = physicalDevices.first
     
     public init() {
         do {
@@ -86,26 +100,4 @@ public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T
             fatalError("Could not spawn vulkan instance with error: \(error)")
         }
     }
-
-    public internal(set) lazy var physicalDevices: [VulkanPhysicalDevice] = {
-        do {
-            var devicesCount: CUnsignedInt = 0
-            try vulkanInvoke {
-                vkEnumeratePhysicalDevices(handle, &devicesCount, nil)
-            }
-
-            var devicesPointer = UnsafeMutablePointer<VkPhysicalDevice?>.allocate(capacity: Int(devicesCount))
-            defer { devicesPointer.deallocate() }
-
-            try vulkanInvoke {
-                vkEnumeratePhysicalDevices(handle, &devicesCount, devicesPointer)
-            }
-
-            return try UnsafeBufferPointer(start: devicesPointer, count: Int(devicesCount))
-                .compactMap { $0 }
-                .map { try VulkanPhysicalDevice(instance: self, handlePointer: SimplePointer(with: $0)) }
-        } catch {
-            fatalError("Could not query vulkan devices with error: \(error)")
-        }
-    }()
 }

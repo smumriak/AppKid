@@ -15,7 +15,7 @@ open class Window: View {
     internal var nativeWindow: X11NativeWindow
     
     internal var _windowNumber: Int { Int(nativeWindow.windowID) }
-    internal var _graphicsContext: X11RenderContext
+    internal var _graphicsContext: X11RenderContext?
 
     override var transformToWindow: CairoGraphics.CGAffineTransform {
         return .identity
@@ -59,8 +59,10 @@ open class Window: View {
 
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
-        _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
-        _graphicsContext.shouldAntialias = true
+        if !isVulkanRendererEnabled {
+            _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
+            _graphicsContext?.shouldAntialias = true
+        }
 
         var frame = nativeWindow.currentRect
         frame.size.width /= nativeWindow.displayScale
@@ -84,7 +86,9 @@ open class Window: View {
     internal var isMapped: Bool = false
 
     internal func updateSurface() {
-        _graphicsContext.updateSurface()
+        if !isVulkanRendererEnabled {
+            _graphicsContext?.updateSurface()
+        }
         var currentRect = nativeWindow.currentRect
         currentRect.size.width /= nativeWindow.displayScale
         currentRect.size.height /= nativeWindow.displayScale
@@ -94,6 +98,13 @@ open class Window: View {
         rootViewController?.view.frame = bounds
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
+    }
+
+    internal func createRenderer() -> Renderer {
+        if isVulkanRendererEnabled {
+            fatalError("Vulkan renderer is enabled")
+        }
+        return Renderer(context: _graphicsContext!)
     }
 
     // MARK: Events

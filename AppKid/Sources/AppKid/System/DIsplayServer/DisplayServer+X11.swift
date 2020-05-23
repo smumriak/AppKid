@@ -183,7 +183,7 @@ internal extension DisplayServer {
                     event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
                 }
             } catch {
-//                debugPrint("Failed to pase X11 Event with error: \(error)")
+//                debugPrint("Failed to parse X11 Event with error: \(error)")
                 continue
             }
             

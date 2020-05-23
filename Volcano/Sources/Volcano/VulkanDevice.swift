@@ -27,10 +27,30 @@ internal extension DestructablePointer where Pointee == VkDevice_T {
     }
 }
 
-extension VkDevice_T: VulkanEntityFactory {}
+extension VkDevice_T: EntityFactory {}
+extension VkDevice_T: DataLoader {}
 
 public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
-    public unowned let physicalDevice: VulkanPhysicalDevice
+    public unowned let surface: VulkanSurface
+
+    public let graphicsQueueFamilyIndex: Int
+    public let presentationQueueFamilyIndex: Int
+
+    public internal(set) lazy var graphicsQueue: VulkanQueue = {
+        do {
+            return try VulkanQueue(device: self, familyIndex: graphicsQueueFamilyIndex, queueIndex: 0)
+        } catch {
+            fatalError("Failed to retrieve graphics from vulkan with error: \(error)")
+        }
+    }()
+
+    public internal(set) lazy var presentationQueue: VulkanQueue = {
+        do {
+            return try VulkanQueue(device: self, familyIndex: presentationQueueFamilyIndex, queueIndex: 0)
+        } catch {
+            fatalError("Failed to retrieve gresentation from vulkan with error: \(error)")
+        }
+    }()
 
     internal let vkCreateSwapchainKHR: PFN_vkCreateSwapchainKHR
     internal let vkDestroySwapchainKHR: PFN_vkDestroySwapchainKHR
@@ -38,44 +58,77 @@ public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
     internal let vkAcquireNextImageKHR: PFN_vkAcquireNextImageKHR
     internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
 
-    internal init(physicalDevice: VulkanPhysicalDevice) throws {
-        var deviceQueueCreationInfo = VkDeviceQueueCreateInfo()
-        deviceQueueCreationInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
-        deviceQueueCreationInfo.flags = 0;
-        deviceQueueCreationInfo.queueFamilyIndex = 0;
-        deviceQueueCreationInfo.queueCount = 1;
+    public init(surface: VulkanSurface) throws {
+        self.surface = surface
+        let physicalDevice = surface.physicalDevice
 
-        var queuePrioririesPointer = UnsafeMutablePointer<Float>.allocate(capacity: Int(deviceQueueCreationInfo.queueCount))
+        var deviceCreationInfo: VkDeviceCreateInfo = VkDeviceCreateInfo()
+        deviceCreationInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+        deviceCreationInfo.flags = 0
+
+        var enabledFeatures = physicalDevice.features
+        withUnsafePointer(to: &enabledFeatures) {
+            deviceCreationInfo.pEnabledFeatures = $0
+        }
+
+        var queuePrioririesPointer = UnsafeMutablePointer<Float>.allocate(capacity: 1)
         defer { queuePrioririesPointer.deallocate() }
         queuePrioririesPointer.initialize(to: 1.0)
 
-        deviceQueueCreationInfo.pQueuePriorities = UnsafePointer(queuePrioririesPointer)
+        let queueFamiliesProperties = physicalDevice.queueFamiliesProperties.enumerated()
 
-        var deviceCreationInfo: VkDeviceCreateInfo = VkDeviceCreateInfo()
-        deviceCreationInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-        deviceCreationInfo.flags = 0;
-        deviceCreationInfo.queueCreateInfoCount = 1;
-        withUnsafePointer(to: &deviceQueueCreationInfo) {
-            deviceCreationInfo.pQueueCreateInfos = $0
+        let presentationQueueOffsetPair = try queueFamiliesProperties.first {
+            try surface.supportsPresenting(onQueueFamilyIndex: $0.offset)
+        }
+
+        guard let presentationQueueFamilyIndex = presentationQueueOffsetPair?.offset else {
+            fatalError("No queues that support image presenting")
+        }
+
+        self.presentationQueueFamilyIndex = presentationQueueFamilyIndex
+
+        let graphicsQueueOffsetPair = queueFamiliesProperties.first {
+            $0.element.isGraphics
+        }
+
+        guard let graphicsQueueFamilyIndex = graphicsQueueOffsetPair?.offset else {
+            fatalError("No queues that support rendering")
+        }
+
+        self.graphicsQueueFamilyIndex = graphicsQueueFamilyIndex
+
+        let deviceQueueCreationInfos: [VkDeviceQueueCreateInfo] = try queueFamiliesProperties
+            .filter { return try $0.element.isGraphics || surface.supportsPresenting(onQueueFamilyIndex: $0.offset) }
+            .map {
+                var result = VkDeviceQueueCreateInfo()
+                result.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+                result.flags = 0
+                result.queueFamilyIndex = CUnsignedInt($0.offset)
+                result.queueCount = 1
+                result.pQueuePriorities = UnsafePointer(queuePrioririesPointer)
+                return result
+        }
+
+        deviceCreationInfo.queueCreateInfoCount = CUnsignedInt(deviceQueueCreationInfos.count)
+        deviceQueueCreationInfos.withUnsafeBufferPointer {
+            deviceCreationInfo.pQueueCreateInfos = $0.baseAddress
         }
 
         var extensions: [UnsafeMutablePointer<Int8>] = []
+        defer { extensions.forEach { free($0) } }
 
         extensions.append(strdup(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
 
-        defer { extensions.forEach { free($0) } }
-
-        var extensionsPointerpointer = UnsafeMutablePointer<UnsafePointer<Int8>?>.allocate(capacity: extensions.count)
-        defer { extensionsPointerpointer.deallocate() }
+        var extensionsPointer = UnsafeMutablePointer<UnsafePointer<Int8>?>.allocate(capacity: extensions.count)
+        defer { extensionsPointer.deallocate() }
 
         extensions.enumerated().forEach {
-            extensionsPointerpointer[$0.offset] = UnsafePointer($0.element)
+            extensionsPointer[$0.offset] = UnsafePointer($0.element)
         }
 
         deviceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
-        deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointerpointer)
+        deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer)
 
-        self.physicalDevice = physicalDevice
         let devicePointer: VkDevice = try physicalDevice.handle.createEntity(info: &deviceCreationInfo, using: vkCreateDevice)
         let handlePointer = DestructablePointer(with: devicePointer)
 

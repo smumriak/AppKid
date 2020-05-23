@@ -12,74 +12,70 @@ import CX11.Xlib
 import CX11.X
 
 public final class VulkanSurface: VulkanEntity<CustomDestructablePointer<VkSurfaceKHR_T>> {
-    public unowned let device: VulkanDevice
-    public let queueFamilyIndex: Int
-    public let imageFormat: VkFormat
-    public let colorSpace: VkColorSpaceKHR
+    public unowned let physicalDevice: VulkanPhysicalDevice
+    public let supportedFormats: [VkSurfaceFormatKHR]
+    public let selectedFormat: VkSurfaceFormatKHR
+    public var imageFormat: VkFormat { return selectedFormat.format }
+    public var colorSpace: VkColorSpaceKHR { return selectedFormat.colorSpace }
     public let capabilities: VkSurfaceCapabilitiesKHR
     public let presetModes: [VkPresentModeKHR]
-    public var size: VkExtent2D
 
-    public init(device: VulkanDevice, display: UnsafeMutablePointer<Display>, window: Window, size: VkExtent2D) throws {
-        self.device = device
-        self.size = size
+    internal init(physicalDevice: VulkanPhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window) throws {
+        self.physicalDevice = physicalDevice
 
-        let physicalDevice = device.physicalDevice
+        let instance = physicalDevice.instance
 
-        let instance = device.instance
-
-        let surface: VkSurfaceKHR
+        let handle: VkSurfaceKHR
         #if os(Linux)
         var surfaceCreationInfo: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
         surfaceCreationInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
         surfaceCreationInfo.dpy = display
         surfaceCreationInfo.window = window
 
-        surface = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateXlibSurfaceKHR)
+        handle = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateXlibSurfaceKHR)
         #elseif os(macOS)
         var surfaceCreationInfo = VkMacOSSurfaceCreateInfoMVK()
-        surface = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateMacOSSurfaceMVK)
+        handle = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateMacOSSurfaceMVK)
         #else
         fatalError("Wrong OS! (For now)")
         #endif
 
-        let queueOffsetPair = try physicalDevice.queueFamiliesProperties.enumerated().first {
-            let supportsPresenting = try surface.supportsPresenting(onQueueFamilyIndex: $0.offset, physicalDevice: physicalDevice)
-
-            return ($0.element.queueFlags & VK_QUEUE_GRAPHICS_BIT.rawValue) != 0 && supportsPresenting
-        }
-
-        guard let queueFamilyIndex = queueOffsetPair?.offset else {
-            fatalError("No queues that support image presenting")
-        }
-
-        self.queueFamilyIndex = queueFamilyIndex
-
-        let surfaceFormats = try physicalDevice.loadDataArray(for: surface, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
-        guard let surfaceFormat = surfaceFormats.first else {
+        let supportedFormats = try physicalDevice.loadDataArray(for: handle, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
+        if supportedFormats.isEmpty {
             fatalError("No surface formates available")
         }
 
-        imageFormat = surfaceFormat.format == VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8A8_UNORM : surfaceFormat.format
-        colorSpace = surfaceFormat.colorSpace
+        let desiredFormat = VkSurfaceFormatKHR(format: VK_FORMAT_B8G8R8A8_UNORM, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 
-        capabilities = try physicalDevice.loadData(for: surface, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
-        presetModes = try physicalDevice.loadDataArray(for: surface, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
+        if supportedFormats.contains(desiredFormat) || (supportedFormats.count == 1 && supportedFormats[0].format == VK_FORMAT_UNDEFINED) {
+            selectedFormat = desiredFormat
+        } else {
+            selectedFormat = supportedFormats[0]
+        }
 
-        let handlePointer = CustomDestructablePointer(with: surface) { [unowned instance] in
+        self.supportedFormats = supportedFormats
+
+        capabilities = try physicalDevice.loadData(for: handle, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
+        presetModes = try physicalDevice.loadDataArray(for: handle, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
+
+        let handlePointer = CustomDestructablePointer(with: handle) { [unowned instance] in
             vkDestroySurfaceKHR(instance.handle, $0, nil)
         }
 
         try super.init(instance: instance, handlePointer: handlePointer)
     }
-}
 
-internal extension UnsafeMutablePointer where Pointee == VkSurfaceKHR_T {
-    func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int, physicalDevice: VulkanPhysicalDevice) throws -> Bool {
+    func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int) throws -> Bool {
         var supportsPresentingVKBool: VkBool32 = VkBool32(VK_FALSE)
         try vulkanInvoke {
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), self, &supportsPresentingVKBool)
+            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), handle, &supportsPresentingVKBool)
         }
         return supportsPresentingVKBool == VkBool32(VK_FALSE) ? false : true
+    }
+}
+
+extension VkSurfaceFormatKHR: Equatable {
+    public static func == (lhs: VkSurfaceFormatKHR, rhs: VkSurfaceFormatKHR) -> Bool {
+        return lhs.format == rhs.format && lhs.colorSpace == rhs.colorSpace
     }
 }

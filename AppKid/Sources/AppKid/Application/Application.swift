@@ -12,6 +12,8 @@ import CX11.X
 import CXInput2
 import CairoGraphics
 
+internal let isVulkanRendererEnabled = false
+
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
 }
@@ -52,11 +54,13 @@ open class Application: Responder {
 
     internal lazy var renderTimer: Timer = {
         return Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
-            for i in 0..<self.windows.count {
-                self.renderers[i].render(window: self.windows[i])
-            }
+            if !isVulkanRendererEnabled {
+                for i in 0..<self.windows.count {
+                    self.renderers[i].render(window: self.windows[i])
+                }
 
-            self.displayServer.flush()
+                self.displayServer.flush()
+            }
         }
     }()
 
@@ -167,7 +171,9 @@ open class Application: Responder {
 
     open func add(window: Window) {
         windows.append(window)
-        renderers.append(Renderer(context: window._graphicsContext))
+        if !isVulkanRendererEnabled {
+            renderers.append(window.createRenderer())
+        }
     }
 
     open func remove(window: Window) {
@@ -178,7 +184,9 @@ open class Application: Responder {
 
     open func remove(windowNumer index: Array<Window>.Index) {
         //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
-        renderers.remove(at: index)
+        if !isVulkanRendererEnabled {
+            renderers.remove(at: index)
+        }
         windows.remove(at: index)
 
         if windows.isEmpty && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {

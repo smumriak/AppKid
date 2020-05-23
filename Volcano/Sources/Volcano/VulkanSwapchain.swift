@@ -9,24 +9,26 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanSwapchain: VulkanEntity<CustomDestructablePointer<VkSwapchainKHR_T>> {
+public final class VulkanSwapchain: VulkanDeviceEntity<CustomDestructablePointer<VkSwapchainKHR_T>> {
     public unowned let surface: VulkanSurface
+    public var size: VkExtent2D
+    public let imageFormat: VkFormat
 
-    public init(surface: VulkanSurface) throws {
+    public init(device: VulkanDevice, surface: VulkanSurface, size: VkExtent2D) throws {
         self.surface = surface
+        self.size = size
+        self.imageFormat = surface.imageFormat
 
         let capabilities = surface.capabilities
-        var extent = surface.capabilities.currentExtent
-        if extent.width == .max {
-            extent.width = surface.size.width
+
+        let presentMode: VkPresentModeKHR
+        if surface.presetModes.contains(VK_PRESENT_MODE_MAILBOX_KHR) {
+            presentMode = VK_PRESENT_MODE_MAILBOX_KHR
+        } else {
+            presentMode = VK_PRESENT_MODE_FIFO_KHR
         }
 
-        if extent.height == .max {
-            extent.height = surface.size.height
-        }
-
-        let presentMode = VK_PRESENT_MODE_FIFO_KHR
-        let imageCount = max(capabilities.minImageCount + 1, capabilities.maxImageCount)
+        let imageCount = min(capabilities.minImageCount + 1, capabilities.maxImageCount)
 
         var swapchainCreationInfo = VkSwapchainCreateInfoKHR()
         swapchainCreationInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
@@ -34,22 +36,42 @@ public final class VulkanSwapchain: VulkanEntity<CustomDestructablePointer<VkSwa
         swapchainCreationInfo.minImageCount = imageCount
         swapchainCreationInfo.imageFormat = surface.imageFormat
         swapchainCreationInfo.imageColorSpace = surface.colorSpace
-        swapchainCreationInfo.imageExtent = extent
+        swapchainCreationInfo.imageExtent = size
         swapchainCreationInfo.imageArrayLayers = 1
         swapchainCreationInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.rawValue
-        swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
-        swapchainCreationInfo.queueFamilyIndexCount = 0
-        swapchainCreationInfo.pQueueFamilyIndices = nil
-        swapchainCreationInfo.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
+        swapchainCreationInfo.preTransform = surface.capabilities.currentTransform
         swapchainCreationInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
         swapchainCreationInfo.presentMode = presentMode
 
-        let swapchain: VkSwapchainKHR = try surface.device.handle.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
+        var queueFamiliesIndices = UnsafeMutablePointer<CUnsignedInt>.allocate(capacity: 2)
+        defer { queueFamiliesIndices.deallocate() }
+        queueFamiliesIndices[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
+        queueFamiliesIndices[1] = CUnsignedInt(device.presentationQueueFamilyIndex)
 
-        let handlePointer = CustomDestructablePointer(with: swapchain) { [unowned surface] in
-            vkDestroySwapchainKHR(surface.device.handle, $0, nil)
+        if device.graphicsQueueFamilyIndex == device.presentationQueueFamilyIndex {
+            swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
+            swapchainCreationInfo.queueFamilyIndexCount = 0
+            swapchainCreationInfo.pQueueFamilyIndices = nil
+        } else {
+            swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT
+            swapchainCreationInfo.queueFamilyIndexCount = 2
+            swapchainCreationInfo.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices)
         }
 
-        try super.init(instance: surface.instance, handlePointer: handlePointer)
+        let swapchain: VkSwapchainKHR = try device.handle.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
+
+        let handlePointer = CustomDestructablePointer(with: swapchain) { [unowned device] in
+            vkDestroySwapchainKHR(device.handle, $0, nil)
+        }
+
+        try super.init(device: device, handlePointer: handlePointer)
+    }
+
+    public func getImages() throws -> [VulkanImage] {
+        return try device.loadDataArray(for: handle, using: vkGetSwapchainImagesKHR)
+            .compactMap { $0 }
+            .map {
+                try VulkanImage(device: device, format: imageFormat, handle: $0)
+        }
     }
 }
