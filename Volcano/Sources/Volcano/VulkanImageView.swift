@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanImageView: VulkanDeviceEntity<CustomDestructablePointer<VkImageView_T>> {
+public final class VulkanImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     public unowned let image: VulkanImage
 
     public init(image: VulkanImage) throws {
@@ -40,7 +40,7 @@ public final class VulkanImageView: VulkanDeviceEntity<CustomDestructablePointer
 
         let handle: VkImageView = try device.handle.createEntity(info: &imageViewCreationInfo, using: vkCreateImageView)
 
-        let handlePointer = CustomDestructablePointer(with: handle) { [unowned device] in
+        let handlePointer = SmartPointer(with: handle) { [unowned device] in
             vkDestroyImageView(device.handle, $0, nil)
         }
 

@@ -12,13 +12,18 @@ import TinyFoundation
 internal class CGContextState {
     var alpha: CGFloat = .zero
     
-    fileprivate var defaultPatternPointer: ReferablePointer<cairo_pattern_t> = ReferablePointer(with: cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0))
+    fileprivate var defaultPatternPointer: RetainablePointer<cairo_pattern_t> = {
+        let cairoPattern = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0)!
+        defer { cairoPattern.release() }
+
+        return RetainablePointer(with: cairoPattern)
+    }()
     var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return defaultPatternPointer.pointer
         }
         set {
-            defaultPatternPointer = ReferablePointer(with: newValue)
+            defaultPatternPointer.pointer = newValue
         }
     }
 
@@ -27,13 +32,13 @@ internal class CGContextState {
             fillPatternPointer = fillColor.cairoPattern
         }
     }
-    fileprivate lazy var fillPatternPointer: ReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate lazy var fillPatternPointer: RetainablePointer<cairo_pattern_t> = defaultPatternPointer
     fileprivate(set) var fillPattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return fillPatternPointer.pointer
         }
         set {
-            fillPatternPointer = ReferablePointer(with: newValue)
+            fillPatternPointer.pointer = newValue
         }
     }
     
@@ -42,13 +47,13 @@ internal class CGContextState {
             strokePatternPointer = strokeColor.cairoPattern
         }
     }
-    fileprivate lazy var strokePatternPointer: ReferablePointer<cairo_pattern_t> = defaultPatternPointer
+    fileprivate lazy var strokePatternPointer: RetainablePointer<cairo_pattern_t> = defaultPatternPointer
     fileprivate(set) var strokePattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
             return strokePatternPointer.pointer
         }
         set {
-            strokePatternPointer = ReferablePointer(with: newValue)
+            strokePatternPointer.pointer = newValue
         }
     }
     

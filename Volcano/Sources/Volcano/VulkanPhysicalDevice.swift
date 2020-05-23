@@ -14,7 +14,7 @@ import CX11.X
 extension VkPhysicalDevice_T: EntityFactory {}
 extension VkPhysicalDevice_T: DataLoader {}
 
-public final class VulkanPhysicalDevice: VulkanEntity<SimplePointer<VkPhysicalDevice_T>> {
+public final class VulkanPhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>> {
     public let features: VkPhysicalDeviceFeatures
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
@@ -34,7 +34,7 @@ public final class VulkanPhysicalDevice: VulkanEntity<SimplePointer<VkPhysicalDe
         return result
     }()
 
-    internal override init(instance: VulkanInstance, handlePointer: SimplePointer<VkPhysicalDevice_T>) throws {
+    internal override init(instance: VulkanInstance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
         features = try handlePointer.loadData(using: vkGetPhysicalDeviceFeatures)
         properties = try handlePointer.loadData(using: vkGetPhysicalDeviceProperties)
         queueFamiliesProperties = try handlePointer.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)

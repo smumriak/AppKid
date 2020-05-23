@@ -9,15 +9,15 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-extension VkInstance_T: DestructableCType {
-    public var destroyFunc: (UnsafeMutablePointer<VkInstance_T>?) -> () {
+extension VkInstance_T: ReleasableCType {
+    public static var releaseFunc: (UnsafeMutablePointer<VkInstance_T>?) -> () {
         return {
             vkDestroyInstance($0, nil)
         }
     }
 }
 
-internal extension DestructablePointer where Pointee == VkInstance_T {
+internal extension ReleasablePointer where Pointee == VkInstance_T {
     func loadFunction<Function>(with name: String) throws -> Function {
         guard let result = cVulkanGetInstanceProcAddr(pointer, name) else {
             throw VulkanError.instanceFunctionNotFound(name)
@@ -30,7 +30,7 @@ internal extension DestructablePointer where Pointee == VkInstance_T {
 extension VkInstance_T: EntityFactory {}
 extension VkInstance_T: DataLoader {}
 
-public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T>> {
+public final class VulkanInstance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
@@ -40,7 +40,7 @@ public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T
         do {
             return try loadDataArray(using: vkEnumeratePhysicalDevices)
                 .compactMap { $0 }
-                .map { try VulkanPhysicalDevice(instance: self, handlePointer: SimplePointer(with: $0)) }
+                .map { try VulkanPhysicalDevice(instance: self, handlePointer: SmartPointer(with: $0)) }
                 .sorted(by: >)
         } catch {
             fatalError("Could not query vulkan devices with error: \(error)")
@@ -88,7 +88,7 @@ public final class VulkanInstance: VulkanHandle<DestructablePointer<VkInstance_T
                 vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
             }
 
-            let handlePointer = DestructablePointer(with: instanceOptional!)
+            let handlePointer = ReleasablePointer(with: instanceOptional!)
 
             vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceSupportKHR")
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")

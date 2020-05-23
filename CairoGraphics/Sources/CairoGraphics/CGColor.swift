@@ -11,10 +11,26 @@ import TinyFoundation
 
 // palkovnik:TODO: placeholder because color spaces are hard
 public struct CGColor {
-    public var red: CGFloat = .zero
-    public var green: CGFloat = .zero
-    public var blue: CGFloat = .zero
-    public var alpha: CGFloat = 1.0
+    public var red: CGFloat = .zero {
+        didSet {
+            cairoPattern = freshCairoPattern
+        }
+    }
+    public var green: CGFloat = .zero {
+        didSet {
+            cairoPattern = freshCairoPattern
+        }
+    }
+    public var blue: CGFloat = .zero {
+        didSet {
+            cairoPattern = freshCairoPattern
+        }
+    }
+    public var alpha: CGFloat = 1.0 {
+        didSet {
+            cairoPattern = freshCairoPattern
+        }
+    }
 
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
         self.red = red
@@ -29,6 +45,8 @@ public struct CGColor {
         self.blue = white
         self.alpha = alpha
     }
+
+    internal fileprivate(set) lazy var cairoPattern: RetainablePointer<cairo_pattern_t> = freshCairoPattern
 }
 
 public extension CGColor {
@@ -69,7 +87,10 @@ public extension CGColor {
 }
 
 internal extension CGColor {
-    var cairoPattern: ReferablePointer<cairo_pattern_t> {
-        return ReferablePointer(with: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha)))
+    var freshCairoPattern: RetainablePointer<cairo_pattern_t> {
+        let cairoPattern = cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha))!
+        defer { cairoPattern.release() }
+
+        return RetainablePointer(with: cairoPattern)
     }
 }

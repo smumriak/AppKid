@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanQueue: VulkanDeviceEntity<SimplePointer<VkQueue_T>> {
+public final class VulkanQueue: VulkanDeviceEntity<SmartPointer<VkQueue_T>> {
     public let familyIndex: Int
     public let queueIndex: Int
 
@@ -22,6 +22,6 @@ public final class VulkanQueue: VulkanDeviceEntity<SimplePointer<VkQueue_T>> {
             vkGetDeviceQueue(device.handle, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
         }
 
-        try super.init(device: device, handlePointer: SimplePointer(with: handle!))
+        try super.init(device: device, handlePointer: SmartPointer(with: handle!))
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 import TinyFoundation
 
-public class VulkanHandle<Handle> where Handle: SmartPointer {
+public class VulkanHandle<Handle> where Handle: SmartPointerProtocol {
     public internal(set) var handle: Handle.Pointer_t {
         get { handlePointer.pointer }
         set { handlePointer.pointer = newValue }

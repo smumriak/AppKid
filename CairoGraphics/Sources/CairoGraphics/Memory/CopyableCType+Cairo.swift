@@ -10,11 +10,11 @@ import CCairo
 import TinyFoundation
 
 extension cairo_font_options_t: CopyableCType {
-    public var copyFunc: (UnsafePointer<cairo_font_options_t>?) -> (UnsafeMutablePointer<cairo_font_options_t>?) {
+    public static var copyFunc: (UnsafePointer<cairo_font_options_t>?) -> (UnsafeMutablePointer<cairo_font_options_t>?) {
         return cairo_font_options_copy
     }
 
-    public var destroyFunc: (UnsafeMutablePointer<cairo_font_options_t>?) -> () {
+    public static var releaseFunc: (UnsafeMutablePointer<cairo_font_options_t>?) -> () {
         return cairo_font_options_destroy
     }
 }
@@ -28,7 +28,7 @@ public extension cairo_path_data_type_t {
 }
 
 extension cairo_path_t: CopyableCType {
-    public var copyFunc: (UnsafePointer<cairo_path_t>?) -> (UnsafeMutablePointer<cairo_path_t>?) {
+    public static var copyFunc: (UnsafePointer<cairo_path_t>?) -> (UnsafeMutablePointer<cairo_path_t>?) {
         return {
             guard let path = $0 else {
                 return nil
@@ -50,7 +50,7 @@ extension cairo_path_t: CopyableCType {
         }
     }
 
-    public var destroyFunc: (UnsafeMutablePointer<cairo_path_t>?) -> () {
+    public static var releaseFunc: (UnsafeMutablePointer<cairo_path_t>?) -> () {
         return cairo_path_destroy
     }
 }

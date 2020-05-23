@@ -23,41 +23,37 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     typealias FailableChildDataArray_f<Child, Result> = (Self?, UnsafeMutablePointer<Child>?, UnsafeMutablePointer<CUnsignedInt>?, UnsafeMutablePointer<Result>?) -> (VkResult)
 
     func loadData<Result>(using loader: OwnData_f<Result>) throws -> Result {
-        var result = UnsafeMutablePointer<Result>.allocate(capacity: 1)
-        defer { result.deallocate() }
+        let result = SmartPointer<Result>()
 
         try vulkanInvoke {
-            loader(self, result)
+            loader(self, result.pointer)
         }
         return result.pointee
     }
 
     func loadData<Result>(using loader: FailableOwnData_f<Result>) throws -> Result {
-        var result = UnsafeMutablePointer<Result>.allocate(capacity: 1)
-        defer { result.deallocate() }
+        let result = SmartPointer<Result>()
 
         try vulkanInvoke {
-            loader(self, result)
+            loader(self, result.pointer)
         }
         return result.pointee
     }
 
     func loadData<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: ChildData_f<Child, Result>) throws -> Result {
-        var result = UnsafeMutablePointer<Result>.allocate(capacity: 1)
-        defer { result.deallocate() }
+        let result = SmartPointer<Result>()
 
         try vulkanInvoke {
-            loader(self, childPointer, result)
+            loader(self, childPointer, result.pointer)
         }
         return result.pointee
     }
 
     func loadData<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: FailableChildData_f<Child, Result>) throws -> Result {
-        var result = UnsafeMutablePointer<Result>.allocate(capacity: 1)
-        defer { result.deallocate() }
+        let result = SmartPointer<Result>()
 
         try vulkanInvoke {
-            loader(self, childPointer, result)
+            loader(self, childPointer, result.pointer)
         }
         return result.pointee
     }
@@ -68,14 +64,13 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
             loader(self, &resultsCount, nil)
         }
 
-        var resultsBuffer = UnsafeMutablePointer<Result>.allocate(capacity: Int(resultsCount))
-        defer { resultsBuffer.deallocate() }
+        let resultsBuffer = SmartPointer<Result>(capacity: Int(resultsCount))
 
         try vulkanInvoke {
-            loader(self, &resultsCount, resultsBuffer)
+            loader(self, &resultsCount, resultsBuffer.pointer)
         }
 
-        return UnsafeBufferPointer(start: resultsBuffer, count: Int(resultsCount)).map { $0 }
+        return UnsafeBufferPointer(start: resultsBuffer.pointer, count: Int(resultsCount)).map { $0 }
     }
 
     func loadDataArray<Result>(using loader: FailableOwnDataArray_f<Result>) throws -> [Result] {
@@ -84,14 +79,13 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
             loader(self, &resultsCount, nil)
         }
 
-        var resultsBuffer = UnsafeMutablePointer<Result>.allocate(capacity: Int(resultsCount))
-        defer { resultsBuffer.deallocate() }
+        let resultsBuffer = SmartPointer<Result>(capacity: Int(resultsCount))
 
         try vulkanInvoke {
-            loader(self, &resultsCount, resultsBuffer)
+            loader(self, &resultsCount, resultsBuffer.pointer)
         }
 
-        return UnsafeBufferPointer(start: resultsBuffer, count: Int(resultsCount)).map { $0 }
+        return UnsafeBufferPointer(start: resultsBuffer.pointer, count: Int(resultsCount)).map { $0 }
     }
 
     func loadDataArray<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: ChildDataArray_f<Child, Result>) throws -> [Result] {
@@ -100,14 +94,13 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
             loader(self, childPointer, &resultsCount, nil)
         }
 
-        var resultsBuffer = UnsafeMutablePointer<Result>.allocate(capacity: Int(resultsCount))
-        defer { resultsBuffer.deallocate() }
+        let resultsBuffer = SmartPointer<Result>(capacity: Int(resultsCount))
 
         try vulkanInvoke {
-            loader(self, childPointer, &resultsCount, resultsBuffer)
+            loader(self, childPointer, &resultsCount, resultsBuffer.pointer)
         }
 
-        return UnsafeBufferPointer(start: resultsBuffer, count: Int(resultsCount)).map { $0 }
+        return UnsafeBufferPointer(start: resultsBuffer.pointer, count: Int(resultsCount)).map { $0 }
     }
 
     func loadDataArray<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: FailableChildDataArray_f<Child, Result>) throws -> [Result] {
@@ -116,18 +109,17 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
             loader(self, childPointer, &resultsCount, nil)
         }
 
-        var resultsBuffer = UnsafeMutablePointer<Result>.allocate(capacity: Int(resultsCount))
-        defer { resultsBuffer.deallocate() }
+        let resultsBuffer = SmartPointer<Result>(capacity: Int(resultsCount))
 
         try vulkanInvoke {
-            loader(self, childPointer, &resultsCount, resultsBuffer)
+            loader(self, childPointer, &resultsCount, resultsBuffer.pointer)
         }
 
-        return UnsafeBufferPointer(start: resultsBuffer, count: Int(resultsCount)).map { $0 }
+        return UnsafeBufferPointer(start: resultsBuffer.pointer, count: Int(resultsCount)).map { $0 }
     }
 }
 
-internal extension SmartPointer where Pointee: DataLoader {
+internal extension SmartPointerProtocol where Pointee: DataLoader {
     func loadData<Result>(using loader: Pointer_t.OwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }

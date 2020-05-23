@@ -7,19 +7,17 @@
 
 import Foundation
 
-public protocol CopyableCType: DestructableCType {
-    var copyFunc: (_ pointer: UnsafePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
+public protocol CopyableCType: ReleasableCType {
+    static var copyFunc: (_ pointer: UnsafePointer<Self>?) -> (UnsafeMutablePointer<Self>?) { get }
 }
 
 public extension UnsafeMutablePointer where Pointee: CopyableCType {
     func copy() -> UnsafeMutablePointer<Pointee> {
-        return pointee.copyFunc(self)!
+        return Pointee.copyFunc(self)!
     }
 }
 
-public final class CopyablePointer<Pointee>: DestructablePointer<Pointee> where Pointee: CopyableCType{
-    public typealias Pointee = Pointee
-
+public final class CopyablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: CopyableCType {
     public override var pointer: UnsafeMutablePointer<Pointee> {
         get {
             return super.pointer

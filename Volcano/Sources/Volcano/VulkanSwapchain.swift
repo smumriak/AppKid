@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanSwapchain: VulkanDeviceEntity<CustomDestructablePointer<VkSwapchainKHR_T>> {
+public final class VulkanSwapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
     public unowned let surface: VulkanSurface
     public var size: VkExtent2D
     public let imageFormat: VkFormat
@@ -60,7 +60,7 @@ public final class VulkanSwapchain: VulkanDeviceEntity<CustomDestructablePointer
 
         let swapchain: VkSwapchainKHR = try device.handle.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
 
-        let handlePointer = CustomDestructablePointer(with: swapchain) { [unowned device] in
+        let handlePointer = SmartPointer(with: swapchain) { [unowned device] in
             vkDestroySwapchainKHR(device.handle, $0, nil)
         }
 

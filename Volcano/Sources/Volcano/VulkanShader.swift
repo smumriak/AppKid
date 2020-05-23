@@ -13,7 +13,7 @@ public enum VulkanShaderError: Error {
     case noData
 }
 
-public final class VulkanShader: VulkanDeviceEntity<CustomDestructablePointer<VkShaderModule_T>> {
+public final class VulkanShader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
     public init(data: Data, device: VulkanDevice) throws {
         if data.isEmpty {
             throw VulkanShaderError.noData
@@ -28,7 +28,7 @@ public final class VulkanShader: VulkanDeviceEntity<CustomDestructablePointer<Vk
         }
 
         let handle = try device.handle.createEntity(info: &shaderModuleCreationInfo, using: vkCreateShaderModule)
-        let handlePointer = CustomDestructablePointer(with: handle) { [unowned device] in
+        let handlePointer = SmartPointer(with: handle) { [unowned device] in
             vkDestroyShaderModule(device.handle, $0, nil)
         }
 

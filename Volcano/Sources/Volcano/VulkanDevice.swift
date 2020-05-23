@@ -9,15 +9,15 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-extension VkDevice_T: DestructableCType {
-    public var destroyFunc: (UnsafeMutablePointer<VkDevice_T>?) -> () {
+extension VkDevice_T: ReleasableCType {
+    public static var releaseFunc: (UnsafeMutablePointer<VkDevice_T>?) -> () {
         return {
             vkDestroyDevice($0, nil)
         }
     }
 }
 
-internal extension DestructablePointer where Pointee == VkDevice_T {
+internal extension ReleasablePointer where Pointee == VkDevice_T {
     func loadFunction<Function>(with name: String) throws -> Function {
         guard let result = cVulkanGetDeviceProcAddr(pointer, name) else {
             throw VulkanError.deviceFunctionNotFound(name)
@@ -30,7 +30,7 @@ internal extension DestructablePointer where Pointee == VkDevice_T {
 extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
-public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
+public final class VulkanDevice: VulkanEntity<ReleasablePointer<VkDevice_T>> {
     public unowned let surface: VulkanSurface
 
     public let graphicsQueueFamilyIndex: Int
@@ -130,7 +130,7 @@ public final class VulkanDevice: VulkanEntity<DestructablePointer<VkDevice_T>> {
         deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer)
 
         let devicePointer: VkDevice = try physicalDevice.handle.createEntity(info: &deviceCreationInfo, using: vkCreateDevice)
-        let handlePointer = DestructablePointer(with: devicePointer)
+        let handlePointer = ReleasablePointer(with: devicePointer)
 
         vkCreateSwapchainKHR = try handlePointer.loadFunction(with: "vkCreateSwapchainKHR")
         vkDestroySwapchainKHR = try handlePointer.loadFunction(with: "vkDestroySwapchainKHR")

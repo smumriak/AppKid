@@ -10,11 +10,11 @@ import CPango
 import TinyFoundation
 
 extension PangoFontDescription: CopyableCType {
-    public var copyFunc: (UnsafePointer<PangoFontDescription>?) -> (UnsafeMutablePointer<PangoFontDescription>?) {
+    public static var copyFunc: (UnsafePointer<PangoFontDescription>?) -> (UnsafeMutablePointer<PangoFontDescription>?) {
         return pango_font_description_copy
     }
 
-    public var destroyFunc: (UnsafeMutablePointer<PangoFontDescription>?) -> () {
+    public static var releaseFunc: (UnsafeMutablePointer<PangoFontDescription>?) -> () {
         pango_font_description_free
     }
 }

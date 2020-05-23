@@ -13,22 +13,22 @@ import TinyFoundation
 open class TextLayout {
     fileprivate var hasChanged = false
 
-    var layoutPointer: ReferablePointer<PangoLayout>
+    var layoutPointer: RetainablePointer<PangoLayout>
     var layout: UnsafeMutablePointer<PangoLayout> {
         get {
             return layoutPointer.pointer
         }
         set {
-            layoutPointer = ReferablePointer(with: newValue)
+            layoutPointer.pointer = newValue
         }
     }
-    var pangoContextPointer: ReferablePointer<PangoContext>
+    var pangoContextPointer: RetainablePointer<PangoContext>
     var pangoContext: UnsafeMutablePointer<PangoContext> {
         get {
             return pangoContextPointer.pointer
         }
         set {
-            pangoContextPointer = ReferablePointer(with: newValue)
+            pangoContextPointer.pointer = newValue
         }
     }
     
@@ -49,12 +49,14 @@ open class TextLayout {
     
     public init() {
         let pangoContext = pango_font_map_create_context(pango_cairo_font_map_get_default())!
-        pangoContextPointer = ReferablePointer(with: pangoContext)
-        pangoContext.release()
+        defer { pangoContext.release() }
+
+        pangoContextPointer = RetainablePointer(with: pangoContext)
 
         let layout = pango_layout_new(pangoContext)!
-        layoutPointer = ReferablePointer(with: layout)
-        layout.release()
+        defer { layout.release() }
+
+        layoutPointer = RetainablePointer(with: layout)
 
         pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
 

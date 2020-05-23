@@ -11,7 +11,7 @@ import CVulkan
 import CX11.Xlib
 import CX11.X
 
-public final class VulkanSurface: VulkanEntity<CustomDestructablePointer<VkSurfaceKHR_T>> {
+public final class VulkanSurface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     public unowned let physicalDevice: VulkanPhysicalDevice
     public let supportedFormats: [VkSurfaceFormatKHR]
     public let selectedFormat: VkSurfaceFormatKHR
@@ -58,7 +58,7 @@ public final class VulkanSurface: VulkanEntity<CustomDestructablePointer<VkSurfa
         capabilities = try physicalDevice.loadData(for: handle, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
         presetModes = try physicalDevice.loadDataArray(for: handle, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
 
-        let handlePointer = CustomDestructablePointer(with: handle) { [unowned instance] in
+        let handlePointer = SmartPointer(with: handle) { [unowned instance] in
             vkDestroySurfaceKHR(instance.handle, $0, nil)
         }
 
