@@ -12,7 +12,7 @@ import CXInput2
 import CairoGraphics
 
 open class Window: View {
-    internal var nativeWindow: X11NativeWindow
+    public var nativeWindow: X11NativeWindow
     
     internal var _windowNumber: Int { Int(nativeWindow.windowID) }
     internal var _graphicsContext: X11RenderContext?

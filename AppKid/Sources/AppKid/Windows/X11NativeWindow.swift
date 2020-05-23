@@ -11,10 +11,10 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-internal final class X11NativeWindow {
-    fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
-    fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
-    fileprivate(set) var windowID: CX11.Window
+public final class X11NativeWindow {
+    public fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
+    public fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
+    public fileprivate(set) var windowID: CX11.Window
     
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
@@ -49,7 +49,7 @@ internal final class X11NativeWindow {
         }
     }
 
-    var displayScale: CGFloat = 1.0
+    public var displayScale: CGFloat = 1.0
 
     var inputContext: XIC? = nil
     
@@ -101,7 +101,7 @@ internal final class X11NativeWindow {
 }
 
 extension X11NativeWindow: Equatable {
-    static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
+    public static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
     }
 }
