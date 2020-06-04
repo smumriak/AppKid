@@ -11,9 +11,11 @@ import CVulkan
 
 public final class VulkanImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     public unowned let image: VulkanImage
+    public let imageFormat: VkFormat
 
     public init(image: VulkanImage) throws {
         self.image = image
+        self.imageFormat = image.format
 
         var componentMapping = VkComponentMapping()
         componentMapping.r = VK_COMPONENT_SWIZZLE_IDENTITY
@@ -35,10 +37,11 @@ public final class VulkanImageView: VulkanDeviceEntity<SmartPointer<VkImageView_
         imageViewCreationInfo.format = image.format
         imageViewCreationInfo.components = componentMapping
         imageViewCreationInfo.subresourceRange = subresourceRange
+        imageViewCreationInfo.flags = 0
 
         let device = image.device
 
-        let handle: VkImageView = try device.handle.createEntity(info: &imageViewCreationInfo, using: vkCreateImageView)
+        let handle: VkImageView = try device.createEntity(info: &imageViewCreationInfo, using: vkCreateImageView)
 
         let handlePointer = SmartPointer(with: handle) { [unowned device] in
             vkDestroyImageView(device.handle, $0, nil)

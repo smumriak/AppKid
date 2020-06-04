@@ -27,7 +27,7 @@ public final class VulkanShader: VulkanDeviceEntity<SmartPointer<VkShaderModule_
             shaderModuleCreationInfo.pCode = pointer
         }
 
-        let handle = try device.handle.createEntity(info: &shaderModuleCreationInfo, using: vkCreateShaderModule)
+        let handle = try device.createEntity(info: &shaderModuleCreationInfo, using: vkCreateShaderModule)
         let handlePointer = SmartPointer(with: handle) { [unowned device] in
             vkDestroyShaderModule(device.handle, $0, nil)
         }

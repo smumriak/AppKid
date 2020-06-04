@@ -13,9 +13,9 @@ import CVulkan
 
 class VulkanViewController: ViewController {
     lazy var vulkanInstance: VulkanInstance = VulkanInstance()
-    var device: VulkanDevice!
     var physicalDevice: VulkanPhysicalDevice!
     var surface: VulkanSurface!
+    var device: VulkanDevice!
     var swapchain: VulkanSwapchain!
     var preesentationQueue: VulkanQueue!
     var graphicsQueue: VulkanQueue!
@@ -23,6 +23,23 @@ class VulkanViewController: ViewController {
     var imageViews: [VulkanImageView]!
     var vertexShader: VulkanShader!
     var fragmentShader: VulkanShader!
+    var commandPool: VulkanCommandPool!
+    var commandBuffer: VulkanCommandBuffer!
+
+    deinit {
+        commandBuffer = nil
+        commandPool = nil
+        fragmentShader = nil
+        vertexShader = nil
+        imageViews = nil
+        images = nil
+        graphicsQueue = nil
+        preesentationQueue = nil
+        swapchain = nil
+        device = nil
+        surface = nil
+        physicalDevice = nil
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -55,7 +72,8 @@ class VulkanViewController: ViewController {
             vertexShader = try VulkanShader(data: vertexShaderData, device: device)
             fragmentShader = try VulkanShader(data: fragmentShaderData, device: device)
 
-            
+            commandPool = try VulkanCommandPool(device: device, queue: graphicsQueue)
+            commandBuffer = try VulkanCommandBuffer(commandPool: commandPool)
 
             debugPrint("Vulcan loaded")
         } catch {

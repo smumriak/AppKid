@@ -58,7 +58,7 @@ public final class VulkanSwapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainK
             swapchainCreationInfo.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices)
         }
 
-        let swapchain: VkSwapchainKHR = try device.handle.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
+        let swapchain: VkSwapchainKHR = try device.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
 
         let handlePointer = SmartPointer(with: swapchain) { [unowned device] in
             vkDestroySwapchainKHR(device.handle, $0, nil)

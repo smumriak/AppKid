@@ -21,4 +21,25 @@ internal extension UnsafeMutablePointer where Pointee: EntityFactory {
         )
         return result!
     }
+
+    typealias AllocatorFunction<Parent, Info, Result> = (UnsafeMutablePointer<Parent>?, UnsafePointer<Info>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
+
+    func allocateMemory<Info, Result>(info: UnsafePointer<Info>, using allocator: AllocatorFunction<Self.Pointee, Info, Result>) throws -> UnsafeMutablePointer<Result> {
+        var result: UnsafeMutablePointer<Result>?
+        try vulkanInvoke (
+            allocator(self, info, &result)
+        )
+        return result!
+    }
+
+}
+
+internal extension VulkanHandle where Handle.Pointee: EntityFactory {
+    func createEntity<Info, Callbacks, Result>(info: UnsafePointer<Info>, callbacks: UnsafePointer<Callbacks>? = nil, using creator: Handle.Pointer_t.CreatorFunction<Handle.Pointer_t.Pointee, Info, Callbacks, Result>) throws -> UnsafeMutablePointer<Result> {
+        return try handle.createEntity(info: info, using: creator)
+    }
+
+    func allocateMemory<Info, Result>(info: UnsafePointer<Info>, using allocator: Handle.Pointer_t.AllocatorFunction<Handle.Pointer_t.Pointee, Info, Result>) throws -> UnsafeMutablePointer<Result> {
+        return try handle.allocateMemory(info: info, using: allocator)
+    }
 }
