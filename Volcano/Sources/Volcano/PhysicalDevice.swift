@@ -1,5 +1,5 @@
 //
-//  VulkanPhysicalDevice.swift
+//  PhysicalDevice.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -14,7 +14,7 @@ import CX11.X
 extension VkPhysicalDevice_T: EntityFactory {}
 extension VkPhysicalDevice_T: DataLoader {}
 
-public final class VulkanPhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>> {
+public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>> {
     public let features: VkPhysicalDeviceFeatures
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
@@ -34,7 +34,7 @@ public final class VulkanPhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDev
         return result
     }()
 
-    internal override init(instance: VulkanInstance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
+    internal override init(instance: Instance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
         features = try handlePointer.loadData(using: vkGetPhysicalDeviceFeatures)
         properties = try handlePointer.loadData(using: vkGetPhysicalDeviceProperties)
         queueFamiliesProperties = try handlePointer.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)
@@ -57,17 +57,17 @@ public final class VulkanPhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDev
         try super.init(instance: instance, handlePointer: handlePointer)
     }
 
-    public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window) throws -> VulkanSurface {
-        return try VulkanSurface(physicalDevice: self, display: display, window: window)
+    public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window) throws -> Surface {
+        return try Surface(physicalDevice: self, display: display, window: window)
     }
 }
 
-extension VulkanPhysicalDevice: Comparable {
-    public static func < (lhs: VulkanPhysicalDevice, rhs: VulkanPhysicalDevice) -> Bool {
+extension PhysicalDevice: Comparable {
+    public static func < (lhs: PhysicalDevice, rhs: PhysicalDevice) -> Bool {
         return lhs.renderingPerformanceScore < rhs.renderingPerformanceScore
     }
 
-    public static func == (lhs: VulkanPhysicalDevice, rhs: VulkanPhysicalDevice) -> Bool {
+    public static func == (lhs: PhysicalDevice, rhs: PhysicalDevice) -> Bool {
         lhs.handle == rhs.handle
     }
 }

@@ -1,5 +1,5 @@
 //
-//  VulkanInstance.swift
+//  Instance.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -30,24 +30,24 @@ internal extension ReleasablePointer where Pointee == VkInstance_T {
 extension VkInstance_T: EntityFactory {}
 extension VkInstance_T: DataLoader {}
 
-public final class VulkanInstance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
+public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
     internal let vkGetPhysicalDeviceSurfacePresentModesKHR: PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
 
-    public internal(set) lazy var physicalDevices: [VulkanPhysicalDevice] = {
+    public internal(set) lazy var physicalDevices: [PhysicalDevice] = {
         do {
             return try loadDataArray(using: vkEnumeratePhysicalDevices)
                 .compactMap { $0 }
-                .map { try VulkanPhysicalDevice(instance: self, handlePointer: SmartPointer(with: $0)) }
+                .map { try PhysicalDevice(instance: self, handlePointer: SmartPointer(with: $0)) }
                 .sorted(by: >)
         } catch {
             fatalError("Could not query vulkan devices with error: \(error)")
         }
     }()
 
-    public internal(set) lazy var discreteGPUDevices: VulkanPhysicalDevice? = physicalDevices.first
+    public internal(set) lazy var discreteGPUDevices: PhysicalDevice? = physicalDevices.first
     
     public init() {
         do {

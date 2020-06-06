@@ -1,5 +1,5 @@
 //
-//  VulkanSurface.swift
+//  Surface.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -11,8 +11,8 @@ import CVulkan
 import CX11.Xlib
 import CX11.X
 
-public final class VulkanSurface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
-    public unowned let physicalDevice: VulkanPhysicalDevice
+public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
+    public unowned let physicalDevice: PhysicalDevice
     public let supportedFormats: [VkSurfaceFormatKHR]
     public let selectedFormat: VkSurfaceFormatKHR
     public var imageFormat: VkFormat { return selectedFormat.format }
@@ -20,7 +20,7 @@ public final class VulkanSurface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     public let capabilities: VkSurfaceCapabilitiesKHR
     public let presetModes: [VkPresentModeKHR]
 
-    internal init(physicalDevice: VulkanPhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window) throws {
+    internal init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window) throws {
         self.physicalDevice = physicalDevice
 
         let instance = physicalDevice.instance

@@ -1,5 +1,5 @@
 //
-//  VulkanDevice.swift
+//  Device.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -30,23 +30,23 @@ internal extension ReleasablePointer where Pointee == VkDevice_T {
 extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
-public final class VulkanDevice: VulkanEntity<ReleasablePointer<VkDevice_T>> {
-    public unowned let surface: VulkanSurface
+public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
+    public unowned let surface: Surface
 
     public let graphicsQueueFamilyIndex: Int
     public let presentationQueueFamilyIndex: Int
 
-    public internal(set) lazy var graphicsQueue: VulkanQueue = {
+    public internal(set) lazy var graphicsQueue: Queue = {
         do {
-            return try VulkanQueue(device: self, familyIndex: graphicsQueueFamilyIndex, queueIndex: 0)
+            return try Queue(device: self, familyIndex: graphicsQueueFamilyIndex, queueIndex: 0)
         } catch {
             fatalError("Failed to retrieve graphics from vulkan with error: \(error)")
         }
     }()
 
-    public internal(set) lazy var presentationQueue: VulkanQueue = {
+    public internal(set) lazy var presentationQueue: Queue = {
         do {
-            return try VulkanQueue(device: self, familyIndex: presentationQueueFamilyIndex, queueIndex: 0)
+            return try Queue(device: self, familyIndex: presentationQueueFamilyIndex, queueIndex: 0)
         } catch {
             fatalError("Failed to retrieve gresentation from vulkan with error: \(error)")
         }
@@ -58,7 +58,7 @@ public final class VulkanDevice: VulkanEntity<ReleasablePointer<VkDevice_T>> {
     internal let vkAcquireNextImageKHR: PFN_vkAcquireNextImageKHR
     internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
 
-    public init(surface: VulkanSurface) throws {
+    public init(surface: Surface) throws {
         self.surface = surface
         let physicalDevice = surface.physicalDevice
 

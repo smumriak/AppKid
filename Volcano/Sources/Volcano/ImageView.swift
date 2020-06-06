@@ -1,5 +1,5 @@
 //
-//  VulkanImageView.swift
+//  ImageView.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 19.05.2020.
@@ -9,11 +9,11 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
-    public unowned let image: VulkanImage
+public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
+    public unowned let image: Image
     public let imageFormat: VkFormat
 
-    public init(image: VulkanImage) throws {
+    public init(image: Image) throws {
         self.image = image
         self.imageFormat = image.format
 

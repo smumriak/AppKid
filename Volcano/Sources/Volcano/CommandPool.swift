@@ -1,5 +1,5 @@
 //
-//  VulkanCommandPool.swift
+//  CommandPool.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 23.05.2020.
@@ -9,10 +9,10 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanCommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>> {
-    public let queue: VulkanQueue
+public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>> {
+    public let queue: Queue
 
-    public init(device: VulkanDevice, queue: VulkanQueue) throws {
+    public init(device: Device, queue: Queue) throws {
         self.queue = queue
 
         var commandPoolCreationInfo = VkCommandPoolCreateInfo()

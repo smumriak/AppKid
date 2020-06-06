@@ -1,5 +1,5 @@
 //
-//  VulkanShader.swift
+//  Shader.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 20.05.2020.
@@ -13,8 +13,8 @@ public enum VulkanShaderError: Error {
     case noData
 }
 
-public final class VulkanShader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
-    public init(data: Data, device: VulkanDevice) throws {
+public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
+    public init(data: Data, device: Device) throws {
         if data.isEmpty {
             throw VulkanShaderError.noData
         }

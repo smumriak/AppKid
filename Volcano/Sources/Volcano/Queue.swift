@@ -1,5 +1,5 @@
 //
-//  VulkanQueue.swift
+//  Queue.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 19.05.2020.
@@ -9,11 +9,11 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanQueue: VulkanDeviceEntity<SmartPointer<VkQueue_T>> {
+public final class Queue: VulkanDeviceEntity<SmartPointer<VkQueue_T>> {
     public let familyIndex: Int
     public let queueIndex: Int
 
-    public init(device: VulkanDevice, familyIndex: Int, queueIndex: Int) throws {
+    public init(device: Device, familyIndex: Int, queueIndex: Int) throws {
         self.familyIndex = familyIndex
         self.queueIndex = queueIndex
 

@@ -12,19 +12,19 @@ import TinyFoundation
 import CVulkan
 
 class VulkanViewController: ViewController {
-    lazy var vulkanInstance: VulkanInstance = VulkanInstance()
-    var physicalDevice: VulkanPhysicalDevice!
-    var surface: VulkanSurface!
-    var device: VulkanDevice!
-    var swapchain: VulkanSwapchain!
-    var preesentationQueue: VulkanQueue!
-    var graphicsQueue: VulkanQueue!
-    var images: [VulkanImage]!
-    var imageViews: [VulkanImageView]!
-    var vertexShader: VulkanShader!
-    var fragmentShader: VulkanShader!
-    var commandPool: VulkanCommandPool!
-    var commandBuffer: VulkanCommandBuffer!
+    lazy var vulkanInstance: Instance = Instance()
+    var physicalDevice: PhysicalDevice!
+    var surface: Surface!
+    var device: Device!
+    var swapchain: Swapchain!
+    var preesentationQueue: Queue!
+    var graphicsQueue: Queue!
+    var images: [Image]!
+    var imageViews: [ImageView]!
+    var vertexShader: Shader!
+    var fragmentShader: Shader!
+    var commandPool: CommandPool!
+    var commandBuffer: CommandBuffer!
 
     deinit {
         commandBuffer = nil
@@ -56,24 +56,24 @@ class VulkanViewController: ViewController {
             let size = VkExtent2D(width: UInt32(windowSize.width * displayScale), height: UInt32(windowSize.height * displayScale))
             surface = try physicalDevice.createXlibSurface(display: window.nativeWindow.display, window:  window.nativeWindow.windowID)
 
-            device = try VulkanDevice(surface: surface)
+            device = try Device(surface: surface)
 
-            preesentationQueue = try VulkanQueue(device: device, familyIndex: device.presentationQueueFamilyIndex, queueIndex: 0)
-            graphicsQueue = try VulkanQueue(device: device, familyIndex: device.graphicsQueueFamilyIndex, queueIndex: 0)
+            preesentationQueue = try Queue(device: device, familyIndex: device.presentationQueueFamilyIndex, queueIndex: 0)
+            graphicsQueue = try Queue(device: device, familyIndex: device.graphicsQueueFamilyIndex, queueIndex: 0)
 
-            swapchain = try VulkanSwapchain(device: device, surface: surface, size: size)
+            swapchain = try Swapchain(device: device, surface: surface, size: size)
 
             images = try swapchain.getImages()
-            imageViews = try images.map { try VulkanImageView(image: $0) }
+            imageViews = try images.map { try ImageView(image: $0) }
 
             let vertexShaderData = try Data(contentsOf: URL(fileURLWithPath: "/media/nfs/HQ505/NAS/swiftyfan/Volcano/Resources/TriangleVertexShader.spv"), options: [])
             let fragmentShaderData = try Data(contentsOf: URL(fileURLWithPath: "/media/nfs/HQ505/NAS/swiftyfan/Volcano/Resources/TriangleFragmentShader.spv"), options: [])
 
-            vertexShader = try VulkanShader(data: vertexShaderData, device: device)
-            fragmentShader = try VulkanShader(data: fragmentShaderData, device: device)
+            vertexShader = try Shader(data: vertexShaderData, device: device)
+            fragmentShader = try Shader(data: fragmentShaderData, device: device)
 
-            commandPool = try VulkanCommandPool(device: device, queue: graphicsQueue)
-            commandBuffer = try VulkanCommandBuffer(commandPool: commandPool)
+            commandPool = try CommandPool(device: device, queue: graphicsQueue)
+            commandBuffer = try CommandBuffer(commandPool: commandPool)
 
             debugPrint("Vulcan loaded")
         } catch {

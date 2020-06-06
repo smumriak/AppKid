@@ -1,5 +1,5 @@
 //
-//  VulkanSwapchain.swift
+//  Swapchain.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 18.05.2020.
@@ -9,12 +9,12 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class VulkanSwapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
-    public unowned let surface: VulkanSurface
+public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
+    public unowned let surface: Surface
     public var size: VkExtent2D
     public let imageFormat: VkFormat
 
-    public init(device: VulkanDevice, surface: VulkanSurface, size: VkExtent2D) throws {
+    public init(device: Device, surface: Surface, size: VkExtent2D) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -67,11 +67,11 @@ public final class VulkanSwapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainK
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    public func getImages() throws -> [VulkanImage] {
+    public func getImages() throws -> [Image] {
         return try device.loadDataArray(for: handle, using: vkGetSwapchainImagesKHR)
             .compactMap { $0 }
             .map {
-                try VulkanImage(device: device, format: imageFormat, handle: $0)
+                try Image(device: device, format: imageFormat, handle: $0)
         }
     }
 }
