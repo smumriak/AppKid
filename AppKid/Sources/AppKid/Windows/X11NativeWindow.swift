@@ -15,6 +15,14 @@ public final class X11NativeWindow {
     public fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
     public fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
     public fileprivate(set) var windowID: CX11.Window
+
+    var title: String = "" {
+        didSet {
+            title.withCString {
+                _ = XStoreName(display, windowID, $0)
+            }
+        }
+    }
     
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
@@ -59,34 +67,31 @@ public final class X11NativeWindow {
         }
     }
     
-    internal init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, windowID: CX11.Window) {
+    internal init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, windowID: CX11.Window, title: String) {
         self.display = display
         self.screen = screen
         self.windowID = windowID
+        self.title = title
     }
 
     func updateListeningEvents(displayServer: DisplayServer) {
         if kEnableXInput2 {
-            let eventMasksAndStoragePointers: [(XIEventMask, UnsafeMutablePointer<UInt32>)] = displayServer.context.inputDevices
+            // what you see below is very unsafe code in swift, but it's more or less usual implicit cast for C code. XInput2 is poorly designed C API with a lot of inconsistent or plain dumb solutions. so what's happening? the code creates XIEventMask structs which require stupid buffer or UInt8 as an input that provides "mask" for the event type. In our case even type mask has to be more than 8 bits. 32 to be precise. so we literallly cast 32 bit uint pointer value to 8 bit uint pointer. hope this does not break in future releases of swift (ha-ha, it will). after "selecting" the needed events by mask the code deallocates the data for those mask buffers
+            var eventMasks: [XIEventMask] = displayServer.context.inputDevices
                 .map { device in
-                    let mask = device.type.mask
-                    let rawMaskPointer = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
-                    rawMaskPointer.initialize(to: UInt32(mask.rawValue))
+                    let maskPointer = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
+                    maskPointer.initialize(to: UInt32(device.type.mask.rawValue))
+                    let reboundMaskPointer = UnsafeMutableRawPointer(maskPointer).bindMemory(to: UInt8.self, capacity: 4)
 
-                    let resultMask = rawMaskPointer.withMemoryRebound(to: UInt8.self, capacity: 4) {
-                        return XIEventMask(deviceid: device.identifier, mask_len: 4 , mask: $0)
-                    }
-
-                    return (resultMask, rawMaskPointer)
+                    return XIEventMask(deviceid: device.identifier, mask_len: 4, mask: reboundMaskPointer)
             }
-
             defer {
-                eventMasksAndStoragePointers.forEach { $0.1.deallocate() }
+                eventMasks.forEach {
+                    $0.mask.deallocate()
+                }
             }
 
-            var events = eventMasksAndStoragePointers.map { $0.0 }
-
-            XISelectEvents(displayServer.display, windowID, &events, CInt(events.count))
+            XISelectEvents(displayServer.display, windowID, &eventMasks, CInt(eventMasks.count))
             XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.geometry.rawValue))
         } else {
             XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.basic.rawValue))

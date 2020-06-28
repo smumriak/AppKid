@@ -22,17 +22,19 @@ internal let kEnableXInput2 = true
 internal class DisplayServer {
     var context = DisplayServerContext()
 
-    internal let display: UnsafeMutablePointer<CX11.Display>
-    internal let screen: UnsafeMutablePointer<CX11.Screen>
+    let applicationName: String
 
-    internal var inputMethod: XIM?
-    internal let inputStyle: XIMStyle?
+    let display: UnsafeMutablePointer<CX11.Display>
+    let screen: UnsafeMutablePointer<CX11.Screen>
 
-    internal lazy var pollThread = Thread { self.pollForX11Events() }
+    var inputMethod: XIM?
+    let inputStyle: XIMStyle?
 
-    internal var runLoopSource: CFRunLoopSource? = nil
+    lazy var pollThread = Thread { self.pollForX11Events() }
 
-    internal let rootWindow: X11NativeWindow
+    var runLoopSource: CFRunLoopSource? = nil
+
+    let rootWindow: X11NativeWindow
 
     // MARK: Deinitialization
 
@@ -46,12 +48,14 @@ internal class DisplayServer {
 
     // MARK: Initialization
 
-    init() {
+    init(applicationName appName: String) {
         guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
             fatalError("Could not open X display.")
         }
+
         display = openDisplay
         screen = XDefaultScreenOfDisplay(display)
+        applicationName = appName
 
         var event: CInt = 0
         var error: CInt = 0
@@ -108,7 +112,7 @@ internal class DisplayServer {
             inputMethod = nil
         }
 
-        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root)
+        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, title: "root")
 
         gtkDisplayScale.map {
             context.scale = CGFloat($0)
@@ -123,7 +127,7 @@ internal class DisplayServer {
 }
 
 extension DisplayServer {
-    func createNativeWindow(contentRect: CGRect) -> X11NativeWindow {
+    func createNativeWindow(contentRect: CGRect, title: String) -> X11NativeWindow {
         var scaledContentRect = contentRect
         scaledContentRect.size.width *= context.scale
         scaledContentRect.size.height *= context.scale
@@ -131,10 +135,21 @@ extension DisplayServer {
         let intRect: Rect<CInt> = scaledContentRect.rect()
         let windowID = XCreateSimpleWindow(display, rootWindow.windowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
 
-        let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID)
+        let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
 
-        XSetStandardProperties(display, windowID, "Window", nil, 0, nil, 0, nil)
+        XSetStandardProperties(display, windowID, title, nil, 0, nil, 0, nil)
+
+        let classHint = XAllocClassHint()
+        defer { XFree(classHint) }
+
+        applicationName.withCString {
+            let mutableString = UnsafeMutablePointer(mutating: $0)
+            classHint?.pointee.res_name = mutableString
+            classHint?.pointee.res_class = mutableString
+
+            XSetClassHint(display, windowID, classHint)
+        }
 
         result.updateListeningEvents(displayServer: self)
         result.map(displayServer: self)

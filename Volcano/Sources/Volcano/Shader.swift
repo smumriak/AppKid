@@ -22,14 +22,14 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
         shaderModuleCreationInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
         shaderModuleCreationInfo.codeSize = data.count
 
-        data.withUnsafeBytes {
-            let pointer = $0.baseAddress!.assumingMemoryBound(to: CUnsignedInt.self)
-            shaderModuleCreationInfo.pCode = pointer
-        }
+        let handlePointer: SmartPointer<VkShaderModule_T> = try data.withUnsafeBytes {
+            shaderModuleCreationInfo.pCode = $0.baseAddress!.assumingMemoryBound(to: CUnsignedInt.self)
 
-        let handle = try device.createEntity(info: &shaderModuleCreationInfo, using: vkCreateShaderModule)
-        let handlePointer = SmartPointer(with: handle) { [unowned device] in
-            vkDestroyShaderModule(device.handle, $0, nil)
+            let handle = try device.createEntity(info: &shaderModuleCreationInfo, using: vkCreateShaderModule)
+
+            return SmartPointer(with: handle) { [unowned device] in
+                vkDestroyShaderModule(device.handle, $0, nil)
+            }
         }
 
         try super.init(device: device, handlePointer: handlePointer)

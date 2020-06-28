@@ -43,10 +43,9 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         swapchainCreationInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
         swapchainCreationInfo.presentMode = presentMode
 
-        var queueFamiliesIndices = UnsafeMutablePointer<CUnsignedInt>.allocate(capacity: 2)
-        defer { queueFamiliesIndices.deallocate() }
-        queueFamiliesIndices[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
-        queueFamiliesIndices[1] = CUnsignedInt(device.presentationQueueFamilyIndex)
+        let queueFamiliesIndices = SmartPointer<CUnsignedInt>.allocate(capacity: 2)
+        queueFamiliesIndices.pointer[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
+        queueFamiliesIndices.pointer[1] = CUnsignedInt(device.presentationQueueFamilyIndex)
 
         if device.graphicsQueueFamilyIndex == device.presentationQueueFamilyIndex {
             swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
@@ -55,7 +54,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         } else {
             swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT
             swapchainCreationInfo.queueFamilyIndexCount = 2
-            swapchainCreationInfo.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices)
+            swapchainCreationInfo.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices.pointer)
         }
 
         let swapchain: VkSwapchainKHR = try device.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)

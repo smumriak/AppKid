@@ -45,14 +45,13 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
             vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, nil)
         }
 
-        var deviceExtensionsBuffer = UnsafeMutablePointer<VkExtensionProperties>.allocate(capacity: Int(deviceExtensionCount))
-        defer { deviceExtensionsBuffer.deallocate() }
+        let deviceExtensionsBuffer = SmartPointer<VkExtensionProperties>.allocate(capacity: Int(deviceExtensionCount))
 
         try vulkanInvoke {
-            vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, deviceExtensionsBuffer)
+            vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, deviceExtensionsBuffer.pointer)
         }
 
-        extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer, count: Int(deviceExtensionCount)).map { $0 }
+        extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
 
         try super.init(instance: instance, handlePointer: handlePointer)
     }

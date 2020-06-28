@@ -42,10 +42,10 @@ internal extension XMotionEvent {
 internal extension XEvent {
     var deviceEvent: XIDeviceEvent {
         get {
-            return xcookie.data.assumingMemoryBound(to: XIDeviceEvent.self).pointee
+            return xcookie.data.load(as: XIDeviceEvent.self)
         }
         set {
-            xcookie.data.assumingMemoryBound(to: XIDeviceEvent.self).pointee = newValue
+            xcookie.data.storeBytes(of: newValue, as: XIDeviceEvent.self)
         }
     }
 }

@@ -1,6 +1,6 @@
 //
 //  Application.swift
-//  AppKid
+//  AppKid+16505059497
 //
 //  Created by Serhii Mumriak on 31.01.2020.
 //
@@ -12,7 +12,7 @@ import CX11.X
 import CXInput2
 import CairoGraphics
 
-internal let isVulkanRendererEnabled = true
+internal let isVulkanRendererEnabled = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -67,7 +67,7 @@ open class Application: Responder {
     // MARK: Initialization
     
     internal override init () {
-        displayServer = DisplayServer()
+        displayServer = DisplayServer(applicationName: "SwiftyFan")
 
         super.init()
     }

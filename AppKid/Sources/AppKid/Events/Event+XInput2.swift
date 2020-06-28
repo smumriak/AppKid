@@ -114,19 +114,19 @@ internal extension Event {
 
             if let inputContext = nativeWindow.inputContext {
                 var fakeEvent = deviceEvent.generatedKeyPressedEvent
-                var buffer = UnsafeMutablePointer<Int8>.allocate(capacity: 32)
-                defer {
-                    buffer.deallocate()
-                }
-                buffer.initialize(to: 0)
+
+                let buffer = UnsafeMutableBufferPointer<Int8>.allocate(capacity: 32)
+                defer { buffer.deallocate() }
+
+                buffer.initialize(repeating: 0)
 
                 var status: CInt = 0
 
-                let bytesWritten = Xutf8LookupString(inputContext, &fakeEvent, buffer, 32, &keySymbol, &status)
+                let bytesWritten = Xutf8LookupString(inputContext, &fakeEvent, buffer.baseAddress, 32, &keySymbol, &status)
 
                 if status == XLookupChars || status == XLookupBoth {
                     buffer[Int(bytesWritten)] = 0
-                    lookupString = String(cString: buffer, encoding: .utf8)
+                    lookupString = String(cString: buffer.baseAddress!, encoding: .utf8)
                 }
             }
 

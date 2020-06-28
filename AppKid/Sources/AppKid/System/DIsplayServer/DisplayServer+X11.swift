@@ -73,7 +73,7 @@ internal extension DisplayServer {
 
         var x11RunLoopSourceContext = CFRunLoopSourceContext1()
         x11RunLoopSourceContext.version = 1
-        x11RunLoopSourceContext.info = Unmanaged.passRetained(self).toOpaque()
+        x11RunLoopSourceContext.info = Unmanaged.passUnretained(self).toOpaque()
         
         #if os(Linux)
         var x11EpollEvent = epoll_event()
@@ -88,7 +88,8 @@ internal extension DisplayServer {
         
         x11RunLoopSourceContext.getPort = {
             if let info = $0 {
-                let displayServer: DisplayServer = Unmanaged.fromOpaque(info).takeUnretainedValue()
+                let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
+                
                 return UnsafeMutableRawPointer(bitPattern: Int(displayServer.context.eventFileDescriptor))
             } else {
                 return UnsafeMutableRawPointer(bitPattern: Int(-1))
@@ -97,7 +98,8 @@ internal extension DisplayServer {
         
         x11RunLoopSourceContext.perform = {
             if let info = $0 {
-                let displayServer: DisplayServer = Unmanaged.fromOpaque(info).takeUnretainedValue()
+                let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
+                
                 displayServer.processX11EventsQueue()
             }
         }
@@ -105,13 +107,13 @@ internal extension DisplayServer {
 
         let currentRunloop = RunLoop.current
 
-        let runLoopSource: CFRunLoopSource = withUnsafeMutablePointer(to: &x11RunLoopSourceContext) {
-            let x11RunLoopSourceContextPointer = UnsafeMutableRawPointer($0).bindMemory(to: CFRunLoopSourceContext.self, capacity: 1)
-
-            return CFRunLoopSourceCreate(kCFAllocatorDefault, 0, x11RunLoopSourceContextPointer)!
+        withUnsafeMutablePointer(to: &x11RunLoopSourceContext) {
+            $0.withMemoryRebound(to: CFRunLoopSourceContext.self, capacity: 1) {
+                runLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, $0)!
+                
+                CFRunLoopAddSource(currentRunloop.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+            }
         }
-
-        CFRunLoopAddSource(currentRunloop.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
 
         pollThread.qualityOfService = .userInteractive
         pollThread.name = "X11 poll thread"

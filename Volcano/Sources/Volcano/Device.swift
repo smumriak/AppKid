@@ -71,9 +71,8 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
             deviceCreationInfo.pEnabledFeatures = $0
         }
 
-        var queuePrioririesPointer = UnsafeMutablePointer<Float>.allocate(capacity: 1)
-        defer { queuePrioririesPointer.deallocate() }
-        queuePrioririesPointer.initialize(to: 1.0)
+        let queuePrioririesPointer = SmartPointer<Float>.allocate(capacity: 1)
+        queuePrioririesPointer.pointer.initialize(to: 1.0)
 
         let queueFamiliesProperties = physicalDevice.queueFamiliesProperties.enumerated()
 
@@ -105,7 +104,7 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
                 result.flags = 0
                 result.queueFamilyIndex = CUnsignedInt($0.offset)
                 result.queueCount = 1
-                result.pQueuePriorities = UnsafePointer(queuePrioririesPointer)
+                result.pQueuePriorities = UnsafePointer(queuePrioririesPointer.pointer)
                 return result
         }
 
@@ -114,20 +113,17 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
             deviceCreationInfo.pQueueCreateInfos = $0.baseAddress
         }
 
-        var extensions: [UnsafeMutablePointer<Int8>] = []
-        defer { extensions.forEach { free($0) } }
+        let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME]
+        let extensionsCStrings = extensions.cStrings
 
-        extensions.append(strdup(VK_KHR_SWAPCHAIN_EXTENSION_NAME))
+        let extensionsPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
 
-        var extensionsPointer = UnsafeMutablePointer<UnsafePointer<Int8>?>.allocate(capacity: extensions.count)
-        defer { extensionsPointer.deallocate() }
-
-        extensions.enumerated().forEach {
-            extensionsPointer[$0.offset] = UnsafePointer($0.element)
+        extensionsCStrings.enumerated().forEach {
+            extensionsPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
         }
 
-        deviceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
-        deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer)
+        deviceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
+        deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
 
         let devicePointer: VkDevice = try physicalDevice.handle.createEntity(info: &deviceCreationInfo, using: vkCreateDevice)
         let handlePointer = ReleasablePointer(with: devicePointer)

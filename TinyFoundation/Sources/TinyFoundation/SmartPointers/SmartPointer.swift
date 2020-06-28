@@ -49,9 +49,8 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
         deleter.invoke(with: pointer)
     }
 
-    public init(capacity: Int = 1) {
-        self.pointer = Pointer_t.allocate(capacity: capacity)
-        self.deleter = .system
+    public static func allocate(capacity: Int = 1) -> SmartPointer<Pointee> {
+        return SmartPointer<Pointee>(with: Pointer_t.allocate(capacity: capacity), deleter: .system)
     }
 
     public init(with pointer: Pointer_t, deleter: Deleter = .none) {

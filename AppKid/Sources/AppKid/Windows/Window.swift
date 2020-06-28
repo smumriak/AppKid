@@ -13,6 +13,8 @@ import CairoGraphics
 
 open class Window: View {
     public var nativeWindow: X11NativeWindow
+
+    public var title: String = ""
     
     internal var _windowNumber: Int { Int(nativeWindow.windowID) }
     internal var _graphicsContext: X11RenderContext?
@@ -76,7 +78,7 @@ open class Window: View {
     public convenience required init(contentRect: CGRect) {
         let displayServer = Application.shared.displayServer
 
-        let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect)
+        let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect, title: "Window")
 
         self.init(nativeWindow: nativeWindow)
     }

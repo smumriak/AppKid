@@ -62,25 +62,22 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
                 instanceCreationInfo.pApplicationInfo = $0
             }
 
-            var extensions: [UnsafeMutablePointer<Int8>] = []
+            var extensions: [String] = [VK_KHR_SURFACE_EXTENSION_NAME]
 
             #if os(Linux)
-            extensions.append(strdup(VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+            extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
             #endif
 
-            extensions.append(strdup(VK_KHR_SURFACE_EXTENSION_NAME))
+            let extensionsCStrings = extensions.cStrings
 
-            defer { extensions.forEach { free($0) } }
+            let extensionsPointerpointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
 
-            var extensionsPointerpointer = UnsafeMutablePointer<UnsafePointer<Int8>?>.allocate(capacity: extensions.count)
-            defer { extensionsPointerpointer.deallocate() }
-
-            extensions.enumerated().forEach {
-                extensionsPointerpointer[$0.offset] = UnsafePointer($0.element)
+            extensionsCStrings.enumerated().forEach {
+                extensionsPointerpointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
             }
 
-            instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
-            instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointerpointer)
+            instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
+            instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointerpointer.pointer)
 
             var instanceOptional: VkInstance?
 
