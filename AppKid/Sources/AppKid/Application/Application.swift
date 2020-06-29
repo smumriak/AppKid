@@ -12,6 +12,10 @@ import CX11.X
 import CXInput2
 import CairoGraphics
 
+// apple failed a little bit :) rdar://problem/14497260
+// starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
+public let kCFStringEncodingASCII: UInt32 = 0x0600
+
 internal let isVulkanRendererEnabled = false
 
 public extension RunLoop.Mode {

@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 //
 //  Package.swift
 //  Volcano
@@ -23,6 +23,17 @@ let package = Package(
     targets: [
         .target(
             name: "Volcano",
-            dependencies: ["CVulkan", "CX11", "TinyFoundation"])
+            dependencies: [
+                .product(name: "CVulkan", package: "SharedSystemLibs"),
+                .product(name: "CX11", package: "SharedSystemLibs"),
+                .product(name: "TinyFoundation", package: "TinyFoundation")
+            ],
+            resources: [
+                .copy("Resources/TriangleFragmentShader.frag"),
+                .copy("Resources/TriangleFragmentShader.spv"),
+                .copy("Resources/TriangleVertexShader.vert"),
+                .copy("Resources/TriangleVertexShader.spv")
+            ]
+        )
     ]
 )

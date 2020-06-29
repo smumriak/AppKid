@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 //
 //  Package.swift
 //  CairoGraphics
@@ -24,9 +24,9 @@ let package = Package(
         .target(
             name: "CairoGraphics",
             dependencies: [
-                "CCairo",
-                "CPango",
-                "TinyFoundation"
+                .product(name: "CCairo", package: "SharedSystemLibs"),
+                .product(name: "CPango", package: "SharedSystemLibs"),
+                .product(name: "TinyFoundation", package: "TinyFoundation")
             ]
         )
     ]

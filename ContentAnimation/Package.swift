@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 //
 //  Package.swift
 //  ContentAnimation
@@ -25,9 +25,9 @@ let package = Package(
         .target(
             name: "ContentAnimation",
             dependencies: [
-                "CairoGraphics",
-                "TinyFoundation",
-                "CVulkan"
+                .product(name: "CairoGraphics", package: "CairoGraphics"),
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "CVulkan", package: "SharedSystemLibs")
             ]
         )
     ]

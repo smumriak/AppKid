@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 //
 //  Package.swift
 //  SwiftyFan
@@ -33,6 +33,9 @@ let package = Package(
                 "ContentAnimation",
                 "TinyFoundation",
                 "Volcano"
+            ],
+            resources: [
+                .copy("Resources/AppIcon.png")
             ]
         ),
         .testTarget(

@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 //
 //  Package.swift
 //  AppKid
@@ -26,12 +26,12 @@ let package = Package(
         .target(
             name: "AppKid",
             dependencies: [
-                "CX11",
-                "CXInput2",
-                "CEpoll",
-                "CairoGraphics",
-                "ContentAnimation",
-                "TinyFoundation"
+                .product(name: "CX11", package: "SharedSystemLibs"),
+                .product(name: "CXInput2", package: "SharedSystemLibs"),
+                .product(name: "CEpoll", package: "SharedSystemLibs"),
+                .product(name: "CairoGraphics", package: "CairoGraphics"),
+                .product(name: "ContentAnimation", package: "ContentAnimation"),
+                .product(name: "TinyFoundation", package: "TinyFoundation")
             ]
         )
     ]
