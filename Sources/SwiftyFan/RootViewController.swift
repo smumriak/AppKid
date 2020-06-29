@@ -65,7 +65,7 @@ class RootViewController: ViewController {
         return result
     }()
 
-    lazy var button: Button = {
+    lazy var spawnWindowButton: Button = {
         let result = Button(with: CGRect(x: 100.0, y: 100.0, width: 140.0, height: 44.0))
 
         result.backgroundColor = .clear
@@ -76,7 +76,39 @@ class RootViewController: ViewController {
         result.set(textColor: .magenta, for: .selected)
         result.set(textColor: .magenta, for: .highlighted)
 
-        result.add(target: self, action: RootViewController.buttonDidTap, for: .mouseUpInside)
+        result.add(target: self, action: RootViewController.spawnButtonDidTap, for: .mouseUpInside)
+
+        return result
+    }()
+
+    lazy var closeCurrentWindow: Button = {
+        let result = Button(with: CGRect(x: 100.0, y: 144.0, width: 140.0, height: 44.0))
+
+        result.backgroundColor = .clear
+
+        result.set(title: "Close Current", for: .normal)
+
+        result.set(textColor: .magenta, for: .normal)
+        result.set(textColor: .magenta, for: .selected)
+        result.set(textColor: .magenta, for: .highlighted)
+
+        result.add(target: self, action: RootViewController.closeCurrentWindowButtonDidTap, for: .mouseUpInside)
+
+        return result
+    }()
+
+    lazy var closeOtherWindows: Button = {
+        let result = Button(with: CGRect(x: 100.0, y: 188.0, width: 140.0, height: 44.0))
+
+        result.backgroundColor = .clear
+
+        result.set(title: "Close Other", for: .normal)
+
+        result.set(textColor: .magenta, for: .normal)
+        result.set(textColor: .magenta, for: .selected)
+        result.set(textColor: .magenta, for: .highlighted)
+
+        result.add(target: self, action: RootViewController.closeOtherWindowsButtonDidTap, for: .mouseUpInside)
 
         return result
     }()
@@ -116,7 +148,9 @@ class RootViewController: ViewController {
         redSubview.add(subview: graySubview)
         scrollView.add(subview: blueSubview)
         scrollView.add(subview: label)
-        view.add(subview: button)
+        view.add(subview: spawnWindowButton)
+        view.add(subview: closeCurrentWindow)
+        view.add(subview: closeOtherWindows)
 
         RunLoop.current.add(transformTimer, forMode: .common)
     }
@@ -184,11 +218,23 @@ class RootViewController: ViewController {
         }
     }
 
-    fileprivate func buttonDidTap(sender: Button) {
+    fileprivate func spawnButtonDidTap(sender: Button) {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         window.rootViewController = RootViewController()
 
         Application.shared.add(window: window)
+    }
+
+    fileprivate func closeCurrentWindowButtonDidTap(sender: Button) {
+        view.window?.close()
+    }
+
+    fileprivate func closeOtherWindowsButtonDidTap(sender: Button) {
+        Application.shared.windows.forEach {
+            if $0 !== view.window {
+                $0.close()
+            }
+        }
     }
 
     override var canBecomeFirstResponder: Bool {

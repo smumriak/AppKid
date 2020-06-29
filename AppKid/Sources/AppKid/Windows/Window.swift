@@ -180,6 +180,15 @@ open class Window: View {
             rootViewController.endAppearanceTransition()
         }
     }
+
+    open func performClose(_ sender: Any?) {
+        // TODO
+        close()
+    }
+
+    open func close() {
+        Application.shared.remove(window: self)
+    }
 }
 
 extension Window {
