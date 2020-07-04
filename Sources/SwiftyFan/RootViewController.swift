@@ -179,10 +179,9 @@ class RootViewController: ViewController {
         super.viewDidLayoutSubviews()
 
         label.frame = view.bounds
-
-        if scrollView.transform == .identity {
-            scrollView.frame = CGRect(x: 0.0, y: 0.0, width: 400, height: 400)
-        }
+        scrollView.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+        scrollView.bounds.size = view.bounds.size
+        scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height * 2)
     }
 
     weak var draggedView: View? = nil
