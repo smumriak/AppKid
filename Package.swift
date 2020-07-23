@@ -35,7 +35,11 @@ let package = Package(
                 "Volcano"
             ],
             resources: [
-                .copy("Resources/AppIcon.png")
+                .copy("Resources/AppIcon.png"),
+                .copy("Resources/TriangleFragmentShader.frag"),
+                .copy("Resources/TriangleFragmentShader.spv"),
+                .copy("Resources/TriangleVertexShader.vert"),
+                .copy("Resources/TriangleVertexShader.spv")
             ]
         ),
         .testTarget(
