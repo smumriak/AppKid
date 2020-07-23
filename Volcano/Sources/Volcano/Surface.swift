@@ -25,22 +25,20 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 
         let instance = physicalDevice.instance
 
-        let handle: VkSurfaceKHR
         #if os(Linux)
-        var surfaceCreationInfo: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
-        surfaceCreationInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
-        surfaceCreationInfo.dpy = display
-        surfaceCreationInfo.window = window
-
-        handle = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateXlibSurfaceKHR)
+        var info: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
+        info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
+        info.dpy = display
+        info.window = window
         #elseif os(macOS)
-        var surfaceCreationInfo = VkMacOSSurfaceCreateInfoMVK()
-        handle = try instance.handle.createEntity(info: &surfaceCreationInfo, using: vkCreateMacOSSurfaceMVK)
+        var info = VkMacOSSurfaceCreateInfoMVK()
         #else
-        fatalError("Wrong OS! (For now)")
+        #error("Wrong OS! (For now)")
         #endif
 
-        let supportedFormats = try physicalDevice.loadDataArray(for: handle, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
+        let handlePointer = try instance.create(with: &info)
+
+        let supportedFormats = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
         if supportedFormats.isEmpty {
             fatalError("No surface formates available")
         }
@@ -55,12 +53,8 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 
         self.supportedFormats = supportedFormats
 
-        capabilities = try physicalDevice.loadData(for: handle, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
-        presetModes = try physicalDevice.loadDataArray(for: handle, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
-
-        let handlePointer = SmartPointer(with: handle) { [unowned instance] in
-            vkDestroySurfaceKHR(instance.handle, $0, nil)
-        }
+        capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
+        presetModes = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
 
         try super.init(instance: instance, handlePointer: handlePointer)
     }
@@ -77,5 +71,23 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 extension VkSurfaceFormatKHR: Equatable {
     public static func == (lhs: VkSurfaceFormatKHR, rhs: VkSurfaceFormatKHR) -> Bool {
         return lhs.format == rhs.format && lhs.colorSpace == rhs.colorSpace
+    }
+}
+
+public extension Shader {
+    fileprivate static let defaultShaderEntryPointName = strdup("main")
+
+    func createStageInfo(for stage: VkShaderStageFlagBits) -> VkPipelineShaderStageCreateInfo {
+        var result = VkPipelineShaderStageCreateInfo()
+        
+        result.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+        result.pNext = nil
+        result.flags = VkPipelineShaderStageCreateFlags()
+        result.stage = stage
+        result.module = handle
+        result.pName = UnsafePointer(Shader.defaultShaderEntryPointName)
+        result.pSpecializationInfo = nil
+
+        return result
     }
 }

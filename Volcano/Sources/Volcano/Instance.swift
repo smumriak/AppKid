@@ -55,8 +55,17 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
             applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO
             applicationInfo.apiVersion =  (1 << 22) | (2 << 12) | 0
 
+            let validationLayers = ["VK_LAYER_KHRONOS_validation"].cStrings
+            let validationLayersPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: validationLayers.count)
+
+            validationLayers.enumerated().forEach {
+                validationLayersPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
+            }
+
             var instanceCreationInfo = VkInstanceCreateInfo()
             instanceCreationInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+            instanceCreationInfo.enabledLayerCount = CUnsignedInt(validationLayers.count)
+            instanceCreationInfo.ppEnabledLayerNames = UnsafePointer(validationLayersPointer.pointer)
 
             withUnsafePointer(to: &applicationInfo) {
                 instanceCreationInfo.pApplicationInfo = $0
@@ -70,14 +79,14 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
 
             let extensionsCStrings = extensions.cStrings
 
-            let extensionsPointerpointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
+            let extensionsPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
 
             extensionsCStrings.enumerated().forEach {
-                extensionsPointerpointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
+                extensionsPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
             }
 
             instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
-            instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointerpointer.pointer)
+            instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
 
             var instanceOptional: VkInstance?
 

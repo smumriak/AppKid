@@ -15,16 +15,13 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
     public init(device: Device, queue: Queue) throws {
         self.queue = queue
 
-        var commandPoolCreationInfo = VkCommandPoolCreateInfo()
-        commandPoolCreationInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
-        commandPoolCreationInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT.rawValue
-        commandPoolCreationInfo.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
+        var info = VkCommandPoolCreateInfo()
+        info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+        info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT.rawValue
+        info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
 
-        let handle = try device.createEntity(info: &commandPoolCreationInfo, using: vkCreateCommandPool)
-        let handlePointer = SmartPointer(with: handle) { [unowned device] in
-            vkDestroyCommandPool(device.handle, $0, nil)
-        }
-
+        let handlePointer = try device.create(with: &info)
+        
         try super.init(device: device, handlePointer: handlePointer)
     }
 }

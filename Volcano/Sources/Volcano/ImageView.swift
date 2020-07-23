@@ -30,23 +30,19 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
         subresourceRange.baseArrayLayer = 0
         subresourceRange.layerCount = 1
 
-        var imageViewCreationInfo = VkImageViewCreateInfo()
-        imageViewCreationInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
-        imageViewCreationInfo.image = image.handle
-        imageViewCreationInfo.viewType = VK_IMAGE_VIEW_TYPE_2D
-        imageViewCreationInfo.format = image.format
-        imageViewCreationInfo.components = componentMapping
-        imageViewCreationInfo.subresourceRange = subresourceRange
-        imageViewCreationInfo.flags = 0
+        var info = VkImageViewCreateInfo()
+        info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
+        info.image = image.handle
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D
+        info.format = image.format
+        info.components = componentMapping
+        info.subresourceRange = subresourceRange
+        info.flags = 0
 
         let device = image.device
 
-        let handle: VkImageView = try device.createEntity(info: &imageViewCreationInfo, using: vkCreateImageView)
+        let handlePointer = try device.create(with: &info)
 
-        let handlePointer = SmartPointer(with: handle) { [unowned device] in
-            vkDestroyImageView(device.handle, $0, nil)
-        }
-
-        try super.init(device: image.device, handlePointer: handlePointer)
+        try super.init(device: device, handlePointer: handlePointer)
     }
 }

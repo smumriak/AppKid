@@ -30,38 +30,33 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
         let imageCount = min(capabilities.minImageCount + 1, capabilities.maxImageCount)
 
-        var swapchainCreationInfo = VkSwapchainCreateInfoKHR()
-        swapchainCreationInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
-        swapchainCreationInfo.surface = surface.handle
-        swapchainCreationInfo.minImageCount = imageCount
-        swapchainCreationInfo.imageFormat = surface.imageFormat
-        swapchainCreationInfo.imageColorSpace = surface.colorSpace
-        swapchainCreationInfo.imageExtent = size
-        swapchainCreationInfo.imageArrayLayers = 1
-        swapchainCreationInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.rawValue
-        swapchainCreationInfo.preTransform = surface.capabilities.currentTransform
-        swapchainCreationInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
-        swapchainCreationInfo.presentMode = presentMode
+        var info = VkSwapchainCreateInfoKHR()
+        info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+        info.surface = surface.handle
+        info.minImageCount = imageCount
+        info.imageFormat = surface.imageFormat
+        info.imageColorSpace = surface.colorSpace
+        info.imageExtent = size
+        info.imageArrayLayers = 1
+        info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.rawValue
+        info.preTransform = surface.capabilities.currentTransform
+        info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
+        info.presentMode = presentMode
 
         let queueFamiliesIndices = SmartPointer<CUnsignedInt>.allocate(capacity: 2)
         queueFamiliesIndices.pointer[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
         queueFamiliesIndices.pointer[1] = CUnsignedInt(device.presentationQueueFamilyIndex)
 
         if device.graphicsQueueFamilyIndex == device.presentationQueueFamilyIndex {
-            swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
-            swapchainCreationInfo.queueFamilyIndexCount = 0
-            swapchainCreationInfo.pQueueFamilyIndices = nil
+            info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
+            info.queueFamilyIndexCount = 0
+            info.pQueueFamilyIndices = nil
         } else {
-            swapchainCreationInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT
-            swapchainCreationInfo.queueFamilyIndexCount = 2
-            swapchainCreationInfo.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices.pointer)
+            info.imageSharingMode = VK_SHARING_MODE_CONCURRENT
+            info.queueFamilyIndexCount = 2
+            info.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices.pointer)
         }
-
-        let swapchain: VkSwapchainKHR = try device.createEntity(info: &swapchainCreationInfo, using: vkCreateSwapchainKHR)
-
-        let handlePointer = SmartPointer(with: swapchain) { [unowned device] in
-            vkDestroySwapchainKHR(device.handle, $0, nil)
-        }
+        let handlePointer = try device.create(with: &info)
 
         try super.init(device: device, handlePointer: handlePointer)
     }

@@ -9,15 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-extension VkDevice_T: ReleasableCType {
-    public static var releaseFunc: (UnsafeMutablePointer<VkDevice_T>?) -> () {
-        return {
-            vkDestroyDevice($0, nil)
-        }
-    }
-}
-
-internal extension ReleasablePointer where Pointee == VkDevice_T {
+internal extension SmartPointer where Pointee == VkDevice_T {
     func loadFunction<Function>(with name: String) throws -> Function {
         guard let result = cVulkanGetDeviceProcAddr(pointer, name) else {
             throw VulkanError.deviceFunctionNotFound(name)
@@ -30,7 +22,7 @@ internal extension ReleasablePointer where Pointee == VkDevice_T {
 extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
-public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
+public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
     public unowned let surface: Surface
 
     public let graphicsQueueFamilyIndex: Int
@@ -62,13 +54,13 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
         self.surface = surface
         let physicalDevice = surface.physicalDevice
 
-        var deviceCreationInfo: VkDeviceCreateInfo = VkDeviceCreateInfo()
-        deviceCreationInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
-        deviceCreationInfo.flags = 0
+        var info = VkDeviceCreateInfo()
+        info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+        info.flags = 0
 
         var enabledFeatures = physicalDevice.features
         withUnsafePointer(to: &enabledFeatures) {
-            deviceCreationInfo.pEnabledFeatures = $0
+            info.pEnabledFeatures = $0
         }
 
         let queuePrioririesPointer = SmartPointer<Float>.allocate(capacity: 1)
@@ -108,9 +100,9 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
                 return result
         }
 
-        deviceCreationInfo.queueCreateInfoCount = CUnsignedInt(deviceQueueCreationInfos.count)
+        info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreationInfos.count)
         deviceQueueCreationInfos.withUnsafeBufferPointer {
-            deviceCreationInfo.pQueueCreateInfos = $0.baseAddress
+            info.pQueueCreateInfos = $0.baseAddress
         }
 
         let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME]
@@ -122,11 +114,10 @@ public final class Device: VulkanEntity<ReleasablePointer<VkDevice_T>> {
             extensionsPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
         }
 
-        deviceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
-        deviceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
+        info.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
+        info.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
 
-        let devicePointer: VkDevice = try physicalDevice.handle.createEntity(info: &deviceCreationInfo, using: vkCreateDevice)
-        let handlePointer = ReleasablePointer(with: devicePointer)
+        let handlePointer = try physicalDevice.create(with: &info)
 
         vkCreateSwapchainKHR = try handlePointer.loadFunction(with: "vkCreateSwapchainKHR")
         vkDestroySwapchainKHR = try handlePointer.loadFunction(with: "vkDestroySwapchainKHR")

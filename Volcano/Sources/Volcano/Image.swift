@@ -19,4 +19,7 @@ public final class Image: VulkanDeviceEntity<SmartPointer<VkImage_T>> {
 
         try super.init(device: device, handlePointer: SmartPointer(with: handle))
     }
+
+//    public init(device: Device, format: VkFormat) throws {
+//    }
 }

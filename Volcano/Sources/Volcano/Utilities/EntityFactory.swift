@@ -9,19 +9,9 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-internal protocol EntityFactory {}
+public protocol EntityFactory {}
 
-internal extension UnsafeMutablePointer where Pointee: EntityFactory {
-    typealias CreatorFunction<Parent, Info, Callbacks, Result> = (UnsafeMutablePointer<Parent>?, UnsafePointer<Info>?, UnsafePointer<Callbacks>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
-
-    func createEntity<Info, Callbacks, Result>(info: UnsafePointer<Info>, callbacks: UnsafePointer<Callbacks>? = nil, using creator: CreatorFunction<Self.Pointee, Info, Callbacks, Result>) throws -> UnsafeMutablePointer<Result> {
-        var result: UnsafeMutablePointer<Result>?
-        try vulkanInvoke (
-            creator(self, info, callbacks, &result)
-        )
-        return result!
-    }
-
+public extension UnsafeMutablePointer where Pointee: EntityFactory {
     typealias AllocatorFunction<Parent, Info, Result> = (UnsafeMutablePointer<Parent>?, UnsafePointer<Info>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
 
     func allocateMemory<Info, Result>(info: UnsafePointer<Info>, using allocator: AllocatorFunction<Self.Pointee, Info, Result>) throws -> UnsafeMutablePointer<Result> {
@@ -34,12 +24,20 @@ internal extension UnsafeMutablePointer where Pointee: EntityFactory {
 
 }
 
-internal extension VulkanHandle where Handle.Pointee: EntityFactory {
-    func createEntity<Info, Callbacks, Result>(info: UnsafePointer<Info>, callbacks: UnsafePointer<Callbacks>? = nil, using creator: Handle.Pointer_t.CreatorFunction<Handle.Pointer_t.Pointee, Info, Callbacks, Result>) throws -> UnsafeMutablePointer<Result> {
-        return try handle.createEntity(info: info, using: creator)
-    }
-
+public extension VulkanHandle where Handle.Pointee: EntityFactory {
     func allocateMemory<Info, Result>(info: UnsafePointer<Info>, using allocator: Handle.Pointer_t.AllocatorFunction<Handle.Pointer_t.Pointee, Info, Result>) throws -> UnsafeMutablePointer<Result> {
         return try handle.allocateMemory(info: info, using: allocator)
+    }
+
+    func create<Info: EntityInfo>(with info: UnsafePointer<Info>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+        var pointer: UnsafeMutablePointer<Info.Result>?
+
+        try vulkanInvoke {
+            Info.createFunction(handle, info, callbacks, &pointer)
+        }
+
+        return SmartPointer(with: pointer!) { [unowned self] in
+            Info.deleteFunction(handle, $0, callbacks)
+        }
     }
 }
