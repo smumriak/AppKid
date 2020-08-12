@@ -31,4 +31,28 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
 
         try super.init(device: commandPool.device, handlePointer: handlePointer)
     }
+
+    public func begin() throws {
+        var info = VkCommandBufferBeginInfo()
+        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+        info.pNext = nil
+        info.flags = 0
+        info.pInheritanceInfo = nil
+
+        try vulkanInvoke {
+            vkBeginCommandBuffer(handle, &info)
+        }
+    }
+
+    public func end() throws {
+        try vulkanInvoke {
+            vkEndCommandBuffer(handle)
+        }
+    }
+
+    public func bind(pipeline: SmartPointer<VkPipeline_T>, bindPoint: VkPipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS) throws {
+        try vulkanInvoke {
+            vkCmdBindPipeline(handle, bindPoint, pipeline.pointer)
+        }
+    }
 }

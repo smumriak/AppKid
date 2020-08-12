@@ -32,11 +32,12 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
         info.window = window
         #elseif os(macOS)
         var info = VkMacOSSurfaceCreateInfoMVK()
+        info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
         #else
         #error("Wrong OS! (For now)")
         #endif
 
-        let handlePointer = try instance.create(with: &info)
+        let handlePointer = try instance.create(with: info)
 
         let supportedFormats = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
         if supportedFormats.isEmpty {

@@ -56,7 +56,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
             info.queueFamilyIndexCount = 2
             info.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices.pointer)
         }
-        let handlePointer = try device.create(with: &info)
+        let handlePointer = try device.create(with: info)
 
         try super.init(device: device, handlePointer: handlePointer)
     }

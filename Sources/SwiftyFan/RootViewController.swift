@@ -53,7 +53,7 @@ class RootViewController: ViewController {
         return result
     }()
 
-    let label: Label = {
+    let inputTextLabel: Label = {
         let result = Label(with: .zero)
 
 //        result.text = testString
@@ -130,8 +130,40 @@ class RootViewController: ViewController {
         graySubview.transform = graySubview.transform.rotated(by: .pi / 20)
     }
 
+    let sensorLabel: Label = {
+        let result = Label(with: .zero)
+
+        result.text = ""
+        result.textColor = .purple
+        result.font = .systemFont(ofSize: 48.0)
+        result.backgroundColor = .clear
+
+        return result
+    }()
+
+    lazy var sensorTimer = Timer(timeInterval: 1.0, repeats: true) { [unowned sensorLabel] _ in
+        do {
+            let sensorOutputPipe = Pipe()
+            let sensorQuerryProcess = Process()
+            sensorQuerryProcess.executableURL = URL(fileURLWithPath: "/usr/bin/nvidia-smi")
+            sensorQuerryProcess.arguments = ["--query-gpu=temperature.gpu", "--format=csv,noheader", "--id=0"]
+            sensorQuerryProcess.standardOutput = sensorOutputPipe
+
+            try sensorQuerryProcess.run()
+            let outputData = sensorOutputPipe.fileHandleForReading.readDataToEndOfFile()
+
+            if let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
+                sensorLabel.text = output + " °C"
+            } else {
+            }
+        } catch {
+            debugPrint("Sensor error: ", error)
+        }
+    }
+
     deinit {
         transformTimer.invalidate()
+        sensorTimer.invalidate()
     }
 
     override init() {
@@ -147,22 +179,18 @@ class RootViewController: ViewController {
         greenSubview.add(subview: redSubview)
         redSubview.add(subview: graySubview)
         scrollView.add(subview: blueSubview)
-        scrollView.add(subview: label)
+        scrollView.add(subview: inputTextLabel)
+        scrollView.add(subview: sensorLabel)
         view.add(subview: spawnWindowButton)
         view.add(subview: closeCurrentWindow)
         view.add(subview: closeOtherWindows)
 
         RunLoop.current.add(transformTimer, forMode: .common)
+        RunLoop.current.add(sensorTimer, forMode: .common)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        let layer: CALayer = CALayer()
-        debugPrint(layer.position)
-
-        layer.setValue(CGPoint(x: 10.0, y: 15.0), for: "position")
-        debugPrint(layer.position)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -178,7 +206,12 @@ class RootViewController: ViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        label.frame = view.bounds
+        inputTextLabel.frame = view.bounds
+
+        let sensorLabelHeight: CGFloat = 48.0
+        sensorLabel.center = CGPoint(x: view.bounds.midX, y: view.bounds.maxY - sensorLabelHeight / 2.0)
+        sensorLabel.bounds = CGRect(x: 0.0, y: 0.0, width: view.bounds.width, height: sensorLabelHeight)
+
         scrollView.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
         scrollView.bounds.size = view.bounds.size
         scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height * 2)
@@ -209,11 +242,11 @@ class RootViewController: ViewController {
     override func keyDown(with event: Event) {
         event.characters.map {
 //            if event.isARepeat {
-//                label.text = "Repeat: " + $0
+//                inputTextLabel.text = "Repeat: " + $0
 //            } else {
-//                label.text = $0
+//                inputTextLabel.text = $0
 //            }
-            label.text?.append($0)
+            inputTextLabel.text?.append($0)
         }
     }
 

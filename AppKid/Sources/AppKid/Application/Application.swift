@@ -16,7 +16,7 @@ import CairoGraphics
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
-internal let isVulkanRendererEnabled = false
+internal let isVulkanRendererEnabled = true
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")

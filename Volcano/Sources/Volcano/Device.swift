@@ -117,7 +117,7 @@ public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
         info.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
         info.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
 
-        let handlePointer = try physicalDevice.create(with: &info)
+        let handlePointer = try physicalDevice.create(with: info)
 
         vkCreateSwapchainKHR = try handlePointer.loadFunction(with: "vkCreateSwapchainKHR")
         vkDestroySwapchainKHR = try handlePointer.loadFunction(with: "vkDestroySwapchainKHR")
@@ -126,5 +126,11 @@ public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
         vkQueuePresentKHR = try handlePointer.loadFunction(with: "vkQueuePresentKHR")
 
         try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
+    }
+}
+
+public extension Device {
+    func shader(named name: String, in bundle: Bundle? = nil) throws -> Shader? {
+        return try Shader(named: name, in: bundle, device: self)
     }
 }
