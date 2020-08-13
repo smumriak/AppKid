@@ -300,7 +300,7 @@ class VulkanViewController: ViewController {
 
             try commandBuffer.begin()
 
-            var clearColor = VkClearValue(color: VkClearColorValue(float32: (0.0, 0.0, 0.0, 1.0)))
+            var clearColor = VkClearValue(color: VkClearColorValue(float32: (1.0, 1.0, 1.0, 1.0)))
             try withUnsafePointer(to: &clearColor) { clearColorPointer in
                 var renderPassBeginInfo = VkRenderPassBeginInfo()
                 renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -388,7 +388,9 @@ class VulkanViewController: ViewController {
             presentInfo.pResults = nil
             vkQueuePresentKHR(preesentationQueue.handle, &presentInfo)
 
-            
+            vkDeviceWaitIdle(device.handle)        
+
+            debugPrint("You should now see the triangle")
         } catch {
             fatalError("Failed to load vulkan with error: \(error)")
         }
