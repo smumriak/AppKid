@@ -219,6 +219,18 @@ class VulkanViewController: ViewController {
             withUnsafePointer(to: &subpass) {
                 renderPassInfo.pSubpasses = $0
             }
+            var dependency = VkSubpassDependency()
+            dependency.srcSubpass = VK_SUBPASS_EXTERNAL
+            dependency.dstSubpass = 0
+            dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue
+            dependency.srcAccessMask = 0
+            dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue
+            dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.rawValue
+            let dependencies: [VkSubpassDependency] = [dependency]
+            dependencies.withUnsafeBufferPointer { dependenciesPointer in
+                renderPassInfo.dependencyCount = CUnsignedInt(dependenciesPointer.count)
+                renderPassInfo.pDependencies = dependenciesPointer.baseAddress!
+            }
 
             let renderPass = try device.create(with: renderPassInfo)
 
@@ -317,6 +329,66 @@ class VulkanViewController: ViewController {
             try commandBuffer.end()
 
             debugPrint("Stage 3")
+
+            var imageIndex: CUnsignedInt = 0
+
+            try vulkanInvoke {
+                vkAcquireNextImageKHR(device.handle, swapchain.handle, UInt64.max, imageAvailableSemaphore.handle, nil, &imageIndex)
+            }
+
+            let waitSemaphores: [VkSemaphore?] = [imageAvailableSemaphore.handle]
+            let signalSemaphores: [VkSemaphore?] = [renderFinishedSemaphore.handle]
+            let waitStages: [VkPipelineStageFlags] = [VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue]
+
+            let commandBuffers: [VkCommandBuffer?] = [commandBuffer.handle]
+            try waitSemaphores.withUnsafeBufferPointer { waitSemaphoresPointer in 
+                try signalSemaphores.withUnsafeBufferPointer { signalSemaphoresPointer in
+                    try waitStages.withUnsafeBufferPointer { waitStagesPointer in 
+                        try commandBuffers.withUnsafeBufferPointer { commandBufferPointer in
+                            var submitInfo = VkSubmitInfo()
+                            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO
+
+                            submitInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
+                            submitInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress!
+
+                            submitInfo.signalSemaphoreCount = CUnsignedInt(signalSemaphoresPointer.count)
+                            submitInfo.pSignalSemaphores = signalSemaphoresPointer.baseAddress!
+
+                            submitInfo.pWaitDstStageMask = waitStagesPointer.baseAddress!
+                            
+                            submitInfo.commandBufferCount = CUnsignedInt(commandBufferPointer.count)
+                            submitInfo.pCommandBuffers = commandBufferPointer.baseAddress!
+                            
+                            try vulkanInvoke {
+                                vkQueueSubmit(graphicsQueue.handle, 1, &submitInfo, nil)
+                            }
+                        }
+                    }
+                }
+            }
+
+            debugPrint("Stage 4")
+
+            var presentInfo = VkPresentInfoKHR()
+            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+            try signalSemaphores.withUnsafeBufferPointer { signalSemaphoresPointer in
+                presentInfo.waitSemaphoreCount = CUnsignedInt(signalSemaphoresPointer.count)
+                presentInfo.pWaitSemaphores = signalSemaphoresPointer.baseAddress
+            }
+
+            let swapchains: [VkSwapchainKHR?] = [swapchain.handle]
+            swapchains.withUnsafeBufferPointer { swapchainsPointer in
+                presentInfo.swapchainCount = CUnsignedInt(swapchainsPointer.count)
+                presentInfo.pSwapchains = swapchainsPointer.baseAddress!
+            }
+            let imageIndices: [CUnsignedInt] = [imageIndex]
+            imageIndices.withUnsafeBufferPointer { imageIndicesPointer in
+                presentInfo.pImageIndices = imageIndicesPointer.baseAddress!
+            }
+            presentInfo.pResults = nil
+            vkQueuePresentKHR(preesentationQueue.handle, &presentInfo)
+
+            
         } catch {
             fatalError("Failed to load vulkan with error: \(error)")
         }
