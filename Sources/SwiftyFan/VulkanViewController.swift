@@ -65,7 +65,7 @@ class VulkanViewController: ViewController {
             preesentationQueue = try Queue(device: device, familyIndex: device.presentationQueueFamilyIndex, queueIndex: 0)
             graphicsQueue = try Queue(device: device, familyIndex: device.graphicsQueueFamilyIndex, queueIndex: 0)
 
-            swapchain = try Swapchain(device: device, surface: surface, size: size)
+            swapchain = try Swapchain(device: device, surface: surface, size: size, usage: .colorAttachment)
 
             images = try swapchain.getImages()
             imageViews = try images.map { try ImageView(image: $0) }
@@ -87,11 +87,8 @@ class VulkanViewController: ViewController {
 
             debugPrint("Vulcan loaded")
 
-            let mainName = strdup("main")
-            defer { free(mainName)}
-
-            let fragmentShaderStageInfo = fragmentShader.createStageInfo(for: VK_SHADER_STAGE_FRAGMENT_BIT)
-            let vertexShaderStageInfo = vertexShader.createStageInfo(for: VK_SHADER_STAGE_VERTEX_BIT)
+            let fragmentShaderStageInfo = fragmentShader.createStageInfo(for: VkShaderStageFlagBits.VK_SHADER_STAGE_FRAGMENT_BIT)
+            let vertexShaderStageInfo = vertexShader.createStageInfo(for: VkShaderStageFlagBits.VK_SHADER_STAGE_VERTEX_BIT)
 
             var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
             vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -131,7 +128,7 @@ class VulkanViewController: ViewController {
             rasterizer.rasterizerDiscardEnable = VkBool32(VK_FALSE)
             rasterizer.polygonMode = VK_POLYGON_MODE_FILL
             rasterizer.lineWidth = 1.0
-            rasterizer.cullMode = VK_CULL_MODE_BACK_BIT.rawValue
+            rasterizer.cullMode = VkCullModeFlagBits.back.rawValue
             rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE
             rasterizer.depthBiasEnable = VkBool32(VK_FALSE)
             rasterizer.depthBiasConstantFactor = 0.0
@@ -141,7 +138,7 @@ class VulkanViewController: ViewController {
             var multisampling = VkPipelineMultisampleStateCreateInfo()
             multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
             multisampling.sampleShadingEnable = VkBool32(VK_FALSE)
-            multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT
+            multisampling.rasterizationSamples = VkSampleCountFlagBits.VK_SAMPLE_COUNT_1_BIT
             multisampling.minSampleShading = 1.0
             multisampling.pSampleMask = nil
             multisampling.alphaToCoverageEnable = VkBool32(VK_FALSE)
@@ -149,7 +146,7 @@ class VulkanViewController: ViewController {
 
 
             var colorBlendAttachment = SmartPointer<VkPipelineColorBlendAttachmentState>.allocate()
-            colorBlendAttachment.pointee.colorWriteMask = VK_COLOR_COMPONENT_R_BIT.rawValue | VK_COLOR_COMPONENT_G_BIT.rawValue | VK_COLOR_COMPONENT_B_BIT.rawValue | VK_COLOR_COMPONENT_A_BIT.rawValue
+            colorBlendAttachment.pointee.colorWriteMask = VkColorComponentFlagBits.rgba.rawValue
             colorBlendAttachment.pointee.blendEnable = VkBool32(VK_FALSE)
             colorBlendAttachment.pointee.srcColorBlendFactor = VK_BLEND_FACTOR_ONE
             colorBlendAttachment.pointee.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO
@@ -166,18 +163,18 @@ class VulkanViewController: ViewController {
             colorBlending.pAttachments = UnsafePointer(colorBlendAttachment.pointer)
             colorBlending.blendConstants = (0.0, 0.0, 0.0, 0.0)
 
-            let dynamicStates: [VkDynamicState] = [
-                VK_DYNAMIC_STATE_VIEWPORT,
-                VK_DYNAMIC_STATE_LINE_WIDTH
-            ];
-
-            var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
-                return VkPipelineDynamicStateCreateInfo(sType: VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-                                                                pNext: nil,
-                                                                flags: VkPipelineDynamicStateCreateFlags(),
-                                                                dynamicStateCount: CUnsignedInt($0.count),
-                                                                pDynamicStates: $0.baseAddress!)
-            }
+            //            let dynamicStates: [VkDynamicState] = [
+            //                VK_DYNAMIC_STATE_VIEWPORT,
+            //                VK_DYNAMIC_STATE_LINE_WIDTH
+            //            ];
+            //
+            //            var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
+            //                return VkPipelineDynamicStateCreateInfo(sType: VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+            //                                                        pNext: nil,
+            //                                                        flags: VkPipelineDynamicStateCreateFlags(),
+            //                                                        dynamicStateCount: CUnsignedInt($0.count),
+            //                                                        pDynamicStates: $0.baseAddress!)
+            //            }
 
             var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
             pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
@@ -190,13 +187,13 @@ class VulkanViewController: ViewController {
 
             var colorAttachment = VkAttachmentDescription()
             colorAttachment.format = swapchain.imageFormat
-            colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT
-            colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR
-            colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE
-            colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE
-            colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE
-            colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED
-            colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+            colorAttachment.samples = .one
+            colorAttachment.loadOp = .clear
+            colorAttachment.storeOp = .store
+            colorAttachment.stencilLoadOp = .clear
+            colorAttachment.stencilStoreOp = .dontCare
+            colorAttachment.initialLayout = .undefined
+            colorAttachment.finalLayout = .presentSource
 
             var colorAttachmentRef = VkAttachmentReference()
             colorAttachmentRef.attachment = 0
@@ -222,10 +219,10 @@ class VulkanViewController: ViewController {
             var dependency = VkSubpassDependency()
             dependency.srcSubpass = VK_SUBPASS_EXTERNAL
             dependency.dstSubpass = 0
-            dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue
+            dependency.srcStageMask = VkPipelineStageFlagBits.colorAttachmentOutput.rawValue
             dependency.srcAccessMask = 0
-            dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue
-            dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT.rawValue
+            dependency.dstStageMask = VkPipelineStageFlagBits.colorAttachmentOutput.rawValue
+            dependency.dstAccessMask = VkAccessFlagBits.colorAttachmentWrite.rawValue
             let dependencies: [VkSubpassDependency] = [dependency]
             dependencies.withUnsafeBufferPointer { dependenciesPointer in
                 renderPassInfo.dependencyCount = CUnsignedInt(dependenciesPointer.count)
@@ -261,6 +258,9 @@ class VulkanViewController: ViewController {
             withUnsafePointer(to: &colorBlending) {
                 pipelineInfo.pColorBlendState = $0
             }
+            //            withUnsafePointer(to: &dynamicState) {
+            //                pipelineInfo.pDynamicState = $0
+            //            }
             pipelineInfo.layout = pipelineLayout.pointer
             pipelineInfo.renderPass = renderPass.pointer
             pipelineInfo.subpass = 0
@@ -269,7 +269,6 @@ class VulkanViewController: ViewController {
             pipelineInfo.basePipelineIndex = -1
 
             pipelineInfo.pDepthStencilState = nil
-            pipelineInfo.pDynamicState = nil
 
             var pipelinePointer: UnsafeMutablePointer<VkPipeline_T>?
             try vulkanInvoke {
@@ -336,59 +335,19 @@ class VulkanViewController: ViewController {
                 vkAcquireNextImageKHR(device.handle, swapchain.handle, UInt64.max, imageAvailableSemaphore.handle, nil, &imageIndex)
             }
 
-            let waitSemaphores: [VkSemaphore?] = [imageAvailableSemaphore.handle]
-            let signalSemaphores: [VkSemaphore?] = [renderFinishedSemaphore.handle]
-            let waitStages: [VkPipelineStageFlags] = [VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT.rawValue]
+            let commandBuffers: [CommandBuffer] = [commandBuffer]
+            let waitSemaphores: [Semaphore] = [imageAvailableSemaphore]
+            let signalSemaphores: [Semaphore] = [renderFinishedSemaphore]
 
-            let commandBuffers: [VkCommandBuffer?] = [commandBuffer.handle]
-            try waitSemaphores.withUnsafeBufferPointer { waitSemaphoresPointer in 
-                try signalSemaphores.withUnsafeBufferPointer { signalSemaphoresPointer in
-                    try waitStages.withUnsafeBufferPointer { waitStagesPointer in 
-                        try commandBuffers.withUnsafeBufferPointer { commandBufferPointer in
-                            var submitInfo = VkSubmitInfo()
-                            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO
+            let waitStages: [VkPipelineStageFlags] = [VkPipelineStageFlagBits.colorAttachmentOutput.rawValue]
 
-                            submitInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
-                            submitInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress!
-
-                            submitInfo.signalSemaphoreCount = CUnsignedInt(signalSemaphoresPointer.count)
-                            submitInfo.pSignalSemaphores = signalSemaphoresPointer.baseAddress!
-
-                            submitInfo.pWaitDstStageMask = waitStagesPointer.baseAddress!
-                            
-                            submitInfo.commandBufferCount = CUnsignedInt(commandBufferPointer.count)
-                            submitInfo.pCommandBuffers = commandBufferPointer.baseAddress!
-                            
-                            try vulkanInvoke {
-                                vkQueueSubmit(graphicsQueue.handle, 1, &submitInfo, nil)
-                            }
-                        }
-                    }
-                }
-            }
+            try graphicsQueue.submit(commandBuffers: commandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages)
 
             debugPrint("Stage 4")
 
-            var presentInfo = VkPresentInfoKHR()
-            presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
-            try signalSemaphores.withUnsafeBufferPointer { signalSemaphoresPointer in
-                presentInfo.waitSemaphoreCount = CUnsignedInt(signalSemaphoresPointer.count)
-                presentInfo.pWaitSemaphores = signalSemaphoresPointer.baseAddress
-            }
+            try preesentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [0])
 
-            let swapchains: [VkSwapchainKHR?] = [swapchain.handle]
-            swapchains.withUnsafeBufferPointer { swapchainsPointer in
-                presentInfo.swapchainCount = CUnsignedInt(swapchainsPointer.count)
-                presentInfo.pSwapchains = swapchainsPointer.baseAddress!
-            }
-            let imageIndices: [CUnsignedInt] = [imageIndex]
-            imageIndices.withUnsafeBufferPointer { imageIndicesPointer in
-                presentInfo.pImageIndices = imageIndicesPointer.baseAddress!
-            }
-            presentInfo.pResults = nil
-            vkQueuePresentKHR(preesentationQueue.handle, &presentInfo)
-
-            vkDeviceWaitIdle(device.handle)        
+            try device.waitForIdle()
 
             debugPrint("You should now see the triangle")
         } catch {

@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class RenderPass: VulkanDeviceEntity<SmartPointer<VkRenderPass_T>> {
+public class RenderPass: VulkanDeviceEntity<SmartPointer<VkRenderPass_T>> {
 //    let rootSubpass: Subpass
 //
 //    init(rootSubpass: Subpass) {
@@ -22,13 +22,13 @@ public final class SubpassGraph {
         case subpassNotFound(Subpass)
     }
 
-    internal struct Edge {
+    internal struct Depdendency {
         let source: Subpass
         let destination: Subpass
     }
 
     var subpasses: [Subpass] = []
-    var edges: [Edge] = []
+    var dependencies: [Depdendency] = []
 
     public func add(subpass: Subpass) {
         if subpasses.contains(subpass) {
@@ -38,7 +38,13 @@ public final class SubpassGraph {
         subpasses.append(subpass)
     }
 
-    public func addDependency(source: Subpass, destination: Subpass) throws {
+    public func addDependency(source: Subpass,
+                              destination: Subpass,
+                              sourceStage: VkPipelineStageFlagBits = .colorAttachmentOutput,
+                              destinationStage: VkPipelineStageFlagBits = .colorAttachmentOutput,
+                              sourceAccess: VkAccessFlagBits = [],
+                              destinationAccess: VkAccessFlagBits = .colorAttachmentWrite,
+                              dependencyFlags: VkDependencyFlagBits = []) throws {
 //        guard let sourceIndex = subpasses.firstIndex(of: source) else { throw GraphError.subpassNotFound(source) }
 //        let destinationIndex = subpasses.firstIndex(of: destination)
     }

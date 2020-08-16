@@ -18,7 +18,7 @@ extension VkInstance_T: ReleasableCType {
 }
 
 internal extension ReleasablePointer where Pointee == VkInstance_T {
-    func loadFunction<Function>(with name: String) throws -> Function {
+    func loadFunction<Function>(named name: String) throws -> Function {
         guard let result = cVulkanGetInstanceProcAddr(pointer, name) else {
             throw VulkanError.instanceFunctionNotFound(name)
         }
@@ -96,10 +96,10 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
 
             let handlePointer = ReleasablePointer(with: instanceOptional!)
 
-            vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceSupportKHR")
-            vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
-            vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfaceFormatsKHR")
-            vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(with: "vkGetPhysicalDeviceSurfacePresentModesKHR")
+            vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
+            vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")
+            vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfacePresentModesKHR")
 
             super.init(handlePointer: handlePointer)
         } catch {

@@ -13,18 +13,12 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     public unowned let image: Image
     public let imageFormat: VkFormat
 
-    public init(image: Image) throws {
+    public init(image: Image, componentMapping: VkComponentMapping = .identity, flags: VkImageViewCreateFlagBits = []) throws {
         self.image = image
         self.imageFormat = image.format
-
-        var componentMapping = VkComponentMapping()
-        componentMapping.r = VK_COMPONENT_SWIZZLE_IDENTITY
-        componentMapping.g = VK_COMPONENT_SWIZZLE_IDENTITY
-        componentMapping.a = VK_COMPONENT_SWIZZLE_IDENTITY
-        componentMapping.a = VK_COMPONENT_SWIZZLE_IDENTITY
-
+        
         var subresourceRange = VkImageSubresourceRange()
-        subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT.rawValue
+        subresourceRange.aspectMask = VkImageAspectFlagBits.color.rawValue
         subresourceRange.baseMipLevel = 0
         subresourceRange.levelCount = 1
         subresourceRange.baseArrayLayer = 0
@@ -37,7 +31,7 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
         info.format = image.format
         info.components = componentMapping
         info.subresourceRange = subresourceRange
-        info.flags = 0
+        info.flags = flags.rawValue
 
         let device = image.device
 
@@ -45,4 +39,8 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
 
         try super.init(device: device, handlePointer: handlePointer)
     }
+}
+
+extension VkComponentMapping {
+    public static let identity = VkComponentMapping(r: VK_COMPONENT_SWIZZLE_IDENTITY, g: VK_COMPONENT_SWIZZLE_IDENTITY, b: VK_COMPONENT_SWIZZLE_IDENTITY, a: VK_COMPONENT_SWIZZLE_IDENTITY)
 }

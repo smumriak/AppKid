@@ -10,11 +10,27 @@ import TinyFoundation
 import CVulkan
 
 public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
-    public init(device: Device) throws {
-        let info = VkFenceCreateInfo(sType: VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: 0)
-
+    public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
+        let info = VkFenceCreateInfo(sType: VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
+        
         let handlePointer = try device.create(with: info)
-
+        
         try super.init(device: device, handlePointer: handlePointer)
+    }
+    
+    public func wait(timeout: UInt64 = .max) throws {
+        var handleOptional: VkFence? = handle
+
+        try vulkanInvoke {
+            vkWaitForFences(device.handle, 1, &handleOptional, VkBool32(VK_TRUE), timeout)
+        }
+    }
+    
+    public func reset(fences: [Fence]) throws {
+        var handleOptional: VkFence? = handle
+
+        try vulkanInvoke {
+            vkResetFences(device.handle, 1, &handleOptional)
+        }
     }
 }

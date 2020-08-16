@@ -13,3 +13,8 @@ extension VkColorComponentFlagBits {
     public static let blue = VK_COLOR_COMPONENT_B_BIT
     public static let alpha = VK_COLOR_COMPONENT_A_BIT
 }
+
+extension VkColorComponentFlagBits {
+    public static let rgba: VkColorComponentFlagBits = [.red, .green, .blue, .alpha]
+    public static let rgb: VkColorComponentFlagBits = [.red, .green, .blue]
+}

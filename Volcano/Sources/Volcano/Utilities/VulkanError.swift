@@ -71,7 +71,6 @@ extension VkResult: CustomStringConvertible {
         case VK_ERROR_FRAGMENTATION_EXT: return "VK_ERROR_FRAGMENTATION_EXT"
         case VK_ERROR_INVALID_DEVICE_ADDRESS_EXT: return "VK_ERROR_INVALID_DEVICE_ADDRESS_EXT"
         case VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR: return "VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS_KHR"
-        case VK_RESULT_MAX_ENUM: return "VK_RESULT_MAX_ENUM"
         default: return "Unknown"
         }
     }

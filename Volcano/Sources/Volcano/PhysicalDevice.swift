@@ -72,9 +72,11 @@ extension PhysicalDevice: Comparable {
 }
 
 public extension VkQueueFamilyProperties {
-    var isGraphics: Bool { (queueFlags & VK_QUEUE_GRAPHICS_BIT.rawValue) != 0 }
-    var isCompute: Bool { (queueFlags & VK_QUEUE_COMPUTE_BIT.rawValue) != 0 }
-    var isTransfer: Bool { (queueFlags & VK_QUEUE_TRANSFER_BIT.rawValue) != 0 }
-    var isSparseBinding: Bool { (queueFlags & VK_QUEUE_SPARSE_BINDING_BIT.rawValue) != 0 }
-    var isProtected: Bool { (queueFlags & VK_QUEUE_PROTECTED_BIT.rawValue) != 0 }
+    var flagBits: VkQueueFlagBits { VkQueueFlagBits(rawValue: queueFlags) }
+
+    var isGraphics: Bool { flagBits.contains(.graphics) }
+    var isCompute: Bool { flagBits.contains(.compute) }
+    var isTransfer: Bool { flagBits.contains(.transfer) }
+    var isSparseBinding: Bool { flagBits.contains(.sparseBinding) }
+    var isProtected: Bool { flagBits.contains(.protected) }
 }

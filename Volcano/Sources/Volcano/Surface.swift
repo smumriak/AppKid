@@ -78,12 +78,12 @@ extension VkSurfaceFormatKHR: Equatable {
 public extension Shader {
     fileprivate static let defaultShaderEntryPointName = strdup("main")
 
-    func createStageInfo(for stage: VkShaderStageFlagBits) -> VkPipelineShaderStageCreateInfo {
+    func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
         var result = VkPipelineShaderStageCreateInfo()
         
         result.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
         result.pNext = nil
-        result.flags = VkPipelineShaderStageCreateFlags()
+        result.flags = flags.rawValue
         result.stage = stage
         result.module = handle
         result.pName = UnsafePointer(Shader.defaultShaderEntryPointName)

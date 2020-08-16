@@ -14,7 +14,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public var size: VkExtent2D
     public let imageFormat: VkFormat
 
-    public init(device: Device, surface: Surface, size: VkExtent2D) throws {
+    public init(device: Device, surface: Surface, size: VkExtent2D, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -38,9 +38,9 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         info.imageColorSpace = surface.colorSpace
         info.imageExtent = size
         info.imageArrayLayers = 1
-        info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT.rawValue
+        info.imageUsage = usage.rawValue
         info.preTransform = surface.capabilities.currentTransform
-        info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
+        info.compositeAlpha = compositeAlpha
         info.presentMode = presentMode
 
         let queueFamiliesIndices = SmartPointer<CUnsignedInt>.allocate(capacity: 2)
@@ -66,6 +66,6 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
             .compactMap { $0 }
             .map {
                 try Image(device: device, format: imageFormat, handle: $0)
-        }
+            }
     }
 }
