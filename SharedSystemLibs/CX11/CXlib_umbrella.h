@@ -22,6 +22,8 @@ struct _XIC {};
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/XKBlib.h>
+#include <X11/Xatom.h>
+#include <X11/extensions/sync.h>
 
 #include "../CCore/CCore_umbrella.h"
 

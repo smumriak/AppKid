@@ -12,12 +12,12 @@ import CX11.Xlib
 import CX11.X
 
 public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
-    public unowned let physicalDevice: PhysicalDevice
+    public let physicalDevice: PhysicalDevice
     public let supportedFormats: [VkSurfaceFormatKHR]
     public let selectedFormat: VkSurfaceFormatKHR
     public var imageFormat: VkFormat { return selectedFormat.format }
     public var colorSpace: VkColorSpaceKHR { return selectedFormat.colorSpace }
-    public let capabilities: VkSurfaceCapabilitiesKHR
+    public internal(set) var capabilities: VkSurfaceCapabilitiesKHR
     public let presetModes: [VkPresentModeKHR]
 
     internal init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window) throws {
@@ -61,11 +61,15 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     }
 
     func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int) throws -> Bool {
-        var supportsPresentingVKBool: VkBool32 = VkBool32(VK_FALSE)
+        var supportsPresentingVKBool: VkBool32 = false.vkBool
         try vulkanInvoke {
             vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), handle, &supportsPresentingVKBool)
         }
-        return supportsPresentingVKBool == VkBool32(VK_FALSE) ? false : true
+        return supportsPresentingVKBool.bool
+    }
+
+    public func refreshCapabilities() throws {
+        capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
     }
 }
 

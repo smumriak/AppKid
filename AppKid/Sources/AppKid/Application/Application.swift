@@ -112,7 +112,9 @@ open class Application: Responder {
 
         displayServer.setupX11()
 
-        RunLoop.current.add(renderTimer, forMode: .common)
+        if !isVulkanRendererEnabled {
+            RunLoop.current.add(renderTimer, forMode: .common)
+        }
 
         let _ = delegate?.application(self, willFinishLaunchingWithOptions: nil)
         let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)

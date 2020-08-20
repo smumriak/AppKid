@@ -19,7 +19,7 @@ import Glibc
 
 internal let kEnableXInput2 = true
 
-internal class DisplayServer {
+internal class DisplayServer: NSObject {
     var context = DisplayServerContext()
 
     let applicationName: String
@@ -59,6 +59,18 @@ internal class DisplayServer {
 
         var event: CInt = 0
         var error: CInt = 0
+
+        if XSyncQueryExtension(display, &event, &error) == 0 {
+            XCloseDisplay(display)
+            fatalError("XSync exntension is not available")
+        }
+
+        var xSyncMajorVersion: CInt = 3
+        var xSyncMinorVersion: CInt = 1
+        if XSyncInitialize(display, &xSyncMajorVersion, &xSyncMinorVersion) == 0 {
+            XCloseDisplay(display)
+            fatalError("XSync is not available.")
+        }
 
         if XQueryExtension(display, "XInputExtension".cString(using: .ascii), &context.xInput2ExtensionOpcode, &event, &error) == 0 {
             XCloseDisplay(display)
@@ -114,6 +126,8 @@ internal class DisplayServer {
 
         rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, title: "root")
 
+        super.init()
+
         gtkDisplayScale.map {
             context.scale = CGFloat($0)
         }
@@ -133,12 +147,44 @@ extension DisplayServer {
         scaledContentRect.size.height *= context.scale
 
         let intRect: Rect<CInt> = scaledContentRect.rect()
-        let windowID = XCreateSimpleWindow(display, rootWindow.windowID, intRect.x, intRect.y, CUnsignedInt(intRect.width), CUnsignedInt(intRect.height), 1, screen.pointee.black_pixel, screen.pointee.white_pixel)
+
+        var attributesMask: UInt = 0
+        var attributes = XSetWindowAttributes()
+
+//        attributesMask |= UInt(CWBorderPixel)
+//        attributes.border_pixel = 0
+
+//        attributesMask |= UInt(CWBackPixel)
+//        attributes.background_pixel = UInt.max
+
+        let visual = XDefaultVisualOfScreen(screen)
+        let depth = XDefaultDepthOfScreen(screen)
+        let colorMap = XCreateColormap(display, rootWindow.windowID, visual, AllocNone)
+        defer { XFreeColormap(display, colorMap) }
+
+        attributesMask |= UInt(CWColormap)
+        attributes.colormap = colorMap
+
+        let windowID = XCreateWindow(display,
+                                     rootWindow.windowID,
+                                     intRect.x, intRect.y,
+                                     CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
+                                     2,
+                                     depth,
+                                     CUnsignedInt(InputOutput),
+                                     visual,
+                                     attributesMask,
+                                     &attributes)
+
+        let syncValue = XSyncValue(hi: 0, lo: 0)
+        let basicSyncCounter = XSyncCreateCounter(display, syncValue)
+        let extendedSyncCounter = XSyncCreateCounter(display, syncValue)
 
         let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
+        result.syncCounter = (basicSyncCounter, extendedSyncCounter)
 
-        XSetStandardProperties(display, windowID, title, nil, 0, nil, 0, nil)
+        XStoreName(display, windowID, title)
 
         let classHint = XAllocClassHint()
         defer { XFree(classHint) }
@@ -149,6 +195,15 @@ extension DisplayServer {
             classHint?.pointee.res_class = mutableString
 
             XSetClassHint(display, windowID, classHint)
+        }
+
+        var atoms: [Atom] = [
+            context.deleteWindowAtom,
+//            context.takeFocusAtom,
+            context.syncRequestAtom,
+        ]
+        atoms.withUnsafeMutableBufferPointer {
+            let _ = XSetWMProtocols(display, windowID, $0.baseAddress!, CInt($0.count))
         }
 
         result.updateListeningEvents(displayServer: self)

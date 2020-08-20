@@ -7,6 +7,6 @@
 
 import Foundation
 
-open class Screen {
+open class Screen: NSObject {
     
 }

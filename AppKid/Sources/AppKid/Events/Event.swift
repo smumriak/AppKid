@@ -62,8 +62,10 @@ public extension Event {
         case applicationActivated
         case applicationDeactivated
         case windowMoved
-        case windowResized
+        case windowDidResize
         case screenChanged
+        case windowDeleteRequest // WM_DELETE_WINDOW atom from X11
+        case windowSyncRequest // _NET_WM_SYNC_REQUEST atom from X11
         case message // client message from X11
         case terminate // last event before stopping Run Loop
     }
@@ -92,7 +94,7 @@ public extension Event {
 
 public extension Event {
     struct EventTypeMask: OptionSet {
-        public typealias RawValue = UInt
+        public typealias RawValue = UInt64
         public let rawValue: RawValue
         
         public init(rawValue: RawValue) {
@@ -135,7 +137,7 @@ public extension Event {
 //        public static let directTouch = Self(rawValue: 1 << EventType.directTouch.rawValue)
 //        public static let changeMode = Self(rawValue: 1 << EventType.changeMode.rawValue)
         
-        public static let any = Self(rawValue: UInt.max)
+        public static let any = Self(rawValue: RawValue.max)
         
         static func from(eventType: EventType) -> EventTypeMask {
             return EventTypeMask(rawValue: 1 << eventType.rawValue)
@@ -198,7 +200,7 @@ public extension Event {
     }
 }
 
-public class Event {
+public class Event: NSObject {
     public internal(set) var type: EventType = .none
     public internal(set) var subType: EventSubtype = .none
     public internal(set) var modifierFlags: ModifierFlags = .none
@@ -222,10 +224,12 @@ public class Event {
     public internal(set) var scrollingDeltaY: CGFloat = .zero
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
 
-    public var isARepeat: Bool = false
-    public var keyCode: UInt32 = 0
-    public var characters: String? = nil
-    public var charactersIgnoringModifiers: String? = nil
+    public internal(set) var isARepeat: Bool = false
+    public internal(set) var keyCode: UInt32 = 0
+    public internal(set) var characters: String? = nil
+    public internal(set) var charactersIgnoringModifiers: String? = nil
+
+    internal var syncCounter: Int64 = 0 // store the sync counter received from _NET_WM_SYNC_REQUEST
     
     internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, windowNumber: Int) {
         self.type = type
@@ -249,7 +253,7 @@ public class Event {
     }
 }
 
-extension Event: Equatable {
+extension Event {
     public static func == (lhs: Event, rhs: Event) -> Bool {
         return lhs.type == rhs.type &&
             lhs.subType == rhs.subType &&

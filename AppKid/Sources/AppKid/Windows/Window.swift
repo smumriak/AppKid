@@ -11,12 +11,35 @@ import CX11.X
 import CXInput2
 import CairoGraphics
 
+extension Notification.Name {
+    public static let windowDidExpose = Notification.Name(rawValue: "windowDidExpose")
+    public static let windowDidResize = Notification.Name(rawValue: "windowDidResize")
+
+    public static let windowDidReceiveSyncRequest = Notification.Name(rawValue: "windowDidReceiveSyncRequest") // XSync requests
+}
+
+public protocol WindowDelegate: class {
+
+}
+
+extension WindowDelegate {
+    
+}
+
 open class Window: View {
+    public weak var delegate: WindowDelegate? = nil
+    
     public var nativeWindow: X11NativeWindow
 
-    public var title: String = ""
+    public var title: String {
+        get {
+            return nativeWindow.title
+        }
+        set {
+            nativeWindow.title = newValue
+        }
+    }
     
-    internal var _windowNumber: Int { Int(nativeWindow.windowID) }
     internal var _graphicsContext: X11RenderContext?
 
     override var transformToWindow: CairoGraphics.CGAffineTransform {
@@ -94,6 +117,7 @@ open class Window: View {
         var currentRect = nativeWindow.currentRect
         currentRect.size.width /= nativeWindow.displayScale
         currentRect.size.height /= nativeWindow.displayScale
+
         bounds.size = currentRect.size
         center = CGPoint(x: bounds.midX, y:bounds.midY)
 
@@ -299,7 +323,12 @@ fileprivate extension Window {
     // MARK: Handle AppKid Event
 
     func handleAppKidEvent(_ event: Event) {
+        let notificationCenter = NotificationCenter.default
+
         switch event.subType {
+        case .windowDeleteRequest:
+            Application.shared.remove(windowNumer: event.windowNumber)
+
         case .windowMapped:
             isMapped = true
             shouldPerformRootViewControllerSetup = true
@@ -315,10 +344,30 @@ fileprivate extension Window {
                 updateSurface()
             }
 
-        case .windowResized:
-            if isMapped {
-                updateSurface()
+            if nativeWindow.syncRequested == true && nativeWindow.rendererResized == true {
+                nativeWindow.sendExtendedSyncCounterValue()
+                nativeWindow.syncRequested = false
+                nativeWindow.rendererResized = false
             }
+
+            notificationCenter.post(name: .windowDidExpose, object: self)
+
+        case .windowDidResize:
+            if isMapped {
+                let newSize = CGSize(width: event.deltaX, height: event.deltaY)
+
+                if (newSize != bounds.size) {
+                    updateSurface()
+                }
+            }
+
+            notificationCenter.post(name: .windowDidResize, object: self)
+
+        case .windowSyncRequest:
+            nativeWindow.syncRequested = true
+            nativeWindow.extendedSyncCounter = event.syncCounter
+
+            notificationCenter.post(name: .windowDidReceiveSyncRequest, object: self)
 
         default:
             break

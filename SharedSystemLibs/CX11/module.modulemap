@@ -13,5 +13,6 @@ module CX11 [system] {
         header "CX_umbrella.h"
     }
     link "X11"
+    link "Xext"
     export *
 }

@@ -27,7 +27,7 @@ public final class X11NativeWindow {
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
         if XGetWindowAttributes(display, windowID, &windowAttributes) == 0 {
-            fatalError("Can not get window attributes for window with ID: \(windowID)")
+//            fatalError("Can not get window attributes for window with ID: \(windowID)")
         }
         return windowAttributes
     }
@@ -59,9 +59,63 @@ public final class X11NativeWindow {
 
     public var displayScale: CGFloat = 1.0
 
+    internal lazy var opacityAtom = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", 0)
+    internal var opacity: CGFloat = 1.0 {
+        didSet {
+            let value = UInt32(opacity * CGFloat(UInt32.max))
+            withUnsafePointer(to: value) {
+                $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: opacity)) {
+                    let optional: UnsafePointer<UInt8>? = $0
+                    XChangeProperty(display, windowID, opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
+                }
+            }
+        }
+    }
+
+    internal lazy var syncCounterAtom = XInternAtom(display, "_NET_WM_SYNC_REQUEST_COUNTER", 0)
+
+    internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None)) {
+        didSet {
+            let size = MemoryLayout.size(ofValue: syncCounter)
+            withUnsafePointer(to: &syncCounter) {
+                $0.withMemoryRebound(to: UInt8.self, capacity: size) {
+                    let optional: UnsafePointer<UInt8>? = $0
+                    XChangeProperty(display, windowID, syncCounterAtom, XA_CARDINAL, 32, PropModeReplace, optional, 2)
+                }
+            }
+        }
+    }
+
+    public internal(set) var basicSyncCounter: Int64 = 0
+    public func sendBasicSyncCounterValue() {
+        guard syncCounter.basic != Atom(None) else { return }
+
+        let value = XSyncValue(hi: Int32(basicSyncCounter >> 32), lo: UInt32(basicSyncCounter & 0xFFFFFFFF))
+        XSyncSetCounter(display, syncCounter.basic, value)
+    }
+
+    public internal(set) var extendedSyncCounter: Int64 = 0
+    public func sendExtendedSyncCounterValue() {
+        guard syncCounter.extended != Atom(None) else { return }
+
+        let value = XSyncValue(hi: Int32(extendedSyncCounter >> 32), lo: UInt32(extendedSyncCounter & 0xFFFFFFFF))
+        XSyncSetCounter(display, syncCounter.extended, value)
+    }
+
+    public var syncRequested: Bool = false
+    public var rendererResized: Bool = false
+
     var inputContext: XIC? = nil
     
     deinit {
+        if syncCounter.basic != Atom(None) {
+            XSyncDestroyCounter(display, syncCounter.basic)
+        }
+
+        if syncCounter.extended != Atom(None) {
+            XSyncDestroyCounter(display, syncCounter.extended)
+        }
+
         if !isRoot {
             XDestroyWindow(display, windowID)
         }
@@ -96,8 +150,6 @@ public final class X11NativeWindow {
         } else {
             XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.basic.rawValue))
         }
-
-        XSetWMProtocols(displayServer.display, windowID, &displayServer.context.wmDeleteWindowAtom, 1)
     }
 
     func map(displayServer: DisplayServer) {

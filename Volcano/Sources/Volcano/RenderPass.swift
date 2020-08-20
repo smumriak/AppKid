@@ -32,7 +32,7 @@ public final class SubpassGraph {
 
     public func add(subpass: Subpass) {
         if subpasses.contains(subpass) {
-            return;
+            return
         }
 
         subpasses.append(subpass)

@@ -7,6 +7,9 @@
 
 import AppKid
 
+import CoreFoundation
+import Foundation
+
 let appDelegate = AppDelegate()
 let application = Application.shared
 application.delegate = appDelegate

@@ -8,7 +8,7 @@
 import Foundation
 import CairoGraphics
 
-internal final class Renderer {
+internal final class Renderer: NSObject {
     let context: CairoGraphics.CGContext
 
     init(context: CairoGraphics.CGContext) {

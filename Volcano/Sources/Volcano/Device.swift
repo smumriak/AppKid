@@ -23,7 +23,7 @@ extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
 public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
-    public unowned let surface: Surface
+    public let surface: Surface
     
     public let graphicsQueueFamilyIndex: Int
     public let presentationQueueFamilyIndex: Int
@@ -138,7 +138,7 @@ public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
         var handles: [VkFence?] = fences.map { return $0.handle }
 
         try vulkanInvoke {
-            vkWaitForFences(handle, CUnsignedInt(handles.count), &handles, waitForAll ? VkBool32(VK_TRUE) : VkBool32(VK_FALSE), timeout)
+            vkWaitForFences(handle, CUnsignedInt(handles.count), &handles, waitForAll.vkBool, timeout)
         }
     }
     
@@ -152,7 +152,7 @@ public final class Device: VulkanEntity<SmartPointer<VkDevice_T>> {
 }
 
 public extension Device {
-    func shader(named name: String, in bundle: Bundle? = nil) throws -> Shader? {
+    func shader(named name: String, in bundle: Bundle? = nil) throws -> Shader {
         return try Shader(named: name, in: bundle, device: self)
     }
 }

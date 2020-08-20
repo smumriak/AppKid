@@ -22,7 +22,7 @@ public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
         var handleOptional: VkFence? = handle
 
         try vulkanInvoke {
-            vkWaitForFences(device.handle, 1, &handleOptional, VkBool32(VK_TRUE), timeout)
+            vkWaitForFences(device.handle, 1, &handleOptional, true.vkBool, timeout)
         }
     }
     

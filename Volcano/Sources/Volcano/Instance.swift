@@ -47,7 +47,7 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
         }
     }()
 
-    public internal(set) lazy var discreteGPUDevices: PhysicalDevice? = physicalDevices.first
+    public internal(set) lazy var discreteGPUDevice: PhysicalDevice? = physicalDevices.first
     
     public init() {
         do {

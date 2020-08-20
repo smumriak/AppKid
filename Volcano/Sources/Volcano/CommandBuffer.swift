@@ -12,12 +12,12 @@ import CVulkan
 public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffer_T>> {
     public let fence: Fence
 
-    public init(commandPool: CommandPool) throws {
+    public init(commandPool: CommandPool, level: VkCommandBufferLevel = .VK_COMMAND_BUFFER_LEVEL_PRIMARY) throws {
         let device = commandPool.device
 
         var info = VkCommandBufferAllocateInfo()
         info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
-        info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY
+        info.level = level
         info.commandPool = commandPool.handle
         info.commandBufferCount = 1
 

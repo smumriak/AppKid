@@ -54,7 +54,6 @@ fileprivate extension XEvent {
 
 internal extension Event {
     convenience init(xInput2Event event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
-//        debugPrint("Event \(String(reflecting: event.deviceEvent))")
         let type = event.eventTypeFromXInput2Event
 
         if type == .none {

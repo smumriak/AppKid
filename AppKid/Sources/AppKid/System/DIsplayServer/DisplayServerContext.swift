@@ -19,10 +19,12 @@ internal struct DisplayServerContext {
     var scale: CGFloat = 1.0
 
     var xInput2ExtensionOpcode: CInt = 0
-    var wmDeleteWindowAtom = Atom(CX11.None)
+    var deleteWindowAtom = Atom(CX11.None)
+    var takeFocusAtom = Atom(CX11.None)
     var xiTouchPadAtom = Atom(CX11.None)
     var xiMouseAtom = Atom(CX11.None)
     var xiKeyvoardAtom = Atom(CX11.None)
+    var syncRequestAtom = Atom(CX11.None)
 
     var currentPressedMouseButton: XInput2Button = .none
     var currentModifierFlags: Event.ModifierFlags = .none

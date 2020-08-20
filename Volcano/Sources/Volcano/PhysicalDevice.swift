@@ -23,7 +23,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
 
     internal lazy var renderingPerformanceScore: UInt32 = {
         var result: UInt32 = 0
-        if features.geometryShader == VkBool32(VK_FALSE) {
+        if features.geometryShader == false.vkBool {
             return 0
         } else {
             result += properties.limits.maxImageDimension2D

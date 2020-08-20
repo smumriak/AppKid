@@ -30,10 +30,12 @@ internal extension DisplayServer {
         context.eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
         #endif
 
-        context.wmDeleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
+        context.deleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
+        context.takeFocusAtom = XInternAtom(display, "WM_TAKE_FOCUS", 0)
         context.xiTouchPadAtom = XInternAtom(display, XI_TOUCHPAD, 0)
         context.xiMouseAtom = XInternAtom(display, XI_MOUSE, 0)
         context.xiKeyvoardAtom = XInternAtom(display, XI_KEYBOARD, 0)
+        context.syncRequestAtom = XInternAtom(display, "_NET_WM_SYNC_REQUEST", 0)
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {
@@ -154,7 +156,7 @@ internal extension DisplayServer {
         }
         #endif
     }
-    
+
     func processX11EventsQueue() {
         var x11Event = CX11.XEvent()
         
@@ -193,15 +195,6 @@ internal extension DisplayServer {
                 continue
             }
 
-            if event.type == .appKidDefined {
-                if event.subType == .message {
-                    if CX11.Atom(x11Event.xclient.data.l.0) == context.wmDeleteWindowAtom {
-                        application.remove(windowNumer: event.windowNumber)
-                        return
-                    }
-                }
-            }
-
             switch event.type {
             case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
                 context.currentPressedMouseButton = event.xInput2Button
@@ -213,7 +206,9 @@ internal extension DisplayServer {
                 break
             }
 
+            //palkovnik:TODO:Be careful with this code. It can affect your event processing queue and runloop sources servicing
             application.post(event: event, atStart: false)
+//            application.send(event: event)
         }
     }
 

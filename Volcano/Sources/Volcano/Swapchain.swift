@@ -14,7 +14,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public var size: VkExtent2D
     public let imageFormat: VkFormat
 
-    public init(device: Device, surface: Surface, size: VkExtent2D, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR) throws {
+    public init(device: Device, surface: Surface, size: VkExtent2D, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -42,6 +42,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         info.preTransform = surface.capabilities.currentTransform
         info.compositeAlpha = compositeAlpha
         info.presentMode = presentMode
+        info.oldSwapchain = oldSwapchain?.handle
 
         let queueFamiliesIndices = SmartPointer<CUnsignedInt>.allocate(capacity: 2)
         queueFamiliesIndices.pointer[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
@@ -67,5 +68,15 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
             .map {
                 try Image(device: device, format: imageFormat, handle: $0)
             }
+    }
+
+    public func getNextImageIndex(semaphore: Semaphore, timeout: UInt64 = .max) throws -> Int {
+        var result: CUnsignedInt = 0
+
+        try vulkanInvoke {
+            vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore.handle, nil, &result)
+        }
+
+        return Int(result)
     }
 }

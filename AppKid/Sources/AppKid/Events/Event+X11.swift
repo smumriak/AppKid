@@ -123,7 +123,6 @@ internal extension Event {
             throw EventCreationError.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }
 
-
         switch type {
         case _ where type.isAnyMouse:
             let buttonEvent = x11Event.xbutton
@@ -142,10 +141,32 @@ internal extension Event {
                 self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 
             case ClientMessage:
-                self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                let atom = Atom(x11Event.xclient.data.l.0)
+
+                guard atom != Atom(None) else {
+                    self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                    return
+                }
+
+                switch atom {
+                case displayServer.context.deleteWindowAtom:
+                    self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
+
+                case displayServer.context.syncRequestAtom:
+                    self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
+                    syncCounter = (Int64(x11Event.xclient.data.l.3) << 32) | Int64(x11Event.xclient.data.l.2)
+
+                default:
+                    self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                }
+
                 
             case ConfigureNotify:
-                self.init(withAppKidEventSubType: .windowResized, windowNumber: windowNumber)
+                let configureEvent = x11Event.xconfigure
+
+                self.init(withAppKidEventSubType: .windowDidResize, windowNumber: windowNumber)
+                deltaX = CGFloat(configureEvent.width) / displayServer.context.scale
+                deltaY = CGFloat(configureEvent.height) / displayServer.context.scale
                 
             default:
                 self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
