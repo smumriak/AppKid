@@ -21,14 +21,12 @@ internal extension DisplayServer {
     func setupX11() {
         context.displayConnectionFileDescriptor = XConnectionNumber(display)
 
-        #if os(Linux)
-        context.epollFileDescriptor = epoll_create1(CInt(EPOLL_CLOEXEC))
-        if context.epollFileDescriptor == -1  {
+        do {
+            context.displayConnectionWaitSignal = try EpollWaitSignal(waitFileDescriptor: context.displayConnectionFileDescriptor)
+        } catch {
             XCloseDisplay(display)
-            fatalError("Failed to create epoll file descriptor")
+            fatalError("Failed to create epoll file descriptor, error: \(error)")
         }
-        context.eventFileDescriptor = CEpoll.eventfd(0, CInt(CEpoll.EFD_CLOEXEC) | CInt(CEpoll.EFD_NONBLOCK))
-        #endif
 
         context.deleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
         context.takeFocusAtom = XInternAtom(display, "WM_TAKE_FOCUS", 0)
@@ -78,21 +76,11 @@ internal extension DisplayServer {
         x11RunLoopSourceContext.info = Unmanaged.passUnretained(self).toOpaque()
         
         #if os(Linux)
-        var x11EpollEvent = epoll_event()
-        x11EpollEvent.events = EPOLLIN.rawValue | EPOLLET.rawValue
-        x11EpollEvent.data.fd = context.displayConnectionFileDescriptor
-        
-        guard epoll_ctl(context.epollFileDescriptor, EPOLL_CTL_ADD, context.displayConnectionFileDescriptor, &x11EpollEvent) == 0 else {
-            close(context.epollFileDescriptor)
-            XCloseDisplay(display)
-            fatalError("Failed to add file descriptor to epoll")
-        }
-        
         x11RunLoopSourceContext.getPort = {
             if let info = $0 {
                 let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
                 
-                return UnsafeMutableRawPointer(bitPattern: Int(displayServer.context.eventFileDescriptor))
+                return UnsafeMutableRawPointer(bitPattern: Int(displayServer.context.displayConnectionWaitSignal.signalFileDescriptor))
             } else {
                 return UnsafeMutableRawPointer(bitPattern: Int(-1))
             }
@@ -131,13 +119,6 @@ internal extension DisplayServer {
             CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
         }
 
-        if context.eventFileDescriptor != -1 {
-            close(context.eventFileDescriptor)
-        }
-        if context.epollFileDescriptor != -1 {
-            close(context.epollFileDescriptor)
-        }
-
         context = DisplayServerContext()
     }
     
@@ -146,15 +127,11 @@ internal extension DisplayServer {
             XCloseDisplay(display)
             fatalError("Polling of X11 events is not allowed on main thread. Never. It's an infinite loop, you don't want to block your main thread, do you?")
         }
-        #if os(Linux)
-        var awokenEvent = epoll_event()
-        var one: UInt64 = 1
-        while pollThread.isCancelled == false || pollThread.isFinished == false {
-            let result = CEpoll.epoll_wait(context.epollFileDescriptor, &awokenEvent, 1, -1)
-            if (result == 0 || result == -1) { continue }
-            CEpoll.write(context.eventFileDescriptor, &one, 8)
+        while pollThread.isCancelled == false && pollThread.isFinished == false {
+            let result = context.displayConnectionWaitSignal.wait()
+            if result.result == 0 || result.result == -1 { continue }
+            context.displayConnectionWaitSignal.signal()
         }
-        #endif
     }
 
     func processX11EventsQueue() {
@@ -207,8 +184,8 @@ internal extension DisplayServer {
             }
 
             //palkovnik:TODO:Be careful with this code. It can affect your event processing queue and runloop sources servicing
-            application.post(event: event, atStart: false)
-//            application.send(event: event)
+//            application.post(event: event, atStart: false)
+            application.send(event: event)
         }
     }
 

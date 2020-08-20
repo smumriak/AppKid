@@ -13,8 +13,8 @@ import CXInput2
 
 internal struct DisplayServerContext {
     var displayConnectionFileDescriptor: CInt = -1
-    var epollFileDescriptor: CInt = -1
-    var eventFileDescriptor: CInt = -1
+
+    var displayConnectionWaitSignal = EpollWaitSignal()
 
     var scale: CGFloat = 1.0
 
