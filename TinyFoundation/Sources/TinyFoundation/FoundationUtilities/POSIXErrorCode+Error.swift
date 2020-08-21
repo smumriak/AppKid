@@ -1,5 +1,5 @@
 //
-//  POSIXErrorCode.swift
+//  POSIXErrorCode+Error.swift
 //  TinyFoundation
 //
 //  Created by Serhii Mumriak on 20.08.2020.

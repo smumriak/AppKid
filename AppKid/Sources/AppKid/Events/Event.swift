@@ -64,6 +64,7 @@ public extension Event {
         case windowMoved
         case windowDidResize
         case screenChanged
+        case ignoredDisplayServerEvent // used to avoid double queueing of events when some X11 event is not parsable
         case windowDeleteRequest // WM_DELETE_WINDOW atom from X11
         case windowSyncRequest // _NET_WM_SYNC_REQUEST atom from X11
         case message // client message from X11
@@ -230,6 +231,12 @@ public class Event: NSObject {
     public internal(set) var charactersIgnoringModifiers: String? = nil
 
     internal var syncCounter: Int64 = 0 // store the sync counter received from _NET_WM_SYNC_REQUEST
+
+    internal static func ignoredDisplayServerEvent() -> Event {
+        let result = Event(type: .appKidDefined, location: .nan, modifierFlags: .none, windowNumber: NSNotFound)
+        result.subType = .ignoredDisplayServerEvent
+        return result
+    }
     
     internal init(type: EventType, location: CGPoint, modifierFlags: ModifierFlags, windowNumber: Int) {
         self.type = type

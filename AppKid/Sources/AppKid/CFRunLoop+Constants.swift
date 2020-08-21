@@ -6,9 +6,29 @@
 //
 
 import CoreFoundation
+import Foundation
 
 #if os(Linux)
-let CFRunLoopCommonModesConstant = kCFRunLoopCommonModes
+let CFRunLoopDefaultModeConstant: CFRunLoopMode = kCFRunLoopDefaultMode
+let CFRunLoopCommonModesConstant: CFRunLoopMode = kCFRunLoopCommonModes
 #else
-let CFRunLoopCommonModesConstant = CFRunLoopMode.commonModes
+let CFRunLoopDefaultModeConstant: CFRunLoopMode = CFRunLoopMode.defaultMode
+let CFRunLoopCommonModesConstant: CFRunLoopMode = CFRunLoopMode.commonModes
 #endif
+
+internal extension RunLoop.Mode {
+    var cfRunLoopMode: CFRunLoopMode {
+        if self == .default {
+            return CFRunLoopDefaultModeConstant
+        } else if self == .common {
+            return CFRunLoopCommonModesConstant
+        } else {
+            let mode = CFStringCreateWithCString(nil, rawValue.cString(using: .utf8), kCFStringEncodingASCII)!
+            #if os(Linux)
+            return mode
+            #else
+            return CFRunLoopMode(mode)
+            #endif
+        }
+    }
+}

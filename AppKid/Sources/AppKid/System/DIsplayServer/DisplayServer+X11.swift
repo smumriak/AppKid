@@ -90,7 +90,7 @@ internal extension DisplayServer {
             if let info = $0 {
                 let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
                 
-                displayServer.processX11EventsQueue()
+                displayServer.handleX11EpollSignal()
             }
         }
         #endif
@@ -134,22 +134,36 @@ internal extension DisplayServer {
         }
     }
 
+    func handleX11EpollSignal() {
+        hasEvents = true
+    }
+
     func processX11EventsQueue() {
+        guard hasEvents == true else {
+            return
+        }
+
+        guard XPending(display) != 0 else {
+            hasEvents = false
+
+            return
+        }
+
         var x11Event = CX11.XEvent()
-        
-        while XPending(display) != 0 {
-            XNextEvent(display, &x11Event)
 
-            let application = Application.shared
+        XNextEvent(display, &x11Event)
 
-            let timestamp = CFAbsoluteTimeGetCurrent() - application.startTime
+        let application = Application.shared
 
-            let event: Event
+        let timestamp = CFAbsoluteTimeGetCurrent() - application.startTime
 
-            do {
-                if x11Event.isCookie(with: context.xInput2ExtensionOpcode)  {
-                    guard XGetEventData(display, &x11Event.xcookie) != 0 else { continue }
+        let event: Event
 
+        do {
+            if x11Event.isCookie(with: context.xInput2ExtensionOpcode)  {
+                if XGetEventData(display, &x11Event.xcookie) == 0 {
+                    event = Event.ignoredDisplayServerEvent()
+                } else {
                     defer {
                         XFreeEventData(display, &x11Event.xcookie)
                     }
@@ -160,33 +174,27 @@ internal extension DisplayServer {
                     }
 
                     event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayServer: self)
-                } else {
-                    event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
                 }
-            } catch {
-//                debugPrint("Failed to parse X11 Event with error: \(error)")
-                continue
+            } else {
+                event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
             }
-            
-            if event.type == .none {
-                continue
-            }
-
-            switch event.type {
-            case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
-                context.currentPressedMouseButton = event.xInput2Button
-
-            case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
-                context.currentPressedMouseButton = .none
-
-            default:
-                break
-            }
-
-            //palkovnik:TODO:Be careful with this code. It can affect your event processing queue and runloop sources servicing
-//            application.post(event: event, atStart: false)
-            application.send(event: event)
+        } catch {
+//            debugPrint("Failed to parse X11 Event with error: \(error)")
+            event = Event.ignoredDisplayServerEvent()
         }
+
+        switch event.type {
+        case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
+            context.currentPressedMouseButton = event.xInput2Button
+
+        case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
+            context.currentPressedMouseButton = .none
+
+        default:
+            break
+        }
+
+        application.post(event: event, atStart: false)
     }
 
     func updateInputDevices() {

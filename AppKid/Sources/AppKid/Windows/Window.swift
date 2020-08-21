@@ -233,7 +233,9 @@ fileprivate extension Window {
             leftMouseDownView?.mouseDown(with: event)
 
             repeat {
-                let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+                guard let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                    break
+                }
 
                 application.send(event: nextEvent)
 
@@ -255,7 +257,9 @@ fileprivate extension Window {
             rightMouseDownView?.rightMouseDown(with: event)
 
             repeat {
-                let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+                guard let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                    break
+                }
 
                 application.send(event: nextEvent)
 
@@ -277,7 +281,9 @@ fileprivate extension Window {
             otherMouseDownView?.otherMouseDown(with: event)
 
             repeat {
-                let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true)
+                guard let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                    break
+                }
 
                 application.send(event: nextEvent)
 

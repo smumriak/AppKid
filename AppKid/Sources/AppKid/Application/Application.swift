@@ -120,14 +120,16 @@ open class Application: Responder {
         let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)
         
         repeat {
-            let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true)
-            
-            send(event: event)
-            
-            if isTerminated {
+            guard let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true) else {
                 break
             }
-        } while isRunning
+
+            if event.type == .appKidDefined && event.subType == .terminate {
+                break
+            }
+            
+            send(event: event)
+        } while isRunning == true && isTerminated == false
 
         renderTimer.invalidate()
         displayServer.destroyX11()
@@ -144,9 +146,17 @@ open class Application: Responder {
         event.window?.send(event: event)
         currentEvent = nil
     }
+
+    internal func indexOfEvent(matching mask: Event.EventTypeMask, checkDisplayServerEventQueue: Bool = true) -> Array<Event>.Index? {
+        if checkDisplayServerEventQueue {
+            displayServer.processX11EventsQueue()
+        }
+
+        return eventQueue.firstIndex { mask.contains($0.type.mask) }
+    }
     
-    open func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event {
-        var index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
+    open func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event? {
+        var index = indexOfEvent(matching: mask)
         
         while index == nil {
             let _ = RunLoop.current.run(mode: mode, before: date)
@@ -154,17 +164,19 @@ open class Application: Responder {
             if isRunning == false || isTerminated == true {
                 return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
             } else {
-                index = eventQueue.firstIndex(where: { mask.contains($0.type.mask) })
+                index = indexOfEvent(matching: mask)
             }
         }
         
-        let result = eventQueue[index!]
+        let event: Event
         
         if dequeue {
-            eventQueue.remove(at: index!)
+            event = eventQueue.remove(at: index!)
+        } else {
+            event = eventQueue[index!]
         }
         
-        return result
+        return event
     }
 
     open func discardEvent(matching mask: Event.EventTypeMask, before event: Event) {

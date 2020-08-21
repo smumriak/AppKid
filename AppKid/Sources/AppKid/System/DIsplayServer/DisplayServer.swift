@@ -36,6 +36,8 @@ internal class DisplayServer: NSObject {
 
     let rootWindow: X11NativeWindow
 
+    internal var hasEvents = false
+
     // MARK: Deinitialization
 
     deinit {
