@@ -156,27 +156,39 @@ open class Application: Responder {
     }
     
     open func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event? {
-        var index = indexOfEvent(matching: mask)
-        
-        while index == nil {
-            let _ = RunLoop.current.run(mode: mode, before: date)
-            
-            if isRunning == false || isTerminated == true {
+        while true {
+            guard isRunning == true && isTerminated == false else {
                 return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
+            }
+
+            if let index = indexOfEvent(matching: mask) {
+                let event = eventQueue[index]
+
+                let eventIgnored = event.type == .appKidDefined && event.subType == .ignoredDisplayServerEvent
+
+                if dequeue || eventIgnored {
+                    eventQueue.remove(at: index)
+                }
+
+                if eventIgnored {
+                    continue
+                }
+
+                return event
             } else {
-                index = indexOfEvent(matching: mask)
+                let seconds = date.timeIntervalSinceReferenceDate - CFAbsoluteTimeGetCurrent()
+
+                let result = CFRunLoopRunInMode(mode.cfRunLoopMode, seconds, true)
+
+                switch result {
+                case .finished: return nil
+                case .stopped: return nil
+                case .timedOut: return nil
+                case .handledSource: continue
+                default: return nil
+                }
             }
         }
-        
-        let event: Event
-        
-        if dequeue {
-            event = eventQueue.remove(at: index!)
-        } else {
-            event = eventQueue[index!]
-        }
-        
-        return event
     }
 
     open func discardEvent(matching mask: Event.EventTypeMask, before event: Event) {
