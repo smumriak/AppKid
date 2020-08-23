@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkQueryPipelineStatisticFlagBits {
     public static let inputAssemblyVertices = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT

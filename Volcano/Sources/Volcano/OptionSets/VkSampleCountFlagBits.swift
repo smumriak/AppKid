@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkSampleCountFlagBits {
     public static let one = VK_SAMPLE_COUNT_1_BIT

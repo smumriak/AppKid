@@ -5,10 +5,6 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
-import Foundation
-import TinyFoundation
-import CVulkan
-
 public final class Queue: VulkanDeviceEntity<SmartPointer<VkQueue_T>> {
     public let familyIndex: Int
     public let queueIndex: Int

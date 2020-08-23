@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkQueueFlagBits {
     public static let graphics = VK_QUEUE_GRAPHICS_BIT

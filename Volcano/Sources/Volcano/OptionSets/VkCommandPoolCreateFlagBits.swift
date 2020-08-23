@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkCommandPoolCreateFlagBits {
     public static let transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT

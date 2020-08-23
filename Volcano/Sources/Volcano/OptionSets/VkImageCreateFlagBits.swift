@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkImageCreateFlagBits {
     public static let sparseBinding = VK_IMAGE_CREATE_SPARSE_BINDING_BIT

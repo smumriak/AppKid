@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 15.08.2020.
 //
 
-import CVulkan
-
 extension VkAccessFlagBits {
     public static let indirectCommandRead = VK_ACCESS_INDIRECT_COMMAND_READ_BIT
     public static let indexRead = VK_ACCESS_INDEX_READ_BIT

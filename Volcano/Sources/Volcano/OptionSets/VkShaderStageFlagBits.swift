@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkShaderStageFlagBits {
     public static let vertex = VK_SHADER_STAGE_VERTEX_BIT

@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkQueryResultFlagBits {
     public static let sixtyFour = VK_QUERY_RESULT_64_BIT

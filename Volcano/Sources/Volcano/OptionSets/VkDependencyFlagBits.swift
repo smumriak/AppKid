@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkDependencyFlagBits {
     public static let byRegion = VK_DEPENDENCY_BY_REGION_BIT

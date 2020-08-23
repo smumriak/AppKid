@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkStencilFaceFlagBits {
     public static let faceFront = VK_STENCIL_FACE_FRONT_BIT

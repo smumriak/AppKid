@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 15.08.2020.
 //
 
-import CVulkan
-
 extension VkAttachmentLoadOp {
     public static let load = VK_ATTACHMENT_LOAD_OP_LOAD
     public static let clear = VK_ATTACHMENT_LOAD_OP_CLEAR

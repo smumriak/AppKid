@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 17.08.2020.
 //
 
-import CVulkan
 
 extension VkSurfaceTransformFlagBitsKHR {
     public static let identity = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR

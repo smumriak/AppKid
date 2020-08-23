@@ -5,10 +5,6 @@
 //  Created by Serhii Mumriak on 23.07.2020.
 //
 
-import Foundation
-import TinyFoundation
-import CVulkan
-
 public protocol PhysicalDeviceEntityInfo: EntityInfo {
     typealias Parent = VkPhysicalDevice.Pointee
 }

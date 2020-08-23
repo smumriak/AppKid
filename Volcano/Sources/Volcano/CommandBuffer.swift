@@ -5,10 +5,6 @@
 //  Created by Serhii Mumriak on 23.05.2020.
 //
 
-import Foundation
-import TinyFoundation
-import CVulkan
-
 public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffer_T>> {
     public let fence: Fence
 

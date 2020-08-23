@@ -5,9 +5,6 @@
 //  Created by Serhii Mumriak on 17.05.2020.
 //
 
-import Foundation
-import TinyFoundation
-
 public class VulkanHandle<Handle> where Handle: SmartPointerProtocol {
     public internal(set) var handle: Handle.Pointer_t {
         get { handlePointer.pointer }

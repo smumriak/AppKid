@@ -5,10 +5,6 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
-import Foundation
-import TinyFoundation
-import CVulkan
-
 public protocol EntityFactory {}
 
 public extension UnsafeMutablePointer where Pointee: EntityFactory {

@@ -5,9 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import Foundation
-import CVulkan
-
 extension Bool {
     public var vkBool: VkBool32 { self ? VkBool32(VK_TRUE) : VkBool32(VK_FALSE) }
 }

@@ -5,10 +5,6 @@
 //  Created by Serhii Mumriak on 23.07.2020.
 //
 
-import Foundation
-import TinyFoundation
-import CVulkan
-
 public class RenderPass: VulkanDeviceEntity<SmartPointer<VkRenderPass_T>> {
 //    let rootSubpass: Subpass
 //

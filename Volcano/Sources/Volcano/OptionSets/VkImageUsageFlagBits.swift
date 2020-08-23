@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
 
 extension VkImageUsageFlagBits {
     public static let transferSrc = VK_IMAGE_USAGE_TRANSFER_SRC_BIT
