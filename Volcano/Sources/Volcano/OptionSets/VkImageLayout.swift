@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 15.08.2020.
 //
 
+import CVulkan
+
 extension VkImageLayout {
     public static let undefined = VK_IMAGE_LAYOUT_UNDEFINED
     public static let general = VK_IMAGE_LAYOUT_GENERAL

@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     public unowned let image: Image
     public let imageFormat: VkFormat

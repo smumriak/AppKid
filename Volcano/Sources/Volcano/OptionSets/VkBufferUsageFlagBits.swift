@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkBufferUsageFlagBits {
     public static let transferSrc = VK_BUFFER_USAGE_TRANSFER_SRC_BIT

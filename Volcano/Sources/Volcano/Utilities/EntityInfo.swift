@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 23.07.2020.
 //
 
+import CVulkan
+
 public protocol EntityInfo {
     associatedtype Parent: EntityFactory
     associatedtype Result

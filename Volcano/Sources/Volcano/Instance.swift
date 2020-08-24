@@ -6,8 +6,8 @@
 //
 
 import Foundation
-@_exported import TinyFoundation
-@_exported import CVulkan
+import TinyFoundation
+import CVulkan
 
 extension VkInstance_T: ReleasableCType {
     public static var releaseFunc: (UnsafeMutablePointer<VkInstance_T>?) -> () {

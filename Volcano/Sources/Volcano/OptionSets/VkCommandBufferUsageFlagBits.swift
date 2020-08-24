@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkCommandBufferUsageFlagBits {
     public static let oneTimeSubmit = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT

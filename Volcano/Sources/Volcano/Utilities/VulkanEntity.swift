@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 17.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 public class VulkanEntity<Entity>: VulkanHandle<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var instance: Instance
 

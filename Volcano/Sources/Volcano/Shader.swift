@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import TinyFoundation
+import CVulkan
 
 public enum VulkanShaderError: Error {
     case noData

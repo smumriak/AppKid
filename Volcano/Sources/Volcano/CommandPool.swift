@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 23.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>> {
     public let queue: Queue
 

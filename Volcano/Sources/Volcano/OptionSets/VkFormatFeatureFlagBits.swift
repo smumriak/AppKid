@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkFormatFeatureFlagBits {
     public static let sampledImage = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT

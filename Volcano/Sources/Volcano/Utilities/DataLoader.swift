@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 18.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 internal protocol DataLoader {}
 
 extension UnsafeMutablePointer where Pointee: DataLoader {

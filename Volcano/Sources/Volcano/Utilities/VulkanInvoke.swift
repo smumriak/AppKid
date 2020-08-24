@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 17.05.2020.
 //
 
+import CVulkan
+
 public func vulkanInvoke(_ invocation: () -> (VkResult)) throws {
     let result: VkResult = invocation()
     if result != VK_SUCCESS {

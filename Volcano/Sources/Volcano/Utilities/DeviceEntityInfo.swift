@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 22.07.2020.
 //
 
+import CVulkan
+
 public protocol DeviceEntityInfo: EntityInfo {
     typealias Parent = VkDevice.Pointee
 }

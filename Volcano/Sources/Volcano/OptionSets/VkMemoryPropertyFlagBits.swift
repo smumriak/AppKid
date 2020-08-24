@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkMemoryPropertyFlagBits {
     public static let deviceLocal = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT

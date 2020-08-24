@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import TinyFoundation
+import CVulkan
 import CX11.Xlib
 import CX11.X
 

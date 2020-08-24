@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkPipelineCreateFlagBits {
     public static let disableOptimization = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT

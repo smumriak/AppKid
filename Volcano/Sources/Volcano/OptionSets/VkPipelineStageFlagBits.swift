@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkPipelineStageFlagBits {
     public static let topOfPipe = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT

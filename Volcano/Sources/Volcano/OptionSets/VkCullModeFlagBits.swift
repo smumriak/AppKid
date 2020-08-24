@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
+import CVulkan
 
 extension VkCullModeFlagBits {
     public static let none = VkCullModeFlagBits()

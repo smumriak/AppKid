@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 public final class Image: VulkanDeviceEntity<SmartPointer<VkImage_T>> {
     public let format: VkFormat
 

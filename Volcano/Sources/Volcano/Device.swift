@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 17.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 import Foundation
 
 internal extension SmartPointer where Pointee == VkDevice_T {

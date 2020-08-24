@@ -5,6 +5,9 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
+import TinyFoundation
+import CVulkan
+
 public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
     public internal(set) unowned var device: Device
     public let familyIndex: Int
