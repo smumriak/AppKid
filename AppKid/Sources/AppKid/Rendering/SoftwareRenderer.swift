@@ -1,5 +1,5 @@
 //
-//  Renderer.swift
+//  SoftwareRenderer.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 22.02.2020.
@@ -8,7 +8,7 @@
 import Foundation
 import CairoGraphics
 
-internal final class Renderer: NSObject {
+internal final class SoftwareRenderer: NSObject {
     let context: CairoGraphics.CGContext
 
     init(context: CairoGraphics.CGContext) {

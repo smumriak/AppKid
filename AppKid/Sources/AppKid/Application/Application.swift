@@ -44,7 +44,7 @@ open class Application: Responder {
     open fileprivate(set) var isTerminated = false
     
     fileprivate(set) open var windows: [Window] = []
-    internal var renderers: [Renderer] = []
+    internal var softwareRenderers: [SoftwareRenderer] = []
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -60,7 +60,7 @@ open class Application: Responder {
         return Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
             if !isVulkanRendererEnabled {
                 for i in 0..<self.windows.count {
-                    self.renderers[i].render(window: self.windows[i])
+                    self.softwareRenderers[i].render(window: self.windows[i])
                 }
 
                 self.displayServer.flush()
@@ -97,7 +97,7 @@ open class Application: Responder {
     
     open func run() {
         if (delegate == nil) {
-            fatalError("Who forgot to specify app delegate? You've forgot to specify app delegate.")
+            fatalError("Who've forgot to specify app delegate? You've forgot to specify app delegate.")
         }
         
         isRunning = true
@@ -202,7 +202,7 @@ open class Application: Responder {
     open func add(window: Window) {
         windows.append(window)
         if !isVulkanRendererEnabled {
-            renderers.append(window.createRenderer())
+            softwareRenderers.append(window.createRenderer())
         }
     }
 
@@ -215,7 +215,7 @@ open class Application: Responder {
     open func remove(windowNumer index: Array<Window>.Index) {
         //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         if !isVulkanRendererEnabled {
-            renderers.remove(at: index)
+            softwareRenderers.remove(at: index)
         }
         windows.remove(at: index)
 

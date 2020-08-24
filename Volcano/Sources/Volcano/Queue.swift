@@ -5,20 +5,24 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
-public final class Queue: VulkanDeviceEntity<SmartPointer<VkQueue_T>> {
+public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
+    public internal(set) unowned var device: Device
     public let familyIndex: Int
     public let queueIndex: Int
+    public let type: VkQueueFlagBits
 
-    public init(device: Device, familyIndex: Int, queueIndex: Int) throws {
+    public init(device: Device, familyIndex: Int, queueIndex: Int, type: VkQueueFlagBits) throws {
+        self.device = device
         self.familyIndex = familyIndex
         self.queueIndex = queueIndex
+        self.type = type
 
         var handle: VkQueue?
         try vulkanInvoke {
             vkGetDeviceQueue(device.handle, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
         }
 
-        try super.init(device: device, handlePointer: SmartPointer(with: handle!))
+        super.init(handlePointer: SmartPointer(with: handle!))
     }
 
     public func waitForIdle() throws {

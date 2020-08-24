@@ -14,12 +14,22 @@ public class VulkanEntity<Entity>: VulkanHandle<Entity> where Entity: SmartPoint
     }
 }
 
-public class VulkanDeviceEntity<Entity>: VulkanEntity<Entity> where Entity: SmartPointerProtocol {
+public class VulkanPhysicalDeviceEntity<Entity>: VulkanEntity<Entity> where Entity: SmartPointerProtocol {
+    public internal(set) var physicalDevice: PhysicalDevice
+
+    public init(physicalDevice: PhysicalDevice, handlePointer: Entity) throws {
+        self.physicalDevice = physicalDevice
+
+        try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
+    }
+}
+
+public class VulkanDeviceEntity<Entity>: VulkanPhysicalDeviceEntity<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var device: Device
 
     public init(device: Device, handlePointer: Entity) throws {
         self.device = device
 
-        try super.init(instance: device.instance, handlePointer: handlePointer)
+        try super.init(physicalDevice: device.physicalDevice, handlePointer: handlePointer)
     }
 }

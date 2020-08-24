@@ -10,7 +10,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public var size: VkExtent2D
     public let imageFormat: VkFormat
 
-    public init(device: Device, surface: Surface, size: VkExtent2D, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
+    public init(device: Device, surface: Surface, size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -26,34 +26,35 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
         let imageCount = min(capabilities.minImageCount + 1, capabilities.maxImageCount)
 
-        var info = VkSwapchainCreateInfoKHR()
-        info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
-        info.surface = surface.handle
-        info.minImageCount = imageCount
-        info.imageFormat = surface.imageFormat
-        info.imageColorSpace = surface.colorSpace
-        info.imageExtent = size
-        info.imageArrayLayers = 1
-        info.imageUsage = usage.rawValue
-        info.preTransform = surface.capabilities.currentTransform
-        info.compositeAlpha = compositeAlpha
-        info.presentMode = presentMode
-        info.oldSwapchain = oldSwapchain?.handle
+        let queueFamiliesIndices: [CUnsignedInt] = [CUnsignedInt(graphicsQueue.familyIndex), CUnsignedInt(presentationQueue.familyIndex)]
 
-        let queueFamiliesIndices = SmartPointer<CUnsignedInt>.allocate(capacity: 2)
-        queueFamiliesIndices.pointer[0] = CUnsignedInt(device.graphicsQueueFamilyIndex)
-        queueFamiliesIndices.pointer[1] = CUnsignedInt(device.presentationQueueFamilyIndex)
+        let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
+            var info = VkSwapchainCreateInfoKHR()
+            info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+            info.surface = surface.handle
+            info.minImageCount = imageCount
+            info.imageFormat = surface.imageFormat
+            info.imageColorSpace = surface.colorSpace
+            info.imageExtent = size
+            info.imageArrayLayers = 1
+            info.imageUsage = usage.rawValue
+            info.preTransform = surface.capabilities.currentTransform
+            info.compositeAlpha = compositeAlpha
+            info.presentMode = presentMode
+            info.oldSwapchain = oldSwapchain?.handle
 
-        if device.graphicsQueueFamilyIndex == device.presentationQueueFamilyIndex {
-            info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
-            info.queueFamilyIndexCount = 0
-            info.pQueueFamilyIndices = nil
-        } else {
-            info.imageSharingMode = VK_SHARING_MODE_CONCURRENT
-            info.queueFamilyIndexCount = 2
-            info.pQueueFamilyIndices = UnsafePointer(queueFamiliesIndices.pointer)
+            if graphicsQueue.familyIndex == presentationQueue.familyIndex {
+                info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
+                info.queueFamilyIndexCount = 0
+                info.pQueueFamilyIndices = nil
+            } else {
+                info.imageSharingMode = VK_SHARING_MODE_CONCURRENT
+                info.queueFamilyIndexCount = CUnsignedInt(queueFamiliesIndices.count)
+                info.pQueueFamilyIndices = queueFamiliesIndices.baseAddress!
+            }
+
+            return try device.create(with: info)
         }
-        let handlePointer = try device.create(with: info)
 
         try super.init(device: device, handlePointer: handlePointer)
     }

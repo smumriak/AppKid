@@ -20,7 +20,8 @@ let package = Package(
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics"),
-    	.package(path: "../ContentAnimation")
+    	.package(path: "../ContentAnimation"),
+        .package(path: "../Volcano")
     ],
     targets: [
         .target(
@@ -31,7 +32,16 @@ let package = Package(
                 .product(name: "CEpoll", package: "SharedSystemLibs"),
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "ContentAnimation", package: "ContentAnimation"),
-                .product(name: "TinyFoundation", package: "TinyFoundation")
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "Volcano", package: "Volcano")
+            ],
+            exclude: [
+                "Resources/TriangleFragmentShader.frag",
+                "Resources/TriangleVertexShader.vert"
+            ],
+            resources: [
+                .copy("Resources/TriangleFragmentShader.spv"),
+                .copy("Resources/TriangleVertexShader.spv")
             ]
         )
     ]

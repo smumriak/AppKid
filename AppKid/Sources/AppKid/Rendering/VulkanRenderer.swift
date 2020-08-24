@@ -1,28 +1,27 @@
 //
-//  Renderer.swift
-//  SwiftyFan
+//  VulkanRenderer.swift
+//  AppKid
 //
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
 import Foundation
-import AppKid
 import Volcano
 import TinyFoundation
 import CVulkan
 
-public enum RendererError: Error {
+public enum VulkanRendererError: Error {
     case noDiscreteGPU
+    case noPresentationQueueFound
 }
 
-public final class Renderer {
-    let window: AppKid.Window
+public final class VulkanRenderer {
+    internal let window: AppKid.Window
 
-    internal fileprivate(set) var instance: Instance
-    internal fileprivate(set) var physicalDevice: PhysicalDevice
+    internal fileprivate(set) var renderStack: VulkanRenderStack
+    internal var device: Device { renderStack.device }
     internal fileprivate(set) var surface: Surface
-    internal fileprivate(set) var device: Device
-    internal fileprivate(set) var preesentationQueue: Queue
+    internal fileprivate(set) var presentationQueue: Queue
     internal fileprivate(set) var graphicsQueue: Queue
     internal fileprivate(set) var commandPool: CommandPool
 
@@ -48,21 +47,26 @@ public final class Renderer {
         oldSwapchain = nil
     }
 
-    public init(window: AppKid.Window) throws {
+    public init(window: AppKid.Window, renderStack: VulkanRenderStack) throws {
         self.window = window
 
-        instance = Instance()
-        guard let physicalDevice = instance.discreteGPUDevice else {
-            throw RendererError.noDiscreteGPU
+        self.renderStack = renderStack
+        let device = renderStack.device
+
+        let surface = try renderStack.createSurface(for: window)
+        self.surface = surface
+
+        guard let presentationQueue = try device.allQueues.first(where: { try surface.supportsPresenting(on: $0) }) else {
+            throw VulkanRendererError.noPresentationQueueFound
         }
 
-        self.physicalDevice = physicalDevice
+        self.presentationQueue = presentationQueue
 
-        surface = try physicalDevice.createXlibSurface(display: window.nativeWindow.display, window:  window.nativeWindow.windowID)
-        device = try Device(surface: surface)
+        guard let graphicsQueue = device.allQueues.first(where: { $0.type == .graphics }) else {
+            throw VulkanRendererError.noPresentationQueueFound
+        }
 
-        preesentationQueue = try Queue(device: device, familyIndex: device.presentationQueueFamilyIndex, queueIndex: 0)
-        graphicsQueue = try Queue(device: device, familyIndex: device.graphicsQueueFamilyIndex, queueIndex: 0)
+        self.graphicsQueue = graphicsQueue
 
         commandPool = try CommandPool(device: device, queue: graphicsQueue)
 
@@ -88,13 +92,11 @@ public final class Renderer {
         let minSize = surface.capabilities.minImageExtent
         let maxSize = surface.capabilities.maxImageExtent
 
-//        debugPrint("Win: \(windowSize.width * 2.0), \(windowSize.height * 2.0). Min: \(minSize.width), \(minSize.height). Max: \(maxSize.width), \(maxSize.height)")
-
         let width = max(min(desiredSize.width, maxSize.width), minSize.width)
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, size: size, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
         images = try swapchain.getImages()
         imageViews = try images.map { try ImageView(image: $0) }
 
@@ -146,7 +148,7 @@ public final class Renderer {
         let waitStages: [VkPipelineStageFlags] = [VkPipelineStageFlagBits.colorAttachmentOutput.rawValue]
 
         try graphicsQueue.submit(commandBuffers: submitCommandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages)
-        try preesentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
+        try presentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
 
         try device.waitForIdle()
     }

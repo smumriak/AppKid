@@ -13,10 +13,8 @@ import TinyFoundation
 import CVulkan
 
 class VulkanViewController: ViewController {
-//    var syncRequestNotificationToken: NSObjectProtocol? = nil
     var resizedNotificationToken: NSObjectProtocol? = nil
-//    var exposeNotificationToken: NSObjectProtocol? = nil
-    var renderer: Renderer?
+    var renderer: VulkanRenderer?
 
     deinit {
         if let notificationToken = resizedNotificationToken {
@@ -74,15 +72,19 @@ class VulkanViewController: ViewController {
         }
     }
 
+    var renderStack: VulkanRenderStack!
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
         guard let window = view.window else { return }
         do {
-            let renderer = try Renderer(window: window)
+            let renderStack = try VulkanRenderStack()
+            let renderer = try VulkanRenderer(window: window, renderStack: renderStack)
             try renderer.setupSwapchain()
             try renderer.render()
 
+            self.renderStack = renderStack
             self.renderer = renderer
         } catch {
             fatalError("Failed to render with error: \(error)")

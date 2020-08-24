@@ -57,6 +57,37 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window) throws -> Surface {
         return try Surface(physicalDevice: self, display: display, window: window)
     }
+
+    public func queueFamilyIndex(for queueType: VkQueueFlagBits) -> Array<VkQueueFamilyProperties>.Index? {
+        let queueFamiliesPropertiesEnumerated = queueFamiliesProperties.enumerated()
+
+        //try to find dedicated Compute queue family that is not Graphics
+        if queueType.contains(.compute) {
+            for pair in queueFamiliesPropertiesEnumerated {
+                if pair.element.flagBits.contains(queueType) && pair.element.flagBits.isDisjoint(with: .graphics) {
+                    return pair.offset
+                }
+            }
+        }
+
+        //try to find dedicated Transfer queue family that is not Graphics
+        if queueType.contains(.transfer) {
+            for pair in queueFamiliesPropertiesEnumerated {
+                if pair.element.flagBits.contains(queueType) && pair.element.flagBits.isDisjoint(with: .graphics) {
+                    return pair.offset
+                }
+            }
+        }
+
+        //for all other types find first that supports all needed types
+        for pair in queueFamiliesPropertiesEnumerated {
+            if pair.element.flagBits.contains(queueType) {
+                return pair.offset
+            }
+        }
+
+        return nil
+    }
 }
 
 extension PhysicalDevice: Comparable {

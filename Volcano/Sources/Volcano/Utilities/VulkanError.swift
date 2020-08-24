@@ -9,6 +9,7 @@ public enum VulkanError: Error {
     case badResult(VkResult)
     case instanceFunctionNotFound(String)
     case deviceFunctionNotFound(String)
+    case noQueueFamilySatisfyingType(VkQueueFlagBits)
 }
 
 extension VulkanError: CustomStringConvertible {
@@ -17,6 +18,7 @@ extension VulkanError: CustomStringConvertible {
         case .badResult(let result): return "Bad result: \(result)"
         case .instanceFunctionNotFound(let name): return "Instance function not found: \(name)"
         case .deviceFunctionNotFound(let name): return "Device function not found: \(name)"
+        case .noQueueFamilySatisfyingType(let type): return "Requested queue family types can not be found: \(type)"
         }
     }
 }

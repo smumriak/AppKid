@@ -66,6 +66,18 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
         return supportsPresentingVKBool.bool
     }
 
+    public func supportsPresenting(on queue: Queue) throws -> Bool {
+        guard queue.type.contains(.graphics) else {
+            return false
+        }
+
+        var supportsPresentingVKBool: VkBool32 = false.vkBool
+        try vulkanInvoke {
+            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queue.familyIndex), handle, &supportsPresentingVKBool)
+        }
+        return supportsPresentingVKBool.bool
+    }
+
     public func refreshCapabilities() throws {
         capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
     }

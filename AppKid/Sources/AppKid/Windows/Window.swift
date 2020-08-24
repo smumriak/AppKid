@@ -126,11 +126,11 @@ open class Window: View {
         rootViewController?.view.layoutIfNeeded()
     }
 
-    internal func createRenderer() -> Renderer {
+    internal func createRenderer() -> SoftwareRenderer {
         if isVulkanRendererEnabled {
             fatalError("Vulkan renderer is enabled")
         }
-        return Renderer(context: _graphicsContext!)
+        return SoftwareRenderer(context: _graphicsContext!)
     }
 
     // MARK: Events
