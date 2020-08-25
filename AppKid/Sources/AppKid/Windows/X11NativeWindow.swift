@@ -11,7 +11,7 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-protocol NativeWindow: class, NSObjectProtocol {
+protocol NativeWindow: class {
 
 }
 

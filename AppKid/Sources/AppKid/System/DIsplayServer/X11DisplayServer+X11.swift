@@ -81,7 +81,7 @@ internal extension X11DisplayServer {
             self.eventQueueNotificationObserver = nil
         }
 
-        context = DisplayServerContext()
+        context = X11DisplayServerContext()
     }
 
     func serviceEventsQueue() {

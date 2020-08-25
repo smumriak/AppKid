@@ -13,7 +13,7 @@ import CX11.X
 import CXInput2
 
 internal final class X11DisplayServer: NSObject, DisplayServer {
-    var context = DisplayServerContext()
+    var context = X11DisplayServerContext()
     var eventQueueNotificationObserver: NSObjectProtocol?
 
     let applicationName: String

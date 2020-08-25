@@ -1,5 +1,5 @@
 //
-//  DisplayServerContext.swift
+//  X11DisplayServerContext.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 21.04.2020.
@@ -11,7 +11,7 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-internal struct DisplayServerContext {
+internal struct X11DisplayServerContext {
     var displayConnectionFileDescriptor: CInt = -1
 
     var scale: CGFloat = 1.0

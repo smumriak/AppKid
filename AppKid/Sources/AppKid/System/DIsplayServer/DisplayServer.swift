@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal protocol DisplayServer: class, NSObjectProtocol {
+internal protocol DisplayServer: class {
     var applicationName: String { get }
     var hasEvents: Bool { get set }
 
