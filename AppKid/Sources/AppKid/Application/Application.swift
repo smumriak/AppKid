@@ -110,7 +110,7 @@ open class Application: Responder {
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
-        displayServer.setupX11()
+        displayServer.activate()
 
         if !isVulkanRendererEnabled {
             RunLoop.current.add(renderTimer, forMode: .common)
@@ -132,7 +132,7 @@ open class Application: Responder {
         } while isRunning == true && isTerminated == false
 
         renderTimer.invalidate()
-        displayServer.destroyX11()
+        displayServer.deactivate()
     }
 
     // MARK: Events
@@ -147,9 +147,9 @@ open class Application: Responder {
         currentEvent = nil
     }
 
-    internal func indexOfEvent(matching mask: Event.EventTypeMask, checkDisplayServerEventQueue: Bool = true) -> Array<Event>.Index? {
-        if checkDisplayServerEventQueue {
-            displayServer.processX11EventsQueue()
+    internal func indexOfEvent(matching mask: Event.EventTypeMask, serviceDisplayServerEventQueue: Bool = true) -> Array<Event>.Index? {
+        if serviceDisplayServerEventQueue {
+            displayServer.serviceEventsQueue()
         }
 
         return eventQueue.firstIndex { mask.contains($0.type.mask) }

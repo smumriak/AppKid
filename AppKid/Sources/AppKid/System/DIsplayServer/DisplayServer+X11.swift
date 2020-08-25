@@ -18,7 +18,7 @@ import Glibc
 #endif
 
 internal extension DisplayServer {
-    func setupX11() {
+    func activate() {
         context.displayConnectionFileDescriptor = XConnectionNumber(display)
 
         do {
@@ -112,7 +112,7 @@ internal extension DisplayServer {
         updateInputDevices()
     }
     
-    func destroyX11(){
+    func deactivate() {
         pollThread.cancel()
 
         if let runLoopSource = runLoopSource {
@@ -138,7 +138,7 @@ internal extension DisplayServer {
         hasEvents = true
     }
 
-    func processX11EventsQueue() {
+    func serviceEventsQueue() {
         guard hasEvents == true else {
             return
         }

@@ -19,7 +19,16 @@ import Glibc
 
 internal let kEnableXInput2 = true
 
-internal class DisplayServer: NSObject {
+internal protocol DisplayServerProtocol {
+    var hasEvents: Bool { get set }
+
+    func activate()
+    func deactivate()
+
+    func serviceEventsQueue()
+}
+
+internal class DisplayServer: NSObject, DisplayServerProtocol {
     var context = DisplayServerContext()
 
     let applicationName: String
