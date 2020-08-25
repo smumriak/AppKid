@@ -138,6 +138,47 @@ public final class VulkanRenderer {
     }
 
     public func render() throws {
+        //trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
+        var skipRecreation = false
+
+        while true {
+            do {
+                try drawFrame()
+                break
+            } catch VulkanError.badResult(let errorCode) {
+                if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
+                    guard skipRecreation == false else {
+                        break
+                    }
+
+                    try clearSwapchain()
+                    try setupSwapchain()
+
+                    skipRecreation = true
+                } else {
+                    throw VulkanError.badResult(errorCode)
+                }
+            }
+        }
+
+        //previous rendering code that would not skip swapchain recreation. keeping here till re-evaluating the solution
+//        var happyFrame = false
+//        repeat {
+//            do {
+//                try drawFrame()
+//                happyFrame = true
+//            } catch VulkanError.badResult(let errorCode) {
+//                if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
+//                    try clearSwapchain()
+//                    try setupSwapchain()
+//                } else {
+//                    throw VulkanError.badResult(errorCode)
+//                }
+//            }
+//        } while happyFrame == false
+    }
+
+    public func drawFrame() throws {
         let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
 
         let commandBuffer = commandBuffers[imageIndex]
@@ -342,8 +383,8 @@ public final class VulkanRenderer {
         try vulkanInvoke {
             vkCreateGraphicsPipelines(device.handle, nil, 1, &pipelineInfo, nil, &pipelinePointer)
         }
-        let pipeline = SmartPointer(with: pipelinePointer!) { [unowned self] in
-            vkDestroyPipeline(device.handle, $0, nil)
+        let pipeline = SmartPointer(with: pipelinePointer!) { [unowned renderStack] in
+            vkDestroyPipeline(renderStack.device.handle, $0, nil)
         }
 
         return pipeline

@@ -66,7 +66,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var spawnWindowButton: Button = {
-        let result = Button(with: CGRect(x: 100.0, y: 100.0, width: 140.0, height: 44.0))
+        let result = Button(with: CGRect(x: 0.0, y: 0.0, width: 140.0, height: 44.0))
 
         result.backgroundColor = .clear
 
@@ -98,7 +98,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var closeOtherWindows: Button = {
-        let result = Button(with: CGRect(x: 100.0, y: 188.0, width: 140.0, height: 44.0))
+        let result = Button(with: CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0))
 
         result.backgroundColor = .clear
 
@@ -215,6 +215,8 @@ class RootViewController: ViewController {
         scrollView.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
         scrollView.bounds.size = view.bounds.size
         scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height * 2)
+
+        closeOtherWindows.frame = CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0)
     }
 
     weak var draggedView: View? = nil

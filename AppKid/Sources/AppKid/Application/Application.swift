@@ -11,12 +11,14 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 import CairoGraphics
+import Volcano
+import CVulkan
 
 // apple failed a little bit :) rdar://problem/14497260
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
-internal let isVulkanRendererEnabled = true
+internal var isVulkanRendererEnabled = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -26,12 +28,16 @@ public protocol ApplicationDelegate: class {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool
+    func applicationShouldTerminate(_ application: Application) -> Application.TerminateReply
+    func applicationWillTerminate(_ application: Application)
 }
 
 public extension ApplicationDelegate {
-    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
-    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { return true }
-    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool { return false }
+    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { true }
+    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { true }
+    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool { false }
+    func applicationShouldTerminate(_ application: Application) -> Application.TerminateReply { .now }
+    func applicationWillTerminate(_ application: Application) {}
 }
 
 open class Application: Responder {
@@ -39,12 +45,13 @@ open class Application: Responder {
     unowned(unsafe) open var delegate: ApplicationDelegate?
 
     internal var displayServer: DisplayServer
+    internal var renderStack: VulkanRenderStack? = nil
     
     open fileprivate(set) var isRunning = false
-    open fileprivate(set) var isTerminated = false
     
     fileprivate(set) open var windows: [Window] = []
     internal var softwareRenderers: [SoftwareRenderer] = []
+    internal var vulkanRenderers: [VulkanRenderer] = []
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -56,22 +63,41 @@ open class Application: Responder {
     internal var lastClickTimestamp: TimeInterval = .zero
     internal var clickCount: Int = .zero
 
-    internal lazy var renderTimer: Timer = {
-        return Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
-            if !isVulkanRendererEnabled {
-                for i in 0..<self.windows.count {
-                    self.softwareRenderers[i].render(window: self.windows[i])
-                }
-
-                self.displayServer.flush()
-            }
+    internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
+        for i in 0..<self.windows.count {
+            self.softwareRenderers[i].render(window: self.windows[i])
         }
-    }()
+
+        self.displayServer.flush()
+    }
+
+    internal lazy var vulkanRenderTimer = Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
+        do {
+            for i in 0..<self.windows.count {
+                try self.vulkanRenderers[i].render()
+            }
+        } catch {
+            fatalError("Failed to render with error: \(error)")
+        }
+    }
 
     // MARK: Initialization
+
+    deinit {
+        displayServer.deactivate()
+    }
     
     internal override init () {
         displayServer = DisplayServer(applicationName: "SwiftyFan")
+
+        do {
+            renderStack = try VulkanRenderStack()
+            isVulkanRendererEnabled = true
+        } catch {
+            debugPrint("Could not start vulkan rendering. Falling back to software rendering")
+        }
+
+        displayServer.activate()
 
         super.init()
     }
@@ -86,13 +112,31 @@ open class Application: Responder {
     // MARK: Run Loop
 
     open func stop() {
-        isRunning = false
         CFRunLoopStop(RunLoop.current.getCFRunLoop())
     }
+
+    // MARK: Termination
     
     open func terminate() {
-        isTerminated = true
-        stop()
+        let terminate: TerminateReply = delegate?.applicationShouldTerminate(self) ?? .now
+
+        if terminate == .now {
+            reply(toApplicationShouldTerminate: true)
+        }
+    }
+
+    open func reply(toApplicationShouldTerminate shouldTerminate: Bool) {
+        if isRunning && shouldTerminate {
+            delegate?.applicationWillTerminate(self)
+            NotificationCenter.default.post(name: Application.willTerminateNotification, object: self)
+
+            isRunning = false
+
+            let windows = self.windows
+            windows.forEach { $0.close() }
+
+            exit(0)
+        }
     }
     
     open func run() {
@@ -110,16 +154,16 @@ open class Application: Responder {
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
-        displayServer.activate()
-
-        if !isVulkanRendererEnabled {
-            RunLoop.current.add(renderTimer, forMode: .common)
+        if isVulkanRendererEnabled {
+            RunLoop.current.add(vulkanRenderTimer, forMode: .common)
+        } else {
+            RunLoop.current.add(softwareRenderTimer, forMode: .common)
         }
 
         let _ = delegate?.application(self, willFinishLaunchingWithOptions: nil)
         let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)
-        
-        repeat {
+
+        while isRunning {
             guard let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true) else {
                 break
             }
@@ -127,12 +171,15 @@ open class Application: Responder {
             if event.type == .appKidDefined && event.subType == .terminate {
                 break
             }
-            
-            send(event: event)
-        } while isRunning == true && isTerminated == false
 
-        renderTimer.invalidate()
-        displayServer.deactivate()
+            send(event: event)
+        }
+
+        if isVulkanRendererEnabled {
+            vulkanRenderTimer.invalidate()
+        } else {
+            softwareRenderTimer.invalidate()
+        }
     }
 
     // MARK: Events
@@ -157,7 +204,7 @@ open class Application: Responder {
     
     open func nextEvent(matching mask: Event.EventTypeMask, until date: Date, in mode: RunLoop.Mode, dequeue: Bool) -> Event? {
         while true {
-            guard isRunning == true && isTerminated == false else {
+            guard isRunning else {
                 return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
             }
 
@@ -201,7 +248,16 @@ open class Application: Responder {
 
     open func add(window: Window) {
         windows.append(window)
-        if !isVulkanRendererEnabled {
+        if isVulkanRendererEnabled {
+            do {
+                let renderer = try VulkanRenderer(window: window, renderStack: renderStack!)
+                try renderer.setupSwapchain()
+                
+                vulkanRenderers.append(renderer)
+            } catch {
+                fatalError("Failed to created window renderer with error: \(error)")
+            }
+        } else {
             softwareRenderers.append(window.createRenderer())
         }
     }
@@ -214,13 +270,17 @@ open class Application: Responder {
 
     open func remove(windowNumer index: Array<Window>.Index) {
         //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
-        if !isVulkanRendererEnabled {
+        if isVulkanRendererEnabled {
+            let renderer = vulkanRenderers.remove(at: index)
+            try? renderer.device.waitForIdle()
+        } else {
             softwareRenderers.remove(at: index)
         }
         windows.remove(at: index)
 
-        if windows.isEmpty && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
-            stop()
+        if windows.isEmpty && isRunning && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
+            //palkovnik:TODO:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing
+            terminate()
         }
     }
 }
@@ -234,4 +294,18 @@ public extension Application {
             self.rawValue = rawValue
         }
     }
+}
+
+public extension Application {
+    enum TerminateReply: UInt {
+        case cancel = 0
+        case now = 1
+        case later = 2
+    }
+}
+
+public extension Application {
+    // MARK: Notifications
+
+    static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
 }

@@ -19,11 +19,11 @@ extension Notification.Name {
 }
 
 public protocol WindowDelegate: class {
-
+    func windowShouldClose(_ sender: Window) -> Bool
 }
 
 extension WindowDelegate {
-    
+    func windowShouldClose(_ sender: Window) -> Bool { true }
 }
 
 open class Window: View {
@@ -206,8 +206,9 @@ open class Window: View {
     }
 
     open func performClose(_ sender: Any?) {
-        // TODO
-        close()
+        if delegate?.windowShouldClose(self) ?? true {
+            close()
+        }
     }
 
     open func close() {
@@ -232,7 +233,7 @@ fileprivate extension Window {
             leftMouseDownView = hitTest(event.locationInWindow) ?? self
             leftMouseDownView?.mouseDown(with: event)
 
-            repeat {
+            while true {
                 guard let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
                     break
                 }
@@ -243,7 +244,7 @@ fileprivate extension Window {
                     application.discardEvent(matching: .any, before: nextEvent)
                     break
                 }
-            } while true
+            }
 
         case .leftMouseDragged:
             leftMouseDownView?.mouseDragged(with: event)
@@ -256,7 +257,7 @@ fileprivate extension Window {
             rightMouseDownView = hitTest(event.locationInWindow) ?? self
             rightMouseDownView?.rightMouseDown(with: event)
 
-            repeat {
+            while true {
                 guard let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
                     break
                 }
@@ -267,7 +268,7 @@ fileprivate extension Window {
                     application.discardEvent(matching: .any, before: nextEvent)
                     break
                 }
-            } while true
+            }
 
         case .rightMouseDragged:
             rightMouseDownView?.rightMouseDragged(with: event)
@@ -280,7 +281,7 @@ fileprivate extension Window {
             otherMouseDownView = hitTest(event.locationInWindow) ?? self
             otherMouseDownView?.otherMouseDown(with: event)
 
-            repeat {
+            while true {
                 guard let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
                     break
                 }
@@ -291,7 +292,7 @@ fileprivate extension Window {
                     application.discardEvent(matching: .any, before: nextEvent)
                     break
                 }
-            } while true
+            }
 
         case .otherMouseDragged:
             otherMouseDownView?.otherMouseDragged(with: event)
@@ -333,7 +334,7 @@ fileprivate extension Window {
 
         switch event.subType {
         case .windowDeleteRequest:
-            Application.shared.remove(windowNumer: event.windowNumber)
+            performClose(self)
 
         case .windowMapped:
             isMapped = true
@@ -365,6 +366,22 @@ fileprivate extension Window {
                 if (newSize != bounds.size) {
                     updateSurface()
                 }
+            }
+
+            let application = Application.shared
+
+            if let index = application.windows.firstIndex(of: self) {
+                if isVulkanRendererEnabled {
+                    do {
+                        try application.vulkanRenderers[index].render()
+                    } catch {
+                        fatalError("Failed to render with error: \(error)")
+                    }
+                } else {
+                    //palkovnik:TODO:Consolidate the workflow of software and vulkan based renderers. Currently it's a little bit of a mess. At least before CARenderer is implemented
+                }
+
+                nativeWindow.rendererResized = true
             }
 
             notificationCenter.post(name: .windowDidResize, object: self)

@@ -17,13 +17,14 @@ internal extension DisplayServer {
         context.displayConnectionFileDescriptor = XConnectionNumber(display)
 
         let fileHandle = FileHandle(fileDescriptor: context.displayConnectionFileDescriptor, closeOnDealloc: false)
-        fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common])
 
-        eventQueueNotificationObserver = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: fileHandle, queue: nil) { [fileHandle, unowned self] _ in
+        eventQueueNotificationObserver = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: fileHandle, queue: nil) { [unowned self] in
             self.hasEvents = true
-            debugPrint(#function, CFAbsoluteTimeGetCurrent())
+            let fileHandle = $0.object as! FileHandle
             fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
         }
+
+        fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
 
         context.deleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
         context.takeFocusAtom = XInternAtom(display, "WM_TAKE_FOCUS", 0)
