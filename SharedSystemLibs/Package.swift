@@ -16,7 +16,6 @@ let package = Package(
     products: [
         .library(name: "CX11", targets: ["CX11"]),
         .library(name: "CXInput2", targets: ["CXInput2"]),
-        .library(name: "CEpoll", targets: ["CEpoll"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
         .library(name: "CVulkan", targets: ["CVulkan"])
@@ -40,9 +39,6 @@ let package = Package(
                 .brew(["xquartz"])
             ]
         ),
-        .systemLibrary(
-            name: "CEpoll",
-            path: "CEpoll"),
         .systemLibrary(
             name: "CCairo",
             path: "CCairo",

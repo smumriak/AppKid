@@ -12,11 +12,6 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-#if os(Linux)
-import CEpoll
-import Glibc
-#endif
-
 internal let kEnableXInput2 = true
 
 internal protocol DisplayServerProtocol {
@@ -30,6 +25,7 @@ internal protocol DisplayServerProtocol {
 
 internal class DisplayServer: NSObject, DisplayServerProtocol {
     var context = DisplayServerContext()
+    var eventQueueNotificationObserver: NSObjectProtocol?
 
     let applicationName: String
 
@@ -38,10 +34,6 @@ internal class DisplayServer: NSObject, DisplayServerProtocol {
 
     var inputMethod: XIM?
     let inputStyle: XIMStyle?
-
-    lazy var pollThread = Thread { self.pollForX11Events() }
-
-    var runLoopSource: CFRunLoopSource? = nil
 
     let rootWindow: X11NativeWindow
 

@@ -12,20 +12,17 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-#if os(Linux)
-import CEpoll
-import Glibc
-#endif
-
 internal extension DisplayServer {
     func activate() {
         context.displayConnectionFileDescriptor = XConnectionNumber(display)
 
-        do {
-            context.displayConnectionWaitSignal = try EpollWaitSignal(waitFileDescriptor: context.displayConnectionFileDescriptor)
-        } catch {
-            XCloseDisplay(display)
-            fatalError("Failed to create epoll file descriptor, error: \(error)")
+        let fileHandle = FileHandle(fileDescriptor: context.displayConnectionFileDescriptor, closeOnDealloc: false)
+        fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common])
+
+        eventQueueNotificationObserver = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: fileHandle, queue: nil) { [fileHandle, unowned self] _ in
+            self.hasEvents = true
+            debugPrint(#function, CFAbsoluteTimeGetCurrent())
+            fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
         }
 
         context.deleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
@@ -71,71 +68,17 @@ internal extension DisplayServer {
             return 0
         }
 
-        var x11RunLoopSourceContext = CFRunLoopSourceContext1()
-        x11RunLoopSourceContext.version = 1
-        x11RunLoopSourceContext.info = Unmanaged.passUnretained(self).toOpaque()
-        
-        #if os(Linux)
-        x11RunLoopSourceContext.getPort = {
-            if let info = $0 {
-                let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
-                
-                return UnsafeMutableRawPointer(bitPattern: Int(displayServer.context.displayConnectionWaitSignal.signalFileDescriptor))
-            } else {
-                return UnsafeMutableRawPointer(bitPattern: Int(-1))
-            }
-        }
-        
-        x11RunLoopSourceContext.perform = {
-            if let info = $0 {
-                let displayServer: DisplayServer = Unmanaged<DisplayServer>.fromOpaque(info).takeUnretainedValue()
-                
-                displayServer.handleX11EpollSignal()
-            }
-        }
-        #endif
-
-        let currentRunloop = RunLoop.current
-
-        withUnsafeMutablePointer(to: &x11RunLoopSourceContext) {
-            $0.withMemoryRebound(to: CFRunLoopSourceContext.self, capacity: 1) {
-                runLoopSource = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, $0)!
-                
-                CFRunLoopAddSource(currentRunloop.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
-            }
-        }
-
-        pollThread.qualityOfService = .userInteractive
-        pollThread.name = "X11 poll thread"
-        pollThread.start()
-
         updateInputDevices()
     }
     
     func deactivate() {
-        pollThread.cancel()
+        if let eventQueueNotificationObserver = eventQueueNotificationObserver {
+            NotificationCenter.default.removeObserver(eventQueueNotificationObserver)
 
-        if let runLoopSource = runLoopSource {
-            CFRunLoopRemoveSource(RunLoop.current.getCFRunLoop(), runLoopSource, CFRunLoopCommonModesConstant)
+            self.eventQueueNotificationObserver = nil
         }
 
         context = DisplayServerContext()
-    }
-    
-    func pollForX11Events() {
-        if Thread.isMainThread {
-            XCloseDisplay(display)
-            fatalError("Polling of X11 events is not allowed on main thread. Never. It's an infinite loop, you don't want to block your main thread, do you?")
-        }
-        while pollThread.isCancelled == false && pollThread.isFinished == false {
-            let result = context.displayConnectionWaitSignal.wait()
-            if result.result == 0 || result.result == -1 { continue }
-            context.displayConnectionWaitSignal.signal()
-        }
-    }
-
-    func handleX11EpollSignal() {
-        hasEvents = true
     }
 
     func serviceEventsQueue() {
