@@ -11,7 +11,11 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-public final class X11NativeWindow {
+protocol NativeWindow: class, NSObjectProtocol {
+
+}
+
+public final class X11NativeWindow: NSObject, NativeWindow {
     public fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
     public fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
     public fileprivate(set) var windowID: CX11.Window
@@ -128,7 +132,7 @@ public final class X11NativeWindow {
         self.title = title
     }
 
-    func updateListeningEvents(displayServer: DisplayServer) {
+    func updateListeningEvents(displayServer: X11DisplayServer) {
         if kEnableXInput2 {
             // what you see below is very unsafe code in swift, but it's more or less usual implicit cast for C code. XInput2 is poorly designed C API with a lot of inconsistent or plain dumb solutions. so what's happening? the code creates XIEventMask structs which require stupid buffer or UInt8 as an input that provides "mask" for the event type. In our case even type mask has to be more than 8 bits. 32 to be precise. so we literallly cast 32 bit uint pointer value to 8 bit uint pointer. hope this does not break in future releases of swift (ha-ha, it will). after "selecting" the needed events by mask the code deallocates the data for those mask buffers
             var eventMasks: [XIEventMask] = displayServer.context.inputDevices
@@ -152,12 +156,12 @@ public final class X11NativeWindow {
         }
     }
 
-    func map(displayServer: DisplayServer) {
+    func map(displayServer: X11DisplayServer) {
         XMapWindow(displayServer.display, windowID)
     }
 }
 
-extension X11NativeWindow: Equatable {
+extension X11NativeWindow {
     public static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
     }

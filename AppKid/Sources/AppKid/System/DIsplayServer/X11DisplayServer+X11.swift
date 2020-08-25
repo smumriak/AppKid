@@ -1,5 +1,5 @@
 //
-//  DisplayServer+X11.swift
+//  X11DisplayServer+X11.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 01.02.2020.
@@ -12,7 +12,9 @@ import CX11.Xlib
 import CX11.X
 import CXInput2
 
-internal extension DisplayServer {
+internal let kEnableXInput2 = true
+
+internal extension X11DisplayServer {
     func activate() {
         context.displayConnectionFileDescriptor = XConnectionNumber(display)
 

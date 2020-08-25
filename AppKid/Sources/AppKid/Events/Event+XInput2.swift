@@ -53,7 +53,7 @@ fileprivate extension XEvent {
 }
 
 internal extension Event {
-    convenience init(xInput2Event event: XEvent, timestamp: TimeInterval, displayServer: DisplayServer) throws {
+    convenience init(xInput2Event event: XEvent, timestamp: TimeInterval, displayServer: X11DisplayServer) throws {
         let type = event.eventTypeFromXInput2Event
 
         if type == .none {

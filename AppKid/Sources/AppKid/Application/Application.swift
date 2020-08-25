@@ -44,7 +44,7 @@ open class Application: Responder {
     public static let shared = Application()
     unowned(unsafe) open var delegate: ApplicationDelegate?
 
-    internal var displayServer: DisplayServer
+    internal var displayServer: X11DisplayServer
     internal var renderStack: VulkanRenderStack? = nil
     
     open fileprivate(set) var isRunning = false
@@ -88,7 +88,7 @@ open class Application: Responder {
     }
     
     internal override init () {
-        displayServer = DisplayServer(applicationName: "SwiftyFan")
+        displayServer = X11DisplayServer(applicationName: "SwiftyFan")
 
         do {
             renderStack = try VulkanRenderStack()
