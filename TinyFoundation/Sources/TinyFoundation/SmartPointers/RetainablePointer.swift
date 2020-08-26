@@ -14,6 +14,8 @@ public protocol RetainableCType: ReleasableCType {
 public extension UnsafeMutablePointer where Pointee: RetainableCType {
     @discardableResult
     func retain() -> UnsafeMutablePointer<Pointee> {
+        defer { globalRetainCount.increment() }
+
         return Pointee.retainFunc(self)!
     }
 }
@@ -30,6 +32,12 @@ public class RetainablePointer<Pointee>: ReleasablePointer<Pointee> where Pointe
 
     public override init(with pointer: Pointer_t) {
         super.init(with: pointer.retain())
+    }
+
+    public init(withRetained pointer: Pointer_t) {
+        defer { globalRetainCount.increment() }
+        
+        super.init(with: pointer)
     }
 
     public convenience init(other: RetainablePointer<Pointee>) {

@@ -59,9 +59,7 @@ open class CGContext {
     
     public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
         let cairoContext = cairo_create(surface)!
-        defer { cairoContext.release() }
-
-        self._contextPointer = RetainablePointer(with: cairoContext)
+        self._contextPointer = RetainablePointer(withRetained: cairoContext)
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
     }

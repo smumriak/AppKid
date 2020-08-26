@@ -7,6 +7,33 @@
 
 import Foundation
 
+internal struct RetainCount {
+    private let lock = NSRecursiveLock()
+    private var value: Int64 = 0
+
+    mutating func increment() {
+        lock.lock()
+        defer { lock.unlock() }
+
+        value += 1
+    }
+
+    mutating func decrement() {
+        lock.lock()
+        defer { lock.unlock() }
+
+        value -= 1
+    }
+
+    var currentValue: Int64 {
+        lock.lock()
+        defer { lock.unlock() }
+
+        return value
+    }
+}
+internal var globalRetainCount = RetainCount()
+
 public protocol SmartPointerProtocol {
     associatedtype Pointee
     typealias Pointer_t = UnsafeMutablePointer<Pointee>
@@ -46,6 +73,8 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     internal let deleter: Deleter
 
     deinit {
+        defer { globalRetainCount.decrement() }
+        
         deleter.invoke(with: pointer)
     }
 
@@ -54,6 +83,8 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     }
 
     public init(with pointer: Pointer_t, deleter: Deleter = .none) {
+        defer { globalRetainCount.increment() }
+        
         self.pointer = pointer
         self.deleter = deleter
     }

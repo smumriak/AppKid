@@ -49,14 +49,10 @@ open class TextLayout {
     
     public init() {
         let pangoContext = pango_font_map_create_context(pango_cairo_font_map_get_default())!
-        defer { pangoContext.release() }
-
-        pangoContextPointer = RetainablePointer(with: pangoContext)
+        pangoContextPointer = RetainablePointer(withRetained: pangoContext)
 
         let layout = pango_layout_new(pangoContext)!
-        defer { layout.release() }
-
-        layoutPointer = RetainablePointer(with: layout)
+        layoutPointer = RetainablePointer(withRetained: layout)
 
         pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
 

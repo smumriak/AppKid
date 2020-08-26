@@ -13,6 +13,8 @@ public protocol ReleasableCType {
 
 public extension UnsafeMutablePointer where Pointee: ReleasableCType {
     func release() {
+        defer { globalRetainCount.decrement() }
+        
         Pointee.releaseFunc(self)
     }
 }

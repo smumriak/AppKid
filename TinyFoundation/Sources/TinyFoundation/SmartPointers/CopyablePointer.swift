@@ -13,6 +13,8 @@ public protocol CopyableCType: ReleasableCType {
 
 public extension UnsafeMutablePointer where Pointee: CopyableCType {
     func copy() -> UnsafeMutablePointer<Pointee> {
+        defer { globalRetainCount.increment() }
+        
         return Pointee.copyFunc(self)!
     }
 }
@@ -28,6 +30,8 @@ public final class CopyablePointer<Pointee>: ReleasablePointer<Pointee> where Po
     }
 
     public override init(with pointer: Pointer_t) {
+        defer { globalRetainCount.increment() }
+
         super.init(with: pointer)
     }
 

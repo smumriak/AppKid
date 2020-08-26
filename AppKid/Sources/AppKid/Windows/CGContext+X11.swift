@@ -28,9 +28,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
         let windowAttributes = nativeWindow.attributes
         #if os(Linux)
         let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
-        defer { surface.release() }
-        
-        surfacePointer = RetainablePointer(with: surface)
+        surfacePointer = RetainablePointer(withRetained: surface)
 
         self.nativeWindow = nativeWindow
         

@@ -89,8 +89,6 @@ public extension CGColor {
 internal extension CGColor {
     var freshCairoPattern: RetainablePointer<cairo_pattern_t> {
         let cairoPattern = cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha))!
-        defer { cairoPattern.release() }
-
-        return RetainablePointer(with: cairoPattern)
+        return RetainablePointer(withRetained: cairoPattern)
     }
 }

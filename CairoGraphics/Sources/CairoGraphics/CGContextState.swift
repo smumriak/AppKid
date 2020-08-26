@@ -14,9 +14,7 @@ internal class CGContextState {
     
     fileprivate var defaultPatternPointer: RetainablePointer<cairo_pattern_t> = {
         let cairoPattern = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0)!
-        defer { cairoPattern.release() }
-
-        return RetainablePointer(with: cairoPattern)
+        return RetainablePointer(withRetained: cairoPattern)
     }()
     var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> {
         get {
