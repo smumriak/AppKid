@@ -44,7 +44,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
             fatalError("No surface formates available")
         }
 
-        let desiredFormat = VkSurfaceFormatKHR(format: VK_FORMAT_B8G8R8A8_UNORM, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        let desiredFormat = VkSurfaceFormatKHR(format: VK_FORMAT_B8G8R8A8_SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 
         if supportedFormats.contains(desiredFormat) || (supportedFormats.count == 1 && supportedFormats[0].format == VK_FORMAT_UNDEFINED) {
             selectedFormat = desiredFormat

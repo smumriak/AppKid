@@ -17,12 +17,15 @@ internal struct X11DisplayServerContext {
     var scale: CGFloat = 1.0
 
     var xInput2ExtensionOpcode: CInt = 0
-    var deleteWindowAtom = Atom(CX11.None)
-    var takeFocusAtom = Atom(CX11.None)
-    var xiTouchPadAtom = Atom(CX11.None)
-    var xiMouseAtom = Atom(CX11.None)
-    var xiKeyvoardAtom = Atom(CX11.None)
-    var syncRequestAtom = Atom(CX11.None)
+    var deleteWindowAtom = Atom(None)
+    var takeFocusAtom = Atom(None)
+    var xiTouchPadAtom = Atom(None)
+    var xiMouseAtom = Atom(None)
+    var xiKeyvoardAtom = Atom(None)
+    var syncRequestAtom = Atom(None)
+    var stayAboveAtom = Atom(None)
+    var stayBelowAtom = Atom(None)
+    var stateAtom = Atom(None)
 
     var currentPressedMouseButton: XInput2Button = .none
     var currentModifierFlags: Event.ModifierFlags = .none

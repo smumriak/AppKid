@@ -34,6 +34,9 @@ internal extension X11DisplayServer {
         context.xiMouseAtom = XInternAtom(display, XI_MOUSE, 0)
         context.xiKeyvoardAtom = XInternAtom(display, XI_KEYBOARD, 0)
         context.syncRequestAtom = XInternAtom(display, "_NET_WM_SYNC_REQUEST", 0)
+        context.stayAboveAtom = XInternAtom(display, "_NET_WM_STATE_ABOVE", 0)
+        context.stayBelowAtom = XInternAtom(display, "_NET_WM_STATE_BELOW", 0)
+        context.stateAtom = XInternAtom(display, "_NET_WM_STATE", 0)
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {

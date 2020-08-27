@@ -112,6 +112,8 @@ public final class VulkanRenderer {
         pipeline = try createGraphicsPipeline()
         framebuffers = try createFramebuffers()
         commandBuffers = try createCommandBuffers()
+
+        oldSwapchain = nil
     }
 
     public func clearSwapchain() throws {

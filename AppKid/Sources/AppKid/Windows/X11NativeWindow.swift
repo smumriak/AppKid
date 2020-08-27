@@ -12,7 +12,8 @@ import CX11.X
 import CXInput2
 
 protocol NativeWindow: class {
-
+    var title: String { get set }
+    var opacity: CGFloat { get set }
 }
 
 public final class X11NativeWindow: NSObject, NativeWindow {
@@ -60,6 +61,28 @@ public final class X11NativeWindow: NSObject, NativeWindow {
             }
         }
     }
+    
+    //palkobnik:TODO:Looks like native window will need access to display context after all. Looks like Screen class is coming
+    // func setFloatsOnTop() {
+    //     var event = XClientMessageEvent()
+    //     event.type = ClientMessage
+    //     event.window = Application.shared.windows[0].nativeWindow.windowID
+    //     event.message_type = context.stateAtom
+    //     event.format = 32
+    //     event.data.l.0 = 1
+    //     event.data.l.1 = Int(context.stayAboveAtom)
+    //     event.data.l.2 = 0
+    //     event.data.l.3 = 0
+    //     event.data.l.4 = 0
+
+    //     let size = MemoryLayout.size(ofValue: event)
+
+    //     withUnsafeMutablePointer(to: &event) { event in
+    //         event.withMemoryRebound(to: XEvent.self, capacity: size) { event in
+    //             let _ = XSendEvent(display, XDefaultRootWindow(display), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
+    //         }
+    //     }
+    // }
 
     public var displayScale: CGFloat = 1.0
 
