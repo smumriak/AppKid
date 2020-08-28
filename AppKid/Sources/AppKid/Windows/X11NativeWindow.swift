@@ -62,7 +62,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
     
-    //palkobnik:TODO:Looks like native window will need access to display context after all. Looks like Screen class is coming
+    // TODO: palkobnik: Looks like native window will need access to display context after all. Looks like Screen class is coming
     // func setFloatsOnTop() {
     //     var event = XClientMessageEvent()
     //     event.type = ClientMessage
@@ -165,7 +165,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                     let reboundMaskPointer = UnsafeMutableRawPointer(maskPointer).bindMemory(to: UInt8.self, capacity: 4)
 
                     return XIEventMask(deviceid: device.identifier, mask_len: 4, mask: reboundMaskPointer)
-            }
+                }
             defer {
                 eventMasks.forEach {
                     $0.mask.deallocate()
@@ -198,14 +198,17 @@ internal struct Rect<StorageType> where StorageType: BinaryInteger {
         get { origin.x }
         set { origin.x = newValue }
     }
+
     var y: StorageType {
         get { origin.y }
-        set { origin.y = newValue}
+        set { origin.y = newValue }
     }
+
     var width: StorageType {
         get { size.width }
         set { size.width = newValue }
     }
+
     var height: StorageType {
         get { size.height }
         set { size.height = newValue }
@@ -244,7 +247,7 @@ extension Rect {
     }
 }
 
-internal extension CGRect{
+internal extension CGRect {
     func rect<StorageType>() -> Rect<StorageType> where StorageType: BinaryInteger {
         let standardized = self.standardized
         return Rect(origin: standardized.origin.point(), size: standardized.size.size())

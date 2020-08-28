@@ -12,7 +12,7 @@ open class Button: Control {
     var stateToTitle: [State: String] = [:]
     var stateToTextColor: [State: CairoGraphics.CGColor] = [:]
 
-    fileprivate(set) open var titleLabel: Label?
+    open fileprivate(set) var titleLabel: Label?
 
     open override var state: State {
         didSet {

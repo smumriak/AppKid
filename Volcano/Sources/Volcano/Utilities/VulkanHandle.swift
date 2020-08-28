@@ -13,6 +13,7 @@ public class VulkanHandle<Handle> where Handle: SmartPointerProtocol {
         get { handlePointer.pointer }
         set { handlePointer.pointer = newValue }
     }
+
     public internal(set) var handlePointer: Handle
 
     internal init(handlePointer: Handle) {

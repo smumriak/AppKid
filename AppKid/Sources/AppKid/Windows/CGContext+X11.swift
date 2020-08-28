@@ -22,26 +22,27 @@ internal class X11RenderContext: CairoGraphics.CGContext {
             surfacePointer.pointer = newValue
         }
     }
+
     var nativeWindow: X11NativeWindow
     
     init(nativeWindow: X11NativeWindow) {
         let windowAttributes = nativeWindow.attributes
         #if os(Linux)
-        let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
-        surfacePointer = RetainablePointer(withRetained: surface)
+            let surface = cairo_xlib_surface_create(nativeWindow.display, nativeWindow.windowID, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
+            surfacePointer = RetainablePointer(withRetained: surface)
 
-        self.nativeWindow = nativeWindow
+            self.nativeWindow = nativeWindow
         
-        super.init(surface: surface, size: CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height)))
+            super.init(surface: surface, size: CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height)))
         #else
-        fatalError("Running on non-Linux targets is not supported at the moment")
+            fatalError("Running on non-Linux targets is not supported at the moment")
         #endif
     }
 
     func updateSurface() {
         #if os(Linux)
-        let currentRect = nativeWindow.currentIntRect
-        cairo_xlib_surface_set_size(surface, currentRect.width, currentRect.height)
+            let currentRect = nativeWindow.currentIntRect
+            cairo_xlib_surface_set_size(surface, currentRect.width, currentRect.height)
         #endif
     }
 }

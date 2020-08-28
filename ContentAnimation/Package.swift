@@ -11,15 +11,15 @@ import PackageDescription
 let package = Package(
     name: "ContentAnimation",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
-        .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"])
+        .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
-        .package(path: "../CairoGraphics")
+        .package(path: "../CairoGraphics"),
     ],
     targets: [
         .target(
@@ -27,8 +27,8 @@ let package = Package(
             dependencies: [
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
-                .product(name: "CVulkan", package: "SharedSystemLibs")
+                .product(name: "CVulkan", package: "SharedSystemLibs"),
             ]
-        )
+        ),
     ]
 )

@@ -14,7 +14,7 @@ public enum CGPathFillRule: Int {
     case evenOdd
 }
 
-public enum CGLineCap : Int {
+public enum CGLineCap: Int {
     case butt
     case round
     case square
@@ -149,7 +149,7 @@ public extension CGContext {
     func addQuadCurve(to end: CGPoint, control: CGPoint) {
         let current = currentPointOfPath
         
-        let control1 = CGPoint(x: (current.x / 3.0) + (2.0 * control.x/3.0), y: (current.y / 3.0) + (2.0 * control.y/3.0))
+        let control1 = CGPoint(x: (current.x / 3.0) + (2.0 * control.x / 3.0), y: (current.y / 3.0) + (2.0 * control.y / 3.0))
         let control2 = CGPoint(x: (2.0 * control.x / 3.0) + (end.x / 3.0), y: (2.0 * control.y / 3.0) + (end.y / 3.0))
         
         addCurve(to: end, control1: control1, control2: control2)
@@ -173,19 +173,18 @@ public extension CGContext {
     
     func addArc(center: CGPoint, radius: CGFloat, startAngle: CGFloat, endAngle: CGFloat, clockwise: Bool) {
         if clockwise {
-          cairo_arc_negative(_context, Double(center.x), Double(center.y), Double(radius), Double(startAngle), Double(endAngle))
-        }
-        else {
-          cairo_arc(_context, Double(center.x), Double(center.y), Double(radius), Double(startAngle), Double(endAngle))
+            cairo_arc_negative(_context, Double(center.x), Double(center.y), Double(radius), Double(startAngle), Double(endAngle))
+        } else {
+            cairo_arc(_context, Double(center.x), Double(center.y), Double(radius), Double(startAngle), Double(endAngle))
         }
     }
     
     func addArc(tangent1End: CGPoint, tangent2End: CGPoint, radius: CGFloat) {
-        // palkovnik:TODO: Implement
+        // TODO: palkovnik: Implement
     }
     
     func addEllipse(in rect: CGRect) {
-        // palkovnik:TODO: Implement
+        // TODO: palkovnik: Implement
     }
     
     func addPath(_ path: CGPath) {

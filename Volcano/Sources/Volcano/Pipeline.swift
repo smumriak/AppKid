@@ -9,5 +9,4 @@ import TinyFoundation
 import CVulkan
 
 public final class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
-    
 }

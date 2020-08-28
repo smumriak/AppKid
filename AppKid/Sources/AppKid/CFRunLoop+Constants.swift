@@ -9,11 +9,11 @@ import CoreFoundation
 import Foundation
 
 #if os(Linux)
-let CFRunLoopDefaultModeConstant: CFRunLoopMode = kCFRunLoopDefaultMode
-let CFRunLoopCommonModesConstant: CFRunLoopMode = kCFRunLoopCommonModes
+    let CFRunLoopDefaultModeConstant: CFRunLoopMode = kCFRunLoopDefaultMode
+    let CFRunLoopCommonModesConstant: CFRunLoopMode = kCFRunLoopCommonModes
 #else
-let CFRunLoopDefaultModeConstant: CFRunLoopMode = CFRunLoopMode.defaultMode
-let CFRunLoopCommonModesConstant: CFRunLoopMode = CFRunLoopMode.commonModes
+    let CFRunLoopDefaultModeConstant: CFRunLoopMode = CFRunLoopMode.defaultMode
+    let CFRunLoopCommonModesConstant: CFRunLoopMode = CFRunLoopMode.commonModes
 #endif
 
 internal extension RunLoop.Mode {
@@ -25,9 +25,9 @@ internal extension RunLoop.Mode {
         } else {
             let mode = CFStringCreateWithCString(nil, rawValue.cString(using: .utf8), kCFStringEncodingASCII)!
             #if os(Linux)
-            return mode
+                return mode
             #else
-            return CFRunLoopMode(mode)
+                return CFRunLoopMode(mode)
             #endif
         }
     }

@@ -26,11 +26,13 @@ extension X11ModifierKeySymbol: CaseIterable {
         .leftHyper,
         .rightHyper,
         .modeSwitch,
-        .level3Shift
+        .level3Shift,
     ]
 
     var isValidRawValue: Bool {
-        return Self.allCases.map{ $0.rawValue }.contains(rawValue)
+        return Self.allCases
+            .map { $0.rawValue }
+            .contains(rawValue)
     }
 
     var modifierFlag: Event.ModifierFlags {

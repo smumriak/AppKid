@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "archive",
     dependencies: [
-        .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager", .branch("master"))
+        .package(name: "SwiftPM", url: "https://github.com/apple/swift-package-manager", .branch("master")),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.

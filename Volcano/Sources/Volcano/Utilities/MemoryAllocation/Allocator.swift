@@ -14,7 +14,7 @@ public protocol VulkanMemoryAllocator {
 public class DefaultAllocator: VulkanMemoryAllocator {
     public internal(set) unowned var device: Device
 
-    required public init(device: Device) {
+    public required init(device: Device) {
         self.device = device
     }
 }

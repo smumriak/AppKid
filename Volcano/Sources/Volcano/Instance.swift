@@ -53,7 +53,7 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
         do {
             var applicationInfo = VkApplicationInfo()
             applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO
-            applicationInfo.apiVersion =  (1 << 22) | (2 << 12) | 0
+            applicationInfo.apiVersion = (1 << 22) | (2 << 12) | 0
 
             let validationLayers = ["VK_LAYER_KHRONOS_validation"].cStrings
             let validationLayersPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: validationLayers.count)
@@ -74,7 +74,7 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
             var extensions: [String] = [VK_KHR_SURFACE_EXTENSION_NAME]
 
             #if os(Linux)
-            extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
+                extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
             #endif
 
             let extensionsCStrings = extensions.cStrings

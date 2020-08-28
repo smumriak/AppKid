@@ -13,6 +13,7 @@ open class View: Responder {
     internal weak var viewDelegate: ViewController? = nil
 
     // MARK: Geometry
+
     fileprivate var _bounds: CGRect {
         didSet {
             invalidateTransforms()
@@ -20,6 +21,7 @@ open class View: Responder {
             setNeedsDisplay()
         }
     }
+
     fileprivate var _center: CGPoint {
         didSet {
             invalidateTransforms()
@@ -74,11 +76,13 @@ open class View: Responder {
         rebuildTransformsIfNeeded()
         return _transformToWindow
     }
+
     fileprivate var _transformFromWindow: CairoGraphics.CGAffineTransform = .identity
     internal var transformFromWindow: CairoGraphics.CGAffineTransform {
         rebuildTransformsIfNeeded()
         return _transformFromWindow
     }
+
     internal var transformsAreValid = false
 
     open var masksToBounds = true
@@ -100,6 +104,7 @@ open class View: Responder {
     }
 
     // MARK: Layout
+
     open var needsLayout = false
     open var autoresizingMaks: AutoresizingMask = .none
     open var autoresizesSubviews = true
@@ -123,9 +128,7 @@ open class View: Responder {
     }
 
     internal func layoutBelowIfNeeeded() {
-
     }
-
 
     open var hidden = false
     open var alpha: CGFloat = 1.0
@@ -295,7 +298,7 @@ open class View: Responder {
         var interestPoint = point
 
         if self.point(inside: interestPoint) == false {
-             return nil
+            return nil
         }
 
         var result: View = self

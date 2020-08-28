@@ -15,12 +15,11 @@ public extension UnsafeMutablePointer where Pointee: EntityFactory {
 
     func allocateMemory<Info, Result>(info: UnsafePointer<Info>, using allocator: AllocatorFunction<Self.Pointee, Info, Result>) throws -> UnsafeMutablePointer<Result> {
         var result: UnsafeMutablePointer<Result>?
-        try vulkanInvoke (
+        try vulkanInvoke {
             allocator(self, info, &result)
-        )
+        }
         return result!
     }
-
 }
 
 public extension VulkanHandle where Handle.Pointee: EntityFactory {

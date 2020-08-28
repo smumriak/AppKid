@@ -11,10 +11,10 @@ import PackageDescription
 let package = Package(
     name: "SwiftyFan",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
-        .executable(name: "SwiftyFan", targets: ["SwiftyFan"])
+        .executable(name: "SwiftyFan", targets: ["SwiftyFan"]),
     ],
     dependencies: [
         .package(path: "./TinyFoundation"),
@@ -22,7 +22,7 @@ let package = Package(
         .package(path: "./CairoGraphics"),
         .package(path: "./ContentAnimation"),
         .package(path: "./SharedSystemLibs"),
-        .package(path: "./Volcano")
+        .package(path: "./Volcano"),
     ],
     targets: [
         .target(
@@ -32,15 +32,15 @@ let package = Package(
                 "CairoGraphics",
                 "ContentAnimation",
                 "TinyFoundation",
-                "Volcano"
+                "Volcano",
             ],
             resources: [
-                .copy("Resources/AppIcon.png")
+                .copy("Resources/AppIcon.png"),
             ]
         ),
         .testTarget(
             name: "SwiftyFanTests",
             dependencies: ["SwiftyFan"]
-        )
+        ),
     ]
 )

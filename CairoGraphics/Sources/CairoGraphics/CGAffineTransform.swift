@@ -22,22 +22,27 @@ public struct CGAffineTransform {
         get { return CGFloat(_matrix.xx) }
         set { _matrix.xx = Double(newValue) }
     }
+
     var b: CGFloat {
         get { return CGFloat(_matrix.xy) }
         set { _matrix.xy = Double(newValue) }
     }
+
     var c: CGFloat {
         get { return CGFloat(_matrix.yx) }
         set { _matrix.yx = Double(newValue) }
     }
+
     var d: CGFloat {
         get { return CGFloat(_matrix.yy) }
         set { _matrix.yy = Double(newValue) }
     }
+
     var tx: CGFloat {
-        get { return  CGFloat(_matrix.x0) }
+        get { return CGFloat(_matrix.x0) }
         set { _matrix.x0 = Double(newValue) }
     }
+
     var ty: CGFloat {
         get { return CGFloat(_matrix.y0) }
         set { _matrix.y0 = Double(newValue) }
@@ -47,11 +52,11 @@ public struct CGAffineTransform {
 fileprivate extension cairo_matrix_t {
     static func == (lhs: cairo_matrix_t, rhs: cairo_matrix_t) -> Bool {
         return lhs.xx == rhs.xx &&
-        lhs.xy == rhs.xy &&
-        lhs.yx == rhs.yx &&
-        lhs.yy == rhs.yy &&
-        lhs.x0 == rhs.x0 &&
-        lhs.y0 == rhs.y0
+            lhs.xy == rhs.xy &&
+            lhs.yx == rhs.yx &&
+            lhs.yy == rhs.yy &&
+            lhs.x0 == rhs.x0 &&
+            lhs.y0 == rhs.y0
     }
 }
 
@@ -111,13 +116,13 @@ public extension CGAffineTransform {
     }
     
     func inverted() -> CGAffineTransform {
-        if self.isIdentity { return self}
+        if self.isIdentity { return self }
         
         var result = self
         
         let success = cairo_matrix_invert(&result._matrix)
         
-        if (success == CAIRO_STATUS_INVALID_MATRIX) {
+        if success == CAIRO_STATUS_INVALID_MATRIX {
             return self
         } else {
             return result

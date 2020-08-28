@@ -15,6 +15,7 @@ open class Label: View {
             layout.text = text ?? ""
         }
     }
+
     open var textColor: CairoGraphics.CGColor = .black {
         didSet {
             layout.textColor = textColor

@@ -24,37 +24,44 @@ extension CAMediaTiming {
         get { return 0.0 }
         set {}
     }
+
     var duration: CFTimeInterval {
         get { return 0.0 }
         set {}
     }
+
     var speed: Float {
         get { return 0.0 }
         set {}
     }
+
     var timeOffset: CFTimeInterval {
         get { return 0.0 }
         set {}
     }
+
     var repeatCount: Float {
         get { return 0.0 }
         set {}
     }
+
     var repeatDuration: CFTimeInterval {
         get { return 0.0 }
         set {}
     }
+
     var autoreverses: Bool {
         get { return false }
         set {}
     }
+
     var fillMode: CAMediaTimingFillMode {
         get { return .removed }
         set {}
     }
 }
 
-public struct CAMediaTimingFillMode : Hashable, Equatable, RawRepresentable {
+public struct CAMediaTimingFillMode: Hashable, Equatable, RawRepresentable {
     public typealias RawValue = String
     public let rawValue: RawValue
 

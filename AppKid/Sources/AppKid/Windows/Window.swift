@@ -54,14 +54,14 @@ open class Window: View {
     fileprivate var rightMouseDownView: View? = nil
     fileprivate var otherMouseDownView: View? = nil
 
-    internal(set) open var firstResponder: Responder? = nil
+    open internal(set) var firstResponder: Responder? = nil
     
-    override open var window: Window? {
+    open override var window: Window? {
         get { return self }
         set {}
     }
     
-    override open var transform: CairoGraphics.CGAffineTransform {
+    open override var transform: CairoGraphics.CGAffineTransform {
         get { return .identity }
         set {}
     }
@@ -119,7 +119,7 @@ open class Window: View {
         currentRect.size.height /= nativeWindow.displayScale
 
         bounds.size = currentRect.size
-        center = CGPoint(x: bounds.midX, y:bounds.midY)
+        center = CGPoint(x: bounds.midX, y: bounds.midY)
 
         rootViewController?.view.frame = bounds
         rootViewController?.view.setNeedsLayout()
@@ -363,7 +363,7 @@ fileprivate extension Window {
             if isMapped {
                 let newSize = CGSize(width: event.deltaX, height: event.deltaY)
 
-                if (newSize != bounds.size) {
+                if newSize != bounds.size {
                     updateSurface()
                 }
             }
@@ -378,7 +378,7 @@ fileprivate extension Window {
                         fatalError("Failed to render with error: \(error)")
                     }
                 } else {
-                    //palkovnik:TODO:Consolidate the workflow of software and vulkan based renderers. Currently it's a little bit of a mess. At least before CARenderer is implemented
+                    // TODO: palkovnik: Consolidate the workflow of software and vulkan based renderers. Currently it's a little bit of a mess. At least before CARenderer is implemented
                 }
 
                 nativeWindow.rendererResized = true

@@ -88,7 +88,7 @@ internal extension Event {
 
             buttonNumber = Int(deviceEvent.detail)
             
-            //palkonvnik:TODO:Implement acceledation and deceleration of scrolling
+            // palkonvnik:TODO:Implement acceledation and deceleration of scrolling
             switch deviceEvent.button {
             case .scrollUp:
                 if currentModifierFlags.contains(.shift) {
@@ -134,7 +134,7 @@ internal extension Event {
             } else {
                 let location = CGPoint(x: CGFloat.nan, y: CGFloat.nan)
 
-                //palkovnik:WORKAROUND:swift generates intializer that actually allows initialization with invalid value :/
+                // palkovnik:WORKAROUND:swift generates intializer that actually allows initialization with invalid value :/
                 if let x11ModifierKeySymbol = X11ModifierKeySymbol(rawValue: keySymbol), x11ModifierKeySymbol.isValidRawValue {
                     let modifierFlag = x11ModifierKeySymbol.modifierFlag
 

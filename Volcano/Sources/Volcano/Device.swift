@@ -5,10 +5,9 @@
 //  Created by Serhii Mumriak on 17.05.2020.
 //
 
+import Foundation
 import TinyFoundation
 import CVulkan
-
-import Foundation
 
 internal extension SmartPointer where Pointee == VkDevice_T {
     func loadFunction<Function>(named name: String) throws -> Function {
@@ -44,7 +43,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
         let enabledFeatures = physicalDevice.features
 
         let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME].cStrings
-        let extensionsNamesPointers: [UnsafePointer<Int8>?] = extensions.map{ UnsafePointer($0.pointer) }
+        let extensionsNamesPointers: [UnsafePointer<Int8>?] = extensions.map { UnsafePointer($0.pointer) }
 
         let handlePointer: SmartPointer<VkDevice_T> = try withUnsafePointer(to: enabledFeatures) { enabledFeatures in
             try extensionsNamesPointers.withUnsafeBufferPointer { extensions in
@@ -121,7 +120,7 @@ public extension Device {
 }
 
 fileprivate func withUnsafeDeviceQueueCreateInfoBufferPointer<R>(queuesRequests: [Device.QueueCreationRequest], physicalDevice: PhysicalDevice, body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-    var result: [VkDeviceQueueCreateInfo] = Array<VkDeviceQueueCreateInfo>()
+    var result = Array<VkDeviceQueueCreateInfo>()
     result.reserveCapacity(queuesRequests.count)
 
     return try populateDeviceQueueCreateInfo(tail: queuesRequests[0..<queuesRequests.count], physicalDevice: physicalDevice, result: &result, body: body)

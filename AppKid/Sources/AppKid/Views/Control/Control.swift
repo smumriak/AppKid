@@ -191,6 +191,7 @@ open class Control: View, ControlProtocol {
     }
 
     // MARK: Actions
+
     public var actions: Set<ActionIdentifier> = []
 }
 

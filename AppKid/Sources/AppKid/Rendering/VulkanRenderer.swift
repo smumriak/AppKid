@@ -74,9 +74,9 @@ public final class VulkanRenderer {
         renderFinishedSemaphore = try Semaphore(device: device)
 
         #if os(Linux)
-        let bundle = Bundle.module
+            let bundle = Bundle.module
         #else
-        let bundle = Bundle.main
+            let bundle = Bundle.main
         #endif
 
         vertexShader = try device.shader(named: "TriangleVertexShader", in: bundle)
@@ -132,15 +132,13 @@ public final class VulkanRenderer {
     }
 
     public func beginFrame() {
-
     }
 
     public func endFrame() {
-        
     }
 
     public func render() throws {
-        //trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
+        // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
         while true {
@@ -163,7 +161,7 @@ public final class VulkanRenderer {
             }
         }
 
-        //previous rendering code that would not skip swapchain recreation. keeping here till re-evaluating the solution
+        // previous rendering code that would not skip swapchain recreation. keeping here till re-evaluating the solution
 //        var happyFrame = false
 //        repeat {
 //            do {

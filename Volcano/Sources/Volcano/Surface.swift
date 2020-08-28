@@ -26,15 +26,15 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
         let instance = physicalDevice.instance
 
         #if os(Linux)
-        var info: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
-        info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
-        info.dpy = display
-        info.window = window
+            var info: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
+            info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
+            info.dpy = display
+            info.window = window
         #elseif os(macOS)
-        var info = VkMacOSSurfaceCreateInfoMVK()
-        info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
+            var info = VkMacOSSurfaceCreateInfoMVK()
+            info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
         #else
-        #error("Wrong OS! (For now)")
+            #error("Wrong OS! (For now)")
         #endif
 
         let handlePointer = try instance.create(with: info)

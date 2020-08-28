@@ -137,10 +137,9 @@ public extension CALayer {
     }
 }
 
-public struct CACornerMask : OptionSet {
+public struct CACornerMask: OptionSet {
     public typealias RawValue = UInt
     public var rawValue: RawValue
-
 
     public init(rawValue: RawValue) {
         self.rawValue = rawValue

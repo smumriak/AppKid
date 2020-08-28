@@ -11,9 +11,9 @@ import CCairo
 import TinyFoundation
 
 public struct Font {
-    fileprivate(set) public var familyName: String
-    fileprivate(set) public var size: CGFloat
-    fileprivate(set) public var weight: Weight
+    public fileprivate(set) var familyName: String
+    public fileprivate(set) var size: CGFloat
+    public fileprivate(set) var weight: Weight
 
     public func with(size: CGFloat) -> Font {
         var copy = self
@@ -38,7 +38,7 @@ public struct Font {
 
 public extension Font {
     static func systemFont(ofSize size: CGFloat) -> Font {
-        //palkovnik:TODO: Use GTK dylib to fetch system font for GTK-based environment and vice versa
+        // TODO: palkovnik: Use GTK dylib to fetch system font for GTK-based environment and vice versa
         return Font(familyName: "Liberation Sans", size: size)
     }
 }

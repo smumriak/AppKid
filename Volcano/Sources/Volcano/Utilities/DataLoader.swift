@@ -58,7 +58,7 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     }
 
     func loadDataArray<Result>(using loader: OwnDataArray_f<Result>) throws -> [Result] {
-        var resultsCount: CUnsignedInt = 0;
+        var resultsCount: CUnsignedInt = 0
         try vulkanInvoke {
             loader(self, &resultsCount, nil)
         }
@@ -73,7 +73,7 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     }
 
     func loadDataArray<Result>(using loader: FailableOwnDataArray_f<Result>) throws -> [Result] {
-        var resultsCount: CUnsignedInt = 0;
+        var resultsCount: CUnsignedInt = 0
         try vulkanInvoke {
             loader(self, &resultsCount, nil)
         }
@@ -88,7 +88,7 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     }
 
     func loadDataArray<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: ChildDataArray_f<Child, Result>) throws -> [Result] {
-        var resultsCount: CUnsignedInt = 0;
+        var resultsCount: CUnsignedInt = 0
         try vulkanInvoke {
             loader(self, childPointer, &resultsCount, nil)
         }
@@ -103,7 +103,7 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     }
 
     func loadDataArray<Child, Result>(for childPointer: UnsafeMutablePointer<Child>, using loader: FailableChildDataArray_f<Child, Result>) throws -> [Result] {
-        var resultsCount: CUnsignedInt = 0;
+        var resultsCount: CUnsignedInt = 0
         try vulkanInvoke {
             loader(self, childPointer, &resultsCount, nil)
         }

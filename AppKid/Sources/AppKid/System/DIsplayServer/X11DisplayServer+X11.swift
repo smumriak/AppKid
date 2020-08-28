@@ -109,7 +109,7 @@ internal extension X11DisplayServer {
         let event: Event
 
         do {
-            if x11Event.isCookie(with: context.xInput2ExtensionOpcode)  {
+            if x11Event.isCookie(with: context.xInput2ExtensionOpcode) {
                 if XGetEventData(display, &x11Event.xcookie) == 0 {
                     event = Event.ignoredDisplayServerEvent()
                 } else {
@@ -117,7 +117,7 @@ internal extension X11DisplayServer {
                         XFreeEventData(display, &x11Event.xcookie)
                     }
 
-                    //palkovnik:Hacking XInput2 event to have button number for motion events
+                    // palkovnik:Hacking XInput2 event to have button number for motion events
                     if x11Event.xcookie.xInput2EventType == .motion {
                         x11Event.deviceEvent.detail = context.currentPressedMouseButton.rawValue
                     }
@@ -178,6 +178,6 @@ internal extension X11DisplayServer {
                 }()
 
                 return XInput2Device(identifier: deviceInfo.deviceid, valuatorsCount: valuatorsCount ?? 0, type: deviceType)
-        }
+            }
     }
 }

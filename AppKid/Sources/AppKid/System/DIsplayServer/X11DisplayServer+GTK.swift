@@ -7,7 +7,7 @@
 
 import Foundation
 
-// palkovnik:TODO: This code should be moved to Screen class when refactoring will be performed
+// TODO: palkovnik: This code should be moved to Screen class when refactoring will be performed
 internal extension X11DisplayServer {
     typealias gdk_display_open_f = @convention(c) (UnsafePointer<Int8>) -> OpaquePointer?
     typealias gdk_display_close_f = @convention(c) (OpaquePointer) -> ()

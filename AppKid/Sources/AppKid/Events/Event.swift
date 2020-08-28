@@ -152,19 +152,19 @@ public extension Event.EventTypeMask {
         .anyMouseUp,
         .anyMouseDragged,
         .mouseMoved,
-        .scrollWheel
+        .scrollWheel,
     ]
 
     static let anyMouseDown: Self = [
         .leftMouseDown,
         .rightMouseDown,
-        .otherMouseDown
+        .otherMouseDown,
     ]
 
     static let anyMouseUp: Self = [
         .leftMouseUp,
         .rightMouseUp,
-        .otherMouseUp
+        .otherMouseUp,
     ]
 
     static let anyMouseDragged: Self = [
@@ -175,7 +175,7 @@ public extension Event.EventTypeMask {
 
     static let anyKeyboard: Self = [
         .keyDown,
-        .keyUp
+        .keyUp,
     ]
 }
 
@@ -246,7 +246,7 @@ public class Event: NSObject {
         self.window = Application.shared.window(number: windowNumber)
     }
     
-    convenience public init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
+    public convenience init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
         guard type.isAnyMouse else {
             throw EventCreationError.incompatibleEventType
         }
@@ -254,7 +254,7 @@ public class Event: NSObject {
         self.init(type: type, location: location, modifierFlags: modifierFlags, windowNumber: windowNumber)
     }
     
-    convenience internal init(withAppKidEventSubType subType: EventSubtype, windowNumber: Int) {
+    internal convenience init(withAppKidEventSubType subType: EventSubtype, windowNumber: Int) {
         self.init(type: .appKidDefined, location: CGPoint(x: CGFloat.nan, y: CGFloat.nan), modifierFlags: .none, windowNumber: windowNumber)
         self.subType = subType
     }

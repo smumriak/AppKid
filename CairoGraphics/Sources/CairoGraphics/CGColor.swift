@@ -9,23 +9,26 @@ import Foundation
 import CCairo
 import TinyFoundation
 
-// palkovnik:TODO: placeholder because color spaces are hard
+// TODO: palkovnik: placeholder because color spaces are hard
 public struct CGColor {
     public var red: CGFloat = .zero {
         didSet {
             cairoPattern = freshCairoPattern
         }
     }
+
     public var green: CGFloat = .zero {
         didSet {
             cairoPattern = freshCairoPattern
         }
     }
+
     public var blue: CGFloat = .zero {
         didSet {
             cairoPattern = freshCairoPattern
         }
     }
+
     public var alpha: CGFloat = 1.0 {
         didSet {
             cairoPattern = freshCairoPattern

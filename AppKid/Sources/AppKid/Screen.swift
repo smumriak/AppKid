@@ -8,5 +8,4 @@
 import Foundation
 
 open class Screen: NSObject {
-    
 }

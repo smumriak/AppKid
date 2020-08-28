@@ -11,17 +11,17 @@ import PackageDescription
 let package = Package(
     name: "AppKid",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
-        .library(name: "AppKid", type: .dynamic, targets: ["AppKid"])
+        .library(name: "AppKid", type: .dynamic, targets: ["AppKid"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics"),
-    	.package(path: "../ContentAnimation"),
-        .package(path: "../Volcano")
+        .package(path: "../ContentAnimation"),
+        .package(path: "../Volcano"),
     ],
     targets: [
         .target(
@@ -32,16 +32,16 @@ let package = Package(
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "ContentAnimation", package: "ContentAnimation"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
-                .product(name: "Volcano", package: "Volcano")
+                .product(name: "Volcano", package: "Volcano"),
             ],
             exclude: [
                 "Resources/TriangleFragmentShader.frag",
-                "Resources/TriangleVertexShader.vert"
+                "Resources/TriangleVertexShader.vert",
             ],
             resources: [
                 .copy("Resources/TriangleFragmentShader.spv"),
-                .copy("Resources/TriangleVertexShader.spv")
+                .copy("Resources/TriangleVertexShader.spv"),
             ]
-        )
+        ),
     ]
 )

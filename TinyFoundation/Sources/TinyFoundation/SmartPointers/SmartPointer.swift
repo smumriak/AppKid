@@ -32,6 +32,7 @@ internal struct RetainCount {
         return value
     }
 }
+
 internal var globalRetainCount = RetainCount()
 
 public protocol SmartPointerProtocol {

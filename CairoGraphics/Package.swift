@@ -11,14 +11,14 @@ import PackageDescription
 let package = Package(
     name: "CairoGraphics",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
-        .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"])
+        .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
-        .package(path: "../TinyFoundation")
+        .package(path: "../TinyFoundation"),
     ],
     targets: [
         .target(
@@ -26,8 +26,8 @@ let package = Package(
             dependencies: [
                 .product(name: "CCairo", package: "SharedSystemLibs"),
                 .product(name: "CPango", package: "SharedSystemLibs"),
-                .product(name: "TinyFoundation", package: "TinyFoundation")
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
             ]
-        )
+        ),
     ]
 )

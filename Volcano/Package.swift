@@ -11,14 +11,14 @@ import PackageDescription
 let package = Package(
     name: "Volcano",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
-        .library(name: "Volcano", type: .dynamic, targets: ["Volcano"])
+        .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
-        .package(path: "../TinyFoundation")
+        .package(path: "../TinyFoundation"),
     ],
     targets: [
         .target(
@@ -26,8 +26,8 @@ let package = Package(
             dependencies: [
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "CX11", package: "SharedSystemLibs"),
-                .product(name: "TinyFoundation", package: "TinyFoundation")
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
             ]
-        )
+        ),
     ]
 )

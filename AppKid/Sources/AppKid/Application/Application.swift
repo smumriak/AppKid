@@ -1,6 +1,6 @@
 //
 //  Application.swift
-//  AppKid+16505059497
+//  AppKid
 //
 //  Created by Serhii Mumriak on 31.01.2020.
 //
@@ -25,16 +25,16 @@ public extension RunLoop.Mode {
 }
 
 public protocol ApplicationDelegate: class {
-    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
-    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]?) -> Bool
+    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
+    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool
     func applicationShouldTerminate(_ application: Application) -> Application.TerminateReply
     func applicationWillTerminate(_ application: Application)
 }
 
 public extension ApplicationDelegate {
-    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { true }
-    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey : Any]? = nil) -> Bool { true }
+    func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool { true }
+    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool { true }
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool { false }
     func applicationShouldTerminate(_ application: Application) -> Application.TerminateReply { .now }
     func applicationWillTerminate(_ application: Application) {}
@@ -49,7 +49,7 @@ open class Application: Responder {
     
     open fileprivate(set) var isRunning = false
     
-    fileprivate(set) open var windows: [Window] = []
+    open fileprivate(set) var windows: [Window] = []
     internal var softwareRenderers: [SoftwareRenderer] = []
     internal var vulkanRenderers: [VulkanRenderer] = []
     
@@ -87,7 +87,7 @@ open class Application: Responder {
         displayServer.deactivate()
     }
     
-    internal override init () {
+    internal override init() {
         displayServer = X11DisplayServer(applicationName: "SwiftyFan")
 
         do {
@@ -140,7 +140,7 @@ open class Application: Responder {
     }
     
     open func run() {
-        if (delegate == nil) {
+        if delegate == nil {
             fatalError("Who've forgot to specify app delegate? You've forgot to specify app delegate.")
         }
         
@@ -148,9 +148,9 @@ open class Application: Responder {
         startTime = CFAbsoluteTimeGetCurrent()
 
         #if os(Linux)
-        let trackingCFRunLoopMode = CFStringCreateWithCString(nil, RunLoop.Mode.tracking.rawValue, CFStringEncoding(kCFStringEncodingASCII))
+            let trackingCFRunLoopMode = CFStringCreateWithCString(nil, RunLoop.Mode.tracking.rawValue, CFStringEncoding(kCFStringEncodingASCII))
         #else
-        let trackingCFRunLoopMode = CFRunLoopMode(rawValue: RunLoop.Mode.tracking.rawValue as CFString)
+            let trackingCFRunLoopMode = CFRunLoopMode(rawValue: RunLoop.Mode.tracking.rawValue as CFString)
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
@@ -255,7 +255,7 @@ open class Application: Responder {
                 
                 vulkanRenderers.append(renderer)
             } catch {
-                fatalError("Failed to created window renderer with error: \(error)")
+                fatalError("Failed to create window renderer with error: \(error)")
             }
         } else {
             softwareRenderers.append(window.createRenderer())
@@ -269,7 +269,7 @@ open class Application: Responder {
     }
 
     open func remove(windowNumer index: Array<Window>.Index) {
-        //palkovnik:TODO: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
+        // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         if isVulkanRendererEnabled {
             let renderer = vulkanRenderers.remove(at: index)
             try? renderer.device.waitForIdle()
@@ -279,14 +279,14 @@ open class Application: Responder {
         windows.remove(at: index)
 
         if windows.isEmpty && isRunning && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
-            //palkovnik:TODO:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing
+            // TODO: palkovnik:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing
             terminate()
         }
     }
 }
 
 public extension Application {
-    struct LaunchOptionsKey : Hashable, Equatable, RawRepresentable {
+    struct LaunchOptionsKey: Hashable, Equatable, RawRepresentable {
         public typealias RawValue = String
         public let rawValue: RawValue
 

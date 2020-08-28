@@ -25,5 +25,6 @@ public final class CALayerProperty<Type>: CALayerPropertyProtocol {
         get { return _value }
         set { _value = newValue }
     }
+
     public var name: String { return _name }
 }

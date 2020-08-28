@@ -140,7 +140,7 @@ class RootViewController: ViewController {
         return result
     }()
 
-    lazy var transformTimer = Timer(timeInterval: 1/60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview]  _ in
+    lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview] _ in
         greenSubview.transform = greenSubview.transform.rotated(by: .pi / 120)
         redSubview.transform = redSubview.transform.rotated(by: -.pi / 80)
         graySubview.transform = graySubview.transform.rotated(by: .pi / 20)
@@ -279,10 +279,12 @@ class RootViewController: ViewController {
 
     fileprivate func spawn100WindowsButtonDidTap(sender: Button) {
         for _ in 0..<100 {
-            let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
-            window.rootViewController = RootViewController()
+            DispatchQueue.main.async {
+                let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+                window.rootViewController = RootViewController()
 
-            Application.shared.add(window: window)
+                Application.shared.add(window: window)
+            }
         }
     }
 
@@ -306,4 +308,3 @@ class RootViewController: ViewController {
         return true
     }
 }
-

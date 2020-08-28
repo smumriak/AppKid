@@ -11,14 +11,14 @@ import PackageDescription
 let package = Package(
     name: "SharedSystemLibs",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v10_15),
     ],
     products: [
         .library(name: "CX11", targets: ["CX11"]),
         .library(name: "CXInput2", targets: ["CXInput2"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
-        .library(name: "CVulkan", targets: ["CVulkan"])
+        .library(name: "CVulkan", targets: ["CVulkan"]),
     ],
     targets: [
         .systemLibrary(
@@ -27,7 +27,7 @@ let package = Package(
             pkgConfig: "x11",
             providers: [
                 .apt(["libx11-dev"]),
-                .brew(["xquartz"])
+                .brew(["xquartz"]),
             ]
         ),
         .systemLibrary(
@@ -36,7 +36,7 @@ let package = Package(
             pkgConfig: "xi",
             providers: [
                 .apt(["libxi-dev"]),
-                .brew(["xquartz"])
+                .brew(["xquartz"]),
             ]
         ),
         .systemLibrary(
@@ -45,7 +45,7 @@ let package = Package(
             pkgConfig: "cairo",
             providers: [
                 .apt(["libcairo2-dev"]),
-                .brew(["cairo"])
+                .brew(["cairo"]),
             ]
         ),
         .systemLibrary(
@@ -54,13 +54,13 @@ let package = Package(
             pkgConfig: "pango",
             providers: [
                 .apt(["libpango1.0-dev"]),
-                .brew(["pango glib"])
+                .brew(["pango glib"]),
             ]
         ),
         .systemLibrary(
             name: "CVulkan",
             path: "CVulkan",
             pkgConfig: "vulkan"
-        )
+        ),
     ]
 )

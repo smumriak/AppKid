@@ -33,7 +33,6 @@ open class CARenderer {
     }
 
     open func render() {
-
     }
 
     open func nextFrameTime() -> TimeInterval {

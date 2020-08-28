@@ -14,6 +14,7 @@ open class ViewController: Responder {
     }
 
     // MARK: View Loading
+
     open fileprivate(set) var viewIfLoaded: View? = nil
     open var view: View {
         get {
@@ -91,6 +92,7 @@ open class ViewController: Responder {
     open func viewDidLayoutSubviews() {}
 
     // MARK: View Controller Hierarchy
+
     open var children: [ViewController] = []
     open fileprivate(set) weak var parent: ViewController? = nil
 
