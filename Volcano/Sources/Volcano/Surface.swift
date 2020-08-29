@@ -8,8 +8,7 @@
 import Foundation
 import TinyFoundation
 import CVulkan
-import CX11.Xlib
-import CX11.X
+import CXlib
 
 public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     public let physicalDevice: PhysicalDevice
@@ -20,24 +19,36 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     public internal(set) var capabilities: VkSurfaceCapabilitiesKHR
     public let presetModes: [VkPresentModeKHR]
 
-    internal init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window) throws {
-        self.physicalDevice = physicalDevice
-
-        let instance = physicalDevice.instance
-
-        #if os(Linux)
-            var info: VkXlibSurfaceCreateInfoKHR = VkXlibSurfaceCreateInfoKHR()
+    #if os(Linux)
+        internal convenience init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR) throws {
+            var info = VkXlibSurfaceCreateInfoKHR()
             info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
             info.dpy = display
             info.window = window
-        #elseif os(macOS)
+
+            let handlePointer = try physicalDevice.instance.create(with: info)
+
+            try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
+        }
+
+    #elseif os(macOS)
+        internal convenience init(physicalDevice: PhysicalDevice, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkMacOSSurfaceCreateInfoMVK()
             info.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
-        #else
-            #error("Wrong OS! (For now)")
-        #endif
 
-        let handlePointer = try instance.create(with: info)
+            let handlePointer = try physicalDevice.instance.create(with: info)
+
+            try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
+        }
+
+    #elseif os(Windows)
+        #error("Wrong OS! (For now)")
+    #else
+        #error("Wrong OS! (For now)")
+    #endif
+
+    private init(physicalDevice: PhysicalDevice, handlePointer: SmartPointer<VkSurfaceKHR_T>, desiredFormat: VkSurfaceFormatKHR) throws {
+        self.physicalDevice = physicalDevice
 
         let supportedFormats = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
         if supportedFormats.isEmpty {
@@ -57,7 +68,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
         capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
         presetModes = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
 
-        try super.init(instance: instance, handlePointer: handlePointer)
+        try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
     }
 
     func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int) throws -> Bool {

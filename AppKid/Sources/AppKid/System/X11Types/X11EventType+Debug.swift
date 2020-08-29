@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CX11.X
+import CXlib
 
 extension X11EventType: CustomDebugStringConvertible {
     public var debugDescription: String {

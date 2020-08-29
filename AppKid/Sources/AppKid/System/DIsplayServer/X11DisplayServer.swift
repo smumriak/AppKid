@@ -8,8 +8,7 @@
 import Foundation
 import CoreFoundation
 
-import CX11.Xlib
-import CX11.X
+import CXlib
 import CXInput2
 
 internal final class X11DisplayServer: NSObject, DisplayServer {
@@ -18,8 +17,8 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
 
     let applicationName: String
 
-    let display: UnsafeMutablePointer<CX11.Display>
-    let screen: UnsafeMutablePointer<CX11.Screen>
+    let display: UnsafeMutablePointer<CXlib.Display>
+    let screen: UnsafeMutablePointer<CXlib.Screen>
 
     var inputMethod: XIM?
     let inputStyle: XIMStyle?

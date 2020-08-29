@@ -8,8 +8,7 @@
 import Foundation
 import CoreFoundation
 
-import CX11.Xlib
-import CX11.X
+import CXlib
 import CXInput2
 
 internal let kEnableXInput2 = true
@@ -98,7 +97,7 @@ internal extension X11DisplayServer {
             return
         }
 
-        var x11Event = CX11.XEvent()
+        var x11Event = CXlib.XEvent()
 
         XNextEvent(display, &x11Event)
 

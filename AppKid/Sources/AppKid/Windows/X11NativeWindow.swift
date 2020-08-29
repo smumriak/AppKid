@@ -7,8 +7,7 @@
 
 import Foundation
 
-import CX11.Xlib
-import CX11.X
+import CXlib
 import CXInput2
 
 protocol NativeWindow: class {
@@ -17,9 +16,9 @@ protocol NativeWindow: class {
 }
 
 public final class X11NativeWindow: NSObject, NativeWindow {
-    public fileprivate(set) var display: UnsafeMutablePointer<CX11.Display>
-    public fileprivate(set) var screen: UnsafeMutablePointer<CX11.Screen>
-    public fileprivate(set) var windowID: CX11.Window
+    public fileprivate(set) var display: UnsafeMutablePointer<CXlib.Display>
+    public fileprivate(set) var screen: UnsafeMutablePointer<CXlib.Screen>
+    public fileprivate(set) var windowID: CXlib.Window
 
     var title: String = "" {
         didSet {
@@ -148,7 +147,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
     
-    internal init(display: UnsafeMutablePointer<CX11.Display>, screen: UnsafeMutablePointer<CX11.Screen>, windowID: CX11.Window, title: String) {
+    internal init(display: UnsafeMutablePointer<CXlib.Display>, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
         self.display = display
         self.screen = screen
         self.windowID = windowID

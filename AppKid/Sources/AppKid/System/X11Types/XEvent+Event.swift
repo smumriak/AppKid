@@ -7,8 +7,7 @@
 
 import Foundation
 import CoreFoundation
-import CX11.X
-import CX11.Xlib
+import CXlib
 import CXInput2
 
 internal extension XEvent {

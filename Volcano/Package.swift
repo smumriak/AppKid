@@ -25,7 +25,7 @@ let package = Package(
             name: "Volcano",
             dependencies: [
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
-                .product(name: "CX11", package: "SharedSystemLibs"),
+                .product(name: "CXlib", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
             ]
         ),

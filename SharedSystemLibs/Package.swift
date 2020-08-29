@@ -14,7 +14,7 @@ let package = Package(
         .macOS(.v10_15),
     ],
     products: [
-        .library(name: "CX11", targets: ["CX11"]),
+        .library(name: "CXlib", targets: ["CXlib"]),
         .library(name: "CXInput2", targets: ["CXInput2"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
@@ -22,8 +22,8 @@ let package = Package(
     ],
     targets: [
         .systemLibrary(
-            name: "CX11",
-            path: "CX11",
+            name: "CXlib",
+            path: "CXlib",
             pkgConfig: "x11",
             providers: [
                 .apt(["libx11-dev"]),

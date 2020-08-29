@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import CX11.Xlib
+import CXlib
 
 extension X11ModifierKeySymbol: CaseIterable {
     public typealias AllCases = [X11ModifierKeySymbol]

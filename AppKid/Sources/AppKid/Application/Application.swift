@@ -7,8 +7,7 @@
 
 import Foundation
 import CoreFoundation
-import CX11.Xlib
-import CX11.X
+import CXlib
 import CXInput2
 import CairoGraphics
 import Volcano
