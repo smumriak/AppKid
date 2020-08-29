@@ -33,7 +33,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
         let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR()
-            info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+            info.sType = .VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
             info.surface = surface.handle
             info.minImageCount = imageCount
             info.imageFormat = surface.imageFormat

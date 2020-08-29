@@ -11,6 +11,7 @@
 #include "../CCore/CCore_umbrella.h"
 
 //AK_EXISTING_ENUM(VkResult);
+AK_EXISTING_ENUM(VkStructureType);
 AK_EXISTING_ENUM(VkCommandBufferLevel);
 
 #endif /* VulkanEnums_h */

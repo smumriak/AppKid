@@ -34,7 +34,11 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
         }
     }
 
-    public func submit(commandBuffers: [CommandBuffer], waitSemaphores: [Semaphore], signalSemaphores: [Semaphore], waitStages: [VkPipelineStageFlags]) throws {
+    public func submit(commandBuffers: [CommandBuffer],
+                       waitSemaphores: [Semaphore],
+                       signalSemaphores: [Semaphore],
+                       waitStages: [VkPipelineStageFlags],
+                       fence: Fence? = nil) throws {
         let commandBuffersHandles: [VkCommandBuffer?] = commandBuffers.map { $0.handle }
         let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }
         let signalSemaphoresHandles: [VkSemaphore?] = signalSemaphores.map { $0.handle }
@@ -44,7 +48,7 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
                 try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
                     try commandBuffersHandles.withUnsafeBufferPointer { commandBufferPointer in
                         var submitInfo = VkSubmitInfo()
-                        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO
+                        submitInfo.sType = .VK_STRUCTURE_TYPE_SUBMIT_INFO
 
                         submitInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
                         submitInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress!
@@ -57,7 +61,7 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
                         submitInfo.commandBufferCount = CUnsignedInt(commandBufferPointer.count)
                         submitInfo.pCommandBuffers = commandBufferPointer.baseAddress!
                         try vulkanInvoke {
-                            vkQueueSubmit(handle, 1, &submitInfo, nil)
+                            vkQueueSubmit(handle, 1, &submitInfo, fence?.handle)
                         }
                     }
                 }
@@ -65,7 +69,9 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
         }
     }
 
-    public func present(swapchains: [Swapchain], waitSemaphores: [Semaphore], imageIndices: [CUnsignedInt]) throws {
+    public func present(swapchains: [Swapchain],
+                        waitSemaphores: [Semaphore],
+                        imageIndices: [CUnsignedInt]) throws {
         let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.handle }
         let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }
 
@@ -73,7 +79,7 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
             try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
                 try swapchainsHandles.withUnsafeBufferPointer { swapchainsPointer in
                     var presentInfo = VkPresentInfoKHR()
-                    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+                    presentInfo.sType = .VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
 
                     presentInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
                     presentInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress

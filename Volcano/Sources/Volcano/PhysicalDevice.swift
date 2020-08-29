@@ -55,9 +55,11 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         try super.init(instance: instance, handlePointer: handlePointer)
     }
 
+    #if os(Linux)
     public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: VK_FORMAT_B8G8R8A8_SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) throws -> Surface {
         return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredFormat)
     }
+    #endif
 
     public func queueFamilyIndex(for queueType: VkQueueFlagBits) -> Array<VkQueueFamilyProperties>.Index? {
         let queueFamiliesPropertiesEnumerated = queueFamiliesProperties.enumerated()

@@ -10,7 +10,7 @@ import CVulkan
 
 public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
-        let info = VkFenceCreateInfo(sType: VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
+        let info = VkFenceCreateInfo(sType: .VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
         
         let handlePointer = try device.create(with: info)
         
@@ -25,7 +25,7 @@ public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
         }
     }
     
-    public func reset(fences: [Fence]) throws {
+    public func reset() throws {
         var handleOptional: VkFence? = handle
 
         try vulkanInvoke {

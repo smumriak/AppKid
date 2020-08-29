@@ -1,11 +1,15 @@
 {
-    "version": "0.2.0",
-    "tasks": 
-    [
+    "version": "2.0.0",
+    "tasks": [
         {
-            "label": "swift-build",
+            "label": "build",
             "type": "shell",
             "command": "./build.sh"
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "./clean.sh"
         }
     ]
 }

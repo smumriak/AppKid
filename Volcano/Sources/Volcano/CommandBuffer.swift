@@ -15,7 +15,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         let device = commandPool.device
 
         var info = VkCommandBufferAllocateInfo()
-        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+        info.sType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
         info.level = level
         info.commandPool = commandPool.handle
         info.commandBufferCount = 1
@@ -33,7 +33,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
 
     public func begin() throws {
         var info = VkCommandBufferBeginInfo()
-        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+        info.sType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
         info.pNext = nil
         info.flags = 0
         info.pInheritanceInfo = nil

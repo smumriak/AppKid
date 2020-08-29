@@ -27,6 +27,7 @@ public final class VulkanRenderer {
 
     internal fileprivate(set) var imageAvailableSemaphore: Semaphore
     internal fileprivate(set) var renderFinishedSemaphore: Semaphore
+    internal fileprivate(set) var fence: Fence
 
     var vertexShader: Shader
     var fragmentShader: Shader
@@ -39,7 +40,7 @@ public final class VulkanRenderer {
     var pipelineLayout: SmartPointer<VkPipelineLayout_T>!
     var renderPass: SmartPointer<VkRenderPass_T>!
     var pipeline: SmartPointer<VkPipeline_T>!
-    var framebuffers: [SmartPointer<VkFramebuffer_T>] = []
+    var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
 
     deinit {
@@ -72,6 +73,7 @@ public final class VulkanRenderer {
 
         imageAvailableSemaphore = try Semaphore(device: device)
         renderFinishedSemaphore = try Semaphore(device: device)
+        fence = try Fence(device: device)
 
         #if os(Linux)
             let bundle = Bundle.module
@@ -101,7 +103,7 @@ public final class VulkanRenderer {
         imageViews = try images.map { try ImageView(image: $0) }
 
         var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+        pipelineLayoutInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
         pipelineLayoutInfo.setLayoutCount = 0
         pipelineLayoutInfo.pSetLayouts = nil
         pipelineLayoutInfo.pushConstantRangeCount = 0
@@ -179,6 +181,8 @@ public final class VulkanRenderer {
     }
 
     public func drawFrame() throws {
+        try fence.reset()
+        
         let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
 
         let commandBuffer = commandBuffers[imageIndex]
@@ -188,10 +192,10 @@ public final class VulkanRenderer {
         let signalSemaphores: [Semaphore] = [renderFinishedSemaphore]
         let waitStages: [VkPipelineStageFlags] = [VkPipelineStageFlagBits.colorAttachmentOutput.rawValue]
 
-        try graphicsQueue.submit(commandBuffers: submitCommandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages)
+        try graphicsQueue.submit(commandBuffers: submitCommandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence)
         try presentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
 
-        try device.waitForIdle()
+        try fence.wait()
     }
 
     func createRenderPass() throws -> SmartPointer<VkRenderPass_T> {
@@ -217,7 +221,7 @@ public final class VulkanRenderer {
         }
 
         var renderPassInfo = VkRenderPassCreateInfo()
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
+        renderPassInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
         renderPassInfo.attachmentCount = 1
         withUnsafePointer(to: &colorAttachment) {
             renderPassInfo.pAttachments = $0
@@ -244,7 +248,7 @@ public final class VulkanRenderer {
 
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
         var viewportState = VkPipelineViewportStateCreateInfo()
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
+        viewportState.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
         viewportState.pNext = nil
         viewportState.flags = VkPipelineViewportStateCreateFlags()
 
@@ -271,19 +275,19 @@ public final class VulkanRenderer {
         }
 
         var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
-        vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
+        vertexInputInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
         vertexInputInfo.vertexBindingDescriptionCount = 0
         vertexInputInfo.pVertexBindingDescriptions = nil
         vertexInputInfo.vertexAttributeDescriptionCount = 0
         vertexInputInfo.pVertexAttributeDescriptions = nil
 
         var inputAssembly = VkPipelineInputAssemblyStateCreateInfo()
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+        inputAssembly.sType = .VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
         inputAssembly.primitiveRestartEnable = false.vkBool
 
         var rasterizer = VkPipelineRasterizationStateCreateInfo()
-        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+        rasterizer.sType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
         rasterizer.depthClampEnable = false.vkBool
         rasterizer.rasterizerDiscardEnable = false.vkBool
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL
@@ -296,7 +300,7 @@ public final class VulkanRenderer {
         rasterizer.depthBiasSlopeFactor = 0.0
 
         var multisampling = VkPipelineMultisampleStateCreateInfo()
-        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+        multisampling.sType = .VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
         multisampling.sampleShadingEnable = false.vkBool
         multisampling.rasterizationSamples = VkSampleCountFlagBits.VK_SAMPLE_COUNT_1_BIT
         multisampling.minSampleShading = 1.0
@@ -315,7 +319,7 @@ public final class VulkanRenderer {
         colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD
 
         var colorBlending = VkPipelineColorBlendStateCreateInfo()
-        colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+        colorBlending.sType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
         colorBlending.logicOpEnable = false.vkBool
         colorBlending.logicOp = VK_LOGIC_OP_COPY
         withUnsafePointer(to: &colorBlendAttachment) {
@@ -330,7 +334,7 @@ public final class VulkanRenderer {
         //            ]
         //
         //            var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
-        //                return VkPipelineDynamicStateCreateInfo(sType: VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+        //                return VkPipelineDynamicStateCreateInfo(sType: .VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
         //                                                        pNext: nil,
         //                                                        flags: VkPipelineDynamicStateCreateFlags(),
         //                                                        dynamicStateCount: CUnsignedInt($0.count),
@@ -343,7 +347,7 @@ public final class VulkanRenderer {
         let shaderStages = [vertexShaderStageInfo, fragmentShaderStageInfo]
 
         var pipelineInfo = VkGraphicsPipelineCreateInfo()
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+        pipelineInfo.sType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
         pipelineInfo.stageCount = 2
         shaderStages.withUnsafeBufferPointer {
             pipelineInfo.pStages = $0.baseAddress!
@@ -390,25 +394,10 @@ public final class VulkanRenderer {
         return pipeline
     }
 
-    func createFramebuffers() throws -> [SmartPointer<VkFramebuffer_T>] {
-        let result: [SmartPointer<VkFramebuffer_T>] = try imageViews.map { imageView in
-            let attachments: [VkImageView?] = [imageView.handle]
-
-            return try attachments.withUnsafeBufferPointer { attachmentsPointer in
-                var framebufferInfo = VkFramebufferCreateInfo()
-                framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
-                framebufferInfo.renderPass = renderPass.pointer
-                framebufferInfo.attachmentCount = 1
-                framebufferInfo.pAttachments = attachmentsPointer.baseAddress!
-                framebufferInfo.width = swapchain.size.width
-                framebufferInfo.height = swapchain.size.height
-                framebufferInfo.layers = 1
-
-                return try device.create(with: framebufferInfo)
-            }
+    func createFramebuffers() throws -> [Framebuffer] {
+        return try imageViews.map { imageView in
+            return try Framebuffer(device: device, size: swapchain.size, renderPass: renderPass, attachments: [imageView])
         }
-
-        return result
     }
 
     func createCommandBuffers() throws -> [CommandBuffer] {
@@ -420,9 +409,9 @@ public final class VulkanRenderer {
             var clearColor = VkClearValue(color: VkClearColorValue(float32: (1.0, 1.0, 1.0, 1.0)))
 
             var renderPassBeginInfo = VkRenderPassBeginInfo()
-            renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+            renderPassBeginInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
             renderPassBeginInfo.renderPass = renderPass.pointer
-            renderPassBeginInfo.framebuffer = framebuffer.pointer
+            renderPassBeginInfo.framebuffer = framebuffer.handle
             renderPassBeginInfo.renderArea.offset = VkOffset2D(x: 0, y: 0)
             renderPassBeginInfo.renderArea.extent = swapchain.size
             withUnsafePointer(to: &clearColor) {

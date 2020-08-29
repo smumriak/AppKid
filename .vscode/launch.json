@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0",
+    "version": "2.0.0",
     "configurations": [
         {
             "name": "(lldb) Launch",
@@ -8,7 +8,7 @@
             "program": "./SwiftyFan.executable.link",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "swift-build"
+            "preLaunchTask": "build"
         }
     ]
 }
