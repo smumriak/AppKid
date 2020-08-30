@@ -83,6 +83,9 @@ public final class VulkanRenderer {
 
         vertexShader = try device.shader(named: "TriangleVertexShader", in: bundle)
         fragmentShader = try device.shader(named: "TriangleFragmentShader", in: bundle)
+
+        renderPass = try createRenderPass()
+        pipeline = try createGraphicsPipeline()
     }
 
     public func setupSwapchain() throws {
@@ -102,16 +105,6 @@ public final class VulkanRenderer {
         images = try swapchain.getImages()
         imageViews = try images.map { try ImageView(image: $0) }
 
-        var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
-        pipelineLayoutInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
-        pipelineLayoutInfo.setLayoutCount = 0
-        pipelineLayoutInfo.pSetLayouts = nil
-        pipelineLayoutInfo.pushConstantRangeCount = 0
-        pipelineLayoutInfo.pPushConstantRanges = nil
-
-        pipelineLayout = try device.create(with: pipelineLayoutInfo)
-        renderPass = try createRenderPass()
-        pipeline = try createGraphicsPipeline()
         framebuffers = try createFramebuffers()
         commandBuffers = try createCommandBuffers()
 
@@ -125,9 +118,6 @@ public final class VulkanRenderer {
 
         commandBuffers = []
         framebuffers = []
-        pipeline = nil
-        renderPass = nil
-        pipelineLayout = nil
         imageViews = nil
         images = nil
         swapchain = nil
@@ -200,7 +190,7 @@ public final class VulkanRenderer {
 
     func createRenderPass() throws -> SmartPointer<VkRenderPass_T> {
         var colorAttachment = VkAttachmentDescription()
-        colorAttachment.format = swapchain.imageFormat
+        colorAttachment.format = surface.imageFormat
         colorAttachment.samples = .one
         colorAttachment.loadOp = .clear
         colorAttachment.storeOp = .store
@@ -247,6 +237,15 @@ public final class VulkanRenderer {
     }
 
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
+        var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
+        pipelineLayoutInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+        pipelineLayoutInfo.setLayoutCount = 0
+        pipelineLayoutInfo.pSetLayouts = nil
+        pipelineLayoutInfo.pushConstantRangeCount = 0
+        pipelineLayoutInfo.pPushConstantRanges = nil
+
+        pipelineLayout = try device.create(with: pipelineLayoutInfo)
+
         var viewportState = VkPipelineViewportStateCreateInfo()
         viewportState.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
         viewportState.pNext = nil
