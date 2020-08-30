@@ -7,5 +7,6 @@
     "swiftformat.path": "/usr/local/bin/swiftformat",
     "sde.enableTracing.client": true,
     "sde.enableTracing.LSPServer": true,
-    "swift.path.swift_driver_bin": "/opt/swift/usr/bin/swift"
+    "swift.path.swift_driver_bin": "/opt/swift/usr/bin/swift",
+    "swift.diagnosis.max_num_problems": 999
 }

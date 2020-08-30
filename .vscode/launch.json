@@ -2,13 +2,18 @@
     "version": "2.0.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
+            "name": "Run",
             "type": "lldb",
             "request": "launch",
-            "program": "./SwiftyFan.executable.link",
             "args": [],
             "cwd": "${workspaceFolder}",
-            "preLaunchTask": "build"
+            "preLaunchTask": "build",
+            "linux": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan" 
+            },
+            "osx": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
+            }
         }
     ]
 }

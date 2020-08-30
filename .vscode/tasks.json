@@ -4,7 +4,12 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "./build.sh"
+            "linux": {
+                "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
+            },
+            "osx": {
+                "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
+            }
         },
         {
             "label": "clean",

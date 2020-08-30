@@ -251,28 +251,30 @@ public final class VulkanRenderer {
         viewportState.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
         viewportState.pNext = nil
         viewportState.flags = VkPipelineViewportStateCreateFlags()
+        viewportState.viewportCount = 1
+        viewportState.scissorCount = 1
 
-        var viewport = VkViewport()
-        viewport.x = 0.0
-        viewport.y = 0.0
-        viewport.width = Float(swapchain.size.width)
-        viewport.height = Float(swapchain.size.height)
-        viewport.minDepth = 0.0
-        viewport.maxDepth = 1.0
+        // var viewport = VkViewport()
+        // viewport.x = 0.0
+        // viewport.y = 0.0
+        // viewport.width = Float(swapchain.size.width)
+        // viewport.height = Float(swapchain.size.height)
+        // viewport.minDepth = 0.0
+        // viewport.maxDepth = 1.0
 
-        withUnsafePointer(to: &viewport) {
-            viewportState.viewportCount = 1
-            viewportState.pViewports = $0
-        }
+        // withUnsafePointer(to: &viewport) {
+        //     viewportState.viewportCount = 1
+        //     viewportState.pViewports = $0
+        // }
 
-        var scissor = VkRect2D()
-        scissor.offset = VkOffset2D(x: 0, y: 0)
-        scissor.extent = swapchain.size
+        // var scissor = VkRect2D()
+        // scissor.offset = VkOffset2D(x: 0, y: 0)
+        // scissor.extent = swapchain.size
 
-        withUnsafePointer(to: &scissor) {
-            viewportState.scissorCount = 1
-            viewportState.pScissors = $0
-        }
+        // withUnsafePointer(to: &scissor) {
+        //     viewportState.scissorCount = 1
+        //     viewportState.pScissors = $0
+        // }
 
         var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
         vertexInputInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
@@ -328,18 +330,19 @@ public final class VulkanRenderer {
         }
         colorBlending.blendConstants = (0.0, 0.0, 0.0, 0.0)
 
-        //            let dynamicStates: [VkDynamicState] = [
-        //                VK_DYNAMIC_STATE_VIEWPORT,
-        //                VK_DYNAMIC_STATE_LINE_WIDTH
-        //            ]
-        //
-        //            var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
-        //                return VkPipelineDynamicStateCreateInfo(sType: .VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-        //                                                        pNext: nil,
-        //                                                        flags: VkPipelineDynamicStateCreateFlags(),
-        //                                                        dynamicStateCount: CUnsignedInt($0.count),
-        //                                                        pDynamicStates: $0.baseAddress!)
-        //            }
+        let dynamicStates: [VkDynamicState] = [
+            .VK_DYNAMIC_STATE_VIEWPORT,
+            .VK_DYNAMIC_STATE_LINE_WIDTH,
+            .VK_DYNAMIC_STATE_SCISSOR,
+        ]
+        
+        var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
+            return VkPipelineDynamicStateCreateInfo(sType: .VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+                                                    pNext: nil,
+                                                    flags: VkPipelineDynamicStateCreateFlags(),
+                                                    dynamicStateCount: CUnsignedInt($0.count),
+                                                    pDynamicStates: $0.baseAddress!)
+        }
 
         let fragmentShaderStageInfo = fragmentShader.createStageInfo(for: .fragment)
         let vertexShaderStageInfo = vertexShader.createStageInfo(for: .vertex)
@@ -371,9 +374,9 @@ public final class VulkanRenderer {
         withUnsafePointer(to: &colorBlending) {
             pipelineInfo.pColorBlendState = $0
         }
-        //            withUnsafePointer(to: &dynamicState) {
-        //                pipelineInfo.pDynamicState = $0
-        //            }
+        withUnsafePointer(to: &dynamicState) {
+            pipelineInfo.pDynamicState = $0
+        }
         pipelineInfo.layout = pipelineLayout.pointer
         pipelineInfo.renderPass = renderPass.pointer
         pipelineInfo.subpass = 0
@@ -425,6 +428,34 @@ public final class VulkanRenderer {
 
             try commandBuffer.bind(pipeline: pipeline)
 
+            var viewport = VkViewport()
+            viewport.x = 0.0
+            viewport.y = 0.0
+            viewport.width = Float(swapchain.size.width)
+            viewport.height = Float(swapchain.size.height)
+            viewport.minDepth = 0.0
+            viewport.maxDepth = 1.0
+
+            let viewports = [viewport]
+
+            var scissor = VkRect2D()
+            scissor.offset = VkOffset2D(x: 0, y: 0)
+            scissor.extent = swapchain.size
+
+            let scissors = [scissor]
+
+            try viewports.withUnsafeBufferPointer { viewports in
+                try vulkanInvoke {
+                    vkCmdSetViewport(commandBuffer.handle, 0, CUnsignedInt(viewports.count), viewports.baseAddress!)
+                }
+            }
+
+            try scissors.withUnsafeBufferPointer { scissors in
+                try vulkanInvoke {
+                    vkCmdSetScissor(commandBuffer.handle, 0, CUnsignedInt(scissors.count), scissors.baseAddress!)
+                }
+            }
+    
             try vulkanInvoke {
                 vkCmdDraw(commandBuffer.handle, 3, 1, 0, 0)
             }
