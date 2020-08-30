@@ -133,6 +133,8 @@ public final class VulkanRenderer {
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
+        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize evnents to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
+
         while true {
             do {
                 try drawFrame()
@@ -168,6 +170,15 @@ public final class VulkanRenderer {
 //                }
 //            }
 //        } while happyFrame == false
+    }
+
+    public func updateRenderTargetSize() throws {
+        do {
+            try clearSwapchain()
+            try setupSwapchain()
+        } catch {
+            debugPrint("Failed to recreate swapchain with error: \(error)")
+        }
     }
 
     public func drawFrame() throws {
@@ -252,29 +263,7 @@ public final class VulkanRenderer {
         viewportState.flags = VkPipelineViewportStateCreateFlags()
         viewportState.viewportCount = 1
         viewportState.scissorCount = 1
-
-        // var viewport = VkViewport()
-        // viewport.x = 0.0
-        // viewport.y = 0.0
-        // viewport.width = Float(swapchain.size.width)
-        // viewport.height = Float(swapchain.size.height)
-        // viewport.minDepth = 0.0
-        // viewport.maxDepth = 1.0
-
-        // withUnsafePointer(to: &viewport) {
-        //     viewportState.viewportCount = 1
-        //     viewportState.pViewports = $0
-        // }
-
-        // var scissor = VkRect2D()
-        // scissor.offset = VkOffset2D(x: 0, y: 0)
-        // scissor.extent = swapchain.size
-
-        // withUnsafePointer(to: &scissor) {
-        //     viewportState.scissorCount = 1
-        //     viewportState.pScissors = $0
-        // }
-
+        
         var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
         vertexInputInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
         vertexInputInfo.vertexBindingDescriptionCount = 0

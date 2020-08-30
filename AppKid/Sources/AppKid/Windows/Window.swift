@@ -371,8 +371,10 @@ fileprivate extension Window {
 
             if let index = application.windows.firstIndex(of: self) {
                 if isVulkanRendererEnabled {
+                    let renderer = application.vulkanRenderers[index]
                     do {
-                        try application.vulkanRenderers[index].render()
+                        try renderer.updateRenderTargetSize()
+                        try renderer.drawFrame()
                     } catch {
                         fatalError("Failed to render with error: \(error)")
                     }
