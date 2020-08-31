@@ -319,9 +319,9 @@ public final class VulkanRenderer {
         colorBlending.blendConstants = (0.0, 0.0, 0.0, 0.0)
 
         let dynamicStates: [VkDynamicState] = [
-            .VK_DYNAMIC_STATE_VIEWPORT,
-            .VK_DYNAMIC_STATE_LINE_WIDTH,
-            .VK_DYNAMIC_STATE_SCISSOR,
+            .viewport,
+            .scissor,
+            .lineWidth,
         ]
         
         var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
