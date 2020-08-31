@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkRenderPassCreateFlagBits {
-    public static let transformQcom = VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM
+public extension VkRenderPassCreateFlagBits {
+    static let transformQcom = VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM
 }

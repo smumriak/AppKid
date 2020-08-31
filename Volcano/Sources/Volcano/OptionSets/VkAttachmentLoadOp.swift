@@ -7,8 +7,8 @@
 
 import CVulkan
 
-extension VkAttachmentLoadOp {
-    public static let load = VK_ATTACHMENT_LOAD_OP_LOAD
-    public static let clear = VK_ATTACHMENT_LOAD_OP_CLEAR
-    public static let dontCare = VK_ATTACHMENT_LOAD_OP_DONT_CARE
+public extension VkAttachmentLoadOp {
+    static let load = VK_ATTACHMENT_LOAD_OP_LOAD
+    static let clear = VK_ATTACHMENT_LOAD_OP_CLEAR
+    static let dontCare = VK_ATTACHMENT_LOAD_OP_DONT_CARE
 }

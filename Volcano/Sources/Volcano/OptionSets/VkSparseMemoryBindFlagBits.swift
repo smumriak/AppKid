@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkSparseMemoryBindFlagBits {
-    public static let metadata = VK_SPARSE_MEMORY_BIND_METADATA_BIT
+public extension VkSparseMemoryBindFlagBits {
+    static let metadata = VK_SPARSE_MEMORY_BIND_METADATA_BIT
 }

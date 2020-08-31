@@ -7,9 +7,9 @@
 
 import CVulkan
 
-extension VkCullModeFlagBits {
-    public static let none = VkCullModeFlagBits()
-    public static let front = VK_CULL_MODE_FRONT_BIT
-    public static let back = VK_CULL_MODE_BACK_BIT
-    public static let frontAndBack = VK_CULL_MODE_FRONT_AND_BACK
+public extension VkCullModeFlagBits {
+    static let none = VkCullModeFlagBits()
+    static let front = VK_CULL_MODE_FRONT_BIT
+    static let back = VK_CULL_MODE_BACK_BIT
+    static let frontAndBack = VK_CULL_MODE_FRONT_AND_BACK
 }

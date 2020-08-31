@@ -7,5 +7,5 @@
 
 import CVulkan
 
-extension VkShaderModuleCreateFlagBits {
+public extension VkShaderModuleCreateFlagBits {
 }

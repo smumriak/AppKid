@@ -7,8 +7,8 @@
 
 import CVulkan
 
-extension VkCommandPoolCreateFlagBits {
-    public static let transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
-    public static let resetCommandBuffer = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-    public static let protected = VK_COMMAND_POOL_CREATE_PROTECTED_BIT
+public extension VkCommandPoolCreateFlagBits {
+    static let transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+    static let resetCommandBuffer = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+    static let protected = VK_COMMAND_POOL_CREATE_PROTECTED_BIT
 }

@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkImageViewCreateFlagBits {
-    public static let fragmentDensityMapDynamicExt = VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT
+public extension VkImageViewCreateFlagBits {
+    static let fragmentDensityMapDynamicExt = VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT
 }

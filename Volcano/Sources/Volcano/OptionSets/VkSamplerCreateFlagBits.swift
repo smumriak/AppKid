@@ -7,7 +7,7 @@
 
 import CVulkan
 
-extension VkSamplerCreateFlagBits {
-    public static let subsampledExt = VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT
-    public static let subsampledCoarseReconstructionExt = VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT
+public extension VkSamplerCreateFlagBits {
+    static let subsampledExt = VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT
+    static let subsampledCoarseReconstructionExt = VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT
 }

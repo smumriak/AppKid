@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkPipelineCacheCreateFlagBits {
-    public static let externallySynchronizedExt = VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT_EXT
+public extension VkPipelineCacheCreateFlagBits {
+    static let externallySynchronizedExt = VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT_EXT
 }

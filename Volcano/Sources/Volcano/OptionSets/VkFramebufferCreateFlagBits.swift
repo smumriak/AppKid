@@ -7,7 +7,7 @@
 
 import CVulkan
 
-extension VkFramebufferCreateFlagBits {
-    public static let imageless = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
-    public static let imagelessKhr = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR
+public extension VkFramebufferCreateFlagBits {
+    static let imageless = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
+    static let imagelessKhr = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR
 }

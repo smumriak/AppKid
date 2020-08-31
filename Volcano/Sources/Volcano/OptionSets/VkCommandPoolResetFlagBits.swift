@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkCommandPoolResetFlagBits {
-    public static let releaseResources = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
+public extension VkCommandPoolResetFlagBits {
+    static let releaseResources = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
 }

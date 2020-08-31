@@ -7,6 +7,6 @@
 
 import CVulkan
 
-extension VkQueryControlFlagBits {
-    public static let precise = VK_QUERY_CONTROL_PRECISE_BIT
+public extension VkQueryControlFlagBits {
+    static let precise = VK_QUERY_CONTROL_PRECISE_BIT
 }
