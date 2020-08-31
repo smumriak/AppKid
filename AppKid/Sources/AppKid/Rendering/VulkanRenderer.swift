@@ -301,12 +301,12 @@ public final class VulkanRenderer {
         var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
         colorBlendAttachment.colorWriteMask = VkColorComponentFlagBits.rgba.rawValue
         colorBlendAttachment.blendEnable = false.vkBool
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD
+        colorBlendAttachment.srcColorBlendFactor = .one
+        colorBlendAttachment.dstColorBlendFactor = .zero
+        colorBlendAttachment.colorBlendOp = .add
+        colorBlendAttachment.srcAlphaBlendFactor = .one
+        colorBlendAttachment.dstAlphaBlendFactor = .zero
+        colorBlendAttachment.alphaBlendOp = .add
 
         var colorBlending = VkPipelineColorBlendStateCreateInfo()
         colorBlending.sType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
