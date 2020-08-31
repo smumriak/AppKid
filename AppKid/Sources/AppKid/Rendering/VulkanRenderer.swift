@@ -244,7 +244,7 @@ public final class VulkanRenderer {
             renderPassInfo.pDependencies = dependenciesPointer.baseAddress!
         }
 
-        return try device.create(with: renderPassInfo)
+        return try device.create(with: &renderPassInfo)
     }
 
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
@@ -255,7 +255,7 @@ public final class VulkanRenderer {
         pipelineLayoutInfo.pushConstantRangeCount = 0
         pipelineLayoutInfo.pPushConstantRanges = nil
 
-        pipelineLayout = try device.create(with: pipelineLayoutInfo)
+        pipelineLayout = try device.create(with: &pipelineLayoutInfo)
 
         var viewportState = VkPipelineViewportStateCreateInfo()
         viewportState.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
@@ -392,71 +392,49 @@ public final class VulkanRenderer {
     }
 
     func createCommandBuffers() throws -> [CommandBuffer] {
+        let renderArea = VkRect2D(offset: VkOffset2D(x: 0, y: 0), extent: swapchain.size)
+        let clearColor = VkClearValue(color: VkClearColorValue(float32: (1.0, 1.0, 1.0, 1.0)))
+
+        var viewport = VkViewport()
+        viewport.x = 0.0
+        viewport.y = 0.0
+        viewport.width = Float(swapchain.size.width)
+        viewport.height = Float(swapchain.size.height)
+        viewport.minDepth = 0.0
+        viewport.maxDepth = 1.0
+
+        let viewports = [viewport]
+        let scissors = [renderArea]
+
         let result: [CommandBuffer] = try framebuffers.map { framebuffer in
             let commandBuffer = try CommandBuffer(commandPool: commandPool)
 
             try commandBuffer.begin()
 
-            var clearColor = VkClearValue(color: VkClearColorValue(float32: (1.0, 1.0, 1.0, 1.0)))
-
-            var renderPassBeginInfo = VkRenderPassBeginInfo()
-            renderPassBeginInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
-            renderPassBeginInfo.renderPass = renderPass.pointer
-            renderPassBeginInfo.framebuffer = framebuffer.handle
-            renderPassBeginInfo.renderArea.offset = VkOffset2D(x: 0, y: 0)
-            renderPassBeginInfo.renderArea.extent = swapchain.size
-            withUnsafePointer(to: &clearColor) {
-                renderPassBeginInfo.clearValueCount = 1
-                renderPassBeginInfo.pClearValues = $0
-            }
-
-            try vulkanInvoke {
-                vkCmdBeginRenderPass(commandBuffer.handle, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE)
-            }
-
+            try commandBuffer.beginRenderPass(renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
             try commandBuffer.bind(pipeline: pipeline)
 
-            var viewport = VkViewport()
-            viewport.x = 0.0
-            viewport.y = 0.0
-            viewport.width = Float(swapchain.size.width)
-            viewport.height = Float(swapchain.size.height)
-            viewport.minDepth = 0.0
-            viewport.maxDepth = 1.0
+            try commandBuffer.setViewports(viewports)
+            try commandBuffer.setScissors(scissors)
 
-            let viewports = [viewport]
+            try commandBuffer.draw(vertexCount: 3, firstVertex: 0, instanceCount: 1, firstInstance: 0)
 
-            var scissor = VkRect2D()
-            scissor.offset = VkOffset2D(x: 0, y: 0)
-            scissor.extent = swapchain.size
-
-            let scissors = [scissor]
-
-            try viewports.withUnsafeBufferPointer { viewports in
-                try vulkanInvoke {
-                    vkCmdSetViewport(commandBuffer.handle, 0, CUnsignedInt(viewports.count), viewports.baseAddress!)
-                }
-            }
-
-            try scissors.withUnsafeBufferPointer { scissors in
-                try vulkanInvoke {
-                    vkCmdSetScissor(commandBuffer.handle, 0, CUnsignedInt(scissors.count), scissors.baseAddress!)
-                }
-            }
-    
-            try vulkanInvoke {
-                vkCmdDraw(commandBuffer.handle, 3, 1, 0, 0)
-            }
-
-            try vulkanInvoke {
-                vkCmdEndRenderPass(commandBuffer.handle)
-            }
-
+            try commandBuffer.endRenderPass()
             try commandBuffer.end()
 
             return commandBuffer
         }
 
         return result
+    }
+
+    func createVertexBuffer() throws -> SmartPointer<VkBuffer_T> {
+        var info = VkBufferCreateInfo()
+        info.sType = .VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
+        info.size = 0 // sizeof(vertices[0]) * vertices.size()
+        info.usage = VkBufferUsageFlagBits.vertexBuffer.rawValue
+        info.sharingMode = VK_SHARING_MODE_EXCLUSIVE
+
+        return try device.create(with: &info)
     }
 }

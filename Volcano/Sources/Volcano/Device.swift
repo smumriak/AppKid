@@ -61,7 +61,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
                     info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreateInfos.count)
                     info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
 
-                    return try physicalDevice.create(with: info)
+                    return try physicalDevice.create(with: &info)
                 }
             }
         }

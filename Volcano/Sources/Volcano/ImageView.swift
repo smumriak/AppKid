@@ -34,7 +34,7 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
 
         let device = image.device
 
-        let handlePointer = try device.create(with: info)
+        let handlePointer = try device.create(with: &info)
 
         try super.init(device: device, handlePointer: handlePointer)
     }

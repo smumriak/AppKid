@@ -26,7 +26,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
             info.dpy = display
             info.window = window
 
-            let handlePointer = try physicalDevice.instance.create(with: info)
+            let handlePointer = try physicalDevice.instance.create(with: &info)
 
             try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
         }
@@ -36,7 +36,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
             var info = VkMacOSSurfaceCreateInfoMVK()
             info.sType = .VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
 
-            let handlePointer = try physicalDevice.instance.create(with: info)
+            let handlePointer = try physicalDevice.instance.create(with: &info)
 
             try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
         }
@@ -99,23 +99,5 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 extension VkSurfaceFormatKHR: Equatable {
     public static func == (lhs: VkSurfaceFormatKHR, rhs: VkSurfaceFormatKHR) -> Bool {
         return lhs.format == rhs.format && lhs.colorSpace == rhs.colorSpace
-    }
-}
-
-public extension Shader {
-    fileprivate static let defaultShaderEntryPointName = strdup("main")
-
-    func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
-        var result = VkPipelineShaderStageCreateInfo()
-        
-        result.sType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
-        result.pNext = nil
-        result.flags = flags.rawValue
-        result.stage = stage
-        result.module = handle
-        result.pName = UnsafePointer(Shader.defaultShaderEntryPointName)
-        result.pSpecializationInfo = nil
-
-        return result
     }
 }

@@ -19,7 +19,7 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
         info.flags = flags.rawValue
         info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
 
-        let handlePointer = try device.create(with: info)
+        let handlePointer = try device.create(with: &info)
         
         try super.init(device: device, handlePointer: handlePointer)
     }

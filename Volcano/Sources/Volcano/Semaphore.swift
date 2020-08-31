@@ -10,9 +10,9 @@ import CVulkan
 
 public final class Semaphore: VulkanDeviceEntity<SmartPointer<VkSemaphore_T>> {
     public init(device: Device) throws {
-        let info = VkSemaphoreCreateInfo(sType: .VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, pNext: nil, flags: 0)
+        var info = VkSemaphoreCreateInfo(sType: .VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, pNext: nil, flags: 0)
 
-        let handlePointer = try device.create(with: info)
+        let handlePointer = try device.create(with: &info)
 
         try super.init(device: device, handlePointer: handlePointer)
     }

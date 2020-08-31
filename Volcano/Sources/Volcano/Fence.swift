@@ -10,9 +10,9 @@ import CVulkan
 
 public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
-        let info = VkFenceCreateInfo(sType: .VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
+        var info = VkFenceCreateInfo(sType: .VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
         
-        let handlePointer = try device.create(with: info)
+        let handlePointer = try device.create(with: &info)
         
         try super.init(device: device, handlePointer: handlePointer)
     }

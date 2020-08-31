@@ -8,8 +8,8 @@
 import CVulkan
 
 extension VkBufferUsageFlagBits {
-    public static let transferSrc = VK_BUFFER_USAGE_TRANSFER_SRC_BIT
-    public static let transferDst = VK_BUFFER_USAGE_TRANSFER_DST_BIT
+    public static let transferSource = VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+    public static let transferDestination = VK_BUFFER_USAGE_TRANSFER_DST_BIT
     public static let uniformTexelBuffer = VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT
     public static let storageTexelBuffer = VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT
     public static let uniformBuffer = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT

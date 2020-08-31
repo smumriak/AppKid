@@ -14,5 +14,6 @@
 AK_EXISTING_ENUM(VkStructureType);
 AK_EXISTING_ENUM(VkCommandBufferLevel);
 AK_EXISTING_ENUM(VkDynamicState);
+AK_EXISTING_ENUM(VkSubpassContents);
 
 #endif /* VulkanEnums_h */

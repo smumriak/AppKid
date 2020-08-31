@@ -27,12 +27,6 @@ public extension VulkanHandle where Handle.Pointee: EntityFactory {
         return try handle.allocateMemory(info: info, using: allocator)
     }
 
-    func create<Info: EntityInfo>(with info: Info, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
-        var infoMutable = info
-
-        return try create(with: &infoMutable, callbacks: callbacks)
-    }
-
     func create<Info: EntityInfo>(with info: UnsafePointer<Info>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
         var pointer: UnsafeMutablePointer<Info.Result>?
 

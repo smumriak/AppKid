@@ -56,7 +56,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
                 info.pQueueFamilyIndices = queueFamiliesIndices.baseAddress!
             }
 
-            return try device.create(with: info)
+            return try device.create(with: &info)
         }
 
         try super.init(device: device, handlePointer: handlePointer)
