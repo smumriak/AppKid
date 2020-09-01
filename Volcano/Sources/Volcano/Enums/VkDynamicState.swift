@@ -24,6 +24,7 @@ public extension VkDynamicState {
     static let viewportCoarseSampleOrderNV: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV
     static let exclusiveScissor_nv: VkDynamicState = .VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_NV
     static let lineStippleExt: VkDynamicState = .VK_DYNAMIC_STATE_LINE_STIPPLE_EXT
+    #if !os(macOS)
     static let cullModeExt: VkDynamicState = .VK_DYNAMIC_STATE_CULL_MODE_EXT
     static let frontFaceExt: VkDynamicState = .VK_DYNAMIC_STATE_FRONT_FACE_EXT
     static let primitiveTopologyExt: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT
@@ -36,4 +37,5 @@ public extension VkDynamicState {
     static let depthBoundsTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE_EXT
     static let stencilTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE_EXT
     static let stencilOperationExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_OP_EXT
+    #endif
 }

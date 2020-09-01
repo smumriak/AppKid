@@ -17,17 +17,8 @@ public class RenderPass: VulkanDeviceEntity<SmartPointer<VkRenderPass_T>> {
 }
 
 public final class SubpassGraph {
-    public enum GraphError: Error {
-        case subpassNotFound(Subpass)
-    }
-
-    internal struct Depdendency {
-        let source: Subpass
-        let destination: Subpass
-    }
-
-    var subpasses: [Subpass] = []
-    var dependencies: [Depdendency] = []
+    public fileprivate(set) var subpasses: [Subpass] = []
+    public fileprivate(set) var dependencies: [VkSubpassDependency] = []
 
     public func add(subpass: Subpass) {
         if subpasses.contains(subpass) {
@@ -37,15 +28,42 @@ public final class SubpassGraph {
         subpasses.append(subpass)
     }
 
-    public func addDependency(source: Subpass,
+    public func addDependency(source: Subpass?,
                               destination: Subpass,
                               sourceStage: VkPipelineStageFlagBits = .colorAttachmentOutput,
                               destinationStage: VkPipelineStageFlagBits = .colorAttachmentOutput,
                               sourceAccess: VkAccessFlagBits = [],
                               destinationAccess: VkAccessFlagBits = .colorAttachmentWrite,
                               dependencyFlags: VkDependencyFlagBits = []) throws {
-//        guard let sourceIndex = subpasses.firstIndex(of: source) else { throw GraphError.subpassNotFound(source) }
-//        let destinationIndex = subpasses.firstIndex(of: destination)
+        let sourceIndex: CUnsignedInt
+        if let source = source {
+            sourceIndex = CUnsignedInt(indexOfSubpass(appendingIfNotFound: source))
+        } else {
+            sourceIndex = VK_SUBPASS_EXTERNAL
+        }
+
+        let destinationIndex = CUnsignedInt(indexOfSubpass(appendingIfNotFound: destination))
+
+        var dependency = VkSubpassDependency()
+        dependency.srcSubpass = sourceIndex
+        dependency.dstSubpass = destinationIndex
+        dependency.srcStageMask = sourceStage.rawValue
+        dependency.srcAccessMask = sourceAccess.rawValue
+        dependency.dstStageMask = destinationStage.rawValue
+        dependency.dstAccessMask = destinationAccess.rawValue
+        dependency.dependencyFlags = dependencyFlags.rawValue
+
+        dependencies.append(dependency)
+    }
+     
+    fileprivate func indexOfSubpass(appendingIfNotFound subpass: Subpass) -> Int {
+        if let result = subpasses.firstIndex(of: subpass) {
+            return result
+        } else {
+            subpasses.append(subpass)
+
+            return subpasses.count - 1
+        }
     }
 }
 

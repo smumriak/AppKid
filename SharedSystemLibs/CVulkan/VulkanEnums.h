@@ -17,5 +17,9 @@ AK_EXISTING_ENUM(VkDynamicState);
 AK_EXISTING_ENUM(VkSubpassContents);
 AK_EXISTING_ENUM(VkBlendFactor);
 AK_EXISTING_ENUM(VkBlendOp);
+AK_EXISTING_ENUM(VkAttachmentLoadOp);
+AK_EXISTING_ENUM(VkAttachmentStoreOp);
+AK_EXISTING_ENUM(VkImageLayout);
+AK_EXISTING_ENUM(VkPipelineBindPoint);
 
 #endif /* VulkanEnums_h */

@@ -71,7 +71,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func bind(pipeline: SmartPointer<VkPipeline_T>, bindPoint: VkPipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS) throws {
+    public func bind(pipeline: SmartPointer<VkPipeline_T>, bindPoint: VkPipelineBindPoint = .graphics) throws {
         try vulkanInvoke {
             vkCmdBindPipeline(handle, bindPoint, pipeline.pointer)
         }

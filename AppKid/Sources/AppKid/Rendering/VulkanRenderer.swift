@@ -212,10 +212,10 @@ public final class VulkanRenderer {
 
         var colorAttachmentRef = VkAttachmentReference()
         colorAttachmentRef.attachment = 0
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        colorAttachmentRef.layout = .colorAttachmentOptimal
 
         var subpass = VkSubpassDescription()
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS
+        subpass.pipelineBindPoint = .graphics
         subpass.colorAttachmentCount = 1
         withUnsafePointer(to: &colorAttachmentRef) {
             subpass.pColorAttachments = $0
