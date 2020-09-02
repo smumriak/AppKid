@@ -47,7 +47,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 
         let handlePointer: SmartPointer<VkDevice_T> = try withUnsafePointer(to: enabledFeatures) { enabledFeatures in
             try extensionsNamesPointers.withUnsafeBufferPointer { extensions in
-                try withUnsafeDeviceQueueCreateInfoBufferPointer(queuesRequests: queuesRequests, physicalDevice: physicalDevice) { deviceQueueCreateInfos in
+                try queuesRequests.withUnsafeDeviceQueueCreateInfoBufferPointer(physicalDevice: physicalDevice) { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo()
 
                     info.sType = .VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
@@ -119,36 +119,41 @@ public extension Device {
     }
 }
 
-fileprivate func withUnsafeDeviceQueueCreateInfoBufferPointer<R>(queuesRequests: [Device.QueueCreationRequest], physicalDevice: PhysicalDevice, body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-    var result = Array<VkDeviceQueueCreateInfo>()
-    result.reserveCapacity(queuesRequests.count)
+fileprivate extension Array where Element == Device.QueueCreationRequest {
+    func withUnsafeDeviceQueueCreateInfoBufferPointer<R>(physicalDevice: PhysicalDevice, body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
+        var buffer = Array<VkDeviceQueueCreateInfo>()
+        buffer.reserveCapacity(count)
 
-    return try populateDeviceQueueCreateInfo(tail: queuesRequests[0..<queuesRequests.count], physicalDevice: physicalDevice, result: &result, body: body)
+        return try (self[0..<count]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
+    }
 }
 
-fileprivate func populateDeviceQueueCreateInfo<R>(tail: ArraySlice<Device.QueueCreationRequest>, physicalDevice: PhysicalDevice, result: inout [VkDeviceQueueCreateInfo], body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-    if tail.count == 0 {
-        return try result.withUnsafeBufferPointer {
-            return try body($0)
-        }
-    } else {
-        let head = tail[0]
+fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
+    func populateDeviceQueueCreateInfo<R>(physicalDevice: PhysicalDevice, buffer: inout [VkDeviceQueueCreateInfo], body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
+        if isEmpty {
+            return try buffer.withUnsafeBufferPointer {
+                return try body($0)
+            }
+        } else {
+            let head = self[0]
 
-        guard let queueFamilyIndex = physicalDevice.queueFamilyIndex(for: head.type) else {
-            throw VulkanError.noQueueFamilySatisfyingType(head.type)
-        }
+            guard let queueFamilyIndex = physicalDevice.queueFamilyIndex(for: head.type) else {
+                throw VulkanError.noQueueFamilySatisfyingType(head.type)
+            }
 
-        return try head.priorities.withUnsafeBufferPointer {
-            var info = VkDeviceQueueCreateInfo()
-            info.sType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
-            info.flags = 0
-            info.queueFamilyIndex = CUnsignedInt(queueFamilyIndex)
-            info.queueCount = CUnsignedInt($0.count)
-            info.pQueuePriorities = $0.baseAddress!
+            return try head.priorities.withUnsafeBufferPointer {
+                var info = VkDeviceQueueCreateInfo()
+                info.sType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+                info.flags = 0
+                info.queueFamilyIndex = CUnsignedInt(queueFamilyIndex)
+                info.queueCount = CUnsignedInt($0.count)
+                info.pQueuePriorities = $0.baseAddress!
 
-            result.append(info)
+                buffer.append(info)
 
-            return try populateDeviceQueueCreateInfo(tail: tail[1..<tail.count], physicalDevice: physicalDevice, result: &result, body: body)
+                return try (self[1..<count]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
+            }
         }
     }
 }
+

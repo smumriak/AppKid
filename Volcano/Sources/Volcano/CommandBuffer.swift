@@ -49,11 +49,11 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func beginRenderPass(_ renderPass: SmartPointer<VkRenderPass_T>, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
+    public func beginRenderPass(_ renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
         try clearValues.withUnsafeBufferPointer { clearValues in
             var renderPassBeginInfo = VkRenderPassBeginInfo()
             renderPassBeginInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
-            renderPassBeginInfo.renderPass = renderPass.pointer
+            renderPassBeginInfo.renderPass = renderPass.handle
             renderPassBeginInfo.framebuffer = framebuffer.handle
             renderPassBeginInfo.renderArea = renderArea
             renderPassBeginInfo.clearValueCount = CUnsignedInt(clearValues.count)

@@ -29,6 +29,7 @@ let package = Package(
             dependencies: [
                 .product(name: "CXlib", package: "SharedSystemLibs"),
                 .product(name: "CXInput2", package: "SharedSystemLibs"),
+                .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "ContentAnimation", package: "ContentAnimation"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),

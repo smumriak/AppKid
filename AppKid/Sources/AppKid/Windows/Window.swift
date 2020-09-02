@@ -374,7 +374,7 @@ fileprivate extension Window {
                     let renderer = application.vulkanRenderers[index]
                     do {
                         try renderer.updateRenderTargetSize()
-                        try renderer.drawFrame()
+                        try renderer.render()
                     } catch {
                         fatalError("Failed to render with error: \(error)")
                     }

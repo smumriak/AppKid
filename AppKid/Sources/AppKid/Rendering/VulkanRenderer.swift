@@ -28,6 +28,7 @@ public final class VulkanRenderer {
     internal fileprivate(set) var imageAvailableSemaphore: Semaphore
     internal fileprivate(set) var renderFinishedSemaphore: Semaphore
     internal fileprivate(set) var fence: Fence
+    internal fileprivate(set) var renderPass: RenderPass
 
     var vertexShader: Shader
     var fragmentShader: Shader
@@ -38,7 +39,6 @@ public final class VulkanRenderer {
     var imageViews: [ImageView]!
 
     var pipelineLayout: SmartPointer<VkPipelineLayout_T>!
-    var renderPass: SmartPointer<VkRenderPass_T>!
     var pipeline: SmartPointer<VkPipeline_T>!
     var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
@@ -84,7 +84,22 @@ public final class VulkanRenderer {
         vertexShader = try device.shader(named: "TriangleVertexShader", in: bundle)
         fragmentShader = try device.shader(named: "TriangleFragmentShader", in: bundle)
 
-        renderPass = try createRenderPass()
+        var colorAttachmentDescription = VkAttachmentDescription()
+        colorAttachmentDescription.format = surface.imageFormat
+        colorAttachmentDescription.samples = .one
+        colorAttachmentDescription.loadOp = .clear
+        colorAttachmentDescription.storeOp = .store
+        colorAttachmentDescription.stencilLoadOp = .clear
+        colorAttachmentDescription.stencilStoreOp = .store
+        colorAttachmentDescription.initialLayout = .undefined
+        colorAttachmentDescription.finalLayout = .presentSource
+
+        let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
+        let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
+
+        renderPass = try RenderPass(device: device, subpasses: [subpass1], dependencies: [dependency1])
+
         pipeline = try createGraphicsPipeline()
     }
 
@@ -198,55 +213,7 @@ public final class VulkanRenderer {
 
         try fence.wait()
     }
-
-    func createRenderPass() throws -> SmartPointer<VkRenderPass_T> {
-        var colorAttachment = VkAttachmentDescription()
-        colorAttachment.format = surface.imageFormat
-        colorAttachment.samples = .one
-        colorAttachment.loadOp = .clear
-        colorAttachment.storeOp = .store
-        colorAttachment.stencilLoadOp = .clear
-        colorAttachment.stencilStoreOp = .store
-        colorAttachment.initialLayout = .undefined
-        colorAttachment.finalLayout = .presentSource
-
-        var colorAttachmentRef = VkAttachmentReference()
-        colorAttachmentRef.attachment = 0
-        colorAttachmentRef.layout = .colorAttachmentOptimal
-
-        var subpass = VkSubpassDescription()
-        subpass.pipelineBindPoint = .graphics
-        subpass.colorAttachmentCount = 1
-        withUnsafePointer(to: &colorAttachmentRef) {
-            subpass.pColorAttachments = $0
-        }
-
-        var renderPassInfo = VkRenderPassCreateInfo()
-        renderPassInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
-        renderPassInfo.attachmentCount = 1
-        withUnsafePointer(to: &colorAttachment) {
-            renderPassInfo.pAttachments = $0
-        }
-        renderPassInfo.subpassCount = 1
-        withUnsafePointer(to: &subpass) {
-            renderPassInfo.pSubpasses = $0
-        }
-        var dependency = VkSubpassDependency()
-        dependency.srcSubpass = VK_SUBPASS_EXTERNAL
-        dependency.dstSubpass = 0
-        dependency.srcStageMask = VkPipelineStageFlagBits.colorAttachmentOutput.rawValue
-        dependency.srcAccessMask = 0
-        dependency.dstStageMask = VkPipelineStageFlagBits.colorAttachmentOutput.rawValue
-        dependency.dstAccessMask = VkAccessFlagBits.colorAttachmentWrite.rawValue
-        let dependencies: [VkSubpassDependency] = [dependency]
-        dependencies.withUnsafeBufferPointer { dependenciesPointer in
-            renderPassInfo.dependencyCount = CUnsignedInt(dependenciesPointer.count)
-            renderPassInfo.pDependencies = dependenciesPointer.baseAddress!
-        }
-
-        return try device.create(with: &renderPassInfo)
-    }
-
+    
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
         var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
         pipelineLayoutInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
@@ -366,7 +333,7 @@ public final class VulkanRenderer {
             pipelineInfo.pDynamicState = $0
         }
         pipelineInfo.layout = pipelineLayout.pointer
-        pipelineInfo.renderPass = renderPass.pointer
+        pipelineInfo.renderPass = renderPass.handle
         pipelineInfo.subpass = 0
 
         pipelineInfo.basePipelineHandle = nil
