@@ -8,5 +8,18 @@
     "sde.enableTracing.client": true,
     "sde.enableTracing.LSPServer": true,
     "swift.path.swift_driver_bin": "/opt/swift/usr/bin/swift",
-    "swift.diagnosis.max_num_problems": 999
+    "swift.diagnosis.max_num_problems": 999,
+    "swift.languageServerPath": "",
+    "lldb.executable": "/opt/swift/usr/bin/lldb",
+    "lldb.adapterEnv": {
+        "LLDB_DEBUGSERVER_PATH": "/opt/swift/usr/bin/lldb-server"
+    },
+    "lldb.verboseLogging": true,
+    "lldb.launch.expressions": "simple",
+    // "lldb.library": "/opt/swift/usr/lib/liblldb.so.10git",
+    // "lldb.libpython": "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
+    "[swift]": {},
+    "files.associations": {
+        "random": "cpp"
+    }
 }
