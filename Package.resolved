@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "cglm",
+        "repositoryURL": "https://github.com/smumryak/cglm",
+        "state": {
+          "branch": "master",
+          "revision": "65b0b461ab9b39843978bf9168a08cc3b5da5dce",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}

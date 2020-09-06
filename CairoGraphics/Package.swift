@@ -19,6 +19,7 @@ let package = Package(
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
+        .package(name: "cglm", url: "https://github.com/smumryak/cglm", .branch("master")),
     ],
     targets: [
         .target(
@@ -27,6 +28,7 @@ let package = Package(
                 .product(name: "CCairo", package: "SharedSystemLibs"),
                 .product(name: "CPango", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "cglm", package: "cglm"),
             ]
         ),
     ]

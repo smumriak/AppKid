@@ -22,6 +22,7 @@ let package = Package(
         .package(path: "../CairoGraphics"),
         .package(path: "../ContentAnimation"),
         .package(path: "../Volcano"),
+        .package(name: "cglm", url: "https://github.com/smumryak/cglm", .branch("master")),
     ],
     targets: [
         .target(
@@ -34,6 +35,7 @@ let package = Package(
                 .product(name: "ContentAnimation", package: "ContentAnimation"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "Volcano", package: "Volcano"),
+                .product(name: "cglm", package: "cglm"),
             ],
             exclude: [
                 "Resources/TriangleFragmentShader.frag",
