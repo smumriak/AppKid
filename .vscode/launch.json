@@ -14,6 +14,20 @@
             "osx": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
             },
-        }
+        },
+        {
+            "name": "Test",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build_tests",
+            "linux": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux/debug/SwiftyFanPackageTests.xctest" 
+            },
+            "osx": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin/debug/SwiftyFanPackageTests.xctest "
+            },
+        },
     ]
 }

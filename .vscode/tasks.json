@@ -15,6 +15,16 @@
             "label": "clean",
             "type": "shell",
             "command": "./clean.sh"
-        }
+        },
+        {
+            "label": "build_tests",
+            "type": "shell",
+            "linux": {
+                "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux"
+            },
+            "osx": {
+                "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
+            }  
+        },
     ]
 }
