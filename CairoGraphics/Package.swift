@@ -19,7 +19,8 @@ let package = Package(
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
-        .package(name: "cglm", url: "https://github.com/smumryak/cglm", .branch("master")),
+        .package(path: "../SimpleGLM"),
+        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
     ],
     targets: [
         .target(
@@ -29,7 +30,12 @@ let package = Package(
                 .product(name: "CPango", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "cglm", package: "cglm"),
+                .product(name: "SimpleGLM", package: "SimpleGLM"),
             ]
+        ),
+        .testTarget(
+            name: "CairoGraphicsTests",
+            dependencies: ["CairoGraphics"]
         ),
     ]
 )

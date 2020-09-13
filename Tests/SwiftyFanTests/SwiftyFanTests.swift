@@ -6,7 +6,7 @@
 //
 
 import XCTest
-import class Foundation.Bundle
+import Foundation
 
 final class SwiftyFanTests: XCTestCase {
     func testExample() throws {

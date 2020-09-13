@@ -41,7 +41,7 @@ public extension ApplicationDelegate {
 
 open class Application: Responder {
     public static let shared = Application()
-    unowned(unsafe) open var delegate: ApplicationDelegate?
+    open unowned(unsafe) var delegate: ApplicationDelegate?
 
     internal var displayServer: X11DisplayServer
     internal var renderStack: VulkanRenderStack? = nil

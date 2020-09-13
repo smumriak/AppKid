@@ -179,7 +179,7 @@ class RootViewController: ViewController {
 
     deinit {
         transformTimer.invalidate()
-        sensorTimer.invalidate()
+        // sensorTimer.invalidate()
     }
 
     override init() {
@@ -203,7 +203,7 @@ class RootViewController: ViewController {
         view.add(subview: closeOtherWindows)
 
         RunLoop.current.add(transformTimer, forMode: .common)
-        RunLoop.current.add(sensorTimer, forMode: .common)
+        // RunLoop.current.add(sensorTimer, forMode: .common)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -278,7 +278,7 @@ class RootViewController: ViewController {
     }
 
     fileprivate func spawn100WindowsButtonDidTap(sender: Button) {
-        for _ in 0..<100 {
+        for _ in 0..<70 {
             DispatchQueue.main.async {
                 let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
                 window.rootViewController = RootViewController()

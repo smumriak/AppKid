@@ -5,162 +5,156 @@
 //  Created by Serhii Mumriak on 07.02.2020.
 //
 
-import CCairo
 import Foundation
-import TinyFoundation
+import CCairo
 
 public struct CGAffineTransform {
-    internal fileprivate(set) var _matrix = cairo_matrix_t()
-    
-    public init() {}
-    
+    public var a: CGFloat
+    public var b: CGFloat
+    public var c: CGFloat
+    public var d: CGFloat
+    public var tx: CGFloat
+    public var ty: CGFloat
+
+    internal fileprivate(set) var _matrix: cairo_matrix_t {
+        get {
+            cairo_matrix_t(xx: Double(a), yx: Double(b),
+                           xy: Double(c), yy: Double(d),
+                           x0: Double(tx), y0: Double(ty))
+        }
+        set {
+            a = CGFloat(newValue.xx)
+            b = CGFloat(newValue.yx)
+            c = CGFloat(newValue.xy)
+            d = CGFloat(newValue.yy)
+            tx = CGFloat(newValue.x0)
+            ty = CGFloat(newValue.y0)
+        }
+    }
+
     internal init(matrix: cairo_matrix_t) {
-        _matrix = matrix
-    }
-    
-    var a: CGFloat {
-        get { return CGFloat(_matrix.xx) }
-        set { _matrix.xx = Double(newValue) }
-    }
-
-    var b: CGFloat {
-        get { return CGFloat(_matrix.xy) }
-        set { _matrix.xy = Double(newValue) }
-    }
-
-    var c: CGFloat {
-        get { return CGFloat(_matrix.yx) }
-        set { _matrix.yx = Double(newValue) }
-    }
-
-    var d: CGFloat {
-        get { return CGFloat(_matrix.yy) }
-        set { _matrix.yy = Double(newValue) }
-    }
-
-    var tx: CGFloat {
-        get { return CGFloat(_matrix.x0) }
-        set { _matrix.x0 = Double(newValue) }
-    }
-
-    var ty: CGFloat {
-        get { return CGFloat(_matrix.y0) }
-        set { _matrix.y0 = Double(newValue) }
-    }
-}
-
-fileprivate extension cairo_matrix_t {
-    static func == (lhs: cairo_matrix_t, rhs: cairo_matrix_t) -> Bool {
-        return lhs.xx == rhs.xx &&
-            lhs.xy == rhs.xy &&
-            lhs.yx == rhs.yx &&
-            lhs.yy == rhs.yy &&
-            lhs.x0 == rhs.x0 &&
-            lhs.y0 == rhs.y0
-    }
-}
-
-extension CGAffineTransform: Equatable {
-    public static func == (lhs: CGAffineTransform, rhs: CGAffineTransform) -> Bool {
-        return lhs._matrix == rhs._matrix
+        a = CGFloat(matrix.xx)
+        b = CGFloat(matrix.yx)
+        c = CGFloat(matrix.xy)
+        d = CGFloat(matrix.yy)
+        tx = CGFloat(matrix.x0)
+        ty = CGFloat(matrix.y0)
     }
 }
 
 public extension CGAffineTransform {
-    static let identity: CGAffineTransform = {
-        var result = CGAffineTransform()
-        cairo_matrix_init_identity(&result._matrix)
-        return result
-    }()
-}
+    static var identity = CGAffineTransform(a: 1.0, b: 0.0,
+                                            c: 0.0, d: 1.0,
+                                            tx: 0.0, ty: 0.0)
 
-public extension CGAffineTransform {
+    static var zero = CGAffineTransform(a: 0.0, b: 0.0,
+                                        c: 0.0, d: 0.0,
+                                        tx: 0.0, ty: 0.0)
+   
+    var determinant: CGFloat { a * d - b * c }
+
+    init() {
+        self = .identity
+    }
+
+    init(a: CGFloat, b: CGFloat, c: CGFloat, d: CGFloat, tx: CGFloat, ty: CGFloat) {
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.tx = tx
+        self.ty = ty
+    }
+
     init(translationX tx: CGFloat, y ty: CGFloat) {
-        cairo_matrix_init_translate(&_matrix, Double(tx), Double(ty))
+        self.init(a: 1.0, b: 0.0,
+                  c: 0.0, d: 1.0,
+                  tx: tx, ty: ty)
     }
     
     init(scaleX sx: CGFloat, y sy: CGFloat) {
-        cairo_matrix_init_scale(&_matrix, Double(sx), Double(sy))
+        self.init(a: sx, b: 0.0,
+                  c: 0.0, d: sy,
+                  tx: 0.0, ty: 0.0)
     }
     
     init(rotationAngle angle: CGFloat) {
-        cairo_matrix_init_rotate(&_matrix, Double(angle))
+        let sine = sin(angle)
+        let cosine = cos(angle)
+
+        self.init(a: cosine, b: sine,
+                  c: -sine, d: cosine,
+                  tx: 0.0, ty: 0.0)
     }
-    
+
     var isIdentity: Bool {
-        return self == .identity
+        self == .identity
     }
     
     func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform {
-        var result = self
-        
-        cairo_matrix_translate(&result._matrix, Double(tx), Double(ty))
-        
-        return result
+        CGAffineTransform(translationX: tx, y: ty).concatenating(self)
     }
     
     func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform {
-        var result = self
-        
-        cairo_matrix_scale(&result._matrix, Double(sx), Double(sy))
-        
-        return result
+        CGAffineTransform(scaleX: sx, y: sy).concatenating(self)
     }
     
     func rotated(by angle: CGFloat) -> CGAffineTransform {
-        var result = self
-        
-        cairo_matrix_rotate(&result._matrix, Double(angle))
-        
-        return result
+        CGAffineTransform(rotationAngle: angle).concatenating(self)
     }
     
     func inverted() -> CGAffineTransform {
-        if self.isIdentity { return self }
-        
-        var result = self
-        
-        let success = cairo_matrix_invert(&result._matrix)
-        
-        if success == CAIRO_STATUS_INVALID_MATRIX {
-            return self
-        } else {
-            return result
-        }
+        if isIdentity { return self }
+
+        let determinant = self.determinant
+
+        if determinant == 0 { return self }
+
+        return CGAffineTransform(a: d / determinant, b: -b / determinant,
+                                 c: -c / determinant, d: a / determinant,
+                                 tx: (c * ty - d * tx) / determinant, ty: (b * tx - a * ty) / determinant)
     }
     
     func concatenating(_ t2: CGAffineTransform) -> CGAffineTransform {
-        var result = self
-        var lhs = _matrix
-        var rhs = t2._matrix
-        
-        cairo_matrix_multiply(&result._matrix, &lhs, &rhs)
-        
-        return result
+        CGAffineTransform(
+            a: a * t2.a + b * t2.c, b: a * t2.b + b * t2.d,
+            c: c * t2.a + d * t2.c, d: c * t2.b + d * t2.d,
+            tx: tx * t2.a + ty * t2.c + t2.tx, ty: tx * t2.b + ty * t2.d + t2.ty
+        )
+    }
+}
+
+extension CGAffineTransform: Hashable {
+    public static func == (_ lhs: Self, _ rhs: Self) -> Bool {
+        lhs.a == rhs.a && 
+        lhs.b == rhs.b && 
+        lhs.c == rhs.c && 
+        lhs.d == rhs.d && 
+        lhs.tx == rhs.tx && 
+        lhs.ty == rhs.ty
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(a)
+        hasher.combine(b)
+        hasher.combine(c)
+        hasher.combine(d)
+        hasher.combine(tx)
+        hasher.combine(ty)
     }
 }
 
 public extension CGPoint {
     func applying(_ t: CGAffineTransform) -> CGPoint {
-        var x = Double(self.x)
-        var y = Double(self.y)
-        var transform = t
-        
-        cairo_matrix_transform_point(&transform._matrix, &x, &y)
-        
-        return CGPoint(x: x, y: y)
+        CGPoint(x: t.a * x + t.c * y + t.tx,
+                y: t.b * x + t.d * y + t.ty)
     }
 }
 
 public extension CGSize {
     func applying(_ t: CGAffineTransform) -> CGSize {
-        var width = Double(self.width)
-        var height = Double(self.height)
-        var transform = t
-        
-        cairo_matrix_transform_distance(&transform._matrix, &width, &height)
-        
-        return CGSize(width: width, height: height)
+        CGSize(width: t.a * width + t.c * height,
+               height: t.b * width + t.d * height)
     }
 }
 
@@ -177,5 +171,16 @@ public extension CGRect {
                           height: max(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y) - origin.y)
         
         return CGRect(origin: origin, size: size)
+    }
+}
+
+extension CGAffineTransform: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        CGAffineTransform
+        a: \(a), b: \(b)
+        c: \(c), d: \(d)
+        tx: \(tx), ty: \(ty)
+        """
     }
 }

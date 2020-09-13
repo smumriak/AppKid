@@ -3,10 +3,10 @@
     "pins": [
       {
         "package": "cglm",
-        "repositoryURL": "https://github.com/recp/cglm",
+        "repositoryURL": "https://github.com/smumryak/cglm",
         "state": {
           "branch": "master",
-          "revision": "d920a62be2b0141da044667a632388bd92d03a55",
+          "revision": "65b0b461ab9b39843978bf9168a08cc3b5da5dce",
           "version": null
         }
       }

@@ -19,6 +19,8 @@ let package = Package(
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
+        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
+        .package(path: "../SimpleGLM"),
     ],
     targets: [
         .target(
@@ -27,6 +29,8 @@ let package = Package(
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "CXlib", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "cglm", package: "cglm"),
+                .product(name: "SimpleGLM", package: "SimpleGLM"),
             ]
         ),
     ]

@@ -1,8 +1,8 @@
 //
 //  XCTestManifests.swift
-//  SwiftyFan
+//  CairoGraphics
 //
-//  Created by Serhii Mumriak on 29.01.2020.
+//  Created by Serhii Mumriak on 06.09.2020.
 //
 
 import XCTest
@@ -10,7 +10,7 @@ import XCTest
 #if !canImport(ObjectiveC)
     public func allTests() -> [XCTestCaseEntry] {
         return [
-            testCase(SwiftyFanTests.allTests),
+            testCase(CGAffineTransformTests.allTests),
         ]
     }
 #endif
