@@ -59,3 +59,30 @@ extension vec4s: Vector {
 
     public static let dot_f = glms_vec4_dot
 }
+
+extension vec2s: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        vec2s: 
+        | x: \(x) | y: \(y) |
+        """
+    }
+}
+
+extension vec3s: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        vec2s: 
+        | x: \(x) | y: \(y) | z: \(z) |
+        """
+    }
+}
+
+extension vec4s: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        """
+        vec2s: 
+        | x: \(x) | y: \(y) | z: \(z) | w: \(w) |
+        """
+    }
+}

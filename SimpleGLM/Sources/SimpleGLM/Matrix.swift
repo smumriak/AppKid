@@ -201,33 +201,6 @@ extension mat4s: AffineTransformableMatrix {
     public mutating func rotate<T: BinaryFloatingPoint>(by angle: T, axis: vec3s) { self = glms_rotate(self, Float(angle), axis) }
 }
 
-extension vec2s: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        """
-        vec2s: 
-        | x: \(x) | y: \(y) |
-        """
-    }
-}
-
-extension vec3s: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        """
-        vec2s: 
-        | x: \(x) | y: \(y) | z: \(z) |
-        """
-    }
-}
-
-extension vec4s: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        """
-        vec2s: 
-        | x: \(x) | y: \(y) | z: \(z) | w: \(w) |
-        """
-    }
-}
-
 extension mat2s: CustomDebugStringConvertible {
     public var debugDescription: String {
         """

@@ -23,16 +23,20 @@ let package = Package(
         .package(path: "./ContentAnimation"),
         .package(path: "./SharedSystemLibs"),
         .package(path: "./Volcano"),
+        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
+        .package(path: "./SimpleGLM"),
     ],
     targets: [
         .target(
             name: "SwiftyFan",
             dependencies: [
-                "AppKid",
-                "CairoGraphics",
-                "ContentAnimation",
-                "TinyFoundation",
-                "Volcano",
+                .product(name: "AppKid", package: "AppKid"),
+                .product(name: "CairoGraphics", package: "CairoGraphics"),
+                .product(name: "ContentAnimation", package: "ContentAnimation"),
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "Volcano", package: "Volcano"),
+                .product(name: "cglm", package: "cglm"),
+                .product(name: "SimpleGLM", package: "SimpleGLM"),
             ],
             resources: [
                 .copy("Resources/AppIcon.png"),
