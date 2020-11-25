@@ -10,11 +10,11 @@ import CXlib
 import CXInput2
 import CairoGraphics
 
-extension Notification.Name {
-    public static let windowDidExpose = Notification.Name(rawValue: "windowDidExpose")
-    public static let windowDidResize = Notification.Name(rawValue: "windowDidResize")
+public extension Notification.Name {
+    static let windowDidExpose = Notification.Name(rawValue: "windowDidExpose")
+    static let windowDidResize = Notification.Name(rawValue: "windowDidResize")
 
-    public static let windowDidReceiveSyncRequest = Notification.Name(rawValue: "windowDidReceiveSyncRequest") // XSync requests
+    static let windowDidReceiveSyncRequest = Notification.Name(rawValue: "windowDidReceiveSyncRequest") // XSync requests
 }
 
 public protocol WindowDelegate: class {
@@ -110,9 +110,21 @@ open class Window: View {
     internal var isMapped: Bool = false
 
     internal func updateSurface() {
-        if !isVulkanRendererEnabled {
+        let application = Application.shared
+
+        guard let index = application.windows.firstIndex(of: self) else { return }
+
+        if isVulkanRendererEnabled {
+            let renderer = application.vulkanRenderers[index]
+            do {
+                try renderer.updateRenderTargetSize()
+            } catch {
+                fatalError("Failed to update render target size with error: \(error)")
+            }
+        } else {
             _graphicsContext?.updateSurface()
         }
+
         var currentRect = nativeWindow.currentRect
         currentRect.size.width /= nativeWindow.displayScale
         currentRect.size.height /= nativeWindow.displayScale
@@ -123,6 +135,15 @@ open class Window: View {
         rootViewController?.view.frame = bounds
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
+
+        if isVulkanRendererEnabled {
+            let renderer = application.vulkanRenderers[index]
+            do {
+                try renderer.render()
+            } catch {
+                fatalError("Failed to render with error: \(error)")
+            }
+        }
     }
 
     internal func createRenderer() -> SoftwareRenderer {
@@ -367,23 +388,7 @@ fileprivate extension Window {
                 }
             }
 
-            let application = Application.shared
-
-            if let index = application.windows.firstIndex(of: self) {
-                if isVulkanRendererEnabled {
-                    let renderer = application.vulkanRenderers[index]
-                    do {
-                        try renderer.updateRenderTargetSize()
-                        try renderer.render()
-                    } catch {
-                        fatalError("Failed to render with error: \(error)")
-                    }
-                } else {
-                    // TODO: palkovnik: Consolidate the workflow of software and vulkan based renderers. Currently it's a little bit of a mess. At least before CARenderer is implemented
-                }
-
-                nativeWindow.rendererResized = true
-            }
+            nativeWindow.rendererResized = true
 
             notificationCenter.post(name: .windowDidResize, object: self)
 
