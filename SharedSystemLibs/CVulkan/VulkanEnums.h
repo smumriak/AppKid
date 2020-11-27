@@ -21,5 +21,7 @@ AK_EXISTING_ENUM(VkAttachmentLoadOp);
 AK_EXISTING_ENUM(VkAttachmentStoreOp);
 AK_EXISTING_ENUM(VkImageLayout);
 AK_EXISTING_ENUM(VkPipelineBindPoint);
+AK_EXISTING_ENUM(VkVertexInputRate);
+AK_EXISTING_ENUM(VkFormat);
 
 #endif /* VulkanEnums_h */

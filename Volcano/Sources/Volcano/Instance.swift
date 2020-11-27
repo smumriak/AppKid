@@ -52,7 +52,7 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
     public init() {
         do {
             var applicationInfo = VkApplicationInfo()
-            applicationInfo.sType = .VK_STRUCTURE_TYPE_APPLICATION_INFO
+            applicationInfo.sType = .applicationInfo
             applicationInfo.apiVersion = (1 << 22) | (2 << 12) | 0
 
             let validationLayers = ["VK_LAYER_KHRONOS_validation"].cStrings
@@ -63,7 +63,7 @@ public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
             }
 
             var instanceCreationInfo = VkInstanceCreateInfo()
-            instanceCreationInfo.sType = .VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+            instanceCreationInfo.sType = .instanceCreateInfo
             instanceCreationInfo.enabledLayerCount = CUnsignedInt(validationLayers.count)
             instanceCreationInfo.ppEnabledLayerNames = UnsafePointer(validationLayersPointer.pointer)
 

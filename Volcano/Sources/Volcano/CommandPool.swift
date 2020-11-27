@@ -15,7 +15,7 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
         self.queue = queue
 
         var info = VkCommandPoolCreateInfo()
-        info.sType = .VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+        info.sType = .commandPoolCreateInfo
         info.flags = flags.rawValue
         info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
 

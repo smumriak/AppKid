@@ -18,7 +18,7 @@ public final class Framebuffer: VulkanDeviceEntity<SmartPointer<VkFramebuffer_T>
             .map { $0.handle as VkImageView? }
             .withUnsafeBufferPointer { attachments in
                 var info = VkFramebufferCreateInfo()
-                info.sType = .VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
+                info.sType = .framebufferCreateInfo
                 info.renderPass = renderPass.handle
                 info.attachmentCount = CUnsignedInt(attachments.count)
                 info.pAttachments = attachments.baseAddress!

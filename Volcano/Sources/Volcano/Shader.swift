@@ -41,7 +41,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
             throw VulkanShaderError.noData
         }
         var info = VkShaderModuleCreateInfo()
-        info.sType = .VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+        info.sType = .shaderModuleCreateInfo
         info.codeSize = data.count
 
         let handlePointer: SmartPointer<VkShaderModule_T> = try data.withUnsafeBytes {
@@ -59,7 +59,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
         return try entryPoint.withCString { entryPoint in
             var info = VkPipelineShaderStageCreateInfo()
         
-            info.sType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+            info.sType = .pipelineShaderStageCreateInfo
             info.pNext = nil
             info.flags = flags.rawValue
             info.stage = stage
@@ -80,7 +80,7 @@ public extension Shader {
     func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
         var result = VkPipelineShaderStageCreateInfo()
         
-        result.sType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+        result.sType = .pipelineShaderStageCreateInfo
         result.pNext = nil
         result.flags = flags.rawValue
         result.stage = stage

@@ -15,7 +15,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         let device = commandPool.device
 
         var info = VkCommandBufferAllocateInfo()
-        info.sType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+        info.sType = .commandBufferAllocateInfo
         info.level = level
         info.commandPool = commandPool.handle
         info.commandBufferCount = 1
@@ -31,11 +31,11 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         try super.init(device: commandPool.device, handlePointer: handlePointer)
     }
 
-    public func begin() throws {
+    public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
         var info = VkCommandBufferBeginInfo()
-        info.sType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+        info.sType = .commandBufferBeginInfo
         info.pNext = nil
-        info.flags = 0
+        info.flags = flags.rawValue
         info.pInheritanceInfo = nil
 
         try vulkanInvoke {
@@ -52,7 +52,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
     public func beginRenderPass(_ renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
         try clearValues.withUnsafeBufferPointer { clearValues in
             var renderPassBeginInfo = VkRenderPassBeginInfo()
-            renderPassBeginInfo.sType = .VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+            renderPassBeginInfo.sType = .renderPassBeginInfo
             renderPassBeginInfo.renderPass = renderPass.handle
             renderPassBeginInfo.framebuffer = framebuffer.handle
             renderPassBeginInfo.renderArea = renderArea

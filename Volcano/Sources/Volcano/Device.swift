@@ -50,7 +50,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
                 try queuesRequests.withUnsafeDeviceQueueCreateInfoBufferPointer(physicalDevice: physicalDevice) { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo()
 
-                    info.sType = .VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+                    info.sType = .deviceCreateInfo
                     info.flags = 0
 
                     info.pEnabledFeatures = enabledFeatures
@@ -143,7 +143,7 @@ fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
 
             return try head.priorities.withUnsafeBufferPointer {
                 var info = VkDeviceQueueCreateInfo()
-                info.sType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+                info.sType = .deviceQueueCreateInfo
                 info.flags = 0
                 info.queueFamilyIndex = CUnsignedInt(queueFamilyIndex)
                 info.queueCount = CUnsignedInt($0.count)

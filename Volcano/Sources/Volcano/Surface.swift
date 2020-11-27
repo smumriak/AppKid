@@ -22,7 +22,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     #if os(Linux)
         internal convenience init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkXlibSurfaceCreateInfoKHR()
-            info.sType = .VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
+            info.sType = .xlibSurfaceCreateInfoKHR
             info.dpy = display
             info.window = window
 
@@ -34,7 +34,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     #elseif os(macOS)
         internal convenience init(physicalDevice: PhysicalDevice, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkMacOSSurfaceCreateInfoMVK()
-            info.sType = .VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
+            info.sType = .macosSurfaceCreateInfoMVK
 
             let handlePointer = try physicalDevice.instance.create(with: &info)
 
@@ -55,9 +55,9 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
             fatalError("No surface formates available")
         }
 
-        let desiredFormat = VkSurfaceFormatKHR(format: VK_FORMAT_B8G8R8A8_SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+        let desiredFormat = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
 
-        if supportedFormats.contains(desiredFormat) || (supportedFormats.count == 1 && supportedFormats[0].format == VK_FORMAT_UNDEFINED) {
+        if supportedFormats.contains(desiredFormat) || (supportedFormats.count == 1 && supportedFormats[0].format == .undefined) {
             selectedFormat = desiredFormat
         } else {
             selectedFormat = supportedFormats[0]

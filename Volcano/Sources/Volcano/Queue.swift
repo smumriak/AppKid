@@ -48,7 +48,7 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
                 try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
                     try commandBuffersHandles.withUnsafeBufferPointer { commandBufferPointer in
                         var submitInfo = VkSubmitInfo()
-                        submitInfo.sType = .VK_STRUCTURE_TYPE_SUBMIT_INFO
+                        submitInfo.sType = .submitInfo
 
                         submitInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
                         submitInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress!
@@ -79,7 +79,7 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
             try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
                 try swapchainsHandles.withUnsafeBufferPointer { swapchainsPointer in
                     var presentInfo = VkPresentInfoKHR()
-                    presentInfo.sType = .VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+                    presentInfo.sType = .presentInfoKHR
 
                     presentInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
                     presentInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress

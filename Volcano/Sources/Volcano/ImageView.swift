@@ -24,7 +24,7 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
         subresourceRange.layerCount = 1
 
         var info = VkImageViewCreateInfo()
-        info.sType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
+        info.sType = .imageViewCreateInfo
         info.image = image.handle
         info.viewType = VK_IMAGE_VIEW_TYPE_2D
         info.format = image.format
