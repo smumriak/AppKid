@@ -20,7 +20,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         info.commandPool = commandPool.handle
         info.commandBufferCount = 1
 
-        let handle = try device.allocateMemory(info: &info, using: vkAllocateCommandBuffers)
+        let handle = try device.allocate(info: &info, using: vkAllocateCommandBuffers)
         let handlePointer = SmartPointer(with: handle) { [unowned device, unowned commandPool] in
             var mutablePointer: VkCommandBuffer? = $0
             vkFreeCommandBuffers(device.handle, commandPool.handle, 1, &mutablePointer)

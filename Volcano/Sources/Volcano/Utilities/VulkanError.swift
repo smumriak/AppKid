@@ -12,6 +12,8 @@ public enum VulkanError: Error {
     case instanceFunctionNotFound(String)
     case deviceFunctionNotFound(String)
     case noQueueFamilySatisfyingType(VkQueueFlagBits)
+    case noSuitableMemoryTypeAvailable
+    case notEnoughParentMemory
 }
 
 extension VulkanError: CustomStringConvertible {
@@ -21,6 +23,8 @@ extension VulkanError: CustomStringConvertible {
         case .instanceFunctionNotFound(let name): return "Instance function not found: \(name)"
         case .deviceFunctionNotFound(let name): return "Device function not found: \(name)"
         case .noQueueFamilySatisfyingType(let type): return "Requested queue family types can not be found: \(type)"
+        case .noSuitableMemoryTypeAvailable: return "Memory allocation failed to identify suitable memory index to allocate from"
+        case .notEnoughParentMemory: return "Parent memory size + given offset is not enough for specified subregion"
         }
     }
 }

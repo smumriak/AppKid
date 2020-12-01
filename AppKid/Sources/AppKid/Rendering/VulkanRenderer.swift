@@ -9,6 +9,8 @@ import Foundation
 import Volcano
 import TinyFoundation
 import CVulkan
+import cglm
+import SimpleGLM
 
 public enum VulkanRendererError: Error {
     case noDiscreteGPU
@@ -30,6 +32,12 @@ public final class VulkanRenderer {
     internal fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
 
+    fileprivate var vertices: [Vertex] = [
+        (position: (-0.5, -0.5), color: (1.0, 0.0, 0.0)),
+        (position: (0.5, 0.5), color: (0.0, 1.0, 0.0)),
+        (position: (-0.5, 0.5), color: (0.0, 0.0, 1.0)),
+    ]
+
     var vertexShader: Shader
     var fragmentShader: Shader
 
@@ -42,6 +50,7 @@ public final class VulkanRenderer {
     var pipeline: SmartPointer<VkPipeline_T>!
     var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
+    var vertexBuffer: Buffer!
 
     deinit {
         try? clearSwapchain()
@@ -81,7 +90,7 @@ public final class VulkanRenderer {
             let bundle = Bundle.main
         #endif
 
-        vertexShader = try device.shader(named: "TriangleVertexShader", in: bundle)
+        vertexShader = try device.shader(named: "VertexShader", in: bundle)
         fragmentShader = try device.shader(named: "TriangleFragmentShader", in: bundle)
 
         var colorAttachmentDescription = VkAttachmentDescription()
@@ -101,6 +110,8 @@ public final class VulkanRenderer {
         renderPass = try RenderPass(device: device, subpasses: [subpass1], dependencies: [dependency1])
 
         pipeline = try createGraphicsPipeline()
+
+        vertexBuffer = try createVertexBuffer()
     }
 
     public func setupSwapchain() throws {
@@ -148,7 +159,7 @@ public final class VulkanRenderer {
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
-        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize evnents to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
+        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
         while true {
             do {
@@ -156,7 +167,7 @@ public final class VulkanRenderer {
                 break
             } catch VulkanError.badResult(let errorCode) {
                 if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
-                    guard skipRecreation == false else {
+                    if skipRecreation == true {
                         break
                     }
 
@@ -216,7 +227,7 @@ public final class VulkanRenderer {
     
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
         var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
-        pipelineLayoutInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+        pipelineLayoutInfo.sType = .pipelineLayoutCreateInfo
         pipelineLayoutInfo.setLayoutCount = 0
         pipelineLayoutInfo.pSetLayouts = nil
         pipelineLayoutInfo.pushConstantRangeCount = 0
@@ -225,26 +236,53 @@ public final class VulkanRenderer {
         pipelineLayout = try device.create(with: &pipelineLayoutInfo)
 
         var viewportState = VkPipelineViewportStateCreateInfo()
-        viewportState.sType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
+        viewportState.sType = .pipelineViewportStateCreateInfo
         viewportState.pNext = nil
         viewportState.flags = VkPipelineViewportStateCreateFlags()
         viewportState.viewportCount = 1
         viewportState.scissorCount = 1
+
+        var vertexInputBindingDescription = VkVertexInputBindingDescription()
+        vertexInputBindingDescription.binding = 0
+        vertexInputBindingDescription.stride = CUnsignedInt(MemoryLayout<Vertex>.stride)
+        vertexInputBindingDescription.inputRate = .vertex
+
+        let vertexInputBindingDescriptions = [vertexInputBindingDescription]
+
+        var positionAttributeDescription = VkVertexInputAttributeDescription()
+        positionAttributeDescription.binding = 0
+        positionAttributeDescription.location = 0
+        positionAttributeDescription.format = .r32g32SFloat
+        positionAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.position)!)
+
+        var colorAttributeDescription = VkVertexInputAttributeDescription()
+        colorAttributeDescription.binding = 0
+        colorAttributeDescription.location = 1
+        colorAttributeDescription.format = .r32g32b32SFloat
+        colorAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.color)!)
+
+        let inputAttributeDescrioptions = [positionAttributeDescription, colorAttributeDescription]
         
         var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
-        vertexInputInfo.sType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
-        vertexInputInfo.vertexBindingDescriptionCount = 0
-        vertexInputInfo.pVertexBindingDescriptions = nil
-        vertexInputInfo.vertexAttributeDescriptionCount = 0
-        vertexInputInfo.pVertexAttributeDescriptions = nil
+        vertexInputInfo.sType = .pipelineVertexInputStateCreateInfo
+
+        vertexInputBindingDescriptions.withUnsafeBufferPointer {
+            vertexInputInfo.vertexBindingDescriptionCount = CUnsignedInt($0.count)
+            vertexInputInfo.pVertexBindingDescriptions = $0.baseAddress!
+        }
+
+        inputAttributeDescrioptions.withUnsafeBufferPointer {
+            vertexInputInfo.vertexAttributeDescriptionCount = CUnsignedInt($0.count)
+            vertexInputInfo.pVertexAttributeDescriptions = $0.baseAddress!
+        }
 
         var inputAssembly = VkPipelineInputAssemblyStateCreateInfo()
-        inputAssembly.sType = .VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+        inputAssembly.sType = .pipelineInputAssemblyStateCreateInfo
         inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
         inputAssembly.primitiveRestartEnable = false.vkBool
 
         var rasterizer = VkPipelineRasterizationStateCreateInfo()
-        rasterizer.sType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+        rasterizer.sType = .pipelineRasterizationStateCreateInfo
         rasterizer.depthClampEnable = false.vkBool
         rasterizer.rasterizerDiscardEnable = false.vkBool
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL
@@ -257,7 +295,7 @@ public final class VulkanRenderer {
         rasterizer.depthBiasSlopeFactor = 0.0
 
         var multisampling = VkPipelineMultisampleStateCreateInfo()
-        multisampling.sType = .VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+        multisampling.sType = .pipelineMultisampleStateCreateInfo
         multisampling.sampleShadingEnable = false.vkBool
         multisampling.rasterizationSamples = VkSampleCountFlagBits.VK_SAMPLE_COUNT_1_BIT
         multisampling.minSampleShading = 1.0
@@ -276,7 +314,7 @@ public final class VulkanRenderer {
         colorBlendAttachment.alphaBlendOp = .add
 
         var colorBlending = VkPipelineColorBlendStateCreateInfo()
-        colorBlending.sType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+        colorBlending.sType = .pipelineColorBlendStateCreateInfo
         colorBlending.logicOpEnable = false.vkBool
         colorBlending.logicOp = VK_LOGIC_OP_COPY
         withUnsafePointer(to: &colorBlendAttachment) {
@@ -305,7 +343,7 @@ public final class VulkanRenderer {
         let shaderStages = [vertexShaderStageInfo, fragmentShaderStageInfo]
 
         var pipelineInfo = VkGraphicsPipelineCreateInfo()
-        pipelineInfo.sType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+        pipelineInfo.sType = .graphicsPipelineCreateInfo
         pipelineInfo.stageCount = 2
         shaderStages.withUnsafeBufferPointer {
             pipelineInfo.pStages = $0.baseAddress!
@@ -384,6 +422,19 @@ public final class VulkanRenderer {
             try commandBuffer.setViewports(viewports)
             try commandBuffer.setScissors(scissors)
 
+            let vertexBuffers: [VkBuffer?] = [vertexBuffer.handle]
+            let offsets: [VkDeviceSize] = [0]
+            try vertexBuffers.withUnsafeBufferPointer { vertexBuffers in
+                try offsets.withUnsafeBufferPointer { offsets in
+                    let vertexBuffersPointer: UnsafePointer<VkBuffer?> = UnsafePointer(vertexBuffers.baseAddress!)
+                    let offsetsPointer: UnsafePointer<VkDeviceSize> = UnsafePointer(offsets.baseAddress!)
+
+                    try vulkanInvoke {
+                        vkCmdBindVertexBuffers(commandBuffer.handle, 0, 1, vertexBuffersPointer, offsetsPointer)
+                    }
+                }
+            }
+
             try commandBuffer.draw(vertexCount: 3, firstVertex: 0, instanceCount: 1, firstInstance: 0)
 
             try commandBuffer.endRenderPass()
@@ -395,13 +446,17 @@ public final class VulkanRenderer {
         return result
     }
 
-    func createVertexBuffer() throws -> SmartPointer<VkBuffer_T> {
-        var info = VkBufferCreateInfo()
-        info.sType = .VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
-        info.size = 0 // sizeof(vertices[0]) * vertices.size()
-        info.usage = VkBufferUsageFlagBits.vertexBuffer.rawValue
-        info.sharingMode = VK_SHARING_MODE_EXCLUSIVE
+    func createVertexBuffer() throws -> Buffer {
+        let vertexBuffer = try Buffer(device: device, size: VkDeviceSize(MemoryLayout<Vertex>.size * vertices.count), usage: .vertexBuffer, sharingMode: .exclusive, memoryProperties: [.hostVisible, .hostCoherent])
 
-        return try device.create(with: &info)
+        try vertices.withUnsafeBufferPointer { vertices in
+            try vertexBuffer.memoryChunk.withMappedData { data, size in
+                data.copyMemory(from: UnsafeRawPointer(vertices.baseAddress!), byteCount: Int(vertexBuffer.size))
+            }
+        }
+
+        return vertexBuffer
     }
 }
+
+typealias Vertex = (position: vec2, color: vec3)

@@ -111,11 +111,45 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
             vkResetFences(handle, CUnsignedInt(handles.count), &handles)
         }
     }
+    
+    internal func memoryRequirements(for bufferHandle: SmartPointer<VkBuffer_T>) throws -> VkMemoryRequirements {
+        var result = VkMemoryRequirements()
+
+        try vulkanInvoke {
+            vkGetBufferMemoryRequirements(handle, bufferHandle.pointer, &result)
+        }
+        
+        return result
+    }
 }
 
 public extension Device {
     func shader(named name: String, in bundle: Bundle? = nil) throws -> Shader {
         return try Shader(named: name, in: bundle, device: self)
+    }
+}
+
+public extension Device {
+    typealias AllocatorFunction<Info, Result> = (SmartPointer<VkDevice_T>.Pointer_t?, UnsafePointer<Info>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
+
+    func allocate<Info, Result>(info: UnsafePointer<Info>, using allocator: AllocatorFunction<Info, Result>) throws -> UnsafeMutablePointer<Result> {
+        var result: UnsafeMutablePointer<Result>? = nil
+        try vulkanInvoke {
+            allocator(handle, info, &result)
+        }
+        return result!
+    }
+
+    func allocateMemory(info: UnsafePointer<VkMemoryAllocateInfo>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<VkDeviceMemory_T> {
+        var memory: VkDeviceMemory? = nil
+
+        try vulkanInvoke {
+            vkAllocateMemory(handle, info, callbacks, &memory)
+        }
+
+        return SmartPointer(with: memory!) { [unowned self] in 
+            vkFreeMemory(self.handle, $0, callbacks)
+        }
     }
 }
 
@@ -156,4 +190,3 @@ fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
         }
     }
 }
-

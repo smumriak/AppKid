@@ -47,11 +47,11 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
             info.oldSwapchain = oldSwapchain?.handle
 
             if graphicsQueue.familyIndex == presentationQueue.familyIndex {
-                info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE
+                info.imageSharingMode = .exclusive
                 info.queueFamilyIndexCount = 0
                 info.pQueueFamilyIndices = nil
             } else {
-                info.imageSharingMode = VK_SHARING_MODE_CONCURRENT
+                info.imageSharingMode = .concurrent
                 info.queueFamilyIndexCount = CUnsignedInt(queueFamiliesIndices.count)
                 info.pQueueFamilyIndices = queueFamiliesIndices.baseAddress!
             }

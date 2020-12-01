@@ -23,5 +23,6 @@ AK_EXISTING_ENUM(VkImageLayout);
 AK_EXISTING_ENUM(VkPipelineBindPoint);
 AK_EXISTING_ENUM(VkVertexInputRate);
 AK_EXISTING_ENUM(VkFormat);
+AK_EXISTING_ENUM(VkSharingMode);
 
 #endif /* VulkanEnums_h */

@@ -20,6 +20,22 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     public let memoryProperties: VkPhysicalDeviceMemoryProperties
     public let extensionProperties: [VkExtensionProperties]
 
+    public lazy var memoryTypes: [VkMemoryType] = {
+        return withUnsafeBytes(of: memoryProperties.memoryTypes) {
+            let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryType.self)
+            let bufferPointer = UnsafeBufferPointer<VkMemoryType>(start: pointer, count: Int(memoryProperties.memoryTypeCount))
+            return Array<VkMemoryType>(bufferPointer)
+        }
+    }()
+
+    public lazy var memoryHeaps: [VkMemoryHeap] = {
+        return withUnsafeBytes(of: memoryProperties.memoryHeaps) {
+            let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryHeap.self)
+            let bufferPointer = UnsafeBufferPointer<VkMemoryHeap>(start: pointer, count: Int(memoryProperties.memoryHeapCount))
+            return Array<VkMemoryHeap>(bufferPointer)
+        }
+    }()
+
     internal lazy var renderingPerformanceScore: UInt32 = {
         var result: UInt32 = 0
         if features.geometryShader == false.vkBool {
@@ -56,9 +72,9 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     }
 
     #if os(Linux)
-    public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) throws -> Surface {
-        return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredFormat)
-    }
+        public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) throws -> Surface {
+            return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredFormat)
+        }
     #endif
 
     public func queueFamilyIndex(for queueType: VkQueueFlagBits) -> Array<VkQueueFamilyProperties>.Index? {

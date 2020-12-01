@@ -42,10 +42,12 @@ let package = Package(
             exclude: [
                 "Resources/TriangleFragmentShader.frag",
                 "Resources/TriangleVertexShader.vert",
+                "Resources/VertexShader.vert",
             ],
             resources: [
                 .copy("Resources/TriangleFragmentShader.spv"),
                 .copy("Resources/TriangleVertexShader.spv"),
+                .copy("Resources/VertexShader.spv"),
             ]
         ),
     ]
