@@ -83,7 +83,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         // try to find dedicated Compute queue family that is not Graphics
         if queueType.contains(.compute) {
             for pair in queueFamiliesPropertiesEnumerated {
-                if pair.element.flagBits.contains(queueType) && pair.element.flagBits.isDisjoint(with: .graphics) {
+                if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
                     return pair.offset
                 }
             }
@@ -92,7 +92,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         // try to find dedicated Transfer queue family that is not Graphics
         if queueType.contains(.transfer) {
             for pair in queueFamiliesPropertiesEnumerated {
-                if pair.element.flagBits.contains(queueType) && pair.element.flagBits.isDisjoint(with: .graphics) {
+                if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
                     return pair.offset
                 }
             }
@@ -100,7 +100,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
 
         // for all other types find first that supports all needed types
         for pair in queueFamiliesPropertiesEnumerated {
-            if pair.element.flagBits.contains(queueType) {
+            if pair.element.flags.contains(queueType) {
                 return pair.offset
             }
         }
@@ -120,11 +120,11 @@ extension PhysicalDevice: Comparable {
 }
 
 public extension VkQueueFamilyProperties {
-    var flagBits: VkQueueFlagBits { VkQueueFlagBits(rawValue: queueFlags) }
+    var flags: VkQueueFlagBits { VkQueueFlagBits(rawValue: queueFlags) }
 
-    var isGraphics: Bool { flagBits.contains(.graphics) }
-    var isCompute: Bool { flagBits.contains(.compute) }
-    var isTransfer: Bool { flagBits.contains(.transfer) }
-    var isSparseBinding: Bool { flagBits.contains(.sparseBinding) }
-    var isProtected: Bool { flagBits.contains(.protected) }
+    var isGraphics: Bool { flags.contains(.graphics) }
+    var isCompute: Bool { flags.contains(.compute) }
+    var isTransfer: Bool { flags.contains(.transfer) }
+    var isSparseBinding: Bool { flags.contains(.sparseBinding) }
+    var isProtected: Bool { flags.contains(.protected) }
 }

@@ -43,19 +43,45 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    public func withMappedData<R>(body: (_ data: UnsafeMutableRawPointer, _ size: VkDeviceSize) throws -> (R)) throws -> R {
+    public func withMappedData<R>(_ offset: VkDeviceSize = 0, body: (_ data: UnsafeMutableRawPointer, _ size: VkDeviceSize) throws -> (R)) throws -> R {
         // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
+        let remainingMemorySize = self.size - offset
+
         var data: UnsafeMutableRawPointer? = nil
         try vulkanInvoke {
-            vkMapMemory(device.handle, handle, offset, size, 0, &data)
+            vkMapMemory(device.handle, handle, self.offset + offset, remainingMemorySize, 0, &data)
         }
 
-        let result: R = try body(data!, size)
+        let result: R = try body(data!, remainingMemorySize)
  
         try vulkanInvoke {
             vkUnmapMemory(device.handle, handle)
         }
 
         return result
+    }
+
+    public func write<R>(data: UnsafeBufferPointer<R>, atOffset offset: VkDeviceSize = 0) throws {
+        let remainingMemorySize = self.size - offset
+        let dataSize = VkDeviceSize(data.count * MemoryLayout<R>.stride)
+
+        assert(dataSize <= remainingMemorySize, "Not enough memory size to write this data. In release mode only the part that fits will be written")
+
+        let byteCount = min(dataSize, remainingMemorySize)
+
+        if properties.contains(.hostVisible) {
+            var rawMemoryChunk: UnsafeMutableRawPointer? = nil
+            try vulkanInvoke {
+                vkMapMemory(device.handle, handle, self.offset + offset, size, 0, &rawMemoryChunk)
+            }
+
+            rawMemoryChunk?.copyMemory(from: UnsafeRawPointer(data.baseAddress!), byteCount: Int(byteCount))
+ 
+            try vulkanInvoke {
+                vkUnmapMemory(device.handle, handle)
+            }
+        } else {
+            fatalError("Memory that is not host visible is not yet writable")
+        }
     }
 }

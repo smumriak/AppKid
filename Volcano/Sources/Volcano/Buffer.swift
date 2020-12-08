@@ -14,14 +14,24 @@ public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
     public let sharingMode: VkSharingMode
     public let memoryChunk: MemoryChunk
 
-    public init(device: Device, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode = .exclusive, memoryProperties: VkMemoryPropertyFlagBits) throws {
-        var info = VkBufferCreateInfo()
-        info.sType = .bufferCreateInfo
-        info.size = size
-        info.usage = usage.rawValue
-        info.sharingMode = sharingMode
+    public init(device: Device, size: VkDeviceSize, usage: VkBufferUsageFlagBits, flags: VkBufferCreateFlagBits = [], sharingMode: VkSharingMode = .exclusive, memoryProperties: VkMemoryPropertyFlagBits, accessQueues: [Queue] = []) throws {
+        assert(accessQueues.isEmpty == false || sharingMode == .exclusive, "Shared buffers required to have explicit access queues")
 
-        let handlePointer = try device.create(with: &info)
+        let queueFamilyIndices = Array(Set(accessQueues.map { CUnsignedInt($0.familyIndex) }))
+
+        let handlePointer: SmartPointer<VkBuffer_T> = try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
+            var info = VkBufferCreateInfo()
+            info.sType = .bufferCreateInfo
+            info.pNext = nil
+            info.flags = flags.rawValue
+            info.size = size
+            info.usage = usage.rawValue
+            info.sharingMode = sharingMode
+            info.queueFamilyIndexCount = CUnsignedInt(queueFamilyIndices.count)
+            info.pQueueFamilyIndices = queueFamilyIndices.baseAddress!
+
+            return try device.create(with: &info)
+        }
 
         let memoryTypes = device.physicalDevice.memoryTypes
 

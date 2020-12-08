@@ -15,17 +15,24 @@ import SimpleGLM
 public enum VulkanRendererError: Error {
     case noDiscreteGPU
     case noPresentationQueueFound
+    case noGraphicsQueueFound
+    case noTransferQueueFound
 }
 
 public final class VulkanRenderer {
     internal let window: AppKid.Window
 
     internal fileprivate(set) var renderStack: VulkanRenderStack
+
     internal var device: Device { renderStack.device }
     internal fileprivate(set) var surface: Surface
+
     internal fileprivate(set) var presentationQueue: Queue
     internal fileprivate(set) var graphicsQueue: Queue
+    internal fileprivate(set) var transferQueue: Queue
+
     internal fileprivate(set) var commandPool: CommandPool
+    internal fileprivate(set) var transferCommandPool: CommandPool
 
     internal fileprivate(set) var imageAvailableSemaphore: Semaphore
     internal fileprivate(set) var renderFinishedSemaphore: Semaphore
@@ -36,6 +43,11 @@ public final class VulkanRenderer {
         (position: (-0.5, -0.5), color: (1.0, 0.0, 0.0)),
         (position: (0.5, 0.5), color: (0.0, 1.0, 0.0)),
         (position: (-0.5, 0.5), color: (0.0, 0.0, 1.0)),
+        (position: (0.5, -0.5), color: (1.0, 0.0, 0.0)),
+    ]
+
+    fileprivate var indices: [CUnsignedInt] = [
+        0, 1, 2, 0, 3, 1,
     ]
 
     var vertexShader: Shader
@@ -51,6 +63,7 @@ public final class VulkanRenderer {
     var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
     var vertexBuffer: Buffer!
+    var indexBuffer: Buffer!
 
     deinit {
         try? clearSwapchain()
@@ -72,13 +85,20 @@ public final class VulkanRenderer {
 
         self.presentationQueue = presentationQueue
 
-        guard let graphicsQueue = device.allQueues.first(where: { $0.type == .graphics }) else {
-            throw VulkanRendererError.noPresentationQueueFound
+        guard let graphicsQueue = device.allQueues.first(where: { $0.type.contains(.graphics) }) else {
+            throw VulkanRendererError.noGraphicsQueueFound
         }
 
         self.graphicsQueue = graphicsQueue
 
+        guard let transferQueue = device.allQueues.first(where: { $0.type.contains(.transfer) }) else {
+            throw VulkanRendererError.noTransferQueueFound
+        }
+
+        self.transferQueue = transferQueue
+
         commandPool = try CommandPool(device: device, queue: graphicsQueue)
+        transferCommandPool = try CommandPool(device: device, queue: transferQueue, flags: .transient)
 
         imageAvailableSemaphore = try Semaphore(device: device)
         renderFinishedSemaphore = try Semaphore(device: device)
@@ -112,6 +132,7 @@ public final class VulkanRenderer {
         pipeline = try createGraphicsPipeline()
 
         vertexBuffer = try createVertexBuffer()
+        indexBuffer = try createIndexBuffer()
     }
 
     public func setupSwapchain() throws {
@@ -422,20 +443,10 @@ public final class VulkanRenderer {
             try commandBuffer.setViewports(viewports)
             try commandBuffer.setScissors(scissors)
 
-            let vertexBuffers: [VkBuffer?] = [vertexBuffer.handle]
-            let offsets: [VkDeviceSize] = [0]
-            try vertexBuffers.withUnsafeBufferPointer { vertexBuffers in
-                try offsets.withUnsafeBufferPointer { offsets in
-                    let vertexBuffersPointer: UnsafePointer<VkBuffer?> = UnsafePointer(vertexBuffers.baseAddress!)
-                    let offsetsPointer: UnsafePointer<VkDeviceSize> = UnsafePointer(offsets.baseAddress!)
+            try commandBuffer.bind(vertexBuffers: [vertexBuffer])
+            try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
 
-                    try vulkanInvoke {
-                        vkCmdBindVertexBuffers(commandBuffer.handle, 0, 1, vertexBuffersPointer, offsetsPointer)
-                    }
-                }
-            }
-
-            try commandBuffer.draw(vertexCount: 3, firstVertex: 0, instanceCount: 1, firstInstance: 0)
+            try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
 
             try commandBuffer.endRenderPass()
             try commandBuffer.end()
@@ -447,15 +458,71 @@ public final class VulkanRenderer {
     }
 
     func createVertexBuffer() throws -> Buffer {
-        let vertexBuffer = try Buffer(device: device, size: VkDeviceSize(MemoryLayout<Vertex>.size * vertices.count), usage: .vertexBuffer, sharingMode: .exclusive, memoryProperties: [.hostVisible, .hostCoherent])
+        let bufferSize = VkDeviceSize(MemoryLayout<Vertex>.stride * vertices.count)
+
+        let stagingBuffer = try Buffer(device: device,
+                                       size: bufferSize,
+                                       usage: [.transferSource],
+                                       sharingMode: .concurrent,
+                                       memoryProperties: [.hostVisible, .hostCoherent],
+                                       accessQueues: [graphicsQueue, transferQueue])
 
         try vertices.withUnsafeBufferPointer { vertices in
-            try vertexBuffer.memoryChunk.withMappedData { data, size in
-                data.copyMemory(from: UnsafeRawPointer(vertices.baseAddress!), byteCount: Int(vertexBuffer.size))
+            try stagingBuffer.memoryChunk.withMappedData { data, size in
+                data.copyMemory(from: UnsafeRawPointer(vertices.baseAddress!), byteCount: Int(stagingBuffer.size))
             }
         }
 
+        let vertexBuffer = try Buffer(device: device,
+                                      size: bufferSize,
+                                      usage: [.vertexBuffer, .transferDestination],
+                                      sharingMode: .concurrent,
+                                      memoryProperties: .deviceLocal,
+                                      accessQueues: [graphicsQueue, transferQueue])
+
+        let commandBuffer = try CommandBuffer(commandPool: transferCommandPool, level: .primary)
+        try commandBuffer.begin(flags: .oneTimeSubmit)
+        try commandBuffer.copyBuffer(from: stagingBuffer, to: vertexBuffer)
+        try commandBuffer.end()
+
+        try transferQueue.submit(commandBuffers: [commandBuffer])
+        try transferQueue.waitForIdle()
+
         return vertexBuffer
+    }
+
+    func createIndexBuffer() throws -> Buffer {
+        let bufferSize = VkDeviceSize(MemoryLayout<CUnsignedInt>.stride * indices.count)
+
+        let stagingBuffer = try Buffer(device: device,
+                                       size: bufferSize,
+                                       usage: [.transferSource],
+                                       sharingMode: .concurrent,
+                                       memoryProperties: [.hostVisible, .hostCoherent],
+                                       accessQueues: [graphicsQueue, transferQueue])
+
+        try indices.withUnsafeBufferPointer { indices in
+            try stagingBuffer.memoryChunk.withMappedData { data, size in
+                data.copyMemory(from: UnsafeRawPointer(indices.baseAddress!), byteCount: Int(stagingBuffer.size))
+            }
+        }
+
+        let indexBuffer = try Buffer(device: device,
+                                     size: bufferSize,
+                                     usage: [.indexBuffer, .transferDestination],
+                                     sharingMode: .concurrent,
+                                     memoryProperties: .deviceLocal,
+                                     accessQueues: [graphicsQueue, transferQueue])
+
+        let commandBuffer = try CommandBuffer(commandPool: transferCommandPool, level: .primary)
+        try commandBuffer.begin(flags: .oneTimeSubmit)
+        try commandBuffer.copyBuffer(from: stagingBuffer, to: indexBuffer)
+        try commandBuffer.end()
+
+        try transferQueue.submit(commandBuffers: [commandBuffer])
+        try transferQueue.waitForIdle()
+
+        return indexBuffer
     }
 }
 

@@ -24,7 +24,10 @@ public final class VulkanRenderStack {
 
         self.physicalDevice = physicalDevice
 
-        device = try Device(physicalDevice: physicalDevice, queuesRequests: [.default])
+        let graphicsQueueRequest = Device.QueueCreationRequest(type: .graphics)
+        let transferQueueRequest = Device.QueueCreationRequest(type: .transfer)
+
+        device = try Device(physicalDevice: physicalDevice, queuesRequests: [graphicsQueueRequest, transferQueueRequest])
     }
 
     public func createSurface(for window: Window) throws -> Surface {

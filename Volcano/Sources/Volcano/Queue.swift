@@ -35,9 +35,9 @@ public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
     }
 
     public func submit(commandBuffers: [CommandBuffer],
-                       waitSemaphores: [Semaphore],
-                       signalSemaphores: [Semaphore],
-                       waitStages: [VkPipelineStageFlags],
+                       waitSemaphores: [Semaphore] = [],
+                       signalSemaphores: [Semaphore] = [],
+                       waitStages: [VkPipelineStageFlags] = [],
                        fence: Fence? = nil) throws {
         let commandBuffersHandles: [VkCommandBuffer?] = commandBuffers.map { $0.handle }
         let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }

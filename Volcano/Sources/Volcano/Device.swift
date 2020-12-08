@@ -34,9 +34,16 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 
     public struct QueueCreationRequest {
         let type: VkQueueFlagBits
+        let flags: VkDeviceQueueCreateFlagBits
         let priorities: [Float]
 
-        public static let `default` = QueueCreationRequest(type: .graphics, priorities: [0.0])
+        public init(type: VkQueueFlagBits, flags: VkDeviceQueueCreateFlagBits = [], priorities: [Float] = [0.0]) {
+            self.type = type
+            self.flags = flags
+            self.priorities = priorities
+        }
+
+        public static let `default` = QueueCreationRequest(type: .graphics, flags: [],  priorities: [0.0])
     }
 
     public init(physicalDevice: PhysicalDevice, queuesRequests: [QueueCreationRequest] = [.default]) throws {
@@ -57,7 +64,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 
                     info.enabledExtensionCount = CUnsignedInt(extensions.count)
                     info.ppEnabledExtensionNames = extensions.baseAddress!
-
+                    
                     info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreateInfos.count)
                     info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
 
@@ -164,12 +171,14 @@ fileprivate extension Array where Element == Device.QueueCreationRequest {
 
 fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
     func populateDeviceQueueCreateInfo<R>(physicalDevice: PhysicalDevice, buffer: inout [VkDeviceQueueCreateInfo], body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-        if isEmpty {
+        let indices = self.indices
+
+        if indices.lowerBound == indices.upperBound {
             return try buffer.withUnsafeBufferPointer {
                 return try body($0)
             }
         } else {
-            let head = self[0]
+            let head = self[indices.lowerBound]
 
             guard let queueFamilyIndex = physicalDevice.queueFamilyIndex(for: head.type) else {
                 throw VulkanError.noQueueFamilySatisfyingType(head.type)
@@ -178,14 +187,14 @@ fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
             return try head.priorities.withUnsafeBufferPointer {
                 var info = VkDeviceQueueCreateInfo()
                 info.sType = .deviceQueueCreateInfo
-                info.flags = 0
+                info.flags = head.flags.rawValue
                 info.queueFamilyIndex = CUnsignedInt(queueFamilyIndex)
                 info.queueCount = CUnsignedInt($0.count)
                 info.pQueuePriorities = $0.baseAddress!
 
                 buffer.append(info)
 
-                return try (self[1..<count]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
+                return try (self[indices.dropFirst()]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
             }
         }
     }

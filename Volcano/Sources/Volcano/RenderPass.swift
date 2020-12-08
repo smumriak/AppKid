@@ -200,12 +200,14 @@ fileprivate extension Array where Element == Subpass {
 
 fileprivate extension ArraySlice where Element == Subpass {
     func populateSubpassDescription<R>(renderPassBuilder: RenderPassBuilder, buffer: inout [VkSubpassDescription], body: (UnsafeBufferPointer<VkSubpassDescription>) throws -> (R)) throws -> R {
-        if isEmpty {
+        let indices = self.indices
+
+        if indices.lowerBound == indices.upperBound {
             return try buffer.withUnsafeBufferPointer {
                 return try body($0)
             }
         } else {
-            let head = self[0]
+            let head = self[indices.lowerBound]
 
             let inputAttachmentsReferences = head.inputAttachments.map { renderPassBuilder.attachmentsReferences(from: $0) }
             let colorAttachmentsReferences = head.colorAttachments.map { renderPassBuilder.attachmentsReferences(from: $0) }
@@ -231,8 +233,8 @@ fileprivate extension ArraySlice where Element == Subpass {
                             subpass.pDepthStencilAttachment = depthStencilAttachmentsReference
     
                             buffer.append(subpass)
-
-                            return try (self[1..<count]).populateSubpassDescription(renderPassBuilder: renderPassBuilder, buffer: &buffer, body: body)
+                            
+                            return try (self[indices.dropFirst()]).populateSubpassDescription(renderPassBuilder: renderPassBuilder, buffer: &buffer, body: body)
                         }
                     }
                 }

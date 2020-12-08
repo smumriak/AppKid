@@ -24,5 +24,7 @@ AK_EXISTING_ENUM(VkPipelineBindPoint);
 AK_EXISTING_ENUM(VkVertexInputRate);
 AK_EXISTING_ENUM(VkFormat);
 AK_EXISTING_ENUM(VkSharingMode);
+AK_EXISTING_ENUM(VkCommandBufferLevel);
+AK_EXISTING_ENUM(VkIndexType);
 
 #endif /* VulkanEnums_h */
