@@ -8,16 +8,16 @@
 import Foundation
 import CoreFoundation
 
+
 import CXlib
 import CXInput2
+import SwiftXlib
 
 internal let kEnableXInput2 = true
 
 internal extension X11DisplayServer {
     func activate() {
-        context.displayConnectionFileDescriptor = XConnectionNumber(display)
-
-        let fileHandle = FileHandle(fileDescriptor: context.displayConnectionFileDescriptor, closeOnDealloc: false)
+        let fileHandle = FileHandle(fileDescriptor: display.connectionFileDescriptor, closeOnDealloc: false)
 
         eventQueueNotificationObserver = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: fileHandle, queue: nil) { [unowned self] in
             self.hasEvents = true
@@ -26,16 +26,6 @@ internal extension X11DisplayServer {
         }
 
         fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
-
-        context.deleteWindowAtom = XInternAtom(display, "WM_DELETE_WINDOW", 0)
-        context.takeFocusAtom = XInternAtom(display, "WM_TAKE_FOCUS", 0)
-        context.xiTouchPadAtom = XInternAtom(display, XI_TOUCHPAD, 0)
-        context.xiMouseAtom = XInternAtom(display, XI_MOUSE, 0)
-        context.xiKeyvoardAtom = XInternAtom(display, XI_KEYBOARD, 0)
-        context.syncRequestAtom = XInternAtom(display, "_NET_WM_SYNC_REQUEST", 0)
-        context.stayAboveAtom = XInternAtom(display, "_NET_WM_STATE_ABOVE", 0)
-        context.stayBelowAtom = XInternAtom(display, "_NET_WM_STATE_BELOW", 0)
-        context.stateAtom = XInternAtom(display, "_NET_WM_STATE", 0)
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {
@@ -91,7 +81,7 @@ internal extension X11DisplayServer {
             return
         }
 
-        guard XPending(display) != 0 else {
+        guard XPending(display.handle) != 0 else {
             hasEvents = false
 
             return
@@ -99,7 +89,7 @@ internal extension X11DisplayServer {
 
         var x11Event = CXlib.XEvent()
 
-        XNextEvent(display, &x11Event)
+        XNextEvent(display.handle, &x11Event)
 
         let application = Application.shared
 
@@ -108,12 +98,12 @@ internal extension X11DisplayServer {
         let event: Event
 
         do {
-            if x11Event.isCookie(with: context.xInput2ExtensionOpcode) {
-                if XGetEventData(display, &x11Event.xcookie) == 0 {
+            if x11Event.isCookie(with: display.xInput2ExtensionOpcode) {
+                if XGetEventData(display.handle, &x11Event.xcookie) == 0 {
                     event = Event.ignoredDisplayServerEvent()
                 } else {
                     defer {
-                        XFreeEventData(display, &x11Event.xcookie)
+                        XFreeEventData(display.handle, &x11Event.xcookie)
                     }
 
                     // palkovnik:Hacking XInput2 event to have button number for motion events
@@ -147,7 +137,7 @@ internal extension X11DisplayServer {
 
     func updateInputDevices() {
         var count: CInt = 0
-        guard let devicesArrayPointer = XIQueryDevice(display, XIAllDevices, &count) else {
+        guard let devicesArrayPointer = XIQueryDevice(display.handle, XIAllDevices, &count) else {
             context.inputDevices = []
             return
         }

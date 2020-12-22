@@ -30,7 +30,7 @@ internal extension ReleasablePointer where Pointee == VkInstance_T {
 extension VkInstance_T: EntityFactory {}
 extension VkInstance_T: DataLoader {}
 
-public final class Instance: VulkanHandle<ReleasablePointer<VkInstance_T>> {
+public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR

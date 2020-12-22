@@ -1,6 +1,6 @@
 //
 //  CX_umbrella.h
-//  SwiftyFan
+//  CXlib
 //
 //  Created by Serhii Mumriak on 29.01.2020.
 //
@@ -16,98 +16,11 @@
 
 #include "../CCore/CCore_umbrella.h"
 
-typedef AK_ENUM(int32_t, X11EventType) {
-    X11EventTypeKeyPress = KeyPress,
-    X11EventTypeKeyRelease = KeyRelease,
-    X11EventTypeButtonPress = ButtonPress,
-    X11EventTypeButtonRelease = ButtonRelease,
-    X11EventTypeMotionNotify = MotionNotify,
-    X11EventTypeEnterNotify = EnterNotify,
-    X11EventTypeLeaveNotify = LeaveNotify,
-    X11EventTypeFocusIn = FocusIn,
-    X11EventTypeFocusOut = FocusOut,
-    X11EventTypeKeymapNotify = KeymapNotify,
-    X11EventTypeExpose = Expose,
-    X11EventTypeGraphicsExpose = GraphicsExpose,
-    X11EventTypeNoExpose = NoExpose,
-    X11EventTypeVisibilityNotify = VisibilityNotify,
-    X11EventTypeCreateNotify = CreateNotify,
-    X11EventTypeDestroyNotify = DestroyNotify,
-    X11EventTypeUnmapNotify = UnmapNotify,
-    X11EventTypeMapNotify = MapNotify,
-    X11EventTypeMapRequest = MapRequest,
-    X11EventTypeReparentNotify = ReparentNotify,
-    X11EventTypeConfigureNotify = ConfigureNotify,
-    X11EventTypeConfigureRequest = ConfigureRequest,
-    X11EventTypeGravityNotify = GravityNotify,
-    X11EventTypeResizeRequest = ResizeRequest,
-    X11EventTypeCirculateNotify = CirculateNotify,
-    X11EventTypeCirculateRequest = CirculateRequest,
-    X11EventTypePropertyNotify = PropertyNotify,
-    X11EventTypeSelectionClear = SelectionClear,
-    X11EventTypeSelectionRequest = SelectionRequest,
-    X11EventTypeSelectionNotify = SelectionNotify,
-    X11EventTypeColormapNotify = ColormapNotify,
-    X11EventTypeClientMessage = ClientMessage,
-    X11EventTypeMappingNotify = MappingNotify,
-    X11EventTypeGenericEvent = GenericEvent
-};
-
-typedef AK_OPTIONS(int32_t, X11EventTypeMask) {
-    X11EventTypeMaskNoEvent = NoEventMask,
-    X11EventTypeMaskKeyPress = KeyPressMask,
-    X11EventTypeMaskKeyRelease = KeyReleaseMask,
-    X11EventTypeMaskButtonPress = ButtonPressMask,
-    X11EventTypeMaskButtonRelease = ButtonReleaseMask,
-    X11EventTypeMaskEnterWindow = EnterWindowMask,
-    X11EventTypeMaskLeaveWindow = LeaveWindowMask,
-    X11EventTypeMaskPointerMotion = PointerMotionMask,
-    X11EventTypeMaskPointerMotionHint = PointerMotionHintMask,
-    X11EventTypeMaskButton1Motion = Button1MotionMask,
-    X11EventTypeMaskButton2Motion = Button2MotionMask,
-    X11EventTypeMaskButton3Motion = Button3MotionMask,
-    X11EventTypeMaskButton4Motion = Button4MotionMask,
-    X11EventTypeMaskButton5Motion = Button5MotionMask,
-    X11EventTypeMaskButtonMotion = ButtonMotionMask,
-    X11EventTypeMaskKeymapState = KeymapStateMask,
-    X11EventTypeMaskExposure = ExposureMask,
-    X11EventTypeMaskVisibilityChange = VisibilityChangeMask,
-    X11EventTypeMaskStructureNotify = StructureNotifyMask,
-    X11EventTypeMaskResizeRedirect = ResizeRedirectMask,
-    X11EventTypeMaskSubstructureNotify = SubstructureNotifyMask,
-    X11EventTypeMaskSubstructureRedirect = SubstructureRedirectMask,
-    X11EventTypeMaskFocusChange = FocusChangeMask,
-    X11EventTypeMaskPropertyChange = PropertyChangeMask,
-    X11EventTypeMaskColormapChange = ColormapChangeMask,
-    X11EventTypeMaskOwnerGrabButton = OwnerGrabButtonMask
-};
-
-typedef AK_CLOSED_ENUM(int32_t, X11EventButtonName) {
-    X11EventButtonNameOne = Button1,
-    X11EventButtonNameTwo = Button2,
-    X11EventButtonNameThree = Button3,
-    X11EventButtonNameFour = Button4,
-    X11EventButtonNameFive = Button5
-};
-
-typedef AK_OPTIONS(int32_t, X11EventButtonMask) {
-    X11EventButtonMaskOne = Button1Mask,
-    X11EventButtonMaskTwo = Button2Mask,
-    X11EventButtonMaskThree = Button3Mask,
-    X11EventButtonMaskFour = Button4Mask,
-    X11EventButtonMaskFive = Button5Mask,
-    X11EventButtonMaskAny = AnyModifier
-};
-
-typedef AK_OPTIONS(int32_t, X11EventKeyMask) {
-    X11EventKeyMaskShift = ShiftMask,
-    X11EventKeyMaskLock = LockMask,
-    X11EventKeyMaskControl = ControlMask,
-    X11EventKeyMaskMod1 = Mod1Mask,
-    X11EventKeyMaskMod2 = Mod2Mask,
-    X11EventKeyMaskMod3 = Mod3Mask,
-    X11EventKeyMaskMod4 = Mod4Mask,
-    X11EventKeyMaskMod5 = Mod5Mask
-};
+#include "XlibResult.h"
+#include "XlibEventKeyMask.h"
+#include "XlibEventButtonMask.h"
+#include "XlibEventButtonName.h"
+#include "XlibEventTypeMask.h"
+#include "XlibEventType.h"
 
 #endif

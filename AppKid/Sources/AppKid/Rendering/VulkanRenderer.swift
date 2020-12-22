@@ -41,9 +41,9 @@ public final class VulkanRenderer {
 
     fileprivate var vertices: [Vertex] = [
         (position: (-0.5, -0.5), color: (1.0, 0.0, 0.0)),
-        (position: (0.5, 0.5), color: (0.0, 1.0, 0.0)),
-        (position: (-0.5, 0.5), color: (0.0, 0.0, 1.0)),
-        (position: (0.5, -0.5), color: (1.0, 0.0, 0.0)),
+        (position: (0.5, 0.5), color: (0.0, 1.0, 1.0)),
+        (position: (-0.5, 0.5), color: (0.0, 1.0, 0.0)),
+        (position: (0.5, -0.5), color: (1.0, 0.0, 1.0)),
     ]
 
     fileprivate var indices: [CUnsignedInt] = [

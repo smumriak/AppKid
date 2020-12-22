@@ -1,5 +1,5 @@
 //
-//  CStringArray.swift
+//  CStringUtils.swift
 //  TinyFoundation
 //
 //  Created by Serhii Mumriak on 13.06.2020.

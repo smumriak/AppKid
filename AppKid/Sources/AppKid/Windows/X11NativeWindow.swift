@@ -5,8 +5,10 @@
 //  Created by Serhii Mumriak on 13.02.2020.
 //
 
+import TinyFoundation
 import Foundation
 
+import SwiftXlib
 import CXlib
 import CXInput2
 
@@ -51,7 +53,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     var acceptsMouseMovedEvents: Bool = false {
         didSet {
             if !kEnableXInput2 {
-                var mask = X11EventTypeMask.basic
+                var mask = XlibEventTypeMask.basic
                 if acceptsMouseMovedEvents {
                     mask.formUnion(.pointerMotion)
                 }
@@ -152,6 +154,8 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         self.screen = screen
         self.windowID = windowID
         self.title = title
+
+        super.init()
     }
 
     func updateListeningEvents(displayServer: X11DisplayServer) {
@@ -171,108 +175,20 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                 }
             }
 
-            XISelectEvents(displayServer.display, windowID, &eventMasks, CInt(eventMasks.count))
-            XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.geometry.rawValue))
+            XISelectEvents(displayServer.display.handle, windowID, &eventMasks, CInt(eventMasks.count))
+            XSelectInput(displayServer.display.handle, windowID, Int(XlibEventTypeMask.geometry.rawValue))
         } else {
-            XSelectInput(displayServer.display, windowID, Int(X11EventTypeMask.basic.rawValue))
+            XSelectInput(displayServer.display.handle, windowID, Int(XlibEventTypeMask.basic.rawValue))
         }
     }
 
     func map(displayServer: X11DisplayServer) {
-        XMapWindow(displayServer.display, windowID)
+        XMapWindow(displayServer.display.handle, windowID)
     }
 }
 
 extension X11NativeWindow {
     public static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
-    }
-}
-
-internal struct Rect<StorageType> where StorageType: BinaryInteger {
-    var origin: Point<StorageType>
-    var size: Size<StorageType>
-
-    var x: StorageType {
-        get { origin.x }
-        set { origin.x = newValue }
-    }
-
-    var y: StorageType {
-        get { origin.y }
-        set { origin.y = newValue }
-    }
-
-    var width: StorageType {
-        get { size.width }
-        set { size.width = newValue }
-    }
-
-    var height: StorageType {
-        get { size.height }
-        set { size.height = newValue }
-    }
-
-    init(origin: Point<StorageType>, size: Size<StorageType>) {
-        self.origin = origin
-        self.size = size
-    }
-
-    init(x: StorageType, y: StorageType, width: StorageType, height: StorageType) {
-        self.origin = Point(x: x, y: y)
-        self.size = Size(width: width, height: height)
-    }
-}
-
-internal struct Point<StorageType> where StorageType: BinaryInteger {
-    var x: StorageType
-    var y: StorageType
-}
-
-internal struct Size<StorageType> where StorageType: BinaryInteger {
-    var width: StorageType
-    var height: StorageType
-}
-
-extension Rect where StorageType == CInt {
-    init(x11WindowAttributes windowAttributes: XWindowAttributes) {
-        self.init(x: windowAttributes.x, y: windowAttributes.y, width: windowAttributes.width, height: windowAttributes.height)
-    }
-}
-
-extension Rect {
-    var cgRect: CGRect {
-        return CGRect(origin: origin.cgPoint, size: size.cgSize)
-    }
-}
-
-internal extension CGRect {
-    func rect<StorageType>() -> Rect<StorageType> where StorageType: BinaryInteger {
-        let standardized = self.standardized
-        return Rect(origin: standardized.origin.point(), size: standardized.size.size())
-    }
-}
-
-extension Point {
-    var cgPoint: CGPoint {
-        return CGPoint(x: CGFloat(x), y: CGFloat(y))
-    }
-}
-
-extension CGPoint {
-    func point<StorageType>() -> Point<StorageType> where StorageType: BinaryInteger {
-        return Point(x: StorageType(x), y: StorageType(y))
-    }
-}
-
-extension Size {
-    var cgSize: CGSize {
-        return CGSize(width: CGFloat(width), height: CGFloat(height))
-    }
-}
-
-extension CGSize {
-    func size<StorageType>() -> Size<StorageType> where StorageType: BinaryInteger {
-        return Size(width: StorageType(width), height: StorageType(height))
     }
 }

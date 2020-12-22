@@ -13,6 +13,8 @@ internal final class SoftwareRenderer: NSObject {
 
     init(context: CairoGraphics.CGContext) {
         self.context = context
+
+        super.init()
     }
 
     func render(window: Window) {

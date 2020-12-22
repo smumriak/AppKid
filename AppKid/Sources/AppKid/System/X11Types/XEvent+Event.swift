@@ -15,8 +15,8 @@ internal extension XEvent {
         return type == GenericEvent && xcookie.extension == `extension`
     }
 
-    var x11EventType: X11EventType? {
-        return X11EventType(rawValue: type)
+    var x11EventType: XlibEventType? {
+        return XlibEventType(rawValue: type)
     }
 }
 
@@ -27,14 +27,14 @@ internal extension XGenericEventCookie {
 }
 
 internal extension XButtonEvent {
-    var buttonName: X11EventButtonName? {
-        return X11EventButtonName(rawValue: CInt(button))
+    var buttonName: XlibEventButtonName? {
+        return XlibEventButtonName(rawValue: CInt(button))
     }
 }
 
 internal extension XMotionEvent {
-    var buttonMask: X11EventButtonMask {
-        return X11EventButtonMask(rawValue: CInt(state))
+    var buttonMask: XlibEventButtonMask {
+        return XlibEventButtonMask(rawValue: CInt(state))
     }
 }
 
@@ -69,13 +69,13 @@ internal extension XIDeviceEvent {
     }
 }
 
-internal extension X11EventTypeMask {
-    static let keyboard: X11EventTypeMask = [.keyPress, .keyRelease]
-    static let mouse: X11EventTypeMask = [.buttonPress, .buttonRelease]
-    static let enterLeave: X11EventTypeMask = [.enterWindow, .leaveWindow]
-    static let geometry: X11EventTypeMask = [.exposure, .visibilityChange, .structureNotify]
+internal extension XlibEventTypeMask {
+    static let keyboard: XlibEventTypeMask = [.keyPress, .keyRelease]
+    static let mouse: XlibEventTypeMask = [.buttonPress, .buttonRelease]
+    static let enterLeave: XlibEventTypeMask = [.enterWindow, .leaveWindow]
+    static let geometry: XlibEventTypeMask = [.exposure, .visibilityChange, .structureNotify]
 
-    static let basic: X11EventTypeMask = [
+    static let basic: XlibEventTypeMask = [
         .keyboard,
         .mouse,
         .buttonMotion,

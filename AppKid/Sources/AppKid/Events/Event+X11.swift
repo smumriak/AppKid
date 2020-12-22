@@ -95,7 +95,7 @@ fileprivate extension XButtonEvent {
     var modifierFlags: Event.ModifierFlags {
         var result: Event.ModifierFlags = []
 
-        let keyMask = X11EventKeyMask(rawValue: CInt(state))
+        let keyMask = XlibEventKeyMask(rawValue: CInt(state))
 
         if keyMask.contains(.shift) { result.formUnion(.shift) }
         if keyMask.contains(.lock) { result.formUnion(.capsLock) }
@@ -148,10 +148,10 @@ internal extension Event {
                 }
 
                 switch atom {
-                case displayServer.context.deleteWindowAtom:
+                case displayServer.display.deleteWindowAtom:
                     self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
 
-                case displayServer.context.syncRequestAtom:
+                case displayServer.display.syncRequestAtom:
                     self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
                     syncCounter = (Int64(x11Event.xclient.data.l.3) << 32) | Int64(x11Event.xclient.data.l.2)
 

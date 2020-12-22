@@ -24,6 +24,7 @@ let package = Package(
         .package(path: "../Volcano"),
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
         .package(path: "../SimpleGLM"),
+        .package(path: "../SwiftXlib"),
     ],
     targets: [
         .target(
@@ -38,6 +39,7 @@ let package = Package(
                 .product(name: "Volcano", package: "Volcano"),
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
+                .product(name: "SwiftXlib", package: "SwiftXlib")
             ],
             exclude: [
                 "Resources/TriangleFragmentShader.frag",

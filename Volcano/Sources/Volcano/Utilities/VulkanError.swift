@@ -16,8 +16,8 @@ public enum VulkanError: Error {
     case notEnoughParentMemory
 }
 
-extension VulkanError: CustomStringConvertible {
-    public var description: String {
+extension VulkanError: CustomDebugStringConvertible {
+    public var debugDescription: String {
         switch self {
         case .badResult(let result): return "Bad result: \(result)"
         case .instanceFunctionNotFound(let name): return "Instance function not found: \(name)"
@@ -29,8 +29,8 @@ extension VulkanError: CustomStringConvertible {
     }
 }
 
-extension VkResult: CustomStringConvertible {
-    public var description: String {
+extension VkResult: CustomDebugStringConvertible {
+    public var debugDescription: String {
         switch self {
         case VK_SUCCESS: return "VK_SUCCESS"
         case VK_NOT_READY: return "VK_NOT_READY"

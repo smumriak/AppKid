@@ -244,6 +244,8 @@ public class Event: NSObject {
         self.modifierFlags = modifierFlags
         self.windowNumber = windowNumber
         self.window = Application.shared.window(number: windowNumber)
+
+        super.init()
     }
     
     public convenience init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {

@@ -10,7 +10,7 @@ import CVulkan
 
 public protocol EntityFactory {}
 
-public extension VulkanHandle where Handle.Pointee: EntityFactory {
+public extension HandleStorage where Handle.Pointee: EntityFactory {
     func create<Info: EntityInfo>(with info: UnsafePointer<Info>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
         var pointer: UnsafeMutablePointer<Info.Result>? = nil
 

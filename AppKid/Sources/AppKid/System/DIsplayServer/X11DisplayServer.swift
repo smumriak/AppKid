@@ -7,9 +7,11 @@
 
 import Foundation
 import CoreFoundation
+import TinyFoundation
 
 import CXlib
 import CXInput2
+import SwiftXlib
 
 internal final class X11DisplayServer: NSObject, DisplayServer {
     var context = X11DisplayServerContext()
@@ -17,7 +19,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
 
     let applicationName: String
 
-    let display: UnsafeMutablePointer<CXlib.Display>
+    let display: SwiftXlib.Display
     let screen: UnsafeMutablePointer<CXlib.Screen>
 
     var inputMethod: XIM?
@@ -33,55 +35,26 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
         inputMethod.map {
             _ = XCloseIM($0)
         }
-
-        XCloseDisplay(display)
     }
 
     // MARK: Initialization
 
     init(applicationName appName: String) {
-        guard let openDisplay = XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
-            fatalError("Could not open X display.")
+        do {
+            display = try SwiftXlib.Display()
+        } catch {
+            fatalError("Can not create display with error: \(error)")
         }
 
-        display = openDisplay
-        screen = XDefaultScreenOfDisplay(display)
+        screen = XDefaultScreenOfDisplay(display.handle)
         applicationName = appName
 
-        var event: CInt = 0
-        var error: CInt = 0
-
-        if XSyncQueryExtension(display, &event, &error) == 0 {
-            XCloseDisplay(display)
-            fatalError("XSync exntension is not available")
-        }
-
-        var xSyncMajorVersion: CInt = 3
-        var xSyncMinorVersion: CInt = 1
-        if XSyncInitialize(display, &xSyncMajorVersion, &xSyncMinorVersion) == 0 {
-            XCloseDisplay(display)
-            fatalError("XSync is not available.")
-        }
-
-        if XQueryExtension(display, "XInputExtension".cString(using: .ascii), &context.xInput2ExtensionOpcode, &event, &error) == 0 {
-            XCloseDisplay(display)
-            fatalError("No XInputExtension available")
-        }
-
-        var xInputMajorVersion: CInt = 2
-        var xInputMinorVersion: CInt = 0
-        if XIQueryVersion(display, &xInputMajorVersion, &xInputMinorVersion) == BadRequest {
-            XCloseDisplay(display)
-            fatalError("XInput2 is not available.")
-        }
-
         var rootWindowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display, screen.pointee.root, &rootWindowAttributes) == 0 {
-            XCloseDisplay(display)
+        if XGetWindowAttributes(display.handle, screen.pointee.root, &rootWindowAttributes) == 0 {
             fatalError("Can not get root window attributes")
         }
 
-        inputMethod = XOpenIM(display, nil, nil, nil)
+        inputMethod = XOpenIM(display.handle, nil, nil, nil)
 
         inputStyle = inputMethod.flatMap {
             var stylesOptional: UnsafeMutablePointer<XIMStyles>? = nil
@@ -115,7 +88,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
             inputMethod = nil
         }
 
-        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, title: "root")
+        rootWindow = X11NativeWindow(display: display.handle, screen: screen, windowID: screen.pointee.root, title: "root")
 
         super.init()
 
@@ -127,7 +100,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
     }
 
     func flush() {
-        XFlush(display)
+        display.flush()
     }
 }
 
@@ -150,13 +123,13 @@ extension X11DisplayServer {
 
         let visual = XDefaultVisualOfScreen(screen)
         let depth = XDefaultDepthOfScreen(screen)
-        let colorMap = XCreateColormap(display, rootWindow.windowID, visual, AllocNone)
-        defer { XFreeColormap(display, colorMap) }
+        let colorMap = XCreateColormap(display.handle, rootWindow.windowID, visual, AllocNone)
+        defer { XFreeColormap(display.handle, colorMap) }
 
         attributesMask |= UInt(CWColormap)
         attributes.colormap = colorMap
 
-        let windowID = XCreateWindow(display,
+        let windowID = XCreateWindow(display.handle,
                                      rootWindow.windowID,
                                      intRect.x, intRect.y,
                                      CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
@@ -168,14 +141,14 @@ extension X11DisplayServer {
                                      &attributes)
 
         let syncValue = XSyncValue(hi: 0, lo: 0)
-        let basicSyncCounter = XSyncCreateCounter(display, syncValue)
-        let extendedSyncCounter = XSyncCreateCounter(display, syncValue)
+        let basicSyncCounter = XSyncCreateCounter(display.handle, syncValue)
+        let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
 
-        let result: X11NativeWindow = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
+        let result = X11NativeWindow(display: display.handle, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
         result.syncCounter = (basicSyncCounter, extendedSyncCounter)
 
-        XStoreName(display, windowID, title)
+        XStoreName(display.handle, windowID, title)
 
         let classHint = XAllocClassHint()
         defer { XFree(classHint) }
@@ -185,16 +158,16 @@ extension X11DisplayServer {
             classHint?.pointee.res_name = mutableString
             classHint?.pointee.res_class = mutableString
 
-            XSetClassHint(display, windowID, classHint)
+            XSetClassHint(display.handle, windowID, classHint)
         }
 
         var atoms: [Atom] = [
-            context.deleteWindowAtom,
-//            context.takeFocusAtom,
-            context.syncRequestAtom,
+            display.deleteWindowAtom,
+//            display.takeFocusAtom,
+            display.syncRequestAtom,
         ]
         atoms.withUnsafeMutableBufferPointer {
-            let _ = XSetWMProtocols(display, windowID, $0.baseAddress!, CInt($0.count))
+            let _ = XSetWMProtocols(display.handle, windowID, $0.baseAddress!, CInt($0.count))
         }
 
         result.updateListeningEvents(displayServer: self)

@@ -1,5 +1,5 @@
 //
-//  X11EventType+Debug.swift
+//  XlibEventType+Debug.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 22.04.2020.
@@ -8,7 +8,7 @@
 import Foundation
 import CXlib
 
-extension X11EventType: CustomDebugStringConvertible {
+extension XlibEventType: CustomDebugStringConvertible {
     public var debugDescription: String {
         switch self {
         case .keyPress: return "KeyPress"

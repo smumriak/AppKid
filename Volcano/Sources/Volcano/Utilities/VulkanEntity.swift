@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public class VulkanEntity<Entity>: VulkanHandle<Entity> where Entity: SmartPointerProtocol {
+public class VulkanEntity<Entity>: HandleStorage<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var instance: Instance
 
     public init(instance: Instance, handlePointer: Entity) throws {

@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Queue: VulkanHandle<SmartPointer<VkQueue_T>> {
+public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     public internal(set) unowned var device: Device
     public let familyIndex: Int
     public let queueIndex: Int
