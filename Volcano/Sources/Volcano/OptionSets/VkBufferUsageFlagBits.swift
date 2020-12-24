@@ -21,7 +21,6 @@ public extension VkBufferUsageFlagBits {
     static let transformFeedbackBufferExt = VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT
     static let transformFeedbackCounterBufferExt = VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT
     static let conditionalRenderingExt = VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT
-    static let rayTracingKhr = VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR
     static let rayTracingNv = VK_BUFFER_USAGE_RAY_TRACING_BIT_NV
     static let shaderDeviceAddressExt = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_EXT
     static let shaderDeviceAddressKhr = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_KHR

@@ -10,7 +10,6 @@ import Foundation
 
 import SwiftXlib
 import CXlib
-import CXInput2
 
 protocol NativeWindow: class {
     var title: String { get set }

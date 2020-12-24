@@ -31,7 +31,6 @@ let package = Package(
             name: "AppKid",
             dependencies: [
                 .product(name: "CXlib", package: "SharedSystemLibs"),
-                .product(name: "CXInput2", package: "SharedSystemLibs"),
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "ContentAnimation", package: "ContentAnimation"),

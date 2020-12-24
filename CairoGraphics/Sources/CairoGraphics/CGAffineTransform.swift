@@ -16,6 +16,52 @@ public struct CGAffineTransform {
     public var tx: CGFloat
     public var ty: CGFloat
 
+    public init(a: CGFloat, b: CGFloat, c: CGFloat, d: CGFloat, tx: CGFloat, ty: CGFloat) {
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.tx = tx
+        self.ty = ty
+    }
+}
+
+public extension CGAffineTransform {
+    static let identity = CGAffineTransform(a: 1.0, b: 0.0,
+                                            c: 0.0, d: 1.0,
+                                            tx: 0.0, ty: 0.0)
+
+    static let zero = CGAffineTransform(a: 0.0, b: 0.0,
+                                        c: 0.0, d: 0.0,
+                                        tx: 0.0, ty: 0.0)
+   
+    var determinant: CGFloat { a * d - b * c }
+
+    init() {
+        self = .identity
+    }
+
+    init(translationX tx: CGFloat, y ty: CGFloat) {
+        self.init(a: 1.0, b: 0.0,
+                  c: 0.0, d: 1.0,
+                  tx: tx, ty: ty)
+    }
+    
+    init(scaleX sx: CGFloat, y sy: CGFloat) {
+        self.init(a: sx, b: 0.0,
+                  c: 0.0, d: sy,
+                  tx: 0.0, ty: 0.0)
+    }
+    
+    init(rotationAngle angle: CGFloat) {
+        let sine = sin(angle)
+        let cosine = cos(angle)
+
+        self.init(a: cosine, b: sine,
+                  c: -sine, d: cosine,
+                  tx: 0.0, ty: 0.0)
+    }
+
     internal fileprivate(set) var _matrix: cairo_matrix_t {
         get {
             cairo_matrix_t(xx: Double(a), yx: Double(b),
@@ -39,52 +85,6 @@ public struct CGAffineTransform {
         d = CGFloat(matrix.yy)
         tx = CGFloat(matrix.x0)
         ty = CGFloat(matrix.y0)
-    }
-}
-
-public extension CGAffineTransform {
-    static var identity = CGAffineTransform(a: 1.0, b: 0.0,
-                                            c: 0.0, d: 1.0,
-                                            tx: 0.0, ty: 0.0)
-
-    static var zero = CGAffineTransform(a: 0.0, b: 0.0,
-                                        c: 0.0, d: 0.0,
-                                        tx: 0.0, ty: 0.0)
-   
-    var determinant: CGFloat { a * d - b * c }
-
-    init() {
-        self = .identity
-    }
-
-    init(a: CGFloat, b: CGFloat, c: CGFloat, d: CGFloat, tx: CGFloat, ty: CGFloat) {
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.tx = tx
-        self.ty = ty
-    }
-
-    init(translationX tx: CGFloat, y ty: CGFloat) {
-        self.init(a: 1.0, b: 0.0,
-                  c: 0.0, d: 1.0,
-                  tx: tx, ty: ty)
-    }
-    
-    init(scaleX sx: CGFloat, y sy: CGFloat) {
-        self.init(a: sx, b: 0.0,
-                  c: 0.0, d: sy,
-                  tx: 0.0, ty: 0.0)
-    }
-    
-    init(rotationAngle angle: CGFloat) {
-        let sine = sin(angle)
-        let cosine = cos(angle)
-
-        self.init(a: cosine, b: sine,
-                  c: -sine, d: cosine,
-                  tx: 0.0, ty: 0.0)
     }
 
     var isIdentity: Bool {
@@ -126,12 +126,12 @@ public extension CGAffineTransform {
 
 extension CGAffineTransform: Hashable {
     public static func == (_ lhs: Self, _ rhs: Self) -> Bool {
-        lhs.a == rhs.a && 
-        lhs.b == rhs.b && 
-        lhs.c == rhs.c && 
-        lhs.d == rhs.d && 
-        lhs.tx == rhs.tx && 
-        lhs.ty == rhs.ty
+        lhs.a == rhs.a &&
+            lhs.b == rhs.b &&
+            lhs.c == rhs.c &&
+            lhs.d == rhs.d &&
+            lhs.tx == rhs.tx &&
+            lhs.ty == rhs.ty
     }
 
     public func hash(into hasher: inout Hasher) {

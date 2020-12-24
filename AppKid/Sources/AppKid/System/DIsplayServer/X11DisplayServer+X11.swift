@@ -8,9 +8,7 @@
 import Foundation
 import CoreFoundation
 
-
 import CXlib
-import CXInput2
 import SwiftXlib
 
 internal let kEnableXInput2 = true

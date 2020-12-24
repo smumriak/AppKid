@@ -8,7 +8,6 @@
 import Foundation
 import CoreFoundation
 import CXlib
-import CXInput2
 import CairoGraphics
 
 fileprivate extension XEvent {

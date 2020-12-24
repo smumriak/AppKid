@@ -8,7 +8,6 @@
 import Foundation
 import CoreFoundation
 import CXlib
-import CXInput2
 
 internal extension XEvent {
     func isCookie(with extension: CInt) -> Bool {

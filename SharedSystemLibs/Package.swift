@@ -15,7 +15,6 @@ let package = Package(
     ],
     products: [
         .library(name: "CXlib", targets: ["CXlib"]),
-        .library(name: "CXInput2", targets: ["CXInput2"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
         .library(name: "CVulkan", targets: ["CVulkan"]),
@@ -26,16 +25,7 @@ let package = Package(
             path: "CXlib",
             pkgConfig: "x11",
             providers: [
-                .apt(["libx11-dev"]),
-                .brew(["xquartz"]),
-            ]
-        ),
-        .systemLibrary(
-            name: "CXInput2",
-            path: "CXInput2",
-            pkgConfig: "xi",
-            providers: [
-                .apt(["libxi-dev"]),
+                .apt(["libx11-dev libxi-dev"]),
                 .brew(["xquartz"]),
             ]
         ),

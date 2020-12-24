@@ -9,7 +9,6 @@ import Foundation
 import TinyFoundation
 
 import CXlib
-import CXInput2
 
 extension CXlib.Display: ReleasableCType {
     public static var releaseFunc: (UnsafeMutablePointer<CXlib.Display>?) -> () {
@@ -88,8 +87,6 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         stayBelowAtom = handlePointer.query(atom: .stayBelow)
         stateAtom = handlePointer.query(atom: .state)
 
-
-
         var event: CInt = 0
         var error: CInt = 0
 
@@ -116,6 +113,9 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         if XIQueryVersion(handle, &xInputMajorVersion, &xInputMinorVersion) == BadRequest {
             throw XlibError.missingExtension(.input2)
         }
+
+        var xRandrMajorVersion: CInt = 3
+        var xRandrMinorVersion: CInt = 1
 
         self.connectionFileDescriptor = XConnectionNumber(handle)
 

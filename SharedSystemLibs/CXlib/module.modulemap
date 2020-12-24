@@ -9,10 +9,10 @@ module CXlib [system] {
     module Xlib {
         header "CXlib_umbrella.h"
     }
-    module X {
-        header "CX_umbrella.h"
-    }
+    
     link "X11"
     link "Xext"
+    link "Xi"
+    link "Xrandr"
     export *
 }

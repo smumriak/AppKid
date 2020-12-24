@@ -10,7 +10,6 @@ import CoreFoundation
 import TinyFoundation
 
 import CXlib
-import CXInput2
 import SwiftXlib
 
 internal final class X11DisplayServer: NSObject, DisplayServer {

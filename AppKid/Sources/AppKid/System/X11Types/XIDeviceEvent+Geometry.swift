@@ -6,8 +6,7 @@
 //
 
 import Foundation
-
-import CXInput2
+import CXlib
 
 internal extension XIDeviceEvent {
     var locationInWindow: CGPoint {

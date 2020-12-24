@@ -1,6 +1,6 @@
 //
 //  XlibEventType+Debug.swift
-//  AppKid
+//  SwiftXlib
 //
 //  Created by Serhii Mumriak on 22.04.2020.
 //

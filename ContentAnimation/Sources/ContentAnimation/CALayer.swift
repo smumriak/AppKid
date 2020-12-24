@@ -39,8 +39,8 @@ open class CALayer: CAMediaTiming {
     @CALayerProperty(name: "anchorPointZ")
     open var anchorPointZ: CGFloat = 0.0
 
-//    @CALayerProperty(name: "transform")
-//    open var transform: CATransform3D = .identity
+    @CALayerProperty(name: "transform")
+    open var transform: CATransform3D = .identity
 
     @CALayerProperty(name: "isHidden")
     open var isHidden: Bool = false

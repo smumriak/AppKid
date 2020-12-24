@@ -9,7 +9,6 @@ import Foundation
 import TinyFoundation
 
 import CXlib
-import CXInput2
 
 public class Screen {
 

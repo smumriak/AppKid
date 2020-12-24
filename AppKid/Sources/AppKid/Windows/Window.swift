@@ -7,7 +7,6 @@
 
 import Foundation
 import CXlib
-import CXInput2
 import CairoGraphics
 
 public extension Notification.Name {

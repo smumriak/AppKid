@@ -2,7 +2,7 @@
 //  XlibEventTypeMask.h
 //  CXlib
 //
-//  Created by Serhii Mumriak on 29.12.2020.
+//  Created by Serhii Mumriak on 20.12.2020.
 //
 
 #ifndef XlibEventTypeMask_h

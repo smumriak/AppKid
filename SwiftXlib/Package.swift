@@ -25,7 +25,6 @@ let package = Package(
             name: "SwiftXlib",
             dependencies: [
                 .product(name: "CXlib", package: "SharedSystemLibs"),
-                .product(name: "CXInput2", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
             ]
         ),

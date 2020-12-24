@@ -8,7 +8,7 @@
 import Foundation
 
 import CXlib
-import CXInput2
+import SwiftXlib
 
 internal struct X11DisplayServerContext {
     var scale: CGFloat = 1.0

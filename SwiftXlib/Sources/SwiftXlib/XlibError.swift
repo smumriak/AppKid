@@ -8,11 +8,11 @@
 import Foundation
 
 import CXlib
-import CXInput2
 
 public enum XlibExtension: String {
     case sync = "XSync"
     case input2 = "XInput2"
+    case randr = "XRandr"
 }
 
 public enum XlibError: Error {

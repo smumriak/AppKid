@@ -1,12 +1,12 @@
 //
 //  XInput2EventType+Debug.swift
-//  AppKid
+//  SwiftXlib
 //
 //  Created by Serhii Mumriak on 22.04.2020.
 //
 
 import Foundation
-import CXInput2
+import CXlib
 
 extension XInput2EventType: CustomDebugStringConvertible {
     public var debugDescription: String {

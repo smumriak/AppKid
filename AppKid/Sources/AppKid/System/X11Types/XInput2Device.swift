@@ -6,8 +6,7 @@
 //
 
 import Foundation
-
-import CXInput2
+import CXlib
 
 internal struct XInput2Device {
     var identifier: CInt = 0

@@ -13,4 +13,4 @@
 --ifdef indent
 --modifierorder open,public,internal,internal(set),private,private(set),fileprivate,fileprivate(set),mutating,override,static,class,convenience,required,lazy,weak,unowned
 
---disable andOperator,anyObjectProtocol,emptyBraces,hoistPatternLet,preferKeyPath,redundantFileprivate,redundantLet,redundantNilInit,redundantObjc,redundantRawValues,redundantReturn,redundantSelf,sortedImports,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapMultilineStatementBraces,yodaConditions,typeSugar,redundantPattern
+--disable andOperator,anyObjectProtocol,emptyBraces,hoistPatternLet,preferKeyPath,redundantFileprivate,redundantLet,redundantNilInit,redundantObjc,redundantRawValues,redundantReturn,redundantSelf,sortedImports,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapMultilineStatementBraces,yodaConditions,typeSugar,redundantPattern,redundantType
