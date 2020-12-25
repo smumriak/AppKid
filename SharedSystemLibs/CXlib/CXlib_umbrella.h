@@ -29,7 +29,6 @@ struct _XIC {};
 #include <X11/XKBlib.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/sync.h>
-#include <X11/extensions/Xrandr.h> 
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI.h>
 

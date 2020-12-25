@@ -25,6 +25,8 @@ public enum AtomName: String {
     case stayAbove = "_NET_WM_STATE_ABOVE"
     case stayBelow = "_NET_WM_STATE_BELOW"
     case state = "_NET_WM_STATE"
+    case opacity = "_NET_WM_WINDOW_OPACITY"
+    case syncCounter = "_NET_WM_SYNC_REQUEST_COUNTER"    
 
     case xiKeyboard = "KEYBOARD"
     case xiMouse = "MOUSE"
@@ -65,6 +67,8 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
     public let stayAboveAtom: CXlib.Atom
     public let stayBelowAtom: CXlib.Atom
     public let stateAtom: CXlib.Atom
+    public let opacityAtom: CXlib.Atom
+    public let syncCounterAtom: CXlib.Atom
 
     public let connectionFileDescriptor: CInt
 
@@ -86,6 +90,8 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         stayAboveAtom = handlePointer.query(atom: .stayAbove)
         stayBelowAtom = handlePointer.query(atom: .stayBelow)
         stateAtom = handlePointer.query(atom: .state)
+        opacityAtom = handlePointer.query(atom: .opacity)
+        syncCounterAtom = handlePointer.query(atom: .syncCounter)
 
         var event: CInt = 0
         var error: CInt = 0
@@ -113,9 +119,6 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         if XIQueryVersion(handle, &xInputMajorVersion, &xInputMinorVersion) == BadRequest {
             throw XlibError.missingExtension(.input2)
         }
-
-        var xRandrMajorVersion: CInt = 3
-        var xRandrMinorVersion: CInt = 1
 
         self.connectionFileDescriptor = XConnectionNumber(handle)
 

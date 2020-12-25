@@ -13,6 +13,6 @@ module CXlib [system] {
     link "X11"
     link "Xext"
     link "Xi"
-    link "Xrandr"
+
     export *
 }

@@ -62,7 +62,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
     
-    // TODO: palkobnik: Looks like native window will need access to display context after all. Looks like Screen class is coming
+    // TODO: palkovnik: Looks like native window will need access to display context after all. Looks like Screen class is coming
     // func setFloatsOnTop() {
     //     var event = XClientMessageEvent()
     //     event.type = ClientMessage
