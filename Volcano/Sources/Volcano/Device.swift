@@ -43,7 +43,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
             self.priorities = priorities
         }
 
-        public static let `default` = QueueCreationRequest(type: .graphics, flags: [],  priorities: [0.0])
+        public static let `default` = QueueCreationRequest(type: .graphics, flags: [], priorities: [0.0])
     }
 
     public init(physicalDevice: PhysicalDevice, queuesRequests: [QueueCreationRequest] = [.default]) throws {
@@ -137,16 +137,6 @@ public extension Device {
 }
 
 public extension Device {
-    typealias AllocatorFunction<Info, Result> = (SmartPointer<VkDevice_T>.Pointer_t?, UnsafePointer<Info>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
-
-    func allocate<Info, Result>(info: UnsafePointer<Info>, using allocator: AllocatorFunction<Info, Result>) throws -> UnsafeMutablePointer<Result> {
-        var result: UnsafeMutablePointer<Result>? = nil
-        try vulkanInvoke {
-            allocator(handle, info, &result)
-        }
-        return result!
-    }
-
     func allocateMemory(info: UnsafePointer<VkMemoryAllocateInfo>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<VkDeviceMemory_T> {
         var memory: VkDeviceMemory? = nil
 
@@ -154,7 +144,7 @@ public extension Device {
             vkAllocateMemory(handle, info, callbacks, &memory)
         }
 
-        return SmartPointer(with: memory!) { [unowned self] in 
+        return SmartPointer(with: memory!) { [unowned self] in
             vkFreeMemory(self.handle, $0, callbacks)
         }
     }

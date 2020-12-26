@@ -26,5 +26,6 @@ AK_EXISTING_ENUM(VkFormat);
 AK_EXISTING_ENUM(VkSharingMode);
 AK_EXISTING_ENUM(VkCommandBufferLevel);
 AK_EXISTING_ENUM(VkIndexType);
+AK_EXISTING_ENUM(VkDescriptorType);
 
 #endif /* VulkanEnums_h */

@@ -93,4 +93,8 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     public convenience init(with pointer: Pointer_t, deleterFunction: @escaping Deleter_f) {
         self.init(with: pointer, deleter: .custom(deleterFunction))
     }
+
+    public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
+        return UnsafeMutableRawPointer(pointer).assumingMemoryBound(to: type)
+    }
 }

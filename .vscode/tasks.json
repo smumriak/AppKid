@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "buildProject",
             "type": "shell",
             "linux": {
                 "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
@@ -26,5 +26,23 @@
                 "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
             }  
         },
+        {
+            "label": "buildShaders",
+            "type": "shell",
+            "linux": {
+                "command": "glslc ./AppKid/Sources/AppKid/Resources/FragmentShader.volcano -o ./AppKid/Sources/AppKid/Resources/FragmentShader.spv && glslc ./AppKid/Sources/AppKid/Resources/VertexShader.volcano -o ./AppKid/Sources/AppKid/Resources/VertexShader.spv"
+            },
+            "osx": {
+                "command": "echo NO_OP"
+            }
+        },
+        {
+            "label": "build",
+            "dependsOn": [
+                "buildShaders", 
+                "buildProject",
+            ],
+            "dependsOrder": "sequence"
+        }
     ]
 }

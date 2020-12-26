@@ -11,6 +11,7 @@ import TinyFoundation
 import CVulkan
 import cglm
 import SimpleGLM
+import ContentAnimation
 
 public enum VulkanRendererError: Error {
     case noDiscreteGPU
@@ -20,7 +21,14 @@ public enum VulkanRendererError: Error {
 }
 
 public final class VulkanRenderer {
-    internal let window: AppKid.Window
+    internal var window: AppKid.Window {
+        didSet {
+            try? render()
+        }
+    }
+
+    internal var projectionMatrix: mat4s = .identity
+    internal var viewMatrix: mat4s = .identity
 
     internal fileprivate(set) var renderStack: VulkanRenderStack
 
@@ -40,10 +48,10 @@ public final class VulkanRenderer {
     internal fileprivate(set) var renderPass: RenderPass
 
     fileprivate var vertices: [Vertex] = [
-        (position: (-0.5, -0.5), color: (1.0, 0.0, 0.0)),
-        (position: (0.5, 0.5), color: (0.0, 1.0, 1.0)),
-        (position: (-0.5, 0.5), color: (0.0, 1.0, 0.0)),
-        (position: (0.5, -0.5), color: (1.0, 0.0, 1.0)),
+        (position: vec2s(-0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
+        (position: vec2s(0.5, 0.5), color: vec3s(0.0, 1.0, 1.0)),
+        (position: vec2s(-0.5, 0.5), color: vec3s(0.0, 1.0, 0.0)),
+        (position: vec2s(0.5, -0.5), color: vec3s(1.0, 0.0, 1.0)),
     ]
 
     fileprivate var indices: [CUnsignedInt] = [
@@ -64,6 +72,11 @@ public final class VulkanRenderer {
     var commandBuffers: [CommandBuffer] = []
     var vertexBuffer: Buffer!
     var indexBuffer: Buffer!
+
+    var uniformBuffers: [Buffer] = []
+    var descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T>!
+    var descriptorPool: SmartPointer<VkDescriptorPool_T>!
+    var descriptorSets: SmartPointer<VkDescriptorSet>!
 
     deinit {
         try? clearSwapchain()
@@ -111,7 +124,7 @@ public final class VulkanRenderer {
         #endif
 
         vertexShader = try device.shader(named: "VertexShader", in: bundle)
-        fragmentShader = try device.shader(named: "TriangleFragmentShader", in: bundle)
+        fragmentShader = try device.shader(named: "FragmentShader", in: bundle)
 
         var colorAttachmentDescription = VkAttachmentDescription()
         colorAttachmentDescription.format = surface.imageFormat
@@ -128,6 +141,8 @@ public final class VulkanRenderer {
         let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
 
         renderPass = try RenderPass(device: device, subpasses: [subpass1], dependencies: [dependency1])
+
+        descriptorSetLayout = try createDescriptorSetLayout()
 
         pipeline = try createGraphicsPipeline()
 
@@ -154,8 +169,16 @@ public final class VulkanRenderer {
 
         framebuffers = try createFramebuffers()
         commandBuffers = try createCommandBuffers()
-
+        uniformBuffers = try createUniformBuffers()
+        
+        descriptorPool = try createDescriptorPool()
+        descriptorSets = try createDescriptorSets()
+        
         oldSwapchain = nil
+    }
+
+    fileprivate func updateTransforms() {
+        // let bounds = window.bounds
     }
 
     public func clearSwapchain() throws {
@@ -165,6 +188,9 @@ public final class VulkanRenderer {
 
         commandBuffers = []
         framebuffers = []
+        uniformBuffers = []
+        descriptorSets = nil
+        descriptorPool = nil
         imageViews = nil
         images = nil
         swapchain = nil
@@ -524,6 +550,119 @@ public final class VulkanRenderer {
 
         return indexBuffer
     }
+
+    func createUniformBuffers() throws -> [Buffer] {
+        let size = VkDeviceSize(MemoryLayout<UniformBufferObject>.size)
+        return try (0..<images.count).map { _ in
+            let result = try Buffer(device: device,
+                                    size: size,
+                                    usage: [.uniformBuffer],
+                                    sharingMode: .concurrent,
+                                    memoryProperties: [.hostVisible, .hostCoherent],
+                                    accessQueues: [graphicsQueue, transferQueue])
+
+            try update(uniformBuffer: result)
+            return result
+        }
+    }
+
+    func createDescriptorSetLayout() throws -> SmartPointer<VkDescriptorSetLayout_T> {
+        var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
+        descriptorSetLayoutBinding.binding = 0
+        descriptorSetLayoutBinding.descriptorType = .uniformBuffer
+        descriptorSetLayoutBinding.descriptorCount = 1
+        descriptorSetLayoutBinding.stageFlags = VkShaderStageFlagBits.vertex.rawValue
+        descriptorSetLayoutBinding.pImmutableSamplers = nil
+
+        let descriptorSetLayoutBindings = [descriptorSetLayoutBinding]
+
+        return try descriptorSetLayoutBindings.withUnsafeBufferPointer { descriptorSetLayoutBindings in
+            var info = VkDescriptorSetLayoutCreateInfo()
+            info.sType = .descriptorSetLayoutCreateInfo
+            info.bindingCount = CUnsignedInt(descriptorSetLayoutBindings.count)
+            info.pBindings = descriptorSetLayoutBindings.baseAddress!
+
+            return try device.create(with: &info)
+        }
+    }
+
+    func createDescriptorPool() throws -> SmartPointer<VkDescriptorPool_T> {
+        var poolSize = VkDescriptorPoolSize()
+        poolSize.type = .uniformBuffer
+        poolSize.descriptorCount = CUnsignedInt(images.count)
+
+        let sizes = [poolSize]
+
+        return try sizes.withUnsafeBufferPointer { sizes in
+            var info = VkDescriptorPoolCreateInfo()
+            info.sType = .descriptorPoolCreateInfo
+            info.poolSizeCount = CUnsignedInt(sizes.count)
+            info.pPoolSizes = sizes.baseAddress!
+            info.maxSets = CUnsignedInt(images.count)
+
+            return try device.create(with: &info)
+        }
+    }
+
+    func createDescriptorSets() throws -> SmartPointer<VkDescriptorSet> {
+        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: descriptorSetLayout, count: images.count).map { $0.pointer }
+        let count = layouts.count
+
+        let descriptorSets: SmartPointer<VkDescriptorSet> = try layouts.withUnsafeBufferPointer { layouts in
+            var info = VkDescriptorSetAllocateInfo()
+            info.sType = .descriptorSetAllocateInfo
+            info.descriptorPool = descriptorPool.pointer
+            info.descriptorSetCount = CUnsignedInt(count)
+            info.pSetLayouts = layouts.baseAddress!
+
+            let result = SmartPointer<VkDescriptorSet>.allocate(capacity: count)
+            let handle = result.assumingMemoryBound(to: VkDescriptorSet?.self)
+            try vulkanInvoke {
+                vkAllocateDescriptorSets(device.handle, &info, handle)
+            }
+
+            return result
+        }
+
+        let descriptorSetsBufferPointer = UnsafeBufferPointer(start: descriptorSets.pointer, count: count)
+
+        try descriptorSetsBufferPointer.enumerated().forEach { offset, descriptorSet in
+            var info = VkDescriptorBufferInfo()
+            info.buffer = uniformBuffers[offset].handle
+            info.offset = 0
+            info.range = VkDeviceSize(MemoryLayout<UniformBufferObject>.stride)
+
+            try withUnsafePointer(to: &info) { info in
+                var descriptorWrite = VkWriteDescriptorSet()
+                descriptorWrite.sType = .writeDescriptorSet
+                descriptorWrite.dstSet = descriptorSet
+                descriptorWrite.dstBinding = 0
+                descriptorWrite.dstArrayElement = 0
+                descriptorWrite.descriptorCount = 1
+                descriptorWrite.descriptorType = .uniformBuffer
+                descriptorWrite.pBufferInfo = info
+                descriptorWrite.pImageInfo = nil
+                descriptorWrite.pTexelBufferView = nil
+
+                try withUnsafePointer(to: &descriptorWrite) { descriptorWrite in
+                    try vulkanInvoke {
+                        vkUpdateDescriptorSets(device.handle, 1, descriptorWrite, 0, nil)
+                    }
+                }
+            }
+        }
+
+        return descriptorSets
+    }
+
+    func update(uniformBuffer: Buffer) throws {
+        let object: UniformBufferObject = (model: .identity, view: .identity, projection: .identity)
+        
+        try withUnsafePointer(to: object) {
+            try uniformBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
+        }
+    }
 }
 
-typealias Vertex = (position: vec2, color: vec3)
+typealias Vertex = (position: vec2s, color: vec3s)
+typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
