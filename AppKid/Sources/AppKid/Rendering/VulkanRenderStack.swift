@@ -32,7 +32,7 @@ public final class VulkanRenderStack {
 
     public func createSurface(for window: Window) throws -> Surface {
         #if os(Linux)
-            return try physicalDevice.createXlibSurface(display: window.nativeWindow.display, window: window.nativeWindow.windowID)
+            return try physicalDevice.createXlibSurface(display: window.nativeWindow.display.handle, window: window.nativeWindow.windowID)
         #elseif os(macOS)
             fatalError("macOS rendering is not currently supported")
         #elseif os(Windows)

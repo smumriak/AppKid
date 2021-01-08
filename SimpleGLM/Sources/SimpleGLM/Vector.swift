@@ -43,6 +43,9 @@ extension vec2s: Vector {
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T) { self.init(raw: vec2(Float(x), Float(y))) }
 
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(x: T, y: T) { self.init(raw: vec2(Float(x), Float(y))) }
+
     public static let dot_f = glms_vec2_dot
 }
 
@@ -50,12 +53,18 @@ extension vec3s: Vector {
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
 
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(x: T, y: T, z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
+
     public static let dot_f = glms_vec3_dot
 }
 
 extension vec4s: Vector {
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T, _ w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
+
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(x: T, y: T, z: T, w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
 
     public static let dot_f = glms_vec4_dot
 }

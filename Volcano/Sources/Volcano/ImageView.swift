@@ -26,7 +26,7 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
         var info = VkImageViewCreateInfo()
         info.sType = .imageViewCreateInfo
         info.image = image.handle
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D
+        info.viewType = .type2D
         info.format = image.format
         info.components = componentMapping
         info.subresourceRange = subresourceRange
@@ -40,6 +40,6 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     }
 }
 
-extension VkComponentMapping {
-    public static let identity = VkComponentMapping(r: VK_COMPONENT_SWIZZLE_IDENTITY, g: VK_COMPONENT_SWIZZLE_IDENTITY, b: VK_COMPONENT_SWIZZLE_IDENTITY, a: VK_COMPONENT_SWIZZLE_IDENTITY)
+public extension VkComponentMapping {
+    static let identity = VkComponentMapping(r: .identity, g: .identity, b: .identity, a: .identity)
 }

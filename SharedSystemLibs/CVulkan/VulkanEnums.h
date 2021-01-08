@@ -27,5 +27,11 @@ AK_EXISTING_ENUM(VkSharingMode);
 AK_EXISTING_ENUM(VkCommandBufferLevel);
 AK_EXISTING_ENUM(VkIndexType);
 AK_EXISTING_ENUM(VkDescriptorType);
+AK_EXISTING_ENUM(VkColorSpaceKHR);
+AK_EXISTING_ENUM(VkPresentModeKHR);
+AK_EXISTING_ENUM(VkImageType);
+AK_EXISTING_ENUM(VkImageViewType);
+AK_EXISTING_ENUM(VkComponentSwizzle);
+AK_EXISTING_ENUM(VkQueueGlobalPriorityEXT);
 
 #endif /* VulkanEnums_h */

@@ -72,7 +72,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     }
 
     #if os(Linux)
-        public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) throws -> Surface {
+        public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: .srgbNonlinear)) throws -> Surface {
             return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredFormat)
         }
     #endif
@@ -81,7 +81,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         let queueFamiliesPropertiesEnumerated = queueFamiliesProperties.enumerated()
 
         // try to find dedicated Compute queue family that is not Graphics
-        if queueType.contains(.compute) {
+        if queueType.contains(.compute) && queueType.isDisjoint(with: .graphics) {
             for pair in queueFamiliesPropertiesEnumerated {
                 if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
                     return pair.offset
@@ -90,7 +90,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         }
 
         // try to find dedicated Transfer queue family that is not Graphics
-        if queueType.contains(.transfer) {
+        if queueType.contains(.transfer) && queueType.isDisjoint(with: .graphics) {
             for pair in queueFamiliesPropertiesEnumerated {
                 if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
                     return pair.offset

@@ -17,21 +17,21 @@ protocol NativeWindow: class {
 }
 
 public final class X11NativeWindow: NSObject, NativeWindow {
-    public fileprivate(set) var display: UnsafeMutablePointer<CXlib.Display>
+    public fileprivate(set) var display: SwiftXlib.Display
     public fileprivate(set) var screen: UnsafeMutablePointer<CXlib.Screen>
     public fileprivate(set) var windowID: CXlib.Window
 
     var title: String = "" {
         didSet {
             title.withCString {
-                _ = XStoreName(display, windowID, $0)
+                _ = XStoreName(display.handle, windowID, $0)
             }
         }
     }
     
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display, windowID, &windowAttributes) == 0 {
+        if XGetWindowAttributes(display.handle, windowID, &windowAttributes) == 0 {
 //            fatalError("Can not get window attributes for window with ID: \(windowID)")
         }
         return windowAttributes
@@ -57,7 +57,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                     mask.formUnion(.pointerMotion)
                 }
 
-                XSelectInput(display, windowID, Int(mask.rawValue))
+                XSelectInput(display.handle, windowID, Int(mask.rawValue))
             }
         }
     }
@@ -84,22 +84,44 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     //     }
     // }
 
+    public func transitionToFullScreen() {
+        var event = XClientMessageEvent()
+        event.type = ClientMessage
+        event.window = windowID
+        event.message_type = display.stateAtom
+        event.format = 32
+        event.data.l.0 = 1
+        event.data.l.1 = Int(display.stateFullscreenAtom)
+        event.data.l.2 = 0
+        event.data.l.3 = 0
+        event.data.l.4 = 0
+
+        let size = MemoryLayout.size(ofValue: event)
+
+        withUnsafeMutablePointer(to: &event) { event in
+            event.withMemoryRebound(to: XEvent.self, capacity: size) { event in
+                let _ = XSendEvent(display.handle, XDefaultRootWindow(display.handle), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
+            }
+        }
+
+        display.flush()
+    }
+
     public var displayScale: CGFloat = 1.0
 
-    internal lazy var opacityAtom = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", 0)
     internal var opacity: CGFloat = 1.0 {
         didSet {
             let value = UInt32(opacity * CGFloat(UInt32.max))
             withUnsafePointer(to: value) {
                 $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: opacity)) {
                     let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display, windowID, opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
+                    XChangeProperty(display.handle, windowID, display.opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
                 }
             }
         }
     }
 
-    internal lazy var syncCounterAtom = XInternAtom(display, "_NET_WM_SYNC_REQUEST_COUNTER", 0)
+    public var syncFence: XSyncFence = XSyncFence(None)
 
     internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None)) {
         didSet {
@@ -107,7 +129,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
             withUnsafePointer(to: &syncCounter) {
                 $0.withMemoryRebound(to: UInt8.self, capacity: size) {
                     let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display, windowID, syncCounterAtom, XA_CARDINAL, 32, PropModeReplace, optional, 2)
+                    XChangeProperty(display.handle, windowID, display.syncCounterAtom, XA_CARDINAL, 32, PropModeReplace, optional, 2)
                 }
             }
         }
@@ -118,7 +140,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         guard syncCounter.basic != Atom(None) else { return }
 
         let value = XSyncValue(hi: Int32(basicSyncCounter >> 32), lo: UInt32(basicSyncCounter & 0xFFFFFFFF))
-        XSyncSetCounter(display, syncCounter.basic, value)
+        XSyncSetCounter(display.handle, syncCounter.basic, value)
     }
 
     public internal(set) var extendedSyncCounter: Int64 = 0
@@ -126,7 +148,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         guard syncCounter.extended != Atom(None) else { return }
 
         let value = XSyncValue(hi: Int32(extendedSyncCounter >> 32), lo: UInt32(extendedSyncCounter & 0xFFFFFFFF))
-        XSyncSetCounter(display, syncCounter.extended, value)
+        XSyncSetCounter(display.handle, syncCounter.extended, value)
     }
 
     public var syncRequested: Bool = false
@@ -135,20 +157,24 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     var inputContext: XIC? = nil
     
     deinit {
-        if syncCounter.basic != Atom(None) {
-            XSyncDestroyCounter(display, syncCounter.basic)
+        if syncCounter.basic != XSyncCounter(None) {
+            XSyncDestroyCounter(display.handle, syncCounter.basic)
         }
 
-        if syncCounter.extended != Atom(None) {
-            XSyncDestroyCounter(display, syncCounter.extended)
+        if syncCounter.extended != XSyncCounter(None) {
+            XSyncDestroyCounter(display.handle, syncCounter.extended)
         }
 
         if !isRoot {
-            XDestroyWindow(display, windowID)
+            XDestroyWindow(display.handle, windowID)
+        }
+
+        if syncFence != XSyncFence(None) {
+            XSyncDestroyFence(display.handle, syncFence)
         }
     }
     
-    internal init(display: UnsafeMutablePointer<CXlib.Display>, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
+    internal init(display: SwiftXlib.Display, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
         self.display = display
         self.screen = screen
         self.windowID = windowID
@@ -174,15 +200,15 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                 }
             }
 
-            XISelectEvents(displayServer.display.handle, windowID, &eventMasks, CInt(eventMasks.count))
-            XSelectInput(displayServer.display.handle, windowID, Int(XlibEventTypeMask.geometry.rawValue))
+            XISelectEvents(display.handle, windowID, &eventMasks, CInt(eventMasks.count))
+            XSelectInput(display.handle, windowID, Int(XlibEventTypeMask.geometry.rawValue))
         } else {
-            XSelectInput(displayServer.display.handle, windowID, Int(XlibEventTypeMask.basic.rawValue))
+            XSelectInput(display.handle, windowID, Int(XlibEventTypeMask.basic.rawValue))
         }
     }
 
     func map(displayServer: X11DisplayServer) {
-        XMapWindow(displayServer.display.handle, windowID)
+        XMapWindow(display.handle, windowID)
     }
 }
 

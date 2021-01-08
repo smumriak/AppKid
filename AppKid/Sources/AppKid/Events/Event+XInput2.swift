@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TinyFoundation
 import CoreFoundation
 import CXlib
 import CairoGraphics

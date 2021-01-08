@@ -49,6 +49,7 @@ public extension Rect {
 }
 
 public extension CGRect {
+    @inlinable @inline(__always)
     func rect<StorageType>() -> Rect<StorageType> where StorageType: BinaryInteger {
         let standardized = self.standardized
         return Rect(origin: standardized.origin.point(), size: standardized.size.size())

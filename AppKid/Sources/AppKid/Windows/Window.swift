@@ -101,6 +101,8 @@ open class Window: View {
 
         let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect, title: "Window")
 
+        // nativeWindow.transitionToFullScreen()
+
         self.init(nativeWindow: nativeWindow)
     }
 

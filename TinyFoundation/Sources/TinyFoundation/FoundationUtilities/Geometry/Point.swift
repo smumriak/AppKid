@@ -25,6 +25,7 @@ public extension Point {
 }
 
 public extension CGPoint {
+    @inlinable @inline(__always)
     func point<StorageType>() -> Point<StorageType> where StorageType: BinaryInteger {
         return Point(x: StorageType(x), y: StorageType(y))
     }

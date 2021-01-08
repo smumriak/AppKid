@@ -49,27 +49,72 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
 
     public internal(set) lazy var discreteGPUDevice: PhysicalDevice? = physicalDevices.first
     
+    // public init() {
+    //     do {
+    //         var applicationInfo = VkApplicationInfo()
+    //         applicationInfo.sType = .applicationInfo
+    //         applicationInfo.apiVersion = (1 << 22) | (2 << 12) | 0
+
+    //         let validationLayers = ["VK_LAYER_KHRONOS_validation"].cStrings
+    //         let validationLayersPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: validationLayers.count)
+
+    //         validationLayers.enumerated().forEach {
+    //             validationLayersPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
+    //         }
+
+    //         var instanceCreationInfo = VkInstanceCreateInfo()
+    //         instanceCreationInfo.sType = .instanceCreateInfo
+    //         instanceCreationInfo.enabledLayerCount = CUnsignedInt(validationLayers.count)
+    //         instanceCreationInfo.ppEnabledLayerNames = UnsafePointer(validationLayersPointer.pointer)
+
+    //         withUnsafePointer(to: &applicationInfo) {
+    //             instanceCreationInfo.pApplicationInfo = $0
+    //         }
+
+    //         var extensions: [String] = [VK_KHR_SURFACE_EXTENSION_NAME]
+
+    //         #if canImport(CXlib) && os(Linux)
+    //             extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
+    //         #endif
+
+    //         let extensionsCStrings = extensions.cStrings
+
+    //         let extensionsPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
+
+    //         extensionsCStrings.enumerated().forEach {
+    //             extensionsPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
+    //         }
+
+    //         instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
+    //         instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
+
+    //         var instanceOptional: VkInstance?
+
+    //         try vulkanInvoke {
+    //             vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
+    //         }
+
+    //         let handlePointer = ReleasablePointer(with: instanceOptional!)
+
+    //         vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
+    //         vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
+    //         vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")
+    //         vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfacePresentModesKHR")
+
+    //         super.init(handlePointer: handlePointer)
+    //     } catch {
+    //         fatalError("Could not spawn vulkan instance with error: \(error)")
+    //     }
+    // }
+
     public init() {
         do {
             var applicationInfo = VkApplicationInfo()
             applicationInfo.sType = .applicationInfo
             applicationInfo.apiVersion = (1 << 22) | (2 << 12) | 0
-
-            let validationLayers = ["VK_LAYER_KHRONOS_validation"].cStrings
-            let validationLayersPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: validationLayers.count)
-
-            validationLayers.enumerated().forEach {
-                validationLayersPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
-            }
-
-            var instanceCreationInfo = VkInstanceCreateInfo()
-            instanceCreationInfo.sType = .instanceCreateInfo
-            instanceCreationInfo.enabledLayerCount = CUnsignedInt(validationLayers.count)
-            instanceCreationInfo.ppEnabledLayerNames = UnsafePointer(validationLayersPointer.pointer)
-
-            withUnsafePointer(to: &applicationInfo) {
-                instanceCreationInfo.pApplicationInfo = $0
-            }
+            var layers: [String] = []
+            
+            layers.append("VK_LAYER_KHRONOS_validation")
 
             var extensions: [String] = [VK_KHR_SURFACE_EXTENSION_NAME]
 
@@ -77,25 +122,30 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
                 extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
             #endif
 
-            let extensionsCStrings = extensions.cStrings
+            let handlePointer: ReleasablePointer<VkInstance_T> = try layers.withUnsafeNullableCStringsBufferPointer { layers in
+                try extensions.withUnsafeNullableCStringsBufferPointer { extensions in
+                    var instanceCreationInfo = VkInstanceCreateInfo()
+                    instanceCreationInfo.sType = .instanceCreateInfo
+                    instanceCreationInfo.enabledLayerCount = CUnsignedInt(layers.count)
+                    instanceCreationInfo.ppEnabledLayerNames = layers.baseAddress!
 
-            let extensionsPointer = SmartPointer<UnsafePointer<Int8>?>.allocate(capacity: extensionsCStrings.count)
+                    withUnsafePointer(to: &applicationInfo) {
+                        instanceCreationInfo.pApplicationInfo = $0
+                    }
 
-            extensionsCStrings.enumerated().forEach {
-                extensionsPointer.pointer[$0.offset] = UnsafePointer($0.element.pointer)
+                    instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
+                    instanceCreationInfo.ppEnabledExtensionNames = extensions.baseAddress!
+
+                    var instanceOptional: VkInstance?
+
+                    try vulkanInvoke {
+                        vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
+                    }
+
+                    return ReleasablePointer(with: instanceOptional!)
+                }
             }
-
-            instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensionsCStrings.count)
-            instanceCreationInfo.ppEnabledExtensionNames = UnsafePointer(extensionsPointer.pointer)
-
-            var instanceOptional: VkInstance?
-
-            try vulkanInvoke {
-                vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
-            }
-
-            let handlePointer = ReleasablePointer(with: instanceOptional!)
-
+            
             vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
             vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")

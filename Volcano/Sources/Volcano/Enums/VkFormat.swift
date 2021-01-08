@@ -8,6 +8,10 @@
 import CVulkan
 
 public extension VkFormat {
+    static let rgba8UNorm: VkFormat = .r8g8b8a8UNorm
+}
+
+public extension VkFormat {
     static let undefined: VkFormat = .VK_FORMAT_UNDEFINED
     static let r4g4UNormPack8: VkFormat = .VK_FORMAT_R4G4_UNORM_PACK8
     static let r4g4b4a4UNormPack16: VkFormat = .VK_FORMAT_R4G4B4A4_UNORM_PACK16
@@ -286,3 +290,4 @@ public extension VkFormat {
     static let g16B16r162plane422UNormKHR: VkFormat = .VK_FORMAT_G16_B16R16_2PLANE_422_UNORM_KHR
     static let g16B16R163plane444UNormKHR: VkFormat = .VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM_KHR
 }
+

@@ -54,7 +54,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func beginRenderPass(_ renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
+    public func begin(renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
         try clearValues.withUnsafeBufferPointer { clearValues in
             var renderPassBeginInfo = VkRenderPassBeginInfo()
             renderPassBeginInfo.sType = .renderPassBeginInfo
@@ -121,6 +121,14 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
     
     public func bind(indexBuffer: Buffer, offset: VkDeviceSize = 0, type: VkIndexType) throws {
         vkCmdBindIndexBuffer(handle, indexBuffer.handle, offset, type)
+    }
+
+    public func bind(descriptorSets: [VkDescriptorSet?], bindPoint: VkPipelineBindPoint = .graphics, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
+        try descriptorSets.withUnsafeBufferPointer { descriptorSets in
+            try vulkanInvoke {
+                vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+            }
+        }
     }
 
     public func draw(vertexCount: Int = 0, firstVertex: Int = 0, instanceCount: Int = 1, firstInstance: Int = 0) throws {

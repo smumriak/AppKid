@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TinyFoundation
 import AppKid
 import CairoGraphics
 import ContentAnimation
@@ -178,7 +179,7 @@ class RootViewController: ViewController {
     }
 
     deinit {
-        transformTimer.invalidate()
+        // transformTimer.invalidate()
         // sensorTimer.invalidate()
     }
 
@@ -202,7 +203,7 @@ class RootViewController: ViewController {
         view.add(subview: closeCurrentWindow)
         view.add(subview: closeOtherWindows)
 
-        RunLoop.current.add(transformTimer, forMode: .common)
+        // RunLoop.current.add(transformTimer, forMode: .common)
         // RunLoop.current.add(sensorTimer, forMode: .common)
     }
 
@@ -260,6 +261,18 @@ class RootViewController: ViewController {
     }
 
     override func keyDown(with event: Event) {
+        if event.characters == "q" && event.modifierFlags.contains(.command) {
+            Application.shared.terminate()
+        } else if event.characters == "w" && event.modifierFlags.contains(.command) {
+            view.window.map {
+                Application.shared.remove(window: $0)
+            }
+        } else if event.characters == "n" && event.modifierFlags.contains(.command) {
+            let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+            window.rootViewController = RootViewController()
+
+            Application.shared.add(window: window)
+        }
         event.characters.map {
 //            if event.isARepeat {
 //                inputTextLabel.text = "Repeat: " + $0

@@ -12,8 +12,9 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public unowned let surface: Surface
     public var size: VkExtent2D
     public let imageFormat: VkFormat
+    public let presentMode: VkPresentModeKHR
 
-    public init(device: Device, surface: Surface, size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
+    public init(device: Device, surface: Surface, desiredPresentMode: VkPresentModeKHR = .immediate, size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -21,11 +22,13 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         let capabilities = surface.capabilities
 
         let presentMode: VkPresentModeKHR
-        if surface.presetModes.contains(VK_PRESENT_MODE_MAILBOX_KHR) {
-            presentMode = VK_PRESENT_MODE_MAILBOX_KHR
+        if surface.presetModes.contains(desiredPresentMode) {
+            presentMode = desiredPresentMode
         } else {
-            presentMode = VK_PRESENT_MODE_FIFO_KHR
+            presentMode = .fifo
         }
+
+        self.presentMode = presentMode
 
         let imageCount = min(capabilities.minImageCount + 1, capabilities.maxImageCount)
 

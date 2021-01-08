@@ -61,7 +61,7 @@ open class Application: Responder {
     internal var lastClickTimestamp: TimeInterval = .zero
     internal var clickCount: Int = .zero
 
-    internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
+    internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         for i in 0..<self.windows.count {
             self.softwareRenderers[i].render(window: self.windows[i])
         }
@@ -69,10 +69,12 @@ open class Application: Responder {
         self.displayServer.flush()
     }
 
-    internal lazy var vulkanRenderTimer = Timer(timeInterval: 1 / 60.0, repeats: true) { [unowned self] _ in
+    internal lazy var vulkanRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
-            for i in 0..<self.windows.count {
-                try self.vulkanRenderers[i].render()
+            try self.windows.enumerated().forEach { offset, window in
+                guard window.isMapped else { return }
+                
+                try self.vulkanRenderers[offset].render()
             }
         } catch {
             fatalError("Failed to render with error: \(error)")
@@ -269,8 +271,9 @@ open class Application: Responder {
     open func remove(windowNumer index: Array<Window>.Index) {
         // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         if isVulkanRendererEnabled {
-            let renderer = vulkanRenderers.remove(at: index)
-            try? renderer.device.waitForIdle()
+            // let renderer = vulkanRenderers.remove(at: index)
+            // try? renderer.device.waitForIdle()
+            vulkanRenderers.remove(at: index)
         } else {
             softwareRenderers.remove(at: index)
         }

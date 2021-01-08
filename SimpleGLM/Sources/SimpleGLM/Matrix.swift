@@ -195,6 +195,16 @@ extension mat4s: AffineTransformableMatrix {
     public init<T: BinaryFloatingPoint>(rotationAngle angle: T, axis: vec3s) { self = glms_rotate_make(Float(angle), axis) }
 
     @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(perspectiveFieldOfViewY fieldOfViewY: T, aspectRatio: T, near: T, far: T) {
+        self = glms_perspective(Float(fieldOfViewY), Float(aspectRatio), Float(near), Float(far))
+    }
+
+    @inlinable @inline(__always)
+    public init(lootAt eye: vec3s, center: vec3s, up: vec3s) {
+        self = glms_lookat(eye, center, up)
+    }
+
+    @inlinable @inline(__always)
     public func rotated<T: BinaryFloatingPoint>(by angle: T, axis: vec3s) -> Self { glms_rotate(self, Float(angle), axis) }
 
     @inlinable @inline(__always)

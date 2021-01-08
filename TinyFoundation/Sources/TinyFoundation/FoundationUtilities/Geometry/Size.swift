@@ -24,6 +24,7 @@ public extension Size {
 }
 
 public extension CGSize {
+    @inlinable @inline(__always)
     func size<StorageType>() -> Size<StorageType> where StorageType: BinaryInteger {
         return Size(width: StorageType(width), height: StorageType(height))
     }

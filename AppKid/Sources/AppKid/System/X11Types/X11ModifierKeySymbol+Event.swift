@@ -41,14 +41,14 @@ extension X11ModifierKeySymbol: CaseIterable {
         case .rightShift: return .shift
         case .leftControl: return .control
         case .rightControl: return .control
-        case .caps: return .none
+        case .caps: return .capsLock
         case .shift: return .shift
         case .leftMeta: return .none
         case .rightMeta: return .none
-        case .leftAlt: return .none
-        case .rightAlt: return .none
-        case .leftSuper: return .none
-        case .rightSuper: return .none
+        case .leftAlt: return .option
+        case .rightAlt: return .option
+        case .leftSuper: return .command
+        case .rightSuper: return .command
         case .leftHyper: return .none
         case .rightHyper: return .none
         case .modeSwitch: return .option

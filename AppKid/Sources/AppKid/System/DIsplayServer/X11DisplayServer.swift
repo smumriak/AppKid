@@ -87,7 +87,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
             inputMethod = nil
         }
 
-        rootWindow = X11NativeWindow(display: display.handle, screen: screen, windowID: screen.pointee.root, title: "root")
+        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, title: "root")
 
         super.init()
 
@@ -114,11 +114,14 @@ extension X11DisplayServer {
         var attributesMask: UInt = 0
         var attributes = XSetWindowAttributes()
 
-//        attributesMask |= UInt(CWBorderPixel)
-//        attributes.border_pixel = 0
+        // attributesMask |= UInt(CWBorderPixel)
+        // attributes.border_pixel = 0
 
-//        attributesMask |= UInt(CWBackPixel)
-//        attributes.background_pixel = UInt.max
+        // attributesMask |= UInt(CWBackPixel)
+        // attributes.background_pixel = UInt.max
+
+        // attributesMask |= UInt(CWOverrideRedirect)
+        // attributes.override_redirect = 1
 
         let visual = XDefaultVisualOfScreen(screen)
         let depth = XDefaultDepthOfScreen(screen)
@@ -143,9 +146,19 @@ extension X11DisplayServer {
         let basicSyncCounter = XSyncCreateCounter(display.handle, syncValue)
         let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
 
-        let result = X11NativeWindow(display: display.handle, screen: screen, windowID: windowID, title: title)
+        // let syncFence = XSyncCreateFence(display.handle, windowID, 0)
+
+        // withUnsafePointer(to: syncFence) {
+        //     $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: syncFence)) {
+        //         let optional: UnsafePointer<UInt8>? = $0
+        //         XChangeProperty(display.handle, windowID, display.syncFencesAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
+        //     }
+        // }
+
+        let result = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
         result.syncCounter = (basicSyncCounter, extendedSyncCounter)
+        // result.syncFence = syncFence
 
         XStoreName(display.handle, windowID, title)
 
@@ -162,7 +175,7 @@ extension X11DisplayServer {
 
         var atoms: [Atom] = [
             display.deleteWindowAtom,
-//            display.takeFocusAtom,
+            display.takeFocusAtom,
             display.syncRequestAtom,
         ]
         atoms.withUnsafeMutableBufferPointer {

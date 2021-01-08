@@ -6,12 +6,16 @@
 //
 
 import Foundation
+import CoreFoundation
 import Volcano
 import TinyFoundation
 import CVulkan
 import cglm
 import SimpleGLM
 import ContentAnimation
+
+import CXlib
+import SwiftXlib
 
 public enum VulkanRendererError: Error {
     case noDiscreteGPU
@@ -54,6 +58,13 @@ public final class VulkanRenderer {
         (position: vec2s(0.5, -0.5), color: vec3s(1.0, 0.0, 1.0)),
     ]
 
+    // fileprivate var vertices: [Vertex] = [
+    //     (position: vec2s(-0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
+    //     (position: vec2s(0.5, 0.5), color: vec3s(1.0, 0.0, 0.0)),
+    //     (position: vec2s(-0.5, 0.5), color: vec3s(1.0, 0.0, 0.0)),
+    //     (position: vec2s(0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
+    // ]
+
     fileprivate var indices: [CUnsignedInt] = [
         0, 1, 2, 0, 3, 1,
     ]
@@ -76,9 +87,11 @@ public final class VulkanRenderer {
     var uniformBuffers: [Buffer] = []
     var descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T>!
     var descriptorPool: SmartPointer<VkDescriptorPool_T>!
-    var descriptorSets: SmartPointer<VkDescriptorSet>!
+    var descriptorSets: [VkDescriptorSet] = []
 
     deinit {
+        transformTimer.invalidate()
+
         try? clearSwapchain()
         oldSwapchain = nil
     }
@@ -148,6 +161,8 @@ public final class VulkanRenderer {
 
         vertexBuffer = try createVertexBuffer()
         indexBuffer = try createIndexBuffer()
+
+        RunLoop.current.add(transformTimer, forMode: .common)
     }
 
     public func setupSwapchain() throws {
@@ -163,16 +178,17 @@ public final class VulkanRenderer {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
         images = try swapchain.getImages()
         imageViews = try images.map { try ImageView(image: $0) }
 
-        framebuffers = try createFramebuffers()
-        commandBuffers = try createCommandBuffers()
         uniformBuffers = try createUniformBuffers()
-        
+
         descriptorPool = try createDescriptorPool()
         descriptorSets = try createDescriptorSets()
+
+        framebuffers = try createFramebuffers()
+        commandBuffers = try createCommandBuffers()
         
         oldSwapchain = nil
     }
@@ -189,7 +205,7 @@ public final class VulkanRenderer {
         commandBuffers = []
         framebuffers = []
         uniformBuffers = []
-        descriptorSets = nil
+        descriptorSets = []
         descriptorPool = nil
         imageViews = nil
         images = nil
@@ -255,10 +271,13 @@ public final class VulkanRenderer {
     }
 
     public func drawFrame() throws {
+        let startTime = CFAbsoluteTimeGetCurrent()
         try fence.reset()
         
         let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
 
+        try self.update(uniformBuffer: uniformBuffers[imageIndex])
+        
         let commandBuffer = commandBuffers[imageIndex]
 
         let submitCommandBuffers: [CommandBuffer] = [commandBuffer]
@@ -270,13 +289,21 @@ public final class VulkanRenderer {
         try presentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
 
         try fence.wait()
+
+        debugPrint("Frame draw took \((CFAbsoluteTimeGetCurrent() - startTime) * 1000.0) ms")
     }
     
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
+        let descriptorSetLayouts: [VkDescriptorSetLayout?] = [descriptorSetLayout].map { $0.pointer }
+
         var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
         pipelineLayoutInfo.sType = .pipelineLayoutCreateInfo
-        pipelineLayoutInfo.setLayoutCount = 0
-        pipelineLayoutInfo.pSetLayouts = nil
+
+        descriptorSetLayouts.withUnsafeBufferPointer { descriptorSetLayouts in
+            pipelineLayoutInfo.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
+            pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.baseAddress!
+        }
+
         pipelineLayoutInfo.pushConstantRangeCount = 0
         pipelineLayoutInfo.pPushConstantRanges = nil
 
@@ -334,8 +361,8 @@ public final class VulkanRenderer {
         rasterizer.rasterizerDiscardEnable = false.vkBool
         rasterizer.polygonMode = VK_POLYGON_MODE_FILL
         rasterizer.lineWidth = 1.0
-        rasterizer.cullMode = VkCullModeFlagBits.back.rawValue
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE
+        rasterizer.cullMode = VkCullModeFlagBits.none.rawValue
+        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE
         rasterizer.depthBiasEnable = false.vkBool
         rasterizer.depthBiasConstantFactor = 0.0
         rasterizer.depthBiasClamp = 0.0
@@ -458,12 +485,12 @@ public final class VulkanRenderer {
         let viewports = [viewport]
         let scissors = [renderArea]
 
-        let result: [CommandBuffer] = try framebuffers.map { framebuffer in
+        let result: [CommandBuffer] = try framebuffers.enumerated().map { offset, framebuffer in
             let commandBuffer = try CommandBuffer(commandPool: commandPool)
 
             try commandBuffer.begin()
 
-            try commandBuffer.beginRenderPass(renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
+            try commandBuffer.begin(renderPass: renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
             try commandBuffer.bind(pipeline: pipeline)
 
             try commandBuffer.setViewports(viewports)
@@ -471,6 +498,7 @@ public final class VulkanRenderer {
 
             try commandBuffer.bind(vertexBuffers: [vertexBuffer])
             try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
+            try commandBuffer.bind(descriptorSets: [descriptorSets[offset]], bindPoint: .graphics, pipelineLayout: pipelineLayout)
 
             try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
 
@@ -604,29 +632,27 @@ public final class VulkanRenderer {
         }
     }
 
-    func createDescriptorSets() throws -> SmartPointer<VkDescriptorSet> {
-        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: descriptorSetLayout, count: images.count).map { $0.pointer }
-        let count = layouts.count
+    func createDescriptorSets() throws -> [VkDescriptorSet] {
+        let count = images.count
+        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: descriptorSetLayout, count: count).map { $0.pointer }
 
-        let descriptorSets: SmartPointer<VkDescriptorSet> = try layouts.withUnsafeBufferPointer { layouts in
+        let descriptorSets: [VkDescriptorSet] = try layouts.withUnsafeBufferPointer { layouts in
             var info = VkDescriptorSetAllocateInfo()
             info.sType = .descriptorSetAllocateInfo
             info.descriptorPool = descriptorPool.pointer
             info.descriptorSetCount = CUnsignedInt(count)
             info.pSetLayouts = layouts.baseAddress!
 
-            let result = SmartPointer<VkDescriptorSet>.allocate(capacity: count)
-            let handle = result.assumingMemoryBound(to: VkDescriptorSet?.self)
+            var result = Array<VkDescriptorSet?>(repeating: nil, count: count)
+
             try vulkanInvoke {
-                vkAllocateDescriptorSets(device.handle, &info, handle)
+                vkAllocateDescriptorSets(device.handle, &info, &result)
             }
 
-            return result
+            return result.compactMap { $0 }
         }
 
-        let descriptorSetsBufferPointer = UnsafeBufferPointer(start: descriptorSets.pointer, count: count)
-
-        try descriptorSetsBufferPointer.enumerated().forEach { offset, descriptorSet in
+        try descriptorSets.enumerated().forEach { offset, descriptorSet in
             var info = VkDescriptorBufferInfo()
             info.buffer = uniformBuffers[offset].handle
             info.offset = 0
@@ -655,9 +681,22 @@ public final class VulkanRenderer {
         return descriptorSets
     }
 
-    func update(uniformBuffer: Buffer) throws {
-        let object: UniformBufferObject = (model: .identity, view: .identity, projection: .identity)
+    lazy var object: UniformBufferObject = {
+        let bounds = self.window.bounds
         
+        let model = mat4s.identity
+        let view = mat4s.identity 
+        // let view = mat4s(lootAt: vec3s(2.0, 2.0, 2.0), center: vec3s(0.0, 0.0, 0.0), up: vec3s(0.0, 0.0, 1.0))
+        let projection = mat4s.identity
+        // let projection = mat4s(perspectiveFieldOfViewY: .pi / 4.0, aspectRatio: Float(bounds.size.width) / Float(bounds.size.height), near: 0.1, far: 10.0)
+        return (model: model, view: view, projection: projection)
+    }()
+
+    lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
+        self.object.model.rotate(by: Float.pi / 90, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+    }
+
+    func update(uniformBuffer: Buffer) throws {
         try withUnsafePointer(to: object) {
             try uniformBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }

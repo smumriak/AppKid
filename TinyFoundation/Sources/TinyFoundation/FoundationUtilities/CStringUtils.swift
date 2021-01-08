@@ -15,4 +15,16 @@ public extension Array where Element == String {
             SmartPointer<Int8>(with: strdup($0), deleter: deleter)
         }
     }
+
+    func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>?>) throws -> (R)) throws -> R {
+        let cStrings = self.cStrings
+
+        return try cStrings.map { UnsafePointer($0.pointer) as UnsafePointer<Int8>? }.withUnsafeBufferPointer(body)
+    }
+
+    func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>>) throws -> (R)) throws -> R {
+        let cStrings = self.cStrings
+
+        return try cStrings.map { UnsafePointer($0.pointer) }.withUnsafeBufferPointer(body)
+    }
 }
