@@ -32,29 +32,17 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     internal let vkAcquireNextImageKHR: PFN_vkAcquireNextImageKHR
     internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
 
-    public struct QueueCreationRequest {
-        let type: VkQueueFlagBits
-        let flags: VkDeviceQueueCreateFlagBits
-        let priorities: [Float]
-
-        public init(type: VkQueueFlagBits, flags: VkDeviceQueueCreateFlagBits = [], priorities: [Float] = [0.0]) {
-            self.type = type
-            self.flags = flags
-            self.priorities = priorities
-        }
-
-        public static let `default` = QueueCreationRequest(type: .graphics, flags: [], priorities: [0.0])
-    }
-
-    public init(physicalDevice: PhysicalDevice, queuesRequests: [QueueCreationRequest] = [.default]) throws {
+    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default]) throws {
         let enabledFeatures = physicalDevice.features
 
         let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME].cStrings
         let extensionsNamesPointers: [UnsafePointer<Int8>?] = extensions.map { UnsafePointer($0.pointer) }
 
+        let processedQueueRequests = try processQueueRequests(from: queueRequests, familiesDescriptors: physicalDevice.queueFamiliesDescriptors)
+
         let handlePointer: SmartPointer<VkDevice_T> = try withUnsafePointer(to: enabledFeatures) { enabledFeatures in
             try extensionsNamesPointers.withUnsafeBufferPointer { extensions in
-                try queuesRequests.withUnsafeDeviceQueueCreateInfoBufferPointer(physicalDevice: physicalDevice) { deviceQueueCreateInfos in
+                try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo()
 
                     info.sType = .deviceCreateInfo
@@ -81,16 +69,13 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 
         try super.init(physicalDevice: physicalDevice, handlePointer: handlePointer)
 
-        for pair in queuesRequests.enumerated() {
-            guard let familyIndex = physicalDevice.queueFamilyIndex(for: pair.element.type) else {
-                throw VulkanError.noQueueFamilySatisfyingType(pair.element.type)
-            }
+        for queueRequest in processedQueueRequests {
+            let familyIndex = queueRequest.index
 
-            var queuesArray: [Queue] = queuesByFamilyIndex[CUnsignedInt(familyIndex)] ?? []
-            let count = queuesArray.count
+            var queuesArray: [Queue] = []
 
-            for queueIndex in 0..<pair.element.priorities.count {
-                queuesArray.append(try Queue(device: self, familyIndex: familyIndex, queueIndex: queueIndex + count, type: pair.element.type))
+            for queueIndex in 0..<queueRequest.priorities.count {
+                queuesArray.append(try Queue(device: self, familyIndex: familyIndex, queueIndex: queueIndex, type: queueRequest.type))
             }
 
             queuesByFamilyIndex[CUnsignedInt(familyIndex)] = queuesArray
@@ -146,46 +131,6 @@ public extension Device {
 
         return SmartPointer(with: memory!) { [unowned self] in
             vkFreeMemory(self.handle, $0, callbacks)
-        }
-    }
-}
-
-fileprivate extension Array where Element == Device.QueueCreationRequest {
-    func withUnsafeDeviceQueueCreateInfoBufferPointer<R>(physicalDevice: PhysicalDevice, body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-        var buffer = Array<VkDeviceQueueCreateInfo>()
-        buffer.reserveCapacity(count)
-
-        return try (self[0..<count]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
-    }
-}
-
-fileprivate extension ArraySlice where Element == Device.QueueCreationRequest {
-    func populateDeviceQueueCreateInfo<R>(physicalDevice: PhysicalDevice, buffer: inout [VkDeviceQueueCreateInfo], body: (UnsafeBufferPointer<VkDeviceQueueCreateInfo>) throws -> (R)) throws -> R {
-        let indices = self.indices
-
-        if indices.lowerBound == indices.upperBound {
-            return try buffer.withUnsafeBufferPointer {
-                return try body($0)
-            }
-        } else {
-            let head = self[indices.lowerBound]
-
-            guard let queueFamilyIndex = physicalDevice.queueFamilyIndex(for: head.type) else {
-                throw VulkanError.noQueueFamilySatisfyingType(head.type)
-            }
-
-            return try head.priorities.withUnsafeBufferPointer {
-                var info = VkDeviceQueueCreateInfo()
-                info.sType = .deviceQueueCreateInfo
-                info.flags = head.flags.rawValue
-                info.queueFamilyIndex = CUnsignedInt(queueFamilyIndex)
-                info.queueCount = CUnsignedInt($0.count)
-                info.pQueuePriorities = $0.baseAddress!
-
-                buffer.append(info)
-
-                return try (self[indices.dropFirst()]).populateDeviceQueueCreateInfo(physicalDevice: physicalDevice, buffer: &buffer, body: body)
-            }
         }
     }
 }

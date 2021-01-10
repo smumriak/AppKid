@@ -17,6 +17,10 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     public let features: VkPhysicalDeviceFeatures
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
+    public lazy var queueFamiliesDescriptors: [QueueFamilyDescriptor] = queueFamiliesProperties.enumerated()
+        .map { QueueFamilyDescriptor(index: $0, properties: $1) }
+        .sorted(by: <)
+
     public let memoryProperties: VkPhysicalDeviceMemoryProperties
     public let extensionProperties: [VkExtensionProperties]
 
@@ -83,7 +87,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         // try to find dedicated Compute queue family that is not Graphics
         if queueType.contains(.compute) && queueType.isDisjoint(with: .graphics) {
             for pair in queueFamiliesPropertiesEnumerated {
-                if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
+                if pair.element.type.contains(queueType) && pair.element.type.isDisjoint(with: .graphics) {
                     return pair.offset
                 }
             }
@@ -92,7 +96,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         // try to find dedicated Transfer queue family that is not Graphics
         if queueType.contains(.transfer) && queueType.isDisjoint(with: .graphics) {
             for pair in queueFamiliesPropertiesEnumerated {
-                if pair.element.flags.contains(queueType) && pair.element.flags.isDisjoint(with: .graphics) {
+                if pair.element.type.contains(queueType) && pair.element.type.isDisjoint(with: .graphics) {
                     return pair.offset
                 }
             }
@@ -100,7 +104,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
 
         // for all other types find first that supports all needed types
         for pair in queueFamiliesPropertiesEnumerated {
-            if pair.element.flags.contains(queueType) {
+            if pair.element.type.contains(queueType) {
                 return pair.offset
             }
         }
@@ -117,14 +121,4 @@ extension PhysicalDevice: Comparable {
     public static func == (lhs: PhysicalDevice, rhs: PhysicalDevice) -> Bool {
         lhs.handle == rhs.handle
     }
-}
-
-public extension VkQueueFamilyProperties {
-    var flags: VkQueueFlagBits { VkQueueFlagBits(rawValue: queueFlags) }
-
-    var isGraphics: Bool { flags.contains(.graphics) }
-    var isCompute: Bool { flags.contains(.compute) }
-    var isTransfer: Bool { flags.contains(.transfer) }
-    var isSparseBinding: Bool { flags.contains(.sparseBinding) }
-    var isProtected: Bool { flags.contains(.protected) }
 }
