@@ -58,6 +58,7 @@ public extension Event {
         case none
         // AppKidDefined Type
         case windowMapped
+        case windowUnmapped
         case windowExposed
         case applicationActivated
         case applicationDeactivated

@@ -152,6 +152,10 @@ open class View: Responder {
     }
     
     open func insert(subview: View, at index: Array<View>.Index) {
+        if subview.superview == self { 
+            return
+        }
+        
         subview.removeFromSuperView()
 
         subview.traverseSubviews(includingSelf: true) {

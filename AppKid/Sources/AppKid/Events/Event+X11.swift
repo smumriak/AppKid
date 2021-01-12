@@ -136,6 +136,9 @@ internal extension Event {
             case MapNotify:
                 self.init(withAppKidEventSubType: .windowMapped, windowNumber: windowNumber)
 
+            case UnmapNotify:
+                self.init(withAppKidEventSubType: .windowUnmapped, windowNumber: windowNumber)
+                
             case Expose:
                 self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 

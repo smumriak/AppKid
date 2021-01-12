@@ -191,7 +191,7 @@ open class Window: View {
 
     // MARK: Main Content
 
-    fileprivate var shouldPerformRootViewControllerSetup: Bool = false
+    fileprivate var shouldPerformRootViewControllerSetup: Bool = true
 
     open var rootViewController: ViewController? {
         willSet {
@@ -359,7 +359,9 @@ fileprivate extension Window {
 
         case .windowMapped:
             isMapped = true
-            shouldPerformRootViewControllerSetup = true
+
+        case .windowUnmapped:
+            isMapped = false
 
         case .windowExposed:
             if isMapped && shouldPerformRootViewControllerSetup {

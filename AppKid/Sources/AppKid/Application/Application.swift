@@ -62,8 +62,10 @@ open class Application: Responder {
     internal var clickCount: Int = .zero
 
     internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        for i in 0..<self.windows.count {
-            self.softwareRenderers[i].render(window: self.windows[i])
+        self.windows.enumerated().forEach { offset, window in
+            if window.isMapped {
+                self.softwareRenderers[offset].render(window: window)
+            }
         }
 
         self.displayServer.flush()
@@ -72,9 +74,9 @@ open class Application: Responder {
     internal lazy var vulkanRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
             try self.windows.enumerated().forEach { offset, window in
-                guard window.isMapped else { return }
-                
-                try self.vulkanRenderers[offset].render()
+                if window.isMapped {
+                    try self.vulkanRenderers[offset].render()
+                }
             }
         } catch {
             fatalError("Failed to render with error: \(error)")
