@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkDescriptorPoolCreateFlagBits = CVulkan.VkDescriptorPoolCreateFlagBits
+
 public extension VkDescriptorPoolCreateFlagBits {
     static let freeDescriptorSet = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
     static let updateAfterBind = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT

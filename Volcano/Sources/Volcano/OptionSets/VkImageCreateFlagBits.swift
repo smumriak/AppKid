@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkImageCreateFlagBits = CVulkan.VkImageCreateFlagBits
+
 public extension VkImageCreateFlagBits {
     static let sparseBinding = VK_IMAGE_CREATE_SPARSE_BINDING_BIT
     static let sparseResidency = VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT

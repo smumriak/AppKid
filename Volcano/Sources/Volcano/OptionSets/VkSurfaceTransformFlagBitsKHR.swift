@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkSurfaceTransformFlagBitsKHR = CVulkan.VkSurfaceTransformFlagBitsKHR
+
 public extension VkSurfaceTransformFlagBitsKHR {
     static let identity = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
     static let rotate90 = VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR

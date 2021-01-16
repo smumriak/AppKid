@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkQueueFlagBits = CVulkan.VkQueueFlagBits
+
 public extension VkQueueFlagBits {
     static let graphics = VK_QUEUE_GRAPHICS_BIT
     static let compute = VK_QUEUE_COMPUTE_BIT

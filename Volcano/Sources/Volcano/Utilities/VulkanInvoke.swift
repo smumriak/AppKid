@@ -9,7 +9,7 @@ import CVulkan
 
 public func vulkanInvoke(_ invocation: () -> (VkResult)) throws {
     let result: VkResult = invocation()
-    if result != VK_SUCCESS {
+    if result != .success {
         throw VulkanError.badResult(result)
     }
 }

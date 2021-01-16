@@ -52,11 +52,11 @@ struct VkSwapchainKHR_T {};
 #include <vulkan/vulkan.h>
 #endif
 
-static void * cVulkanGetInstanceProcAddr(VkInstance instance, const char* pName)
+static inline void * cVulkanGetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     return vkGetInstanceProcAddr(instance, pName);
 }
-static void * cVulkanGetDeviceProcAddr(VkDevice device, const char* pName)
+static inline void * cVulkanGetDeviceProcAddr(VkDevice device, const char* pName)
 {
     return vkGetDeviceProcAddr(device, pName);
 }

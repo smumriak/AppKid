@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkMemoryHeapFlagBits = CVulkan.VkMemoryHeapFlagBits
+
 public extension VkMemoryHeapFlagBits {
     static let deviceLocal = VK_MEMORY_HEAP_DEVICE_LOCAL_BIT
     static let multiInstance = VK_MEMORY_HEAP_MULTI_INSTANCE_BIT

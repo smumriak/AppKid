@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkCommandPoolResetFlagBits = CVulkan.VkCommandPoolResetFlagBits
+
 public extension VkCommandPoolResetFlagBits {
     static let releaseResources = VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
 }

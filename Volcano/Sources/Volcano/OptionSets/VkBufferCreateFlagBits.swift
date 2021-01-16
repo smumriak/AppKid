@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkBufferCreateFlagBits = CVulkan.VkBufferCreateFlagBits
+
 public extension VkBufferCreateFlagBits {
     static let sparseBinding = VK_BUFFER_CREATE_SPARSE_BINDING_BIT
     static let sparseResidency = VK_BUFFER_CREATE_SPARSE_RESIDENCY_BIT

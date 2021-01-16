@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkCullModeFlagBits = CVulkan.VkCullModeFlagBits
+
 public extension VkCullModeFlagBits {
     static let none = VkCullModeFlagBits()
     static let front = VK_CULL_MODE_FRONT_BIT

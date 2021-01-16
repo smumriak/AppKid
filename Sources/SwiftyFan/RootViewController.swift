@@ -19,6 +19,7 @@ class RootViewController: ViewController {
 
         result.tag = 1
         result.backgroundColor = .green
+        result.backgroundColor.alpha = 0.5
         result.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
         result.masksToBounds = true
 

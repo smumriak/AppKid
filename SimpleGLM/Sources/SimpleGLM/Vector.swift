@@ -8,6 +8,10 @@
 import Foundation
 import cglm
 
+public typealias vec2s = cglm.vec2s
+public typealias vec3s = cglm.vec3s
+public typealias vec4s = cglm.vec4s
+
 public protocol Vector: Equatable {
     associatedtype RawValue
 
@@ -40,31 +44,89 @@ public extension Vector where RawValue == vec4 {
 }
 
 extension vec2s: Vector {
+    public static let zero = vec2s(x: 0.0, y: 0.0)
+
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T) { self.init(raw: vec2(Float(x), Float(y))) }
 
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(x: T, y: T) { self.init(raw: vec2(Float(x), Float(y))) }
 
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(white: T, opacity: T) { self.init(raw: vec2(Float(white), Float(opacity))) }
+
     public static let dot_f = glms_vec2_dot
 }
 
 extension vec3s: Vector {
+    public static let zero = vec3s(x: 0.0, y: 0.0, z: 0.0)
+
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
 
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(x: T, y: T, z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(r: T, g: T, b: T) { self.init(raw: vec3(Float(r), Float(g), Float(b))) }
+
+    public var r: Float {
+        get { x }
+        set { x = newValue }
+    }
+
+    public var g: Float {
+        get { y }
+        set { y = newValue }
+    }
+
+    public var b: Float {
+        get { z }
+        set { z = newValue }
+    }
 
     public static let dot_f = glms_vec3_dot
 }
 
 extension vec4s: Vector {
+    public static let zero = vec4s(x: 0.0, y: 0.0, z: 0.0, w: 0.0)
+
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T, _ w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
 
     @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(x: T, y: T, z: T, w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
+
+    @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(r: T, g: T, b: T, a: T) { self.init(raw: vec4(Float(r), Float(g), Float(b), Float(a))) }
+
+    public var r: Float {
+        get { x }
+        set { x = newValue }
+    }
+
+    public var g: Float {
+        get { y }
+        set { y = newValue }
+    }
+
+    public var b: Float {
+        get { z }
+        set { z = newValue }
+    }
+
+    public var a: Float {
+        get { w }
+        set { w = newValue }
+    }
+    
+    public var rgb: vec3s {
+        get {  vec3s(r: r, g: g, b: b)  }
+        set {
+            r = newValue.r
+            g = newValue.g
+            b = newValue.b
+        }
+    }
 
     public static let dot_f = glms_vec4_dot
 }

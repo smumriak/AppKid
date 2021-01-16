@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkCompositeAlphaFlagBitsKHR = CVulkan.VkCompositeAlphaFlagBitsKHR
+
 public extension VkCompositeAlphaFlagBitsKHR {
     static let opaque = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
     static let preMultiplied = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR

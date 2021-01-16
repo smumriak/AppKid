@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkImageAspectFlagBits = CVulkan.VkImageAspectFlagBits
+
 public extension VkImageAspectFlagBits {
     static let color = VK_IMAGE_ASPECT_COLOR_BIT
     static let depth = VK_IMAGE_ASPECT_DEPTH_BIT

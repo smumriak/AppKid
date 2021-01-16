@@ -63,6 +63,8 @@ open class Application: Responder {
 
     internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         self.windows.enumerated().forEach { offset, window in
+            if window.nativeWindow.syncRequested { return }
+        
             if window.isMapped {
                 self.softwareRenderers[offset].render(window: window)
             }
@@ -74,6 +76,8 @@ open class Application: Responder {
     internal lazy var vulkanRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
             try self.windows.enumerated().forEach { offset, window in
+                if window.nativeWindow.syncRequested { return }
+
                 if window.isMapped {
                     try self.vulkanRenderers[offset].render()
                 }

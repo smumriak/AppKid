@@ -75,62 +75,64 @@ internal extension X11DisplayServer {
     }
 
     func serviceEventsQueue() {
-        guard hasEvents == true else {
-            return
-        }
-
-        guard XPending(display.handle) != 0 else {
-            hasEvents = false
-
-            return
-        }
-
-        var x11Event = CXlib.XEvent()
-
-        XNextEvent(display.handle, &x11Event)
-
-        let application = Application.shared
-
-        let timestamp = CFAbsoluteTimeGetCurrent() - application.startTime
-
-        let event: Event
-
-        do {
-            if x11Event.isCookie(with: display.xInput2ExtensionOpcode) {
-                if XGetEventData(display.handle, &x11Event.xcookie) == 0 {
-                    event = Event.ignoredDisplayServerEvent()
-                } else {
-                    defer {
-                        XFreeEventData(display.handle, &x11Event.xcookie)
-                    }
-
-                    // palkovnik:Hacking XInput2 event to have button number for motion events
-                    if x11Event.xcookie.xInput2EventType == .motion {
-                        x11Event.deviceEvent.detail = context.currentPressedMouseButton.rawValue
-                    }
-
-                    event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayServer: self)
-                }
-            } else {
-                event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
+        display.withLocked { display in
+            guard hasEvents == true else {
+                return
             }
-        } catch {
+
+            guard XPending(display.handle) != 0 else {
+                hasEvents = false
+
+                return
+            }
+
+            var x11Event = CXlib.XEvent()
+
+            XNextEvent(display.handle, &x11Event)
+
+            let application = Application.shared
+
+            let timestamp = CFAbsoluteTimeGetCurrent() - application.startTime
+
+            let event: Event
+
+            do {
+                if x11Event.isCookie(with: display.xInput2ExtensionOpcode) {
+                    if XGetEventData(display.handle, &x11Event.xcookie) == 0 {
+                        event = Event.ignoredDisplayServerEvent()
+                    } else {
+                        defer {
+                            XFreeEventData(display.handle, &x11Event.xcookie)
+                        }
+
+                        // palkovnik:Hacking XInput2 event to have button number for motion events
+                        if x11Event.xcookie.xInput2EventType == .motion {
+                            x11Event.deviceEvent.detail = context.currentPressedMouseButton.rawValue
+                        }
+
+                        event = try Event(xInput2Event: x11Event, timestamp: timestamp, displayServer: self)
+                    }
+                } else {
+                    event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
+                }
+            } catch {
 //            debugPrint("Failed to parse X11 Event with error: \(error)")
-            event = Event.ignoredDisplayServerEvent()
+                event = Event.ignoredDisplayServerEvent()
+            }
+
+            switch event.type {
+            case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
+                context.currentPressedMouseButton = event.xInput2Button
+
+            case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
+                context.currentPressedMouseButton = .none
+
+            default:
+                break
+            }
+
+            application.post(event: event, atStart: false)
         }
-
-        switch event.type {
-        case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
-            context.currentPressedMouseButton = event.xInput2Button
-
-        case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
-            context.currentPressedMouseButton = .none
-
-        default:
-            break
-        }
-
-        application.post(event: event, atStart: false)
     }
 
     func updateInputDevices() {

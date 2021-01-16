@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkMemoryPropertyFlagBits = CVulkan.VkMemoryPropertyFlagBits
+
 public extension VkMemoryPropertyFlagBits {
     static let deviceLocal = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     static let hostVisible = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT

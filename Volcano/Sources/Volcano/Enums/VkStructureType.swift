@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkStructureType = CVulkan.VkStructureType
+
 public extension VkStructureType {
     static let applicationInfo: VkStructureType = .VK_STRUCTURE_TYPE_APPLICATION_INFO
     static let instanceCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
@@ -322,8 +324,8 @@ public extension VkStructureType {
     static let imageDrmFormatModifierPropertiesEXT: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT
     static let validationCacheCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT
     static let shaderModuleValidationCacheCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT
-    static let physicalDevicePortabilitySubsetFeaturesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR
-    static let physicalDevicePortabilitySubsetPropertiesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR
+    // static let physicalDevicePortabilitySubsetFeaturesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR
+    // static let physicalDevicePortabilitySubsetPropertiesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_PROPERTIES_KHR
     static let pipelineViewportShadingRateImageStateCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV
     static let physicalDeviceShadingRateImageFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV
     static let physicalDeviceShadingRateImagePropertiesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV
@@ -408,9 +410,9 @@ public extension VkStructureType {
     static let physicalDeviceLineRasterizationFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT
     static let pipelineRasterizationLineStateCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT
     static let physicalDeviceLineRasterizationPropertiesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT
-    static let physicalDeviceShaderAtomicFloatFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT
+    // static let physicalDeviceShaderAtomicFloatFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT
     static let physicalDeviceIndexTypeUint8FeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT
-    static let physicalDeviceEXTendedDynamicStateFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT
+    // static let physicalDeviceEXTendedDynamicStateFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT
     static let physicalDevicePipelineExecutablePropertiesFeaturesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR
     static let pipelineInfoKHR: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR
     static let pipelineExecutablePropertiesKHR: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR
@@ -442,22 +444,22 @@ public extension VkStructureType {
     static let physicalDevicePipelineCreationCacheControlFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT
     static let physicalDeviceDiagnosticsConfigFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV
     static let deviceDiagnosticsConfigCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV
-    static let physicalDeviceFragmentDensityMap2FeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT
-    static let physicalDeviceFragmentDensityMap2PropertiesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT
-    static let physicalDeviceImageRobustnessFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT
-    static let copyBufferInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR
-    static let copyImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR
-    static let copyBufferToImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR
-    static let copyImageToBufferInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR
-    static let blitImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2_KHR
-    static let resolveImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR
-    static let bufferCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR
-    static let imageCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR
-    static let imageBlit2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2_KHR
-    static let bufferImageCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR
-    static let imageResolve2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR
-    static let physicalDevice4444FormatsFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT
-    static let directfbSurfaceCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT
+    // static let physicalDeviceFragmentDensityMap2FeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT
+    // static let physicalDeviceFragmentDensityMap2PropertiesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT
+    // static let physicalDeviceImageRobustnessFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT
+    // static let copyBufferInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR
+    // static let copyImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR
+    // static let copyBufferToImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR
+    // static let copyImageToBufferInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR
+    // static let blitImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2_KHR
+    // static let resolveImageInfo2KHR: VkStructureType = .VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR
+    // static let bufferCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR
+    // static let imageCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR
+    // static let imageBlit2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2_KHR
+    // static let bufferImageCopy2KHR: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR
+    // static let imageResolve2KHR: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR
+    // static let physicalDevice4444FormatsFeaturesEXT: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT
+    // static let directfbSurfaceCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT
     static let physicalDeviceVariablePointerFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTER_FEATURES
     static let physicalDeviceShaderDrawParameterFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETER_FEATURES
     static let debugReportCreateInfoEXT: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT

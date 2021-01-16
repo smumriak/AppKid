@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkSharingMode = CVulkan.VkSharingMode
+
 public extension VkSharingMode {
     static let exclusive: VkSharingMode = .VK_SHARING_MODE_EXCLUSIVE
     static let concurrent: VkSharingMode = .VK_SHARING_MODE_CONCURRENT

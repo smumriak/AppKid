@@ -39,6 +39,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
     // MARK: Initialization
 
     init(applicationName appName: String) {
+        XInitThreads()
         do {
             display = try SwiftXlib.Display()
         } catch {
@@ -147,7 +148,7 @@ extension X11DisplayServer {
         let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
 
         // let syncFence = XSyncCreateFence(display.handle, windowID, 0)
-
+        
         // withUnsafePointer(to: syncFence) {
         //     $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: syncFence)) {
         //         let optional: UnsafePointer<UInt8>? = $0

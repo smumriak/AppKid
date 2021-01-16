@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkDescriptorType = CVulkan.VkDescriptorType
+
 public extension VkDescriptorType {
 static let sampler: VkDescriptorType = .VK_DESCRIPTOR_TYPE_SAMPLER
 static let combinedImageSampler: VkDescriptorType = .VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER

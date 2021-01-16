@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkBufferUsageFlagBits = CVulkan.VkBufferUsageFlagBits
+
 public extension VkBufferUsageFlagBits {
     static let transferSource = VK_BUFFER_USAGE_TRANSFER_SRC_BIT
     static let transferDestination = VK_BUFFER_USAGE_TRANSFER_DST_BIT

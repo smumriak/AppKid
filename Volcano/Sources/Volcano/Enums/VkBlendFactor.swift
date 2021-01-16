@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkBlendFactor = CVulkan.VkBlendFactor
+
 public extension VkBlendFactor {
     static let zero: VkBlendFactor = .VK_BLEND_FACTOR_ZERO
     static let one: VkBlendFactor = .VK_BLEND_FACTOR_ONE

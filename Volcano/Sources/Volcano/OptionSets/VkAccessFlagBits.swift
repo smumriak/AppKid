@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkAccessFlagBits = CVulkan.VkAccessFlagBits
+
 public extension VkAccessFlagBits {
     static let indirectCommandRead = VK_ACCESS_INDIRECT_COMMAND_READ_BIT
     static let indexRead = VK_ACCESS_INDEX_READ_BIT

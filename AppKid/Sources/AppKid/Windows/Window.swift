@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreFoundation
 import CXlib
 import CairoGraphics
 
@@ -398,7 +399,7 @@ fileprivate extension Window {
         case .windowSyncRequest:
             nativeWindow.syncRequested = true
             nativeWindow.extendedSyncCounter = event.syncCounter
-
+            
             notificationCenter.post(name: .windowDidReceiveSyncRequest, object: self)
 
         default:

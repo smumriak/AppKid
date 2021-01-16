@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkPipelineBindPoint = CVulkan.VkPipelineBindPoint
+
 public extension VkPipelineBindPoint {
     static let graphics: VkPipelineBindPoint = .VK_PIPELINE_BIND_POINT_GRAPHICS
     static let compute: VkPipelineBindPoint = .VK_PIPELINE_BIND_POINT_COMPUTE

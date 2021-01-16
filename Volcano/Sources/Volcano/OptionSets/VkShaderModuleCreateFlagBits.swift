@@ -7,5 +7,7 @@
 
 import CVulkan
 
+public typealias VkShaderModuleCreateFlagBits = CVulkan.VkShaderModuleCreateFlagBits
+
 public extension VkShaderModuleCreateFlagBits {
 }

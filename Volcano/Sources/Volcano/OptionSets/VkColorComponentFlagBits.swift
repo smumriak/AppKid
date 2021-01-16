@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkColorComponentFlagBits = CVulkan.VkColorComponentFlagBits
+
 public extension VkColorComponentFlagBits {
     static let red = VK_COLOR_COMPONENT_R_BIT
     static let green = VK_COLOR_COMPONENT_G_BIT

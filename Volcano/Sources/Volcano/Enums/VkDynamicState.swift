@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkDynamicState = CVulkan.VkDynamicState
+
 public extension VkDynamicState {
     static let viewport: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT
     static let scissor: VkDynamicState = .VK_DYNAMIC_STATE_SCISSOR
@@ -25,17 +27,17 @@ public extension VkDynamicState {
     static let exclusiveScissor_nv: VkDynamicState = .VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_NV
     static let lineStippleExt: VkDynamicState = .VK_DYNAMIC_STATE_LINE_STIPPLE_EXT
     #if !os(macOS)
-    static let cullModeExt: VkDynamicState = .VK_DYNAMIC_STATE_CULL_MODE_EXT
-    static let frontFaceExt: VkDynamicState = .VK_DYNAMIC_STATE_FRONT_FACE_EXT
-    static let primitiveTopologyExt: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT
-    static let viewportWithCountExt: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT
-    static let scissorWithCountExt: VkDynamicState = .VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT
-    static let vertexInputBindingStrideExt: VkDynamicState = .VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT
-    static let depthTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE_EXT
-    static let depthWriteEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE_EXT
-    static let depthCompareOperationExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_COMPARE_OP_EXT
-    static let depthBoundsTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE_EXT
-    static let stencilTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE_EXT
-    static let stencilOperationExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_OP_EXT
+    // static let cullModeExt: VkDynamicState = .VK_DYNAMIC_STATE_CULL_MODE_EXT
+    // static let frontFaceExt: VkDynamicState = .VK_DYNAMIC_STATE_FRONT_FACE_EXT
+    // static let primitiveTopologyExt: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY_EXT
+    // static let viewportWithCountExt: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT
+    // static let scissorWithCountExt: VkDynamicState = .VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT
+    // static let vertexInputBindingStrideExt: VkDynamicState = .VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT
+    // static let depthTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE_EXT
+    // static let depthWriteEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE_EXT
+    // static let depthCompareOperationExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_COMPARE_OP_EXT
+    // static let depthBoundsTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE_EXT
+    // static let stencilTestEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE_EXT
+    // static let stencilOperationExt: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_OP_EXT
     #endif
 }

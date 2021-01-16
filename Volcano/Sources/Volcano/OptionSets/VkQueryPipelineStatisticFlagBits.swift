@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkQueryPipelineStatisticFlagBits = CVulkan.VkQueryPipelineStatisticFlagBits
+
 public extension VkQueryPipelineStatisticFlagBits {
     static let inputAssemblyVertices = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT
     static let inputAssemblyPrimitives = VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT

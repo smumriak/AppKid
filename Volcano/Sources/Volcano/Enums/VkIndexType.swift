@@ -7,6 +7,8 @@
 
 import CVulkan 
 
+public typealias VkIndexType = CVulkan.VkIndexType
+
 public extension VkIndexType {
     static let uint16: VkIndexType = .VK_INDEX_TYPE_UINT16
     static let uint32: VkIndexType = .VK_INDEX_TYPE_UINT32

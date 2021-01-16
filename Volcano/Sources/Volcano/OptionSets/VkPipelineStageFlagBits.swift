@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkPipelineStageFlagBits = CVulkan.VkPipelineStageFlagBits
+
 public extension VkPipelineStageFlagBits {
     static let topOfPipe = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT
     static let drawIndirect = VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT

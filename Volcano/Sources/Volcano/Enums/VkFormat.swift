@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkFormat = CVulkan.VkFormat
+
 public extension VkFormat {
     static let rgba8UNorm: VkFormat = .r8g8b8a8UNorm
 }
@@ -253,8 +255,8 @@ public extension VkFormat {
     static let astc10x10SFloatBlockExt: VkFormat = .VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK_EXT
     static let astc12x10SFloatBlockExt: VkFormat = .VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK_EXT
     static let astc12x12SFloatBlockExt: VkFormat = .VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK_EXT
-    static let a4r4g4b4UNormPack16Ext: VkFormat = .VK_FORMAT_A4R4G4B4_UNORM_PACK16_EXT
-    static let a4b4g4r4UNormPack16Ext: VkFormat = .VK_FORMAT_A4B4G4R4_UNORM_PACK16_EXT
+    // static let a4r4g4b4UNormPack16Ext: VkFormat = .VK_FORMAT_A4R4G4B4_UNORM_PACK16_EXT
+    // static let a4b4g4r4UNormPack16Ext: VkFormat = .VK_FORMAT_A4B4G4R4_UNORM_PACK16_EXT
     static let g8b8g8r8422UNormKHR: VkFormat = .VK_FORMAT_G8B8G8R8_422_UNORM_KHR
     static let b8g8r8g8422UNormKHR: VkFormat = .VK_FORMAT_B8G8R8G8_422_UNORM_KHR
     static let g8B8R83plane420UNormKHR: VkFormat = .VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM_KHR

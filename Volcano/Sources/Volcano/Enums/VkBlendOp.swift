@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkBlendOp = CVulkan.VkBlendOp
+
 public extension VkBlendOp {
     static let add: VkBlendOp = .VK_BLEND_OP_ADD
     static let subtract: VkBlendOp = .VK_BLEND_OP_SUBTRACT

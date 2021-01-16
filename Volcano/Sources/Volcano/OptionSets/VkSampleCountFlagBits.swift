@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkSampleCountFlagBits = CVulkan.VkSampleCountFlagBits
+
 public extension VkSampleCountFlagBits {
     static let one = VK_SAMPLE_COUNT_1_BIT
     static let two = VK_SAMPLE_COUNT_2_BIT

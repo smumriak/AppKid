@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkDependencyFlagBits = CVulkan.VkDependencyFlagBits
+
 public extension VkDependencyFlagBits {
     static let byRegion = VK_DEPENDENCY_BY_REGION_BIT
     static let deviceGroup = VK_DEPENDENCY_DEVICE_GROUP_BIT

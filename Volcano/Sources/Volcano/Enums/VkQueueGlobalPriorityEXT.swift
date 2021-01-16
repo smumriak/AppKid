@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkQueueGlobalPriorityEXT = CVulkan.VkQueueGlobalPriorityEXT
+
 public extension VkQueueGlobalPriorityEXT {
     static let low: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_LOW_EXT
     static let medium: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT

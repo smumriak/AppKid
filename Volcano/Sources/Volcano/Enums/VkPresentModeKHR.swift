@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkPresentModeKHR = CVulkan.VkPresentModeKHR
+
 public extension VkPresentModeKHR {
     static let immediate: VkPresentModeKHR = .VK_PRESENT_MODE_IMMEDIATE_KHR
     static let mailbox: VkPresentModeKHR = .VK_PRESENT_MODE_MAILBOX_KHR

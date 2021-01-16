@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkImageType = CVulkan.VkImageType
+
 public extension VkImageType {
     static let type1D: VkImageType = .VK_IMAGE_TYPE_1D
     static let type2D: VkImageType = .VK_IMAGE_TYPE_2D

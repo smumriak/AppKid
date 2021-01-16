@@ -46,7 +46,7 @@ class VulkanViewController: ViewController {
                     self.frameFinished = CFAbsoluteTimeGetCurrent()
                     happyFrame = true
                 } catch VulkanError.badResult(let errorCode) {
-                    if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
+                    if errorCode == .errorOutOfDate {
                         self.swapchainStarted = CFAbsoluteTimeGetCurrent()
                         try self.renderer?.clearSwapchain()
                         try self.renderer?.setupSwapchain()

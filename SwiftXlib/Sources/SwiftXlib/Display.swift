@@ -221,4 +221,11 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
     public func flush() {
         XFlush(handle)
     }
+
+    public func withLocked<T>(_ body: (Display) throws -> (T)) rethrows -> T {
+        XLockDisplay(handle)
+        defer { XUnlockDisplay(handle) }
+
+        return try body(self)
+    }
 }

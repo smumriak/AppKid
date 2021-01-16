@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkQueryResultFlagBits = CVulkan.VkQueryResultFlagBits
+
 public extension VkQueryResultFlagBits {
     static let sixtyFour = VK_QUERY_RESULT_64_BIT
     static let wait = VK_QUERY_RESULT_WAIT_BIT

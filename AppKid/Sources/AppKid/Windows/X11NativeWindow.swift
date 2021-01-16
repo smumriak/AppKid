@@ -5,9 +5,9 @@
 //  Created by Serhii Mumriak on 13.02.2020.
 //
 
-import TinyFoundation
 import Foundation
-
+import CoreFoundation
+import TinyFoundation
 import SwiftXlib
 import CXlib
 
@@ -141,6 +141,8 @@ public final class X11NativeWindow: NSObject, NativeWindow {
 
         let value = XSyncValue(hi: Int32(basicSyncCounter >> 32), lo: UInt32(basicSyncCounter & 0xFFFFFFFF))
         XSyncSetCounter(display.handle, syncCounter.basic, value)
+
+        display.flush()
     }
 
     public internal(set) var extendedSyncCounter: Int64 = 0
@@ -149,6 +151,8 @@ public final class X11NativeWindow: NSObject, NativeWindow {
 
         let value = XSyncValue(hi: Int32(extendedSyncCounter >> 32), lo: UInt32(extendedSyncCounter & 0xFFFFFFFF))
         XSyncSetCounter(display.handle, syncCounter.extended, value)
+
+        display.flush()
     }
 
     public var syncRequested: Bool = false

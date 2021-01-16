@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkComponentSwizzle = CVulkan.VkComponentSwizzle
+
 public extension VkComponentSwizzle {
     static let identity: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_IDENTITY
     static let zero: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_ZERO

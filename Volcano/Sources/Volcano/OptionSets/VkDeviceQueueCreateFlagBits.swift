@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkDeviceQueueCreateFlagBits = CVulkan.VkDeviceQueueCreateFlagBits
+
 public extension VkDeviceQueueCreateFlagBits {
     static let protected = VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT
 }

@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkShaderStageFlagBits = CVulkan.VkShaderStageFlagBits
+
 public extension VkShaderStageFlagBits {
     static let vertex = VK_SHADER_STAGE_VERTEX_BIT
     static let tessellationControl = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT

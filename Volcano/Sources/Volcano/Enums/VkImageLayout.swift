@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkImageLayout = CVulkan.VkImageLayout
+
 public extension VkImageLayout {
     static let undefined = VK_IMAGE_LAYOUT_UNDEFINED
     static let general = VK_IMAGE_LAYOUT_GENERAL

@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkPipelineCreateFlagBits = CVulkan.VkPipelineCreateFlagBits
+
 public extension VkPipelineCreateFlagBits {
     static let disableOptimization = VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT
     static let allowDerivatives = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT

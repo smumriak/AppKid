@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkStencilFaceFlagBits = CVulkan.VkStencilFaceFlagBits
+
 public extension VkStencilFaceFlagBits {
     static let faceFront = VK_STENCIL_FACE_FRONT_BIT
     static let faceBack = VK_STENCIL_FACE_BACK_BIT

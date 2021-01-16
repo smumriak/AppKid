@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkAttachmentDescriptionFlagBits = CVulkan.VkAttachmentDescriptionFlagBits
+
 public extension VkAttachmentDescriptionFlagBits {
     static let mayAlias = VK_ATTACHMENT_DESCRIPTION_MAY_ALIAS_BIT
 }

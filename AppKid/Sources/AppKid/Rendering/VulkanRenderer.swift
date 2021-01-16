@@ -10,10 +10,9 @@ import CoreFoundation
 import Volcano
 import TinyFoundation
 import CVulkan
-import cglm
 import SimpleGLM
 import ContentAnimation
-
+import CairoGraphics
 import CXlib
 import SwiftXlib
 
@@ -51,19 +50,12 @@ public final class VulkanRenderer {
     internal fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
 
-    fileprivate var vertices: [Vertex] = [
-        (position: vec2s(-0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
-        (position: vec2s(0.5, 0.5), color: vec3s(0.0, 1.0, 1.0)),
-        (position: vec2s(-0.5, 0.5), color: vec3s(0.0, 1.0, 0.0)),
-        (position: vec2s(0.5, -0.5), color: vec3s(1.0, 0.0, 1.0)),
+    fileprivate var vertices: [VertexDescriptor] = [
+        VertexDescriptor(),
+        VertexDescriptor(),
+        VertexDescriptor(),
+        VertexDescriptor(),
     ]
-
-    // fileprivate var vertices: [Vertex] = [
-    //     (position: vec2s(-0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
-    //     (position: vec2s(0.5, 0.5), color: vec3s(1.0, 0.0, 0.0)),
-    //     (position: vec2s(-0.5, 0.5), color: vec3s(1.0, 0.0, 0.0)),
-    //     (position: vec2s(0.5, -0.5), color: vec3s(1.0, 0.0, 0.0)),
-    // ]
 
     fileprivate var indices: [CUnsignedInt] = [
         0, 1, 2, 0, 3, 1,
@@ -74,7 +66,7 @@ public final class VulkanRenderer {
 
     var oldSwapchain: Swapchain?
     var swapchain: Swapchain!
-    var images: [Image]!
+    var images: [Volcano.Image]!
     var imageViews: [ImageView]!
 
     var pipelineLayout: SmartPointer<VkPipelineLayout_T>!
@@ -178,7 +170,7 @@ public final class VulkanRenderer {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
         images = try swapchain.getImages()
         imageViews = try images.map { try ImageView(image: $0) }
 
@@ -224,17 +216,30 @@ public final class VulkanRenderer {
 
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
+        // let xlibFence = window.nativeWindow.syncFence
+        // let display = window.nativeWindow.display
+        // XSyncResetFence(display.handle, xlibFence)
+
+        // defer {
+        //     XSyncTriggerFence(display.handle, xlibFence)
+        // }
+
         while true {
             do {
+                object.projection = window.projectionMatrix
                 try drawFrame()
                 break
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
+                if errorCode == .errorOutOfDate {
                     if skipRecreation == true {
                         break
                     }
 
                     try clearSwapchain()
+
+                    vertexBuffer = try createVertexBuffer()
+                    indexBuffer = try createIndexBuffer()
+                    
                     try setupSwapchain()
 
                     skipRecreation = true
@@ -251,7 +256,7 @@ public final class VulkanRenderer {
 //                try drawFrame()
 //                happyFrame = true
 //            } catch VulkanError.badResult(let errorCode) {
-//                if errorCode == VK_ERROR_OUT_OF_DATE_KHR {
+//                if errorCode == .errorOutOfDate {
 //                    try clearSwapchain()
 //                    try setupSwapchain()
 //                } else {
@@ -264,6 +269,10 @@ public final class VulkanRenderer {
     public func updateRenderTargetSize() throws {
         do {
             try clearSwapchain()
+
+            vertexBuffer = try createVertexBuffer()
+            indexBuffer = try createIndexBuffer()
+
             try setupSwapchain()
         } catch {
             debugPrint("Failed to recreate swapchain with error: \(error)")
@@ -271,7 +280,8 @@ public final class VulkanRenderer {
     }
 
     public func drawFrame() throws {
-        let startTime = CFAbsoluteTimeGetCurrent()
+        // let startTime = CFAbsoluteTimeGetCurrent()
+        // debugPrint("Draw frame start: \(startTime)")
         try fence.reset()
         
         let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
@@ -289,8 +299,9 @@ public final class VulkanRenderer {
         try presentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
 
         try fence.wait()
-
-        debugPrint("Frame draw took \((CFAbsoluteTimeGetCurrent() - startTime) * 1000.0) ms")
+        // let endTime = CFAbsoluteTimeGetCurrent()
+        // debugPrint("Draw frame end: \(endTime)")
+        // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
     
     func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
@@ -316,26 +327,35 @@ public final class VulkanRenderer {
         viewportState.viewportCount = 1
         viewportState.scissorCount = 1
 
-        var vertexInputBindingDescription = VkVertexInputBindingDescription()
-        vertexInputBindingDescription.binding = 0
-        vertexInputBindingDescription.stride = CUnsignedInt(MemoryLayout<Vertex>.stride)
-        vertexInputBindingDescription.inputRate = .vertex
+        // var vertexInputBindingDescription = VkVertexInputBindingDescription()
+        // vertexInputBindingDescription.binding = 0
+        // vertexInputBindingDescription.stride = CUnsignedInt(MemoryLayout<Vertex>.stride)
+        // vertexInputBindingDescription.inputRate = .vertex
 
-        let vertexInputBindingDescriptions = [vertexInputBindingDescription]
+        // let vertexInputBindingDescriptions = [vertexInputBindingDescription]
 
-        var positionAttributeDescription = VkVertexInputAttributeDescription()
-        positionAttributeDescription.binding = 0
-        positionAttributeDescription.location = 0
-        positionAttributeDescription.format = .r32g32SFloat
-        positionAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.position)!)
+        // var positionAttributeDescription = VkVertexInputAttributeDescription()
+        // positionAttributeDescription.binding = 0
+        // positionAttributeDescription.location = 0
+        // positionAttributeDescription.format = .r32g32SFloat
+        // positionAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.position)!)
 
-        var colorAttributeDescription = VkVertexInputAttributeDescription()
-        colorAttributeDescription.binding = 0
-        colorAttributeDescription.location = 1
-        colorAttributeDescription.format = .r32g32b32SFloat
-        colorAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.color)!)
+        // var colorAttributeDescription = VkVertexInputAttributeDescription()
+        // colorAttributeDescription.binding = 0
+        // colorAttributeDescription.location = 1
+        // colorAttributeDescription.format = .r32g32b32a32SFloat
+        // colorAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.color)!)
 
-        let inputAttributeDescrioptions = [positionAttributeDescription, colorAttributeDescription]
+        // var textureCoordinateAttributeDescription = VkVertexInputAttributeDescription()
+        // textureCoordinateAttributeDescription.binding = 0
+        // textureCoordinateAttributeDescription.location = 2
+        // textureCoordinateAttributeDescription.format = .r32g32SFloat
+        // textureCoordinateAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.textureCoordinates)!)
+
+        // let inputAttributeDescrioptions = [positionAttributeDescription, colorAttributeDescription, textureCoordinateAttributeDescription]
+
+        let vertexInputBindingDescriptions = [VertexDescriptor.inputBindingDescription()]
+        let inputAttributeDescrioptions = VertexDescriptor.attributesDescriptions()
         
         var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
         vertexInputInfo.sType = .pipelineVertexInputStateCreateInfo
@@ -379,9 +399,9 @@ public final class VulkanRenderer {
 
         var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
         colorBlendAttachment.colorWriteMask = VkColorComponentFlagBits.rgba.rawValue
-        colorBlendAttachment.blendEnable = false.vkBool
-        colorBlendAttachment.srcColorBlendFactor = .one
-        colorBlendAttachment.dstColorBlendFactor = .zero
+        colorBlendAttachment.blendEnable = true.vkBool
+        colorBlendAttachment.srcColorBlendFactor = .sourceAlpha
+        colorBlendAttachment.dstColorBlendFactor = .oneMinusSourceAlpha
         colorBlendAttachment.colorBlendOp = .add
         colorBlendAttachment.srcAlphaBlendFactor = .one
         colorBlendAttachment.dstAlphaBlendFactor = .zero
@@ -472,7 +492,7 @@ public final class VulkanRenderer {
 
     func createCommandBuffers() throws -> [CommandBuffer] {
         let renderArea = VkRect2D(offset: VkOffset2D(x: 0, y: 0), extent: swapchain.size)
-        let clearColor = VkClearValue(color: VkClearColorValue(float32: (1.0, 1.0, 1.0, 1.0)))
+        let clearColor = VkClearValue(color: .white)
 
         var viewport = VkViewport()
         viewport.x = 0.0
@@ -512,7 +532,11 @@ public final class VulkanRenderer {
     }
 
     func createVertexBuffer() throws -> Buffer {
-        let bufferSize = VkDeviceSize(MemoryLayout<Vertex>.stride * vertices.count)
+        if let view = window.subviews.first?.subviews.first?.subviews.first {
+            vertices = view.vertices
+        }
+
+        let bufferSize = VkDeviceSize(MemoryLayout<VertexDescriptor>.stride * vertices.count)
 
         let stagingBuffer = try Buffer(device: device,
                                        size: bufferSize,
@@ -685,15 +709,40 @@ public final class VulkanRenderer {
         let bounds = self.window.bounds
         
         let model = mat4s.identity
-        let view = mat4s.identity 
+        let view = mat4s.identity
         // let view = mat4s(lootAt: vec3s(2.0, 2.0, 2.0), center: vec3s(0.0, 0.0, 0.0), up: vec3s(0.0, 0.0, 1.0))
-        let projection = mat4s.identity
+        // let view = mat4s(scaleVector: vec3s(x: 100.0, y: 100.0, z: 1.0))
+        // let projection = mat4s.identity
         // let projection = mat4s(perspectiveFieldOfViewY: .pi / 4.0, aspectRatio: Float(bounds.size.width) / Float(bounds.size.height), near: 0.1, far: 10.0)
+        let projection = window.projectionMatrix
         return (model: model, view: view, projection: projection)
     }()
 
+    var angle: Float = 0.0
+
     lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        self.object.model.rotate(by: Float.pi / 90, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+        self.angle += .pi / 90
+    
+        if let view = self.window.subviews.first?.subviews.first?.subviews.first {
+            let bounds = view.bounds
+            let center = view.center
+
+            var mat: mat4s = .identity
+            mat = mat * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
+            mat = mat * mat4s(rotationAngle: self.angle, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+            mat = mat * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
+            
+            self.object.model = mat
+
+            // self.object.view = .identity
+            //     // * mat4s(translationVector: vec3s(x: -bounds.minX, y: -bounds.minY, z: 0.0))
+            //     // * mat4s(translationVector: vec3s(x: -bounds.width * 0.5, y: -bounds.height * 0.5, z: 0.0))
+            //     * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
+            //     * mat4s(rotationAngle: self.angle, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+            //     * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
+            // // * mat4s(translationVector: vec3s(x: bounds.width * 0.5, y: bounds.height * 0.5, z: 0.0))
+            // // * mat4s(translationVector: vec3s(x: bounds.minX, y: bounds.minY, z: 0.0))
+        }
     }
 
     func update(uniformBuffer: Buffer) throws {
@@ -703,5 +752,215 @@ public final class VulkanRenderer {
     }
 }
 
-typealias Vertex = (position: vec2s, color: vec3s)
+typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
 typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
+
+func lol() {
+    let view = View(with: .zero)
+    let center = view.center
+    let bounds = view.bounds
+
+    let translate = mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
+    let scale = mat4s(scaleVector: vec3s(x: bounds.width, y: bounds.height, z: 0.0))
+
+    _ = scale * translate
+}
+
+fileprivate extension Window {
+    var projectionMatrix: mat4s {
+        return
+            mat4s(scaleVector: vec3s(x: bounds.width != 0 ? 2.0 / bounds.width : 1.0, y: bounds.height != 0 ? 2.0 / bounds.height : 1.0, z: 1.0))
+            * mat4s(translationVector: vec3s(x: -bounds.width * 0.5, y: -bounds.height * 0.5, z: 1.0))
+            * mat4s(scaleVector: vec3s(x: contentScaleFactor, y: contentScaleFactor, z: contentScaleFactor))
+    }
+}
+
+fileprivate extension CGColor {
+    var vec3: vec3s {
+        vec3s(r: red, g: green, b: blue)
+    }
+    
+    var vec4: vec4s {
+        vec4s(r: red, g: green, b: blue, a: alpha)
+    }
+}
+
+fileprivate extension View {
+    var vertices: [VertexDescriptor] {
+        let color = backgroundColor.vec4
+        let center = self.center
+        let bounds = self.bounds
+
+        let topLeft = VertexDescriptor(position: vec2s(center.x - bounds.width * 0.5, center.y - bounds.height * 0.5),
+                                       color: color,
+                                       textureCoordinates: vec2s(x: 0.0, y: 0.0),
+                                       transform: .identity)
+
+        let bottomRight = VertexDescriptor(position: vec2s(center.x + bounds.width * 0.5, center.y + bounds.height * 0.5),
+                                           color: color,
+                                           textureCoordinates: vec2s(x: 1.0, y: 1.0),
+                                           transform: .identity)
+
+        let bottomLeft = VertexDescriptor(position: vec2s(center.x - bounds.width * 0.5, center.y + bounds.height * 0.5),
+                                          color: color,
+                                          textureCoordinates: vec2s(x: 0.0, y: 1.0),
+                                          transform: .identity)
+
+        let topRight = VertexDescriptor(position: vec2s(center.x + bounds.width * 0.5, center.y - bounds.height * 0.5),
+                                        color: color,
+                                        textureCoordinates: vec2s(x: 1.0, y: 0.0),
+                                        transform: .identity)
+
+        return [topLeft, bottomRight, bottomLeft, topRight]
+    }
+}
+
+struct VertexDescriptor {
+    var position: vec2s = .zero
+    var color: vec4s = .zero
+    var textureCoordinates: vec2s = .zero
+    var transform: mat4s = .identity
+}
+
+protocol VertexInput {
+    static func inputBindingDescription(binding: CUnsignedInt) -> VkVertexInputBindingDescription
+    static func attributesDescriptions(binding: CUnsignedInt) -> [VkVertexInputAttributeDescription]
+
+    static func attributesDescriptions<T: VertexInputAttribute>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
+}
+
+extension VertexInput {
+    static func attributesDescriptions<T>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] where T: VertexInputAttribute {
+        return T.descriptions(binding: binding, offset: CUnsignedInt(MemoryLayout<Self>.offset(of: keyPath)!), location: location)
+    }
+}
+
+protocol VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
+}
+
+extension VertexDescriptor: VertexInput {
+    static func inputBindingDescription(binding: CUnsignedInt = 0) -> VkVertexInputBindingDescription {
+        var result = VkVertexInputBindingDescription()
+        result.binding = 0
+        result.stride = CUnsignedInt(MemoryLayout<VertexDescriptor>.stride)
+        result.inputRate = .vertex
+
+        return result
+    }
+
+    static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
+        return attributesDescriptions(for: \.position, binding: binding, location: 0)
+            + attributesDescriptions(for: \.color, binding: binding, location: 1)
+            + attributesDescriptions(for: \.textureCoordinates, binding: binding, location: 2)
+            + attributesDescriptions(for: \.transform, binding: binding, location: 3)
+    }
+}
+
+extension mat2s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        var result: [VkVertexInputAttributeDescription] = []
+        let stride = CUnsignedInt(MemoryLayout<vec2s>.stride)
+
+        for i: CUnsignedInt in 0..<2 {
+            var attributeDescription = VkVertexInputAttributeDescription()
+            attributeDescription.binding = binding
+            attributeDescription.location = location + i
+            attributeDescription.format = .r32g32SFloat
+            attributeDescription.offset = offset + stride * i
+            result.append(attributeDescription)
+        }
+
+        return result
+    }
+}
+
+extension mat3s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        var result: [VkVertexInputAttributeDescription] = []
+        let stride = CUnsignedInt(MemoryLayout<vec3s>.stride)
+
+        for i: CUnsignedInt in 0..<3 {
+            var attributeDescription = VkVertexInputAttributeDescription()
+            attributeDescription.binding = binding
+            attributeDescription.location = location + i
+            attributeDescription.format = .r32g32b32SFloat
+            attributeDescription.offset = offset + stride * i
+            result.append(attributeDescription)
+        }
+
+        return result
+    }
+}
+
+extension mat4s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        var result: [VkVertexInputAttributeDescription] = []
+        let stride = CUnsignedInt(MemoryLayout<vec4s>.stride)
+
+        for i: CUnsignedInt in 0..<4 {
+            var attributeDescription = VkVertexInputAttributeDescription()
+            attributeDescription.binding = binding
+            attributeDescription.location = location + i
+            attributeDescription.format = .r32g32b32a32SFloat
+            attributeDescription.offset = offset + stride * i
+            result.append(attributeDescription)
+        }
+
+        return result
+    }
+}
+
+extension vec2s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32SFloat, offset: offset)]
+    }
+}
+
+extension vec3s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32SFloat, offset: offset)]
+    }
+}
+
+extension vec4s: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32a32SFloat, offset: offset)]
+    }
+}
+
+extension Float: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32SFloat, offset: offset)]
+    }
+}
+
+extension Double: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32SFloat, offset: offset)]
+    }
+}
+
+extension Int32: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32SInt, offset: offset)]
+    }
+}
+
+extension UInt32: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32UInt, offset: offset)]
+    }
+}
+
+extension Int64: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32SInt, offset: offset)]
+    }
+}
+
+extension UInt64: VertexInputAttribute {
+    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
+        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32UInt, offset: offset)]
+    }
+}

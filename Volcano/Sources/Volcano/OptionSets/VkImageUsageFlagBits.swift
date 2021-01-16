@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkImageUsageFlagBits = CVulkan.VkImageUsageFlagBits
+
 public extension VkImageUsageFlagBits {
     static let transferSrc = VK_IMAGE_USAGE_TRANSFER_SRC_BIT
     static let transferDst = VK_IMAGE_USAGE_TRANSFER_DST_BIT

@@ -7,6 +7,8 @@
 
 import CVulkan
 
+public typealias VkColorSpaceKHR = CVulkan.VkColorSpaceKHR
+
 public extension VkColorSpaceKHR {
     static let srgbNonlinear: VkColorSpaceKHR = .VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
     static let displayP3Nonlinear: VkColorSpaceKHR = .VK_COLOR_SPACE_DISPLAY_P3_NONLINEAR_EXT

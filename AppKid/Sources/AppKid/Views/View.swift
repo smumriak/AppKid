@@ -71,6 +71,8 @@ open class View: Responder {
         }
     }
 
+    var contentScaleFactor: CGFloat = 1.0
+
     fileprivate var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
     internal var transformToWindow: CairoGraphics.CGAffineTransform {
         rebuildTransformsIfNeeded()
