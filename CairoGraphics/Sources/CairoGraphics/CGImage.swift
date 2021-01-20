@@ -8,7 +8,7 @@
 import Foundation
 import CoreFoundation
 import TinyFoundation
-import STBImageRead
+// import STBImageRead
 
 public final class CGImage {
     // public internal(set) var isMask: Bool
