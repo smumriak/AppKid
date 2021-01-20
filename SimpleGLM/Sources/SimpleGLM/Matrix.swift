@@ -196,6 +196,34 @@ extension mat4s: AffineTransformableMatrix {
     }
 
     @inlinable @inline(__always)
+    public init<T: BinaryFloatingPoint>(m00: T, m01: T, m02: T, m03: T,
+                                        m10: T, m11: T, m12: T, m13: T,
+                                        m20: T, m21: T, m22: T, m23: T,
+                                        m30: T, m31: T, m32: T, m33: T) {
+        self.init()
+        
+        self.m00 = Float(m00)
+        self.m01 = Float(m01)
+        self.m02 = Float(m02)
+        self.m03 = Float(m03)
+
+        self.m10 = Float(m10)
+        self.m11 = Float(m11)
+        self.m12 = Float(m12)
+        self.m13 = Float(m13)
+
+        self.m20 = Float(m20)
+        self.m21 = Float(m21)
+        self.m22 = Float(m22)
+        self.m23 = Float(m23)
+
+        self.m30 = Float(m30)
+        self.m31 = Float(m31)
+        self.m32 = Float(m32)
+        self.m33 = Float(m33)
+    }
+
+    @inlinable @inline(__always)
     public init<T: BinaryFloatingPoint>(rotationAngle angle: T, axis: vec3s) { self = glms_rotate_make(Float(angle), axis) }
 
     @inlinable @inline(__always)

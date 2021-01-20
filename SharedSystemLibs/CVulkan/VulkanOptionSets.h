@@ -13,7 +13,6 @@
 AK_EXISTING_OPTIONS(VkFormatFeatureFlagBits);
 AK_EXISTING_OPTIONS(VkImageUsageFlagBits);
 AK_EXISTING_OPTIONS(VkImageCreateFlagBits);
-AK_EXISTING_OPTIONS(VkSampleCountFlagBits);
 AK_EXISTING_OPTIONS(VkQueueFlagBits);
 AK_EXISTING_OPTIONS(VkMemoryPropertyFlagBits);
 AK_EXISTING_OPTIONS(VkMemoryHeapFlagBits);

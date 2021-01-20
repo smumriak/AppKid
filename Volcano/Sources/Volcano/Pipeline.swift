@@ -8,5 +8,87 @@
 import TinyFoundation
 import CVulkan
 
-public final class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
+public class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
+    public internal(set) var layout: SmartPointer<VkPipelineLayout_T>
+
+    public init(device: Device, handlePointer: SmartPointer<VkPipeline_T>, layout: SmartPointer<VkPipelineLayout_T>) throws {
+        self.layout = layout
+
+        try super.init(device: device, handlePointer: handlePointer)
+    }
+}
+
+public final class GraphicsPipeline: Pipeline {
+    public internal(set) var renderPass: RenderPass
+    public internal(set) var subpassIndex: Int
+
+    public init(device: Device, descriptor pipelineDescriptor: GraphicsPipelineDescriptor, renderPass: RenderPass, subpassIndex: Int) throws {
+        let descriptorSetLayouts: [VkDescriptorSetLayout?] = pipelineDescriptor.descriptorSetLayouts.map { $0.pointer }
+
+        let layout: SmartPointer<VkPipelineLayout_T> = try descriptorSetLayouts.withUnsafeBufferPointer { descriptorSetLayouts in
+            return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
+                var info = VkPipelineLayoutCreateInfo()
+                info.sType = .pipelineLayoutCreateInfo
+                info.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
+                info.pSetLayouts = descriptorSetLayouts.baseAddress!
+
+                info.pushConstantRangeCount = 0
+                info.pPushConstantRanges = pushConstants.baseAddress!
+
+                return try device.create(with: &info)
+            }
+        }
+
+        let handlePointer: SmartPointer<VkPipeline_T> =
+            try pipelineDescriptor.withVertexStateCreateInfoPointer { viewportStateInfo in
+                return try pipelineDescriptor.withVertexInputCreateInfoPointer { vertexInputInfo in
+                    return try pipelineDescriptor.withInputAssemblyCreateInfoPointer { inputAssemblyInfo in
+                        return try pipelineDescriptor.withRasterizationStateCreateInfoPointer { rasterizationStateInfo in
+                            return try pipelineDescriptor.withMultisampleStateCreateInfoPointer { multisampleStateInfo in
+                                return try pipelineDescriptor.withColorBlendStateCreateInfo { colorBlendStateCreateInfo in
+                                    return try pipelineDescriptor.withDynamicStateCreateInfo { dynamicStateInfo in
+                                        return try pipelineDescriptor.withStageCreateInfosBufferPointer { stageInfos in
+                                            var info = VkGraphicsPipelineCreateInfo()
+                                            info.sType = .graphicsPipelineCreateInfo
+
+                                            info.pViewportState = viewportStateInfo
+                                            info.pVertexInputState = vertexInputInfo
+                                            info.pInputAssemblyState = inputAssemblyInfo
+                                            info.pRasterizationState = rasterizationStateInfo
+                                            info.pMultisampleState = multisampleStateInfo
+                                            info.pColorBlendState = colorBlendStateCreateInfo
+                                            info.pDynamicState = dynamicStateInfo
+
+                                            info.stageCount = CUnsignedInt(stageInfos.count)
+                                            info.pStages = stageInfos.baseAddress!
+
+                                            info.layout = layout.pointer
+                                            info.renderPass = renderPass.handle
+                                            info.subpass = CUnsignedInt(subpassIndex)
+
+                                            info.basePipelineHandle = nil
+                                            info.basePipelineIndex = -1
+
+                                            var handle: UnsafeMutablePointer<VkPipeline_T>?
+                                            try vulkanInvoke {
+                                                vkCreateGraphicsPipelines(device.handle, nil, 1, &info, nil, &handle)
+                                            }
+
+                                            return SmartPointer(with: handle!) { [device] in
+                                                vkDestroyPipeline(device.handle, $0, nil)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        self.renderPass = renderPass
+        self.subpassIndex = subpassIndex
+
+        try super.init(device: device, handlePointer: handlePointer, layout: layout)
+    }
 }

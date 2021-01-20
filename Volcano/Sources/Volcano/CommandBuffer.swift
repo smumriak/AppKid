@@ -26,7 +26,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
             vkAllocateCommandBuffers(device.handle, &info, &handle)
         }
 
-        let handlePointer = SmartPointer(with: handle!) { [unowned device, unowned commandPool] in
+        let handlePointer = SmartPointer(with: handle!) { [device, commandPool] in
             var mutablePointer: VkCommandBuffer? = $0
             vkFreeCommandBuffers(device.handle, commandPool.handle, 1, &mutablePointer)
         }
@@ -76,10 +76,14 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func bind(pipeline: SmartPointer<VkPipeline_T>, bindPoint: VkPipelineBindPoint = .graphics) throws {
+    public func bind(pipeline: Pipeline, bindPoint: VkPipelineBindPoint) throws {
         try vulkanInvoke {
-            vkCmdBindPipeline(handle, bindPoint, pipeline.pointer)
+            vkCmdBindPipeline(handle, bindPoint, pipeline.handle)
         }
+    }
+
+    public func bind(pipeline: GraphicsPipeline) throws {
+        try bind(pipeline:pipeline, bindPoint: .graphics)
     }
 
     public func setViewports(_ viewports: [VkViewport]) throws {

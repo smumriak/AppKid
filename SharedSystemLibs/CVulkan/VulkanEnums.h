@@ -34,5 +34,10 @@ AK_EXISTING_ENUM(VkImageViewType);
 AK_EXISTING_ENUM(VkComponentSwizzle);
 AK_EXISTING_ENUM(VkQueueGlobalPriorityEXT);
 AK_EXISTING_ENUM(VkResult);
+AK_EXISTING_ENUM(VkPolygonMode);
+AK_EXISTING_ENUM(VkFrontFace);
+AK_EXISTING_ENUM(VkPrimitiveTopology);
+AK_EXISTING_ENUM(VkLogicOp);
+AK_EXISTING_ENUM(VkSampleCountFlagBits);
 
 #endif /* VulkanEnums_h */

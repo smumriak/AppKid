@@ -7,8 +7,9 @@
 
 import Foundation
 import CairoGraphics
+import SimpleGLM
 
-//palkovnik:TODO:Implement this thing using mat4 from cglm
+// palkovnik:TODO:Implement this thing using mat4 from cglm
 
 public struct CATransform3D {
     public var m11: CGFloat
@@ -95,5 +96,46 @@ extension CATransform3D: Equatable {
             lhs.m42 == rhs.m42 &&
             lhs.m43 == rhs.m43 &&
             lhs.m44 == rhs.m44
+    }
+}
+
+public extension CGAffineTransform {
+    var transform3D: CATransform3D {
+        var result = CATransform3D.identity
+
+        result.m11 = a
+        result.m12 = b
+        result.m21 = c
+        result.m22 = d
+        result.m31 = tx
+        result.m32 = ty
+
+        return result
+    }
+
+    var mat4: mat4s {
+        var result = mat4s.identity
+
+        result.m00 = Float(a)
+        result.m01 = Float(b)
+        result.m10 = Float(c)
+        result.m11 = Float(d)
+        result.m20 = Float(tx)
+        result.m21 = Float(ty)
+
+        return result
+    }
+}
+
+public extension CATransform3D {
+    var affineTransform: CGAffineTransform {
+        CGAffineTransform(a: m11, b: m12, c: m21, d: m22, tx: m31, ty: m32)
+    }
+
+    var mat4: mat4s {
+        mat4s(m00: m11, m01: m12, m02: m13, m03: m14,
+              m10: m21, m11: m22, m12: m23, m13: m24,
+              m20: m31, m21: m32, m22: m33, m23: m34,
+              m30: m41, m31: m42, m32: m43, m33: m44)
     }
 }

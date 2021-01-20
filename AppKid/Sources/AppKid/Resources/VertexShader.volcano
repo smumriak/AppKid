@@ -12,15 +12,17 @@ layout(binding = 0) uniform UniformBufferObject
 } matrices;
 
 layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec4 inColor;
+layout(location = 1) in vec4 backgrkoundColor;
 layout(location = 2) in vec2 textureCoordinates;
 layout(location = 3) in mat4 transform;
+layout(location = 7) in float borderWidth;
+layout(location = 8) in vec4 borderColor;
+layout(location = 9) in float cornerRadius;
 
 layout(location = 0) out vec4 fragmentColor;
 
 void main() 
 {
     gl_Position = matrices.proj * matrices.view * matrices.model * vec4(inPosition, 0.0, 1.0);
-    // gl_Position = vec4(inPosition, 0.0, 1.0);
-    fragmentColor = inColor;
+    fragmentColor = backgrkoundColor;
 }

@@ -180,7 +180,7 @@ class RootViewController: ViewController {
     }
 
     deinit {
-        // transformTimer.invalidate()
+        transformTimer.invalidate()
         // sensorTimer.invalidate()
     }
 
@@ -204,7 +204,7 @@ class RootViewController: ViewController {
         view.add(subview: closeCurrentWindow)
         view.add(subview: closeOtherWindows)
 
-        // RunLoop.current.add(transformTimer, forMode: .common)
+        RunLoop.current.add(transformTimer, forMode: .common)
         // RunLoop.current.add(sensorTimer, forMode: .common)
     }
 

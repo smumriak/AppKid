@@ -69,8 +69,7 @@ public final class VulkanRenderer {
     var images: [Volcano.Image]!
     var imageViews: [ImageView]!
 
-    var pipelineLayout: SmartPointer<VkPipelineLayout_T>!
-    var pipeline: SmartPointer<VkPipeline_T>!
+    var pipeline: GraphicsPipeline!
     var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
     var vertexBuffer: Buffer!
@@ -303,185 +302,52 @@ public final class VulkanRenderer {
         // debugPrint("Draw frame end: \(endTime)")
         // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
-    
-    func createGraphicsPipeline() throws -> SmartPointer<VkPipeline_T> {
-        let descriptorSetLayouts: [VkDescriptorSetLayout?] = [descriptorSetLayout].map { $0.pointer }
 
-        var pipelineLayoutInfo = VkPipelineLayoutCreateInfo()
-        pipelineLayoutInfo.sType = .pipelineLayoutCreateInfo
+    func createGraphicsPipeline() throws -> GraphicsPipeline {
+        let descriptor = GraphicsPipelineDescriptor()
+        descriptor.vertexShader = vertexShader
+        descriptor.fragmentShader = fragmentShader
 
-        descriptorSetLayouts.withUnsafeBufferPointer { descriptorSetLayouts in
-            pipelineLayoutInfo.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
-            pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.baseAddress!
-        }
+        descriptor.descriptorSetLayouts = [descriptorSetLayout]
 
-        pipelineLayoutInfo.pushConstantRangeCount = 0
-        pipelineLayoutInfo.pPushConstantRanges = nil
+        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
-        pipelineLayout = try device.create(with: &pipelineLayoutInfo)
+        descriptor.vertexInputBindingDescriptions = [VertexDescriptor.inputBindingDescription()]
+        descriptor.inputAttributeDescrioptions = VertexDescriptor.attributesDescriptions()
 
-        var viewportState = VkPipelineViewportStateCreateInfo()
-        viewportState.sType = .pipelineViewportStateCreateInfo
-        viewportState.pNext = nil
-        viewportState.flags = VkPipelineViewportStateCreateFlags()
-        viewportState.viewportCount = 1
-        viewportState.scissorCount = 1
+        descriptor.inputPrimitiveTopology = .triangleList
+        descriptor.primitiveRestartEnabled = false
 
-        // var vertexInputBindingDescription = VkVertexInputBindingDescription()
-        // vertexInputBindingDescription.binding = 0
-        // vertexInputBindingDescription.stride = CUnsignedInt(MemoryLayout<Vertex>.stride)
-        // vertexInputBindingDescription.inputRate = .vertex
+        descriptor.depthClampEnabled = false
+        descriptor.discardEnabled = false
+        descriptor.polygonMode = .fill
+        descriptor.cullModeFlags = []
+        descriptor.frontFace = .counterClockwise
+        descriptor.depthBiasEnabled = false
+        descriptor.depthBiasConstantFactor = 0.0
+        descriptor.depthBiasClamp = 0.0
+        descriptor.depthBiasSlopeFactor = 0.0
+        descriptor.lineWidth = 1.0
 
-        // let vertexInputBindingDescriptions = [vertexInputBindingDescription]
+        descriptor.sampleShadingEnabled = false
+        descriptor.rasterizationSamples = .one
+        descriptor.minSampleShading = 1.0
+        descriptor.sampleMasks = []
+        descriptor.alphaToCoverageEnabled = false
+        descriptor.alphaToOneEnabled = false
 
-        // var positionAttributeDescription = VkVertexInputAttributeDescription()
-        // positionAttributeDescription.binding = 0
-        // positionAttributeDescription.location = 0
-        // positionAttributeDescription.format = .r32g32SFloat
-        // positionAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.position)!)
+        descriptor.logicOperationEnabled = false
+        descriptor.logicOperation = .copy
+        descriptor.colorBlendAttachments = [.rgbaBlend]
+        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
 
-        // var colorAttributeDescription = VkVertexInputAttributeDescription()
-        // colorAttributeDescription.binding = 0
-        // colorAttributeDescription.location = 1
-        // colorAttributeDescription.format = .r32g32b32a32SFloat
-        // colorAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.color)!)
-
-        // var textureCoordinateAttributeDescription = VkVertexInputAttributeDescription()
-        // textureCoordinateAttributeDescription.binding = 0
-        // textureCoordinateAttributeDescription.location = 2
-        // textureCoordinateAttributeDescription.format = .r32g32SFloat
-        // textureCoordinateAttributeDescription.offset = CUnsignedInt(MemoryLayout<Vertex>.offset(of: \Vertex.textureCoordinates)!)
-
-        // let inputAttributeDescrioptions = [positionAttributeDescription, colorAttributeDescription, textureCoordinateAttributeDescription]
-
-        let vertexInputBindingDescriptions = [VertexDescriptor.inputBindingDescription()]
-        let inputAttributeDescrioptions = VertexDescriptor.attributesDescriptions()
-        
-        var vertexInputInfo = VkPipelineVertexInputStateCreateInfo()
-        vertexInputInfo.sType = .pipelineVertexInputStateCreateInfo
-
-        vertexInputBindingDescriptions.withUnsafeBufferPointer {
-            vertexInputInfo.vertexBindingDescriptionCount = CUnsignedInt($0.count)
-            vertexInputInfo.pVertexBindingDescriptions = $0.baseAddress!
-        }
-
-        inputAttributeDescrioptions.withUnsafeBufferPointer {
-            vertexInputInfo.vertexAttributeDescriptionCount = CUnsignedInt($0.count)
-            vertexInputInfo.pVertexAttributeDescriptions = $0.baseAddress!
-        }
-
-        var inputAssembly = VkPipelineInputAssemblyStateCreateInfo()
-        inputAssembly.sType = .pipelineInputAssemblyStateCreateInfo
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
-        inputAssembly.primitiveRestartEnable = false.vkBool
-
-        var rasterizer = VkPipelineRasterizationStateCreateInfo()
-        rasterizer.sType = .pipelineRasterizationStateCreateInfo
-        rasterizer.depthClampEnable = false.vkBool
-        rasterizer.rasterizerDiscardEnable = false.vkBool
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL
-        rasterizer.lineWidth = 1.0
-        rasterizer.cullMode = VkCullModeFlagBits.none.rawValue
-        rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE
-        rasterizer.depthBiasEnable = false.vkBool
-        rasterizer.depthBiasConstantFactor = 0.0
-        rasterizer.depthBiasClamp = 0.0
-        rasterizer.depthBiasSlopeFactor = 0.0
-
-        var multisampling = VkPipelineMultisampleStateCreateInfo()
-        multisampling.sType = .pipelineMultisampleStateCreateInfo
-        multisampling.sampleShadingEnable = false.vkBool
-        multisampling.rasterizationSamples = VkSampleCountFlagBits.VK_SAMPLE_COUNT_1_BIT
-        multisampling.minSampleShading = 1.0
-        multisampling.pSampleMask = nil
-        multisampling.alphaToCoverageEnable = false.vkBool
-        multisampling.alphaToOneEnable = false.vkBool
-
-        var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
-        colorBlendAttachment.colorWriteMask = VkColorComponentFlagBits.rgba.rawValue
-        colorBlendAttachment.blendEnable = true.vkBool
-        colorBlendAttachment.srcColorBlendFactor = .sourceAlpha
-        colorBlendAttachment.dstColorBlendFactor = .oneMinusSourceAlpha
-        colorBlendAttachment.colorBlendOp = .add
-        colorBlendAttachment.srcAlphaBlendFactor = .one
-        colorBlendAttachment.dstAlphaBlendFactor = .zero
-        colorBlendAttachment.alphaBlendOp = .add
-
-        var colorBlending = VkPipelineColorBlendStateCreateInfo()
-        colorBlending.sType = .pipelineColorBlendStateCreateInfo
-        colorBlending.logicOpEnable = false.vkBool
-        colorBlending.logicOp = VK_LOGIC_OP_COPY
-        withUnsafePointer(to: &colorBlendAttachment) {
-            colorBlending.attachmentCount = 1
-            colorBlending.pAttachments = $0
-        }
-        colorBlending.blendConstants = (0.0, 0.0, 0.0, 0.0)
-
-        let dynamicStates: [VkDynamicState] = [
+        descriptor.dynamicStates = [
             .viewport,
             .scissor,
             .lineWidth,
         ]
-        
-        var dynamicState: VkPipelineDynamicStateCreateInfo = dynamicStates.withUnsafeBufferPointer {
-            return VkPipelineDynamicStateCreateInfo(sType: .VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-                                                    pNext: nil,
-                                                    flags: VkPipelineDynamicStateCreateFlags(),
-                                                    dynamicStateCount: CUnsignedInt($0.count),
-                                                    pDynamicStates: $0.baseAddress!)
-        }
 
-        let fragmentShaderStageInfo = fragmentShader.createStageInfo(for: .fragment)
-        let vertexShaderStageInfo = vertexShader.createStageInfo(for: .vertex)
-
-        let shaderStages = [vertexShaderStageInfo, fragmentShaderStageInfo]
-
-        var pipelineInfo = VkGraphicsPipelineCreateInfo()
-        pipelineInfo.sType = .graphicsPipelineCreateInfo
-        pipelineInfo.stageCount = 2
-        shaderStages.withUnsafeBufferPointer {
-            pipelineInfo.pStages = $0.baseAddress!
-        }
-
-        withUnsafePointer(to: &vertexInputInfo) {
-            pipelineInfo.pVertexInputState = $0
-        }
-        withUnsafePointer(to: &inputAssembly) {
-            pipelineInfo.pInputAssemblyState = $0
-        }
-        withUnsafePointer(to: &viewportState) {
-            pipelineInfo.pViewportState = $0
-        }
-        withUnsafePointer(to: &rasterizer) {
-            pipelineInfo.pRasterizationState = $0
-        }
-        withUnsafePointer(to: &multisampling) {
-            pipelineInfo.pMultisampleState = $0
-        }
-        withUnsafePointer(to: &colorBlending) {
-            pipelineInfo.pColorBlendState = $0
-        }
-        withUnsafePointer(to: &dynamicState) {
-            pipelineInfo.pDynamicState = $0
-        }
-        pipelineInfo.layout = pipelineLayout.pointer
-        pipelineInfo.renderPass = renderPass.handle
-        pipelineInfo.subpass = 0
-
-        pipelineInfo.basePipelineHandle = nil
-        pipelineInfo.basePipelineIndex = -1
-
-        pipelineInfo.pDepthStencilState = nil
-
-        var pipelinePointer: UnsafeMutablePointer<VkPipeline_T>?
-        try vulkanInvoke {
-            vkCreateGraphicsPipelines(device.handle, nil, 1, &pipelineInfo, nil, &pipelinePointer)
-        }
-        let pipeline = SmartPointer(with: pipelinePointer!) { [unowned renderStack] in
-            vkDestroyPipeline(renderStack.device.handle, $0, nil)
-        }
-
-        return pipeline
+        return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: renderPass, subpassIndex: 0)
     }
 
     func createFramebuffers() throws -> [Framebuffer] {
@@ -518,7 +384,7 @@ public final class VulkanRenderer {
 
             try commandBuffer.bind(vertexBuffers: [vertexBuffer])
             try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
-            try commandBuffer.bind(descriptorSets: [descriptorSets[offset]], bindPoint: .graphics, pipelineLayout: pipelineLayout)
+            try commandBuffer.bind(descriptorSets: [descriptorSets[offset]], bindPoint: .graphics, pipelineLayout: pipeline.layout)
 
             try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
 
@@ -718,21 +584,19 @@ public final class VulkanRenderer {
         return (model: model, view: view, projection: projection)
     }()
 
-    var angle: Float = 0.0
-
     lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        self.angle += .pi / 90
-    
         if let view = self.window.subviews.first?.subviews.first?.subviews.first {
             let bounds = view.bounds
             let center = view.center
 
             var mat: mat4s = .identity
             mat = mat * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
-            mat = mat * mat4s(rotationAngle: self.angle, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+            mat = mat * view.transform.mat4
             mat = mat * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
             
             self.object.model = mat
+
+            // self.object.model = view.transformToWindow.mat4
 
             // self.object.view = .identity
             //     // * mat4s(translationVector: vec3s(x: -bounds.minX, y: -bounds.minY, z: 0.0))
@@ -750,21 +614,18 @@ public final class VulkanRenderer {
             try uniformBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }
     }
+
+    func addVertices(for view: View, verticesStore: inout [VertexDescriptor], indexStore: inout [Int]) {
+        // let vertices = view.vertices
+        
+        view.subviews.forEach { subview in
+            addVertices(for: subview, verticesStore: &verticesStore, indexStore: &indexStore)
+        }
+    }
 }
 
 typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
 typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
-
-func lol() {
-    let view = View(with: .zero)
-    let center = view.center
-    let bounds = view.bounds
-
-    let translate = mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
-    let scale = mat4s(scaleVector: vec3s(x: bounds.width, y: bounds.height, z: 0.0))
-
-    _ = scale * translate
-}
 
 fileprivate extension Window {
     var projectionMatrix: mat4s {
@@ -820,6 +681,9 @@ struct VertexDescriptor {
     var color: vec4s = .zero
     var textureCoordinates: vec2s = .zero
     var transform: mat4s = .identity
+    var borderWidth: Float = .zero
+    var borderColor: vec4s = .zero
+    var cornerRadius: Float = .zero
 }
 
 protocol VertexInput {
@@ -850,10 +714,17 @@ extension VertexDescriptor: VertexInput {
     }
 
     static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
-        return attributesDescriptions(for: \.position, binding: binding, location: 0)
-            + attributesDescriptions(for: \.color, binding: binding, location: 1)
-            + attributesDescriptions(for: \.textureCoordinates, binding: binding, location: 2)
-            + attributesDescriptions(for: \.transform, binding: binding, location: 3)
+        var result: [VkVertexInputAttributeDescription] = []
+
+        result += attributesDescriptions(for: \.position, binding: binding, location: 0)
+        result += attributesDescriptions(for: \.color, binding: binding, location: 1)
+        result += attributesDescriptions(for: \.textureCoordinates, binding: binding, location: 2)
+        result += attributesDescriptions(for: \.transform, binding: binding, location: 3)
+        result += attributesDescriptions(for: \.borderWidth, binding: binding, location: 7)
+        result += attributesDescriptions(for: \.borderColor, binding: binding, location: 8)
+        result += attributesDescriptions(for: \.cornerRadius, binding: binding, location: 9)
+
+        return result
     }
 }
 
@@ -963,4 +834,36 @@ extension UInt64: VertexInputAttribute {
     static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
         return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32UInt, offset: offset)]
     }
+}
+
+extension VkPipelineColorBlendAttachmentState {
+    static let rgbaBlend: VkPipelineColorBlendAttachmentState = {
+        var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
+
+        colorBlendAttachment.colorComponentMask = .rgba
+        colorBlendAttachment.blendEnabled = true
+        colorBlendAttachment.srcColorBlendFactor = .sourceAlpha
+        colorBlendAttachment.dstColorBlendFactor = .oneMinusSourceAlpha
+        colorBlendAttachment.colorBlendOp = .add
+        colorBlendAttachment.srcAlphaBlendFactor = .one
+        colorBlendAttachment.dstAlphaBlendFactor = .zero
+        colorBlendAttachment.alphaBlendOp = .add
+
+        return colorBlendAttachment
+    }()
+
+    static let rgbaFlat: VkPipelineColorBlendAttachmentState = {
+        var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
+
+        colorBlendAttachment.colorComponentMask = .rgba
+        colorBlendAttachment.blendEnabled = false
+        colorBlendAttachment.srcColorBlendFactor = .one
+        colorBlendAttachment.dstColorBlendFactor = .zero
+        colorBlendAttachment.colorBlendOp = .add
+        colorBlendAttachment.srcAlphaBlendFactor = .one
+        colorBlendAttachment.dstAlphaBlendFactor = .zero
+        colorBlendAttachment.alphaBlendOp = .add
+
+        return colorBlendAttachment
+    }()
 }

@@ -8,6 +8,7 @@
 import XCTest
 import Foundation
 @testable import CairoGraphics
+import SimpleGLM
 
 // palkovnik:cglm supports floats only for now and most operations have really low precision. at least the API i used for things. aparently there are some functions that have another implementation with higher precision
 let accuracy: CGFloat = 0.0001
@@ -102,7 +103,7 @@ final class CGAffineTransformTests: XCTestCase {
         try equalityCheck(testTransform, controlTransform)
     }
 
-    func testInvert() {
+    func testInvert() throws {
         var testTransform = TestedAffineTransform()
         var controlTransform = ControlAffineTransform()
 
@@ -112,11 +113,28 @@ final class CGAffineTransformTests: XCTestCase {
         try equalityCheck(testTransform, controlTransform)
     }
 
+    func testConversions() throws {
+        let rotation = CGAffineTransform(rotationAngle: CGFloat.pi / 4)
+        var test = mat4s.identity
+
+        test.m00 = Float(rotation.a)
+        test.m01 = Float(rotation.b)
+        test.m10 = Float(rotation.c)
+        test.m11 = Float(rotation.d)
+        test.m20 = Float(rotation.tx)
+        test.m21 = Float(rotation.ty)
+
+        let control = mat4s(rotationAngle: CGFloat.pi / 4, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+
+        try equalityCheck(test, control)
+    }
+
     static var allTests = [
         ("testIdentity", testIdentity),
         ("testRotation", testRotation),
         ("testScale", testScale),
         ("testTranslate", testTranslate),
         ("testAll", testAll),
+        ("testConversions", testConversions),
     ]
 }

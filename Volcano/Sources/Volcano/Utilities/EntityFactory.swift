@@ -18,6 +18,7 @@ public extension HandleStorage where Handle.Pointee: EntityFactory {
             Info.createFunction(handle, info, callbacks, &pointer)
         }
 
+        // palkovnik:TODO:Validate if this has to retain the thing. Maybe it needs to
         return SmartPointer(with: pointer!) { [unowned self] in
             Info.deleteFunction(self.handle, $0, callbacks)
         }

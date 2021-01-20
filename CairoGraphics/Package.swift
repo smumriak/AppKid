@@ -21,6 +21,7 @@ let package = Package(
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
+        .package(name: "SwiftSTB", path: "/home/palkovnik/Documents/stb"),
     ],
     targets: [
         .target(
@@ -31,6 +32,7 @@ let package = Package(
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
+                .product(name: "STBImage", package: "SwiftSTB")
             ]
         ),
         .testTarget(
