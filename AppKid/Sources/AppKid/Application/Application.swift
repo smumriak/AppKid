@@ -62,11 +62,11 @@ open class Application: Responder {
     internal var clickCount: Int = .zero
 
     internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        self.windows.enumerated().forEach { offset, window in
+        zip(self.windows, self.softwareRenderers).forEach { window, renderer in
             if window.nativeWindow.syncRequested { return }
-        
+            
             if window.isMapped {
-                self.softwareRenderers[offset].render(window: window)
+                renderer.render(window: window)
             }
         }
 
@@ -75,11 +75,11 @@ open class Application: Responder {
 
     internal lazy var vulkanRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
-            try self.windows.enumerated().forEach { offset, window in
+            try zip(self.windows, self.vulkanRenderers).forEach { window, renderer in
                 if window.nativeWindow.syncRequested { return }
 
                 if window.isMapped {
-                    try self.vulkanRenderers[offset].render()
+                    try renderer.render()
                 }
             }
         } catch {
