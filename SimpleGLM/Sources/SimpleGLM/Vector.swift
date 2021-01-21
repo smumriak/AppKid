@@ -120,7 +120,7 @@ extension vec4s: Vector {
     }
     
     public var rgb: vec3s {
-        get {  vec3s(r: r, g: g, b: b)  }
+        get { vec3s(r: r, g: g, b: b) }
         set {
             r = newValue.r
             g = newValue.g

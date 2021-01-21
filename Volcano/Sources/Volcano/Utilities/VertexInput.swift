@@ -95,7 +95,7 @@ extension UInt32: SingleRowVertexInputAttribute {
     public static let format: VkFormat = .r32UInt
 }
 
-//palkovnik:TODO:I'm not sure if definitions for 64 bit numbers are correct. Will have to recheck this
+// palkovnik:TODO:I'm not sure if definitions for 64 bit numbers are correct. Will have to recheck this
 extension Double: MultiRowVertexInputAttribute {
     public static let rowCount: CUnsignedInt = 2
     public static let stride: CUnsignedInt = 32

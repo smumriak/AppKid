@@ -82,8 +82,8 @@ internal extension Responder {
     ]
 }
 
-extension Responder {
-    public static func == (lhs: Responder, rhs: Responder) -> Bool {
+public extension Responder {
+    static func == (lhs: Responder, rhs: Responder) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 }

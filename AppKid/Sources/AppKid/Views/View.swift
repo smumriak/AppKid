@@ -154,7 +154,7 @@ open class View: Responder {
     }
     
     open func insert(subview: View, at index: Array<View>.Index) {
-        if subview.superview == self { 
+        if subview.superview == self {
             return
         }
         

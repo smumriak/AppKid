@@ -38,7 +38,7 @@ let package = Package(
                 .product(name: "Volcano", package: "Volcano"),
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
-                .product(name: "SwiftXlib", package: "SwiftXlib")
+                .product(name: "SwiftXlib", package: "SwiftXlib"),
             ],
             exclude: [
                 "Resources/FragmentShader.volcano",

@@ -89,7 +89,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
     }
 
     public func bind(pipeline: GraphicsPipeline) throws {
-        try bind(pipeline:pipeline, bindPoint: .graphics)
+        try bind(pipeline: pipeline, bindPoint: .graphics)
     }
 
     public func setViewports(_ viewports: [VkViewport]) throws {

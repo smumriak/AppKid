@@ -18,4 +18,3 @@ public extension VkComponentSwizzle {
     static let b: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_B
     static let a: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_A
 }
-

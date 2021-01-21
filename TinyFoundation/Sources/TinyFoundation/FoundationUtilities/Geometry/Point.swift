@@ -17,7 +17,6 @@ public struct Point<StorageType> where StorageType: BinaryInteger {
     }
 }
 
-
 public extension Point {
     var cgPoint: CGPoint {
         return CGPoint(x: CGFloat(x), y: CGFloat(y))

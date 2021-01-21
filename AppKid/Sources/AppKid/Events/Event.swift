@@ -263,8 +263,8 @@ public class Event: NSObject {
     }
 }
 
-extension Event {
-    public static func == (lhs: Event, rhs: Event) -> Bool {
+public extension Event {
+    static func == (lhs: Event, rhs: Event) -> Bool {
         return lhs.type == rhs.type &&
             lhs.subType == rhs.subType &&
             lhs.modifierFlags == rhs.modifierFlags &&

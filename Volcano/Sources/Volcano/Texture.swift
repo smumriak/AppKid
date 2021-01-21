@@ -23,4 +23,3 @@ public protocol Texture {
     
     func mateTextureView(pixelFormat: VkFormat) -> Texture?
 }
-

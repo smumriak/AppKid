@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 07.12.2020.
 //
 
-import CVulkan 
+import CVulkan
 
 public typealias VkIndexType = CVulkan.VkIndexType
 

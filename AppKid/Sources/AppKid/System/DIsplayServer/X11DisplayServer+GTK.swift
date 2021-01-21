@@ -36,7 +36,6 @@ internal extension X11DisplayServer {
         //     meta_display_get_monitor_scale
         // }
 
-
         return 0
     }
 }

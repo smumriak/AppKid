@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class HandleStorage<Handle>: NSObject where Handle: SmartPointerProtocol { 
+open class HandleStorage<Handle>: NSObject where Handle: SmartPointerProtocol {
     open internal(set) var handle: Handle.Pointer_t {
         get { handlePointer.pointer }
         set { handlePointer.pointer = newValue }

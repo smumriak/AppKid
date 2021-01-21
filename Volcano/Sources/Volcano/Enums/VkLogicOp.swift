@@ -23,5 +23,5 @@ public extension VkLogicOp {
     static let copyInverted: VkLogicOp = .VK_LOGIC_OP_COPY_INVERTED
     static let orInverted: VkLogicOp = .VK_LOGIC_OP_OR_INVERTED
     static let nand: VkLogicOp = .VK_LOGIC_OP_NAND
-    static let `set`: VkLogicOp = .VK_LOGIC_OP_SET
+    static let set: VkLogicOp = .VK_LOGIC_OP_SET
 }
