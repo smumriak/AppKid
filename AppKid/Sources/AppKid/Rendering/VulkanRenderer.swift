@@ -357,7 +357,7 @@ public final class VulkanRenderer {
     }
 
     func createCommandBuffers() throws -> [CommandBuffer] {
-        let renderArea = VkRect2D(offset: VkOffset2D(x: 0, y: 0), extent: swapchain.size)
+        let renderArea = VkRect2D(offset: .zero, extent: swapchain.size)
         let clearColor = VkClearValue(color: .white)
 
         var viewport = VkViewport()
@@ -371,25 +371,24 @@ public final class VulkanRenderer {
         let viewports = [viewport]
         let scissors = [renderArea]
 
-        let result: [CommandBuffer] = try framebuffers.enumerated().map { offset, framebuffer in
+        let result: [CommandBuffer] = try zip(framebuffers, descriptorSets).map { framebuffer, descriptorSet in
             let commandBuffer = try CommandBuffer(commandPool: commandPool)
 
-            try commandBuffer.begin()
+            try commandBuffer.record {
+                try commandBuffer.begin(renderPass: renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
+                try commandBuffer.bind(pipeline: pipeline)
 
-            try commandBuffer.begin(renderPass: renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
-            try commandBuffer.bind(pipeline: pipeline)
+                try commandBuffer.setViewports(viewports)
+                try commandBuffer.setScissors(scissors)
 
-            try commandBuffer.setViewports(viewports)
-            try commandBuffer.setScissors(scissors)
+                try commandBuffer.bind(vertexBuffers: [vertexBuffer])
+                try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
+                try commandBuffer.bind(descriptorSets: [descriptorSet], for: pipeline)
 
-            try commandBuffer.bind(vertexBuffers: [vertexBuffer])
-            try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
-            try commandBuffer.bind(descriptorSets: [descriptorSets[offset]], bindPoint: .graphics, pipelineLayout: pipeline.layout)
+                try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
 
-            try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
-
-            try commandBuffer.endRenderPass()
-            try commandBuffer.end()
+                try commandBuffer.endRenderPass()
+            }
 
             return commandBuffer
         }
@@ -686,23 +685,6 @@ struct VertexDescriptor {
     var cornerRadius: Float = .zero
 }
 
-protocol VertexInput {
-    static func inputBindingDescription(binding: CUnsignedInt) -> VkVertexInputBindingDescription
-    static func attributesDescriptions(binding: CUnsignedInt) -> [VkVertexInputAttributeDescription]
-
-    static func attributesDescriptions<T: VertexInputAttribute>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
-}
-
-extension VertexInput {
-    static func attributesDescriptions<T>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] where T: VertexInputAttribute {
-        return T.descriptions(binding: binding, offset: CUnsignedInt(MemoryLayout<Self>.offset(of: keyPath)!), location: location)
-    }
-}
-
-protocol VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
-}
-
 extension VertexDescriptor: VertexInput {
     static func inputBindingDescription(binding: CUnsignedInt = 0) -> VkVertexInputBindingDescription {
         var result = VkVertexInputBindingDescription()
@@ -728,115 +710,7 @@ extension VertexDescriptor: VertexInput {
     }
 }
 
-extension mat2s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        var result: [VkVertexInputAttributeDescription] = []
-        let stride = CUnsignedInt(MemoryLayout<vec2s>.stride)
-
-        for i: CUnsignedInt in 0..<2 {
-            var attributeDescription = VkVertexInputAttributeDescription()
-            attributeDescription.binding = binding
-            attributeDescription.location = location + i
-            attributeDescription.format = .r32g32SFloat
-            attributeDescription.offset = offset + stride * i
-            result.append(attributeDescription)
-        }
-
-        return result
-    }
-}
-
-extension mat3s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        var result: [VkVertexInputAttributeDescription] = []
-        let stride = CUnsignedInt(MemoryLayout<vec3s>.stride)
-
-        for i: CUnsignedInt in 0..<3 {
-            var attributeDescription = VkVertexInputAttributeDescription()
-            attributeDescription.binding = binding
-            attributeDescription.location = location + i
-            attributeDescription.format = .r32g32b32SFloat
-            attributeDescription.offset = offset + stride * i
-            result.append(attributeDescription)
-        }
-
-        return result
-    }
-}
-
-extension mat4s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        var result: [VkVertexInputAttributeDescription] = []
-        let stride = CUnsignedInt(MemoryLayout<vec4s>.stride)
-
-        for i: CUnsignedInt in 0..<4 {
-            var attributeDescription = VkVertexInputAttributeDescription()
-            attributeDescription.binding = binding
-            attributeDescription.location = location + i
-            attributeDescription.format = .r32g32b32a32SFloat
-            attributeDescription.offset = offset + stride * i
-            result.append(attributeDescription)
-        }
-
-        return result
-    }
-}
-
-extension vec2s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32SFloat, offset: offset)]
-    }
-}
-
-extension vec3s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32SFloat, offset: offset)]
-    }
-}
-
-extension vec4s: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32a32SFloat, offset: offset)]
-    }
-}
-
-extension Float: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32SFloat, offset: offset)]
-    }
-}
-
-extension Double: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32b32SFloat, offset: offset)]
-    }
-}
-
-extension Int32: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32SInt, offset: offset)]
-    }
-}
-
-extension UInt32: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32UInt, offset: offset)]
-    }
-}
-
-extension Int64: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32SInt, offset: offset)]
-    }
-}
-
-extension UInt64: VertexInputAttribute {
-    static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
-        return [VkVertexInputAttributeDescription(location: location, binding: binding, format: .r32g32UInt, offset: offset)]
-    }
-}
-
-extension VkPipelineColorBlendAttachmentState {
+internal extension VkPipelineColorBlendAttachmentState {
     static let rgbaBlend: VkPipelineColorBlendAttachmentState = {
         var colorBlendAttachment = VkPipelineColorBlendAttachmentState()
 
