@@ -15,13 +15,16 @@ let package = Package(
     ],
     products: [
         .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"]),
+        .library(name: "STBImage", type: .static, targets: ["STBImageRead", "STBImageWrite", "STBImageResize"]),
+        .library(name: "STBImageRead", type: .static, targets: ["STBImageRead"]),
+        .library(name: "STBImageWrite", type: .static, targets: ["STBImageWrite"]),
+        .library(name: "STBImageResize", type: .static, targets: ["STBImageResize"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
-        // .package(name: "SwiftSTB", path: "/home/palkovnik/Documents/stb"),
     ],
     targets: [
         .target(
@@ -32,9 +35,14 @@ let package = Package(
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
-                // .product(name: "STBImage", package: "SwiftSTB")
+                .target(name: "STBImageRead"),
+                .target(name: "STBImageWrite"),
+                .target(name: "STBImageResize"),
             ]
         ),
+        .target(name: "STBImageRead", path: "./SwiftSTB/Sources/STBImageRead"),
+        .target(name: "STBImageWrite", path: "./SwiftSTB/Sources/STBImageWrite"),
+        .target(name: "STBImageResize", path: "./SwiftSTB/Sources/STBImageResize"),
         .testTarget(
             name: "CairoGraphicsTests",
             dependencies: ["CairoGraphics"]

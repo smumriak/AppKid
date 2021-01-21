@@ -1,0 +1,1 @@
+../../../../ThirdParty/stb/stb_image_resize.h

@@ -1,0 +1,3 @@
+[submodule "CairoGraphics/ThirdParty/stb"]
+	path = CairoGraphics/ThirdParty/stb
+	url = https://github.com/nothings/stb.git
