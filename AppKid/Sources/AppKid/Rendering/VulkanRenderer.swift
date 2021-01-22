@@ -51,10 +51,10 @@ public final class VulkanRenderer {
     internal fileprivate(set) var renderPass: RenderPass
 
     fileprivate var vertices: [VertexDescriptor] = [
-        VertexDescriptor(),
-        VertexDescriptor(),
-        VertexDescriptor(),
-        VertexDescriptor(),
+        VertexDescriptor(position: vec2s(-0.5, -0.5), color: vec4s(1.0, 0.0, 0.0, 1.0)),
+        VertexDescriptor(position: vec2s(0.5, 0.5), color: vec4s(0.0, 1.0, 1.0, 1.0)),
+        VertexDescriptor(position: vec2s(-0.5, 0.5), color: vec4s(0.0, 1.0, 0.0, 1.0)),
+        VertexDescriptor(position: vec2s(0.5, -0.5), color: vec4s(1.0, 0.0, 1.0, 1.0)),
     ]
 
     fileprivate var indices: [CUnsignedInt] = [
@@ -601,7 +601,7 @@ public final class VulkanRenderer {
             //     // * mat4s(translationVector: vec3s(x: -bounds.minX, y: -bounds.minY, z: 0.0))
             //     // * mat4s(translationVector: vec3s(x: -bounds.width * 0.5, y: -bounds.height * 0.5, z: 0.0))
             //     * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
-            //     * mat4s(rotationAngle: self.angle, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
+            //     * mat4s(rotationAngle: .pi / 4.0, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
             //     * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
             // // * mat4s(translationVector: vec3s(x: bounds.width * 0.5, y: bounds.height * 0.5, z: 0.0))
             // // * mat4s(translationVector: vec3s(x: bounds.minX, y: bounds.minY, z: 0.0))
