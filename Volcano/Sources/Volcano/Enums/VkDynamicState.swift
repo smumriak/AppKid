@@ -27,7 +27,7 @@ public extension VkDynamicState {
     static let exclusiveScissorNV: VkDynamicState = .VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_NV
     static let lineStippleEXT: VkDynamicState = .VK_DYNAMIC_STATE_LINE_STIPPLE_EXT
     
-    static let rayRracingPipelineStackSizeKHR: VkDynamicState = .VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR
+    // static let rayRracingPipelineStackSizeKHR: VkDynamicState = .VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR
     
     #if !os(macOS)
         // static let cullModeExt: VkDynamicState = .VK_DYNAMIC_STATE_CULL_MODE_EXT

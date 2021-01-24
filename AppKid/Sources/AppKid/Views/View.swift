@@ -7,10 +7,13 @@
 
 import Foundation
 import CairoGraphics
+import ContentAnimation
 
 open class View: Responder {
     open var tag: UInt = 0
     internal weak var viewDelegate: ViewController? = nil
+
+    var layer: CALayer
 
     // MARK: Geometry
 
@@ -141,6 +144,10 @@ open class View: Responder {
     // MARK: Init
     
     public init(with frame: CGRect) {
+        layer = CALayer()
+        layer.bounds = CGRect(origin: .zero, size: frame.size)
+        layer.position = CGPoint(x: frame.midX, y: frame.midY)
+        
         _bounds = CGRect(origin: .zero, size: frame.size)
         _center = CGPoint(x: frame.midX, y: frame.midY)
         
@@ -158,7 +165,7 @@ open class View: Responder {
             return
         }
         
-        subview.removeFromSuperView()
+        subview.removeFromSuperview()
 
         subview.traverseSubviews(includingSelf: true) {
             $0.willMove(toWindow: window)
@@ -167,6 +174,8 @@ open class View: Responder {
         
         subviews.insert(subview, at: index)
         subview.superview = self
+
+        layer.insertSublayer(subview.layer, at: UInt32(index))
 
         subview.didMoveToSuperview()
 
@@ -179,7 +188,7 @@ open class View: Responder {
         didAddSubview(subview)
     }
     
-    open func removeFromSuperView() {
+    open func removeFromSuperview() {
         guard let superview = superview else { return }
         
         superview.willRemoveSubview(self)
@@ -193,6 +202,8 @@ open class View: Responder {
             superview.subviews.remove(at: index)
         }
         self.superview = nil
+        
+        layer.removeFromSuperlayer()
 
         didMoveToSuperview()
 

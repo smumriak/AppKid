@@ -98,6 +98,59 @@ open class CALayer: CAMediaTiming {
 
     internal var properties: [String: CALayerPropertyProtocol] = [:]
 
+    public func addSublayer(_ layer: CALayer) {
+        insertSublayer(layer, at: UInt32(sublayers?.count ?? 0))
+    }
+
+    public func insertSublayer(_ layer: CALayer, at index: UInt32) {
+        if sublayers == nil {
+            sublayers = []
+        }
+
+        layer.removeFromSuperlayer()
+
+        sublayers?.insert(layer, at: Int(index))
+        layer.superlayer = self
+    }
+
+    // palkovnik:TODO:Finish this later
+    public func insertSublayer(layer: CALayer, below sibling: CALayer?) throws {
+        guard let sibling = sibling else {
+            addSublayer(layer)
+            return
+        }
+
+        guard let index = sublayers?.firstIndex(of: sibling) else {
+            // palkovnik:TODO:Throw an exception here
+            return
+        }
+    }
+
+    public func insertSublayer(layer: CALayer, above sibling: CALayer?) throws {
+        guard let sibling = sibling else {
+            addSublayer(layer)
+            return
+        }
+
+        guard let index = sublayers?.firstIndex(of: sibling) else {
+            // palkovnik:TODO:Throw an exception here
+            return
+        }
+    }
+
+    public func removeFromSuperlayer() {
+        guard let superlayer = superlayer else { return }
+
+        if let index = superlayer.sublayers?.firstIndex(of: self) {
+            superlayer.sublayers?.remove(at: index)
+        }
+
+        self.superlayer = nil
+        if superlayer.sublayers?.isEmpty == true {
+            superlayer.sublayers = nil
+        }
+    }
+
     public init() {
         rebuildPropertiesList()
     }
@@ -154,4 +207,11 @@ public struct CACornerMask: OptionSet {
     public static var layerMaxXMaxYCorner: CACornerMask = CACornerMask(rawValue: 1 << 3)
 
     public static var allCorners: CACornerMask = [layerMinXMinYCorner, layerMaxXMinYCorner, layerMinXMaxYCorner, layerMaxXMaxYCorner]
+}
+
+extension CALayer: Equatable {
+    public static func == (lhs: CALayer, rhs: CALayer) -> Bool {
+        // palkovnik:TODO:this is wrong, but will do for now. Change to checking the variables OR the dictionary of variables
+        return lhs === rhs
+    }
 }

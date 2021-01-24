@@ -140,16 +140,18 @@ internal func processQueueRequests(from queueRequests: [QueueRequest], familiesD
         var accumulator = accumulator
 
         if var processedRequest = accumulator[familyIndex] {
-            processedRequest.type.formUnion(queueRequest.type)
-            if queueRequest.type.contains(.protected) {
-                processedRequest.flags.formUnion(.protected)
-            }
             processedRequest.priorities += queueRequest.priorities
+
+            let excedingQueueCount = processedRequest.priorities.count - Int(familyDescriptor.properties.queueCount)
+
+            if excedingQueueCount > 0 {
+                processedRequest.priorities.removeLast(excedingQueueCount)
+            }
 
             accumulator[familyIndex] = processedRequest
         } else {
             let flags: VkDeviceQueueCreateFlagBits = queueRequest.type.contains(.protected) ? .protected : []
-            let processedRequest = ProcessedQueueRequest(index: familyIndex, type: queueRequest.type, flags: flags, priorities: queueRequest.priorities)
+            let processedRequest = ProcessedQueueRequest(index: familyIndex, type: familyDescriptor.properties.type, flags: flags, priorities: queueRequest.priorities)
 
             accumulator[familyIndex] = processedRequest
         }

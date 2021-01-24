@@ -199,13 +199,13 @@ open class Window: View {
             if let rootViewController = rootViewController {
                 rootViewController.beginAppearanceTransition(isAppearing: false, animated: false)
 
-                rootViewController.view.removeFromSuperView()
+                rootViewController.view.removeFromSuperview()
 
                 rootViewController.endAppearanceTransition()
             }
         }
         didSet {
-            subviews.forEach { $0.removeFromSuperView() }
+            subviews.forEach { $0.removeFromSuperview() }
 
             if isMapped {
                 setupRootViewController()
