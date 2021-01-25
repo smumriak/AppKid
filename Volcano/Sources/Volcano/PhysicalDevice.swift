@@ -76,8 +76,9 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     }
 
     #if os(Linux)
-        public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR = VkSurfaceFormatKHR(format: .b8g8r8a8SRGB, colorSpace: .srgbNonlinear)) throws -> Surface {
-            return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredFormat)
+        public func createXlibSurface(display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkFormat = .b8g8r8a8SRGB, desiredColorSpace: VkColorSpaceKHR = .srgbNonlinear) throws -> Surface {
+            let desiredSurfaceFormat = VkSurfaceFormatKHR(format: desiredFormat, colorSpace: desiredColorSpace)
+            return try Surface(physicalDevice: self, display: display, window: window, desiredFormat: desiredSurfaceFormat)
         }
     #endif
 

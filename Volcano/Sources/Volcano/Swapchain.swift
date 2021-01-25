@@ -30,7 +30,11 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
         self.presentMode = presentMode
 
-        let imageCount = min(capabilities.minImageCount + 1, capabilities.maxImageCount)
+        let minImageCount = capabilities.minImageCount + 1
+        //palkovnik:On Raspberry Pi driver max image count is reported as 0. This hacks it around
+        let maxImageCount = capabilities.maxImageCount > 0 ? capabilities.maxImageCount : minImageCount
+
+        let imageCount = min(minImageCount, maxImageCount)
 
         let queueFamiliesIndices: [CUnsignedInt] = [CUnsignedInt(graphicsQueue.familyIndex), CUnsignedInt(presentationQueue.familyIndex)]
 
@@ -77,7 +81,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         var result: CUnsignedInt = 0
 
         try vulkanInvoke {
-            vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore.handle, nil, &result)
+            device.vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore.handle, nil, &result)
         }
 
         return Int(result)
