@@ -10,8 +10,8 @@ import CVulkan
 public typealias VkImageUsageFlagBits = CVulkan.VkImageUsageFlagBits
 
 public extension VkImageUsageFlagBits {
-    static let transferSrc = VK_IMAGE_USAGE_TRANSFER_SRC_BIT
-    static let transferDst = VK_IMAGE_USAGE_TRANSFER_DST_BIT
+    static let transferSource = VK_IMAGE_USAGE_TRANSFER_SRC_BIT
+    static let transferDestination = VK_IMAGE_USAGE_TRANSFER_DST_BIT
     static let sampled = VK_IMAGE_USAGE_SAMPLED_BIT
     static let storage = VK_IMAGE_USAGE_STORAGE_BIT
     static let colorAttachment = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT

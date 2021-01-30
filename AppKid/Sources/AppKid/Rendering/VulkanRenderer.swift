@@ -66,8 +66,8 @@ public final class VulkanRenderer {
 
     var oldSwapchain: Swapchain?
     var swapchain: Swapchain!
+    var textures: [Texture]!
     var images: [Volcano.Image]!
-    var imageViews: [ImageView]!
 
     var pipeline: GraphicsPipeline!
     var framebuffers: [Framebuffer] = []
@@ -169,9 +169,8 @@ public final class VulkanRenderer {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
-        images = try swapchain.getImages()
-        imageViews = try images.map { try ImageView(image: $0) }
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .mailbox, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        textures = try swapchain.create2DTextures()
 
         uniformBuffers = try createUniformBuffers()
 
@@ -198,8 +197,7 @@ public final class VulkanRenderer {
         uniformBuffers = []
         descriptorSets = []
         descriptorPool = nil
-        imageViews = nil
-        images = nil
+        textures = nil
         swapchain = nil
     }
 
@@ -351,8 +349,8 @@ public final class VulkanRenderer {
     }
 
     func createFramebuffers() throws -> [Framebuffer] {
-        return try imageViews.map { imageView in
-            return try Framebuffer(device: device, size: swapchain.size, renderPass: renderPass, attachments: [imageView])
+        try textures.map { texture in
+            try Framebuffer(device: device, size: swapchain.size, renderPass: renderPass, attachments: [texture.imageView])
         }
     }
 
@@ -470,7 +468,7 @@ public final class VulkanRenderer {
 
     func createUniformBuffers() throws -> [Buffer] {
         let size = VkDeviceSize(MemoryLayout<UniformBufferObject>.size)
-        return try (0..<images.count).map { _ in
+        return try textures.indices.map { _ in
             let result = try Buffer(device: device,
                                     size: size,
                                     usage: [.uniformBuffer],
@@ -506,7 +504,7 @@ public final class VulkanRenderer {
     func createDescriptorPool() throws -> SmartPointer<VkDescriptorPool_T> {
         var poolSize = VkDescriptorPoolSize()
         poolSize.type = .uniformBuffer
-        poolSize.descriptorCount = CUnsignedInt(images.count)
+        poolSize.descriptorCount = CUnsignedInt(textures.count)
 
         let sizes = [poolSize]
 
@@ -515,14 +513,14 @@ public final class VulkanRenderer {
             info.sType = .descriptorPoolCreateInfo
             info.poolSizeCount = CUnsignedInt(sizes.count)
             info.pPoolSizes = sizes.baseAddress!
-            info.maxSets = CUnsignedInt(images.count)
+            info.maxSets = CUnsignedInt(textures.count)
 
             return try device.create(with: &info)
         }
     }
 
     func createDescriptorSets() throws -> [VkDescriptorSet] {
-        let count = images.count
+        let count = textures.count
         let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: descriptorSetLayout, count: count).map { $0.pointer }
 
         let descriptorSets: [VkDescriptorSet] = try layouts.withUnsafeBufferPointer { layouts in

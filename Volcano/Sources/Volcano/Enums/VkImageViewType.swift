@@ -18,3 +18,18 @@ public extension VkImageViewType {
     static let type2DArray: VkImageViewType = .VK_IMAGE_VIEW_TYPE_2D_ARRAY
     static let typeCubeArray: VkImageViewType = .VK_IMAGE_VIEW_TYPE_CUBE_ARRAY
 }
+
+public extension VkImageViewType {
+    var imageType: VkImageType {
+        switch self {
+            case .type1D: return .type1D
+            case .type1DArray: return .type1D
+            case .type2D: return .type2D
+            case .type2DArray: return .type2D
+            case .type3D: return .type3D
+            case .typeCube: return .type2D
+            case .typeCubeArray: return .type2D
+            default: fatalError()
+        }
+    }
+}

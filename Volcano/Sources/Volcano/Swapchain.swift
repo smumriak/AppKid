@@ -13,6 +13,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public var size: VkExtent2D
     public let imageFormat: VkFormat
     public let presentMode: VkPresentModeKHR
+    internal let rawImages: [VkImage]
 
     public init(device: Device, surface: Surface, desiredPresentMode: VkPresentModeKHR = .immediate, size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
         self.surface = surface
@@ -31,12 +32,11 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         self.presentMode = presentMode
 
         let minImageCount = capabilities.minImageCount + 1
-        //palkovnik:Spec says "maxImageCount is the maximum number of images the specified device supports for a swapchain created for the surface, and will be either 0, or greater than or equal to minImageCount. A value of 0 means that there is no limit on the number of images, though there may be limits related to the total amount of memory used by presentable images.". So this code adjusts accordingly
+        // palkovnik:Spec says "maxImageCount is the maximum number of images the specified device supports for a swapchain created for the surface, and will be either 0, or greater than or equal to minImageCount. A value of 0 means that there is no limit on the number of images, though there may be limits related to the total amount of memory used by presentable images.". So this code adjusts accordingly
         let maxImageCount = capabilities.maxImageCount > 0 ? capabilities.maxImageCount : minImageCount
 
         let imageCount = min(minImageCount, maxImageCount)
-
-        let queueFamiliesIndices: [CUnsignedInt] = [CUnsignedInt(graphicsQueue.familyIndex), CUnsignedInt(presentationQueue.familyIndex)]
+        let queueFamiliesIndices = Array(Set([graphicsQueue, presentationQueue].map { CUnsignedInt($0.familyIndex) }))
 
         let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR()
@@ -55,26 +55,25 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
             if graphicsQueue.familyIndex == presentationQueue.familyIndex {
                 info.imageSharingMode = .exclusive
-                info.queueFamilyIndexCount = 0
-                info.pQueueFamilyIndices = nil
             } else {
                 info.imageSharingMode = .concurrent
-                info.queueFamilyIndexCount = CUnsignedInt(queueFamiliesIndices.count)
-                info.pQueueFamilyIndices = queueFamiliesIndices.baseAddress!
             }
+
+            info.queueFamilyIndexCount = CUnsignedInt(queueFamiliesIndices.count)
+            info.pQueueFamilyIndices = queueFamiliesIndices.baseAddress!
 
             return try device.create(with: &info)
         }
 
+        self.rawImages = try device.loadDataArray(for: handlePointer.pointer, using: vkGetSwapchainImagesKHR).compactMap { $0 }
+
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    public func getImages() throws -> [Image] {
-        return try device.loadDataArray(for: handle, using: vkGetSwapchainImagesKHR)
-            .compactMap { $0 }
-            .map {
-                try Image(device: device, format: imageFormat, handle: $0)
-            }
+    public func create2DTextures() throws -> [Texture] {
+        try rawImages.indices.map {
+            try SwapchainTexture(swapchain: self, imageIndex: $0)
+        }
     }
 
     public func getNextImageIndex(semaphore: Semaphore, timeout: UInt64 = .max) throws -> Int {

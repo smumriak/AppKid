@@ -23,8 +23,8 @@ public extension VkFormatFeatureFlagBits {
     static let blitSrc = VK_FORMAT_FEATURE_BLIT_SRC_BIT
     static let blitDst = VK_FORMAT_FEATURE_BLIT_DST_BIT
     static let sampledImageFilterLinear = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT
-    static let transferSrc = VK_FORMAT_FEATURE_TRANSFER_SRC_BIT
-    static let transferDst = VK_FORMAT_FEATURE_TRANSFER_DST_BIT
+    static let transferSource = VK_FORMAT_FEATURE_TRANSFER_SRC_BIT
+    static let transferDestination = VK_FORMAT_FEATURE_TRANSFER_DST_BIT
     static let midpointChromaSamples = VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT
     static let sampledImageYcbcrConversionLinearFilter = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT
     static let sampledImageYcbcrConversionSeparateReconstructionFilter = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT
@@ -36,15 +36,4 @@ public extension VkFormatFeatureFlagBits {
     static let sampledImageFilterCubicImg = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG
     static let accelerationStructureVertexBufferKhr = VK_FORMAT_FEATURE_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR
     static let fragmentDensityMapExt = VK_FORMAT_FEATURE_FRAGMENT_DENSITY_MAP_BIT_EXT
-    static let transferSrcKhr = VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR
-    static let transferDstKhr = VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR
-    static let sampledImageFilterMinmaxExt = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT_EXT
-    static let midpointChromaSamplesKhr = VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT_KHR
-    static let sampledImageYcbcrConversionLinearFilterKhr = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT_KHR
-    static let sampledImageYcbcrConversionSeparateReconstructionFilterKhr = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT_KHR
-    static let sampledImageYcbcrConversionChromaReconstructionExplicitKhr = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT_KHR
-    static let sampledImageYcbcrConversionChromaReconstructionExplicitForceableKhr = VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT_KHR
-    static let disjointKhr = VK_FORMAT_FEATURE_DISJOINT_BIT_KHR
-    static let cositedChromaSamplesKhr = VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT_KHR
-    static let sampledImageFilterCubicExt = VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_EXT
 }

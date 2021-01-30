@@ -39,5 +39,6 @@ AK_EXISTING_ENUM(VkFrontFace);
 AK_EXISTING_ENUM(VkPrimitiveTopology);
 AK_EXISTING_ENUM(VkLogicOp);
 AK_EXISTING_ENUM(VkSampleCountFlagBits);
+AK_EXISTING_ENUM(VkImageTiling);
 
 #endif /* VulkanEnums_h */
