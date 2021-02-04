@@ -49,10 +49,6 @@ public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
 
         let memoryChunk = try MemoryChunk(device: device, size: memoryRequirements.size, memoryIndex: CUnsignedInt(memoryIndex), properties: VkMemoryPropertyFlagBits(rawValue: memoryType.propertyFlags))
 
-        try vulkanInvoke {
-            vkBindBufferMemory(device.handle, handlePointer.pointer, memoryChunk.handle, 0)
-        }
-
         self.memoryChunk = memoryChunk
 
         self.size = size
@@ -60,5 +56,7 @@ public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
         self.sharingMode = sharingMode
 
         try super.init(device: device, handlePointer: handlePointer)
+
+        try memoryChunk.bind(to: self)
     }
 }

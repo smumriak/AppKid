@@ -85,32 +85,70 @@ internal class SwapchainTexture: Texture {
 }
 
 internal class GenericTexture: Texture {
-    let memory: MemoryChunk
+    let memoryChunk: MemoryChunk
 
-    let textureType: VkImageViewType = .type2D
+    let textureType: VkImageViewType
     let pixelFormat: VkFormat
     let width: Int
     let height: Int
-    let depth: Int = 0
-    let mipmapLevelCount: Int = 0
-    let sampleCount: VkSampleCountFlagBits = .one
-    let arrayLength: Int = 0
-    let usage: TextureUsage = .renderTarget
-    let swizzle: VkComponentMapping = .identity
-    let tiling: VkImageTiling = .optimal
+    let depth: Int
+    let mipmapLevelCount: Int
+    let sampleCount: VkSampleCountFlagBits
+    let arrayLength: Int
+    let usage: TextureUsage
+    let swizzle: VkComponentMapping
+    let tiling: VkImageTiling
 
-    let accessQueueFamiliesIndices: [CUnsignedInt] = []
-    let isDepthTexture: Bool = false
-    let isStencilTexture: Bool = false
+    let accessQueueFamiliesIndices: [CUnsignedInt]
+    let isDepthTexture: Bool
+    let isStencilTexture: Bool
     var layout: VkImageLayout = .undefined
 
     let image: Image
     let imageView: ImageView
 
     init(device: Device, descriptor: TextureDescriptor) throws {
-        image = try Image(device: device, descriptor: descriptor.imageDescriptor)
-        imageView = try ImageView(image: image, descriptor: descriptor.imageViewDescriptor)
-        fatalError()
+        let image = try Image(device: device, descriptor: descriptor.imageDescriptor)
+        let imageView = try ImageView(image: image, descriptor: descriptor.imageViewDescriptor)
+
+        let memoryTypes = device.physicalDevice.memoryTypes
+
+        let memoryRequirements = try device.memoryRequirements(for: image.handlePointer)
+
+        let memoryTypeAndIndexOptional = memoryTypes.enumerated().first { offset, element -> Bool in
+            let flags = VkMemoryPropertyFlagBits(rawValue: element.propertyFlags)
+
+            return (memoryRequirements.memoryTypeBits & (1 << offset)) != 0 && flags.contains(descriptor.memoryProperties)
+        }
+
+        guard let (memoryIndex, memoryType) = memoryTypeAndIndexOptional else {
+            throw VulkanError.noSuitableMemoryTypeAvailable
+        }
+
+        let memoryChunk = try MemoryChunk(device: device, size: memoryRequirements.size, memoryIndex: CUnsignedInt(memoryIndex), properties: VkMemoryPropertyFlagBits(rawValue: memoryType.propertyFlags))
+
+        self.memoryChunk = memoryChunk
+        self.image = image
+        self.imageView = imageView
+
+        self.textureType = descriptor.textureType
+        self.pixelFormat = descriptor.pixelFormat
+        self.width = descriptor.width
+        self.height = descriptor.height
+        self.depth = descriptor.depth
+        self.mipmapLevelCount = descriptor.mipmapLevelCount
+        self.sampleCount = descriptor.sampleCount
+        self.arrayLength = descriptor.arrayLength
+        self.usage = descriptor.usage
+        self.swizzle = descriptor.swizzle
+        self.tiling = descriptor.tiling
+
+        self.accessQueueFamiliesIndices = descriptor.accessQueueFamiliesIndices
+        self.isDepthTexture = descriptor.isDepthTexture
+        self.isStencilTexture = descriptor.isStencilTexture
+        self.layout = descriptor.initialLayout
+
+        try memoryChunk.bind(to: image)
     }
 
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture {

@@ -97,4 +97,22 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
             }
         }
     }
+
+    public func oneShot(in commandPool: CommandPool, wait: Bool = true, _ body: (_ commandBuffer: CommandBuffer) throws -> ()) throws {
+        let commandBuffer = try commandPool.createCommandBuffer()
+
+        let fence: Fence? = wait ? commandBuffer.fence : nil
+
+        try fence?.reset()
+
+        try commandBuffer.begin(flags: .oneTimeSubmit)
+
+        try body(commandBuffer)
+
+        try commandBuffer.end()
+
+        try submit(commandBuffers: [commandBuffer], fence: fence)
+        
+        try fence?.wait()
+    }
 }

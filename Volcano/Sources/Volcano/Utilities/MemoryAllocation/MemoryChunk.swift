@@ -84,4 +84,26 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
             fatalError("Memory that is not host visible is not yet writable")
         }
     }
+
+    internal func bind<T: MemoryBindable>(to bindable: T) throws {
+        try vulkanInvoke {
+            T.bindFunction(device.handle, bindable.handle, handle, offset)
+        }
+    }
+}
+
+public protocol MemoryBindable {
+    associatedtype Handle
+
+    var handle: Handle { get }
+    
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> VkResult { get }
+}
+
+extension Buffer: MemoryBindable {
+    public static let bindFunction = vkBindBufferMemory
+}
+
+extension Image: MemoryBindable {
+    public static let bindFunction = vkBindImageMemory
 }

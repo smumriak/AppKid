@@ -23,4 +23,8 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
         
         try super.init(device: device, handlePointer: handlePointer)
     }
+
+    public func createCommandBuffer(level: VkCommandBufferLevel = .primary) throws -> CommandBuffer {
+        return try CommandBuffer(commandPool: self, level: level)
+    }
 }

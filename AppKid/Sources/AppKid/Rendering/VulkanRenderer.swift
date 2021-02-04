@@ -169,7 +169,7 @@ public final class VulkanRenderer {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .mailbox, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
         textures = try swapchain.create2DTextures()
 
         uniformBuffers = try createUniformBuffers()
@@ -421,13 +421,9 @@ public final class VulkanRenderer {
                                       memoryProperties: .deviceLocal,
                                       accessQueues: [graphicsQueue, transferQueue])
 
-        let commandBuffer = try CommandBuffer(commandPool: transferCommandPool, level: .primary)
-        try commandBuffer.begin(flags: .oneTimeSubmit)
-        try commandBuffer.copyBuffer(from: stagingBuffer, to: vertexBuffer)
-        try commandBuffer.end()
-
-        try transferQueue.submit(commandBuffers: [commandBuffer])
-        try transferQueue.waitForIdle()
+        try transferQueue.oneShot(in: transferCommandPool) {
+            try $0.copyBuffer(from: stagingBuffer, to: vertexBuffer)
+        }
 
         return vertexBuffer
     }
@@ -455,14 +451,10 @@ public final class VulkanRenderer {
                                      memoryProperties: .deviceLocal,
                                      accessQueues: [graphicsQueue, transferQueue])
 
-        let commandBuffer = try CommandBuffer(commandPool: transferCommandPool, level: .primary)
-        try commandBuffer.begin(flags: .oneTimeSubmit)
-        try commandBuffer.copyBuffer(from: stagingBuffer, to: indexBuffer)
-        try commandBuffer.end()
-
-        try transferQueue.submit(commandBuffers: [commandBuffer])
-        try transferQueue.waitForIdle()
-
+        try transferQueue.oneShot(in: transferCommandPool) {
+            try $0.copyBuffer(from: stagingBuffer, to: indexBuffer)
+        }
+        
         return indexBuffer
     }
 

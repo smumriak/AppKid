@@ -113,6 +113,16 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
         
         return result
     }
+
+    internal func memoryRequirements(for imageHandle: SmartPointer<VkImage_T>) throws -> VkMemoryRequirements {
+        var result = VkMemoryRequirements()
+
+        try vulkanInvoke {
+            vkGetImageMemoryRequirements(handle, imageHandle.pointer, &result)
+        }
+        
+        return result
+    }
 }
 
 public extension Device {
