@@ -159,7 +159,7 @@ internal func processQueueRequests(from queueRequests: [QueueRequest], familiesD
         return accumulator
     }
 
-    return Array(result.values)
+    return Array(result.values).sorted { $0.type < $1.type }
 }
 
 internal extension Array where Element == ProcessedQueueRequest {

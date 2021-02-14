@@ -24,7 +24,7 @@ extension VkDevice_T: DataLoader {}
 
 public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
     public internal(set) var queuesByFamilyIndex: [CUnsignedInt: [Queue]] = [:]
-    public internal(set) lazy var allQueues: [Queue] = queuesByFamilyIndex.flatMap { $0.value }
+    public internal(set) lazy var allQueues: [Queue] = queuesByFamilyIndex.values.flatMap { $0 }.sorted { $0.type < $1.type }
     
     internal let vkCreateSwapchainKHR: PFN_vkCreateSwapchainKHR
     internal let vkDestroySwapchainKHR: PFN_vkDestroySwapchainKHR
