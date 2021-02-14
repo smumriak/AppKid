@@ -14,8 +14,8 @@
     },
     "lldb.verboseLogging": true,
     "lldb.launch.expressions": "simple",
-    // "lldb.library": "/opt/swift/usr/lib/liblldb.so.10git",
-    // "lldb.libpython": "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
+    "lldb.library": "/opt/swift/usr/lib/liblldb.so",
+    // "lldb.libpython": "/usr/lib/x86_64-linux-gnu/libpython3.8.so",
     "[swift]": {},
     "files.associations": {
         "random": "cpp",
