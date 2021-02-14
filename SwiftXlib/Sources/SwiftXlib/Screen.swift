@@ -11,4 +11,5 @@ import TinyFoundation
 import CXlib
 
 public class Screen {
+    public init() {}
 }

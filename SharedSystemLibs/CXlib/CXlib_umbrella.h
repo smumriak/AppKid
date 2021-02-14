@@ -43,6 +43,7 @@ struct _XIC {};
 #include "X11ModifierKeySymbol.h"
 #include "XInput2EventType.h"
 #include "XInput2EventTypeMask.h"
+#include "XlibPropertyChangeMode.h"
 
 static inline char *XGetInputMethodStyles(XIM inputMethod, XIMStyles **styles) {
     return XGetIMValues(inputMethod, XNQueryInputStyle, styles, NULL);

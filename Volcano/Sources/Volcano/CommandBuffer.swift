@@ -11,29 +11,10 @@ import CVulkan
 public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffer_T>> {
     public let fence: Fence
 
-    public init(commandPool: CommandPool, level: VkCommandBufferLevel = .primary) throws {
-        let device = commandPool.device
-
-        var info = VkCommandBufferAllocateInfo()
-        info.sType = .commandBufferAllocateInfo
-        info.level = level
-        info.commandPool = commandPool.handle
-        info.commandBufferCount = 1
-        
-        var handle: VkCommandBuffer? = nil
-        
-        try vulkanInvoke {
-            vkAllocateCommandBuffers(device.handle, &info, &handle)
-        }
-
-        let handlePointer = SmartPointer(with: handle!) { [device, commandPool] in
-            var mutablePointer: VkCommandBuffer? = $0
-            vkFreeCommandBuffers(device.handle, commandPool.handle, 1, &mutablePointer)
-        }
-
+    public override init(device: Device, handlePointer: SmartPointer<VkCommandBuffer_T>) throws {
         self.fence = try Fence(device: device)
 
-        try super.init(device: commandPool.device, handlePointer: handlePointer)
+        try super.init(device: device, handlePointer: handlePointer)
     }
 
     public func record(using body: () throws -> ()) throws {

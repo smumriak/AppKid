@@ -33,6 +33,49 @@ public final class Window: NSObject {
     }
 
     // public convenience init(rootWindow: Window, )
+
+    public enum PropertyType {
+        case eight
+        case sixteen
+        case thirtyTwo
+
+        internal var bitCount: CInt {
+            switch self {
+            case .eight: return 8 // data is a sequence of bytes, i.e. 8 bit array
+            case .sixteen: return 16 // data is a sequence of shorts, i.e. 16 bit array
+            case .thirtyTwo: return 32 // data is a sequence of longs, i.e. 32 bit array on 32 bit systems, 64 bit array on 64 bit systems. fuck you X11
+            }
+        }
+
+        internal var byteCount: CInt {
+            switch self {
+            case .eight: return 1
+            case .sixteen: return 2
+            case .thirtyTwo:
+                #if arch(i386) || arch(arm)
+                    return 4
+                #else
+                    return 8
+                #endif
+            }
+        }
+    }
+
+    public func set<T>(property: Atom, type: Atom, format: PropertyType, mode: XlibPropertyChangeMode = .replace, value: T) throws {
+        let size = MemoryLayout.size(ofValue: value)
+        
+        withUnsafeBytes(of: value) { bytes in
+            let buffer = bytes.bindMemory(to: UInt8.self)
+            _ = XChangeProperty(display.handle, windowID, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(size) / format.byteCount)
+        }
+    }
+
+    public func set<T>(property: Atom, type: Atom, format: PropertyType, mode: XlibPropertyChangeMode = .replace, value: [T]) throws {
+        value.withUnsafeBytes { bytes in
+            let buffer = bytes.bindMemory(to: UInt8.self)
+            _ = XChangeProperty(display.handle, windowID, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
+        }
+    }
 }
 
 public extension Rect where StorageType == CInt {

@@ -21,6 +21,8 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     public fileprivate(set) var screen: UnsafeMutablePointer<CXlib.Screen>
     public fileprivate(set) var windowID: CXlib.Window
 
+    public fileprivate(set) var window: SwiftXlib.Window
+
     var title: String = "" {
         didSet {
             title.withCString {
@@ -121,23 +123,15 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
 
-    public var syncFence: XSyncFence = XSyncFence(None)
-
     internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None)) {
         didSet {
-            let size = MemoryLayout.size(ofValue: syncCounter)
-            withUnsafePointer(to: &syncCounter) {
-                $0.withMemoryRebound(to: UInt8.self, capacity: size) {
-                    let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display.handle, windowID, display.syncCounterAtom, XA_CARDINAL, 32, PropModeReplace, optional, 2)
-                }
-            }
+            try? window.set(property: display.syncCounterAtom, type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter)
         }
     }
 
     public internal(set) var basicSyncCounter: Int64 = 0
     public func sendBasicSyncCounterValue() {
-        guard syncCounter.basic != Atom(None) else { return }
+        guard syncCounter.basic != XSyncCounter(None) else { return }
 
         let value = XSyncValue(hi: Int32(basicSyncCounter >> 32), lo: UInt32(basicSyncCounter & 0xFFFFFFFF))
         XSyncSetCounter(display.handle, syncCounter.basic, value)
@@ -147,7 +141,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
 
     public internal(set) var extendedSyncCounter: Int64 = 0
     public func sendExtendedSyncCounterValue() {
-        guard syncCounter.extended != Atom(None) else { return }
+        guard syncCounter.extended != XSyncCounter(None) else { return }
 
         let value = XSyncValue(hi: Int32(extendedSyncCounter >> 32), lo: UInt32(extendedSyncCounter & 0xFFFFFFFF))
         XSyncSetCounter(display.handle, syncCounter.extended, value)
@@ -172,10 +166,6 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         if !isRoot {
             XDestroyWindow(display.handle, windowID)
         }
-
-        if syncFence != XSyncFence(None) {
-            XSyncDestroyFence(display.handle, syncFence)
-        }
     }
     
     internal init(display: SwiftXlib.Display, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
@@ -183,6 +173,10 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         self.screen = screen
         self.windowID = windowID
         self.title = title
+        
+        let rootWindow = SwiftXlib.Window(display: display, screen: SwiftXlib.Screen(), rootWindow: nil, windowID: XDefaultRootWindow(display.handle), destroyOnDeinit: false)
+
+        self.window = SwiftXlib.Window(display: display, screen: SwiftXlib.Screen(), rootWindow: rootWindow, windowID: windowID)
 
         super.init()
     }

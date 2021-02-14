@@ -213,14 +213,6 @@ public final class VulkanRenderer {
 
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
-        // let xlibFence = window.nativeWindow.syncFence
-        // let display = window.nativeWindow.display
-        // XSyncResetFence(display.handle, xlibFence)
-
-        // defer {
-        //     XSyncTriggerFence(display.handle, xlibFence)
-        // }
-
         while true {
             do {
                 object.projection = window.projectionMatrix
@@ -370,7 +362,7 @@ public final class VulkanRenderer {
         let scissors = [renderArea]
 
         let result: [CommandBuffer] = try zip(framebuffers, descriptorSets).map { framebuffer, descriptorSet in
-            let commandBuffer = try CommandBuffer(commandPool: commandPool)
+            let commandBuffer = try commandPool.createCommandBuffer()
 
             try commandBuffer.record {
                 try commandBuffer.begin(renderPass: renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])

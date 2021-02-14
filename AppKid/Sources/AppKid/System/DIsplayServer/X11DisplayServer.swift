@@ -147,19 +147,9 @@ extension X11DisplayServer {
         let basicSyncCounter = XSyncCreateCounter(display.handle, syncValue)
         let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
 
-        // let syncFence = XSyncCreateFence(display.handle, windowID, 0)
-        
-        // withUnsafePointer(to: syncFence) {
-        //     $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: syncFence)) {
-        //         let optional: UnsafePointer<UInt8>? = $0
-        //         XChangeProperty(display.handle, windowID, display.syncFencesAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
-        //     }
-        // }
-
         let result = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
         result.syncCounter = (basicSyncCounter, extendedSyncCounter)
-        // result.syncFence = syncFence
 
         XStoreName(display.handle, windowID, title)
 

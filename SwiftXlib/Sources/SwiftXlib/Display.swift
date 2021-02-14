@@ -18,6 +18,8 @@ extension CXlib.Display: ReleasableCType {
     }
 }
 
+public typealias Atom = CXlib.Atom
+
 public enum AtomName: String {
     case deleteWindow = "WM_DELETE_WINDOW"
     case takeFocus = "WM_TAKE_FOCUS"
