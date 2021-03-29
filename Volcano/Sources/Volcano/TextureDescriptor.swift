@@ -44,7 +44,7 @@ public final class TextureDescriptor {
     public var memoryProperties: VkMemoryPropertyFlagBits = []
 
     public func setAccessQueues(_ accessQueues: [Queue]) {
-        accessQueueFamiliesIndices = Array(Set(accessQueues.map { CUnsignedInt($0.familyIndex) }))
+        accessQueueFamiliesIndices = accessQueues.familyIndices
     }
 }
 

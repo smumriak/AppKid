@@ -36,7 +36,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         let maxImageCount = capabilities.maxImageCount > 0 ? capabilities.maxImageCount : minImageCount
 
         let imageCount = min(minImageCount, maxImageCount)
-        let queueFamiliesIndices = Array(Set([graphicsQueue, presentationQueue].map { CUnsignedInt($0.familyIndex) }))
+        let queueFamiliesIndices = [graphicsQueue, presentationQueue].familyIndices
 
         let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR()

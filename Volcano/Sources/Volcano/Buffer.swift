@@ -14,10 +14,9 @@ public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
     public let sharingMode: VkSharingMode
     public let memoryChunk: MemoryChunk
 
-    public init(device: Device, size: VkDeviceSize, usage: VkBufferUsageFlagBits, flags: VkBufferCreateFlagBits = [], sharingMode: VkSharingMode = .exclusive, memoryProperties: VkMemoryPropertyFlagBits, accessQueues: [Queue] = []) throws {
-        assert(accessQueues.isEmpty == false || sharingMode == .exclusive, "Shared buffers required to have explicit access queues")
-
-        let queueFamilyIndices = Array(Set(accessQueues.map { CUnsignedInt($0.familyIndex) }))
+    public init(device: Device, size: VkDeviceSize, usage: VkBufferUsageFlagBits, flags: VkBufferCreateFlagBits = [], memoryProperties: VkMemoryPropertyFlagBits, accessQueues: [Queue] = []) throws {
+        let queueFamilyIndices = accessQueues.familyIndices
+        let sharingMode: VkSharingMode = queueFamilyIndices.count > 1 ? .concurrent : .exclusive
 
         let handlePointer: SmartPointer<VkBuffer_T> = try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
             var info = VkBufferCreateInfo()

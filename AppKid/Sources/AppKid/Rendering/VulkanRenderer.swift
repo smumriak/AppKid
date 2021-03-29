@@ -396,7 +396,6 @@ public final class VulkanRenderer {
         let stagingBuffer = try Buffer(device: device,
                                        size: bufferSize,
                                        usage: [.transferSource],
-                                       sharingMode: .concurrent,
                                        memoryProperties: [.hostVisible, .hostCoherent],
                                        accessQueues: [graphicsQueue, transferQueue])
 
@@ -409,7 +408,6 @@ public final class VulkanRenderer {
         let vertexBuffer = try Buffer(device: device,
                                       size: bufferSize,
                                       usage: [.vertexBuffer, .transferDestination],
-                                      sharingMode: .concurrent,
                                       memoryProperties: .deviceLocal,
                                       accessQueues: [graphicsQueue, transferQueue])
 
@@ -426,7 +424,6 @@ public final class VulkanRenderer {
         let stagingBuffer = try Buffer(device: device,
                                        size: bufferSize,
                                        usage: [.transferSource],
-                                       sharingMode: .concurrent,
                                        memoryProperties: [.hostVisible, .hostCoherent],
                                        accessQueues: [graphicsQueue, transferQueue])
 
@@ -439,7 +436,6 @@ public final class VulkanRenderer {
         let indexBuffer = try Buffer(device: device,
                                      size: bufferSize,
                                      usage: [.indexBuffer, .transferDestination],
-                                     sharingMode: .concurrent,
                                      memoryProperties: .deviceLocal,
                                      accessQueues: [graphicsQueue, transferQueue])
 
@@ -456,7 +452,6 @@ public final class VulkanRenderer {
             let result = try Buffer(device: device,
                                     size: size,
                                     usage: [.uniformBuffer],
-                                    sharingMode: .concurrent,
                                     memoryProperties: [.hostVisible, .hostCoherent],
                                     accessQueues: [graphicsQueue, transferQueue])
 

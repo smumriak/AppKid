@@ -116,3 +116,9 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
         try fence?.wait()
     }
 }
+
+public extension Array where Element == Queue {
+    var familyIndices: [CUnsignedInt] {
+        return Array<CUnsignedInt>(Set(map { CUnsignedInt($0.familyIndex) }))
+    }
+}

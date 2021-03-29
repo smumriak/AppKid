@@ -43,7 +43,7 @@ public class ImageDescriptor {
     public var initialLayout: VkImageLayout = .undefined
 
     public func setAccessQueues(_ accessQueues: [Queue]) {
-        queueFamilyIndices = Array(Set(accessQueues.map { CUnsignedInt($0.familyIndex) }))
+        queueFamilyIndices = accessQueues.familyIndices
     }
 
     internal func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
