@@ -40,8 +40,18 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
 
     init(applicationName appName: String) {
         XInitThreads()
+
+        if ProcessInfo.processInfo.environment["DISPLAY"] == nil {
+            debugPrint("DISPLAY environment variable is not set. Setting it to :0")
+            setenv("DISPLAY", ":0", 0)
+        }
+
+        guard let displayNumber = ProcessInfo.processInfo.environment["DISPLAY"] else {
+            fatalError("DISPLAY environment variable is not set")
+        }
+
         do {
-            display = try SwiftXlib.Display()
+            display = try SwiftXlib.Display(displayNumber)
         } catch {
             fatalError("Can not create display with error: \(error)")
         }

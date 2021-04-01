@@ -9,7 +9,7 @@
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build",
             "linux": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan" 
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
             },
             "osx": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
@@ -23,10 +23,29 @@
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "build_tests",
             "linux": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux/debug/SwiftyFanPackageTests.xctest" 
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux/debug/SwiftyFanPackageTests.xctest"
             },
             "osx": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin/debug/SwiftyFanPackageTests.xctest "
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin/debug/SwiftyFanPackageTests.xctest"
+            },
+        },
+        {
+            "name": "Run arm64",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "preLaunchTask": "build_arm64",
+            "initCommands": [
+                "platform select remote-linux",
+                "platform connect connect://jetson.cherryink:1234",
+                "settings set target.inherit-env false",
+                "settings set target.process.stop-on-sharedlibrary-events false",
+            ],
+            "linux": {
+                "program": "SwiftyFan"
+            },
+            "osx": {
+                "program": "SwiftyFan"
             },
         },
     ]

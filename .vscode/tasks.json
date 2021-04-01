@@ -24,7 +24,7 @@
             },
             "osx": {
                 "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
-            }  
+            }
         },
         {
             "label": "buildShaders",
@@ -37,12 +37,67 @@
             }
         },
         {
+            "label": "buildProject_arm64",
+            "type": "shell",
+            "linux": {
+                "command": "swift build --verbose --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64 --destination ${env:HOME}/Documents/SwiftCrossCompilers/InstallPackagers/SwiftCrossCompiler/Developer/Destinations/arm64-5.3.3-RELEASE.json"
+            },
+            "osx": {
+                "command": "echo NO_OP"
+            }
+        },
+        {
+            "label": "upload_jetson",
+            "type": "shell",
+            "linux": {
+                "command": "cd ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64/debug && rsync -r * jetson.cherryink:/home/palkovnik/lol"
+            },
+            "osx": {
+                "command": "echo NO_OP"
+            }
+        },
+        {
+            "label": "startRemoteLLDB",
+            "type": "shell",
+            "linux": {
+                "command": "ssh jetson.cherryink -f 'killall -9 lldb-server; sleep 2; cd ~/lol; lldb-server platform --listen \"*:1234\" --server'; sleep 5"
+            }
+        },
+        {
             "label": "build",
             "dependsOn": [
-                "buildShaders", 
-                "buildProject",
+                "buildShaders",
+                "buildProject"
             ],
-            "dependsOrder": "sequence"
+            "dependsOrder": "sequence",
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "build_arm64",
+            "dependsOn": [
+                "buildShaders",
+                "buildProject_arm64",
+                "upload_jetson"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
         }
     ]
 }
