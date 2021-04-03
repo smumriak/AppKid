@@ -153,13 +153,8 @@ extension X11DisplayServer {
                                      attributesMask,
                                      &attributes)
 
-        let syncValue = XSyncValue(hi: 0, lo: 0)
-        let basicSyncCounter = XSyncCreateCounter(display.handle, syncValue)
-        let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
-
         let result = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
         result.displayScale = context.scale
-        result.syncCounter = (basicSyncCounter, extendedSyncCounter)
 
         XStoreName(display.handle, windowID, title)
 

@@ -157,13 +157,14 @@ public final class VulkanRenderer {
     }
 
     public func setupSwapchain() throws {
-        try surface.refreshCapabilities()
-
         let windowSize = window.bounds.size
         let displayScale = window.nativeWindow.displayScale
         let desiredSize = VkExtent2D(width: UInt32(windowSize.width * displayScale), height: UInt32(windowSize.height * displayScale))
-        let minSize = surface.capabilities.minImageExtent
-        let maxSize = surface.capabilities.maxImageExtent
+        
+        try surface.refreshCapabilities()
+        let capabilities = surface.capabilities
+        let minSize = capabilities.minImageExtent
+        let maxSize = capabilities.maxImageExtent
 
         let width = max(min(desiredSize.width, maxSize.width), minSize.width)
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)

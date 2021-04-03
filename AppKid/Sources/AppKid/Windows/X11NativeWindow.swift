@@ -123,60 +123,17 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
 
-    internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None)) {
-        didSet {
-            try? window.set(property: display.syncCounterAtom, type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter)
-        }
-    }
-
-    public internal(set) var basicSyncCounter: Int64 = 0
-    public func sendBasicSyncCounterValue() {
-        guard syncCounter.basic != XSyncCounter(None) else { return }
-
-        let value = XSyncValue(hi: Int32(basicSyncCounter >> 32), lo: UInt32(basicSyncCounter & 0xFFFFFFFF))
-        XSyncSetCounter(display.handle, syncCounter.basic, value)
-
-        display.flush()
-    }
-
-    public internal(set) var extendedSyncCounter: Int64 = 0
-    public func sendExtendedSyncCounterValue() {
-        guard syncCounter.extended != XSyncCounter(None) else { return }
-
-        let value = XSyncValue(hi: Int32(extendedSyncCounter >> 32), lo: UInt32(extendedSyncCounter & 0xFFFFFFFF))
-        XSyncSetCounter(display.handle, syncCounter.extended, value)
-
-        display.flush()
-    }
-
     public var syncRequested: Bool = false
-    public var rendererResized: Bool = false
 
     var inputContext: XIC? = nil
-    
-    deinit {
-        if syncCounter.basic != XSyncCounter(None) {
-            XSyncDestroyCounter(display.handle, syncCounter.basic)
-        }
-
-        if syncCounter.extended != XSyncCounter(None) {
-            XSyncDestroyCounter(display.handle, syncCounter.extended)
-        }
-
-        if !isRoot {
-            XDestroyWindow(display.handle, windowID)
-        }
-    }
-    
+        
     internal init(display: SwiftXlib.Display, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
         self.display = display
         self.screen = screen
         self.windowID = windowID
         self.title = title
         
-        let rootWindow = SwiftXlib.Window(display: display, screen: SwiftXlib.Screen(), rootWindow: nil, windowID: XDefaultRootWindow(display.handle), destroyOnDeinit: false)
-
-        self.window = SwiftXlib.Window(display: display, screen: SwiftXlib.Screen(), rootWindow: rootWindow, windowID: windowID)
+        self.window = SwiftXlib.Window(rootWindow: display.rootWindow, windowID: windowID)
 
         super.init()
     }
@@ -210,8 +167,8 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     }
 }
 
-extension X11NativeWindow {
-    public static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
+public extension X11NativeWindow {
+    static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
     }
 }

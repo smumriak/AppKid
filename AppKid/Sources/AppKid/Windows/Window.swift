@@ -375,30 +375,28 @@ fileprivate extension Window {
                 updateSurface()
             }
 
-            if nativeWindow.syncRequested == true && nativeWindow.rendererResized == true {
-                nativeWindow.sendExtendedSyncCounterValue()
-                nativeWindow.syncRequested = false
-                nativeWindow.rendererResized = false
-            }
+            nativeWindow.window.sendSyncCounterIfNeeded()
 
             notificationCenter.post(name: .windowDidExpose, object: self)
 
-        case .windowDidResize:
-            if isMapped {
-                let newSize = CGSize(width: event.deltaX, height: event.deltaY)
+        case .configurationChanged:
+            let newSize = CGSize(width: event.deltaX, height: event.deltaY)
+            let sizeChanged = (newSize != bounds.size)
 
-                if newSize != bounds.size {
+            if sizeChanged {
+                if isMapped {
                     updateSurface()
                 }
             }
 
-            nativeWindow.rendererResized = true
+            nativeWindow.window.sendSyncCounterIfNeeded()
 
-            notificationCenter.post(name: .windowDidResize, object: self)
+            if sizeChanged {
+                notificationCenter.post(name: .windowDidResize, object: self)
+            }
 
         case .windowSyncRequest:
-            nativeWindow.syncRequested = true
-            nativeWindow.extendedSyncCounter = event.syncCounter
+            nativeWindow.window.syncRequested(with: event.syncCounterValue)
             
             notificationCenter.post(name: .windowDidReceiveSyncRequest, object: self)
 

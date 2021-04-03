@@ -156,7 +156,7 @@ internal extension Event {
 
                 case displayServer.display.syncRequestAtom:
                     self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
-                    syncCounter = (Int64(x11Event.xclient.data.l.3) << 32) | Int64(x11Event.xclient.data.l.2)
+                    syncCounterValue = XSyncValue(hi: CInt(x11Event.xclient.data.l.3), lo: CUnsignedInt(x11Event.xclient.data.l.2))
 
                 default:
                     self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
@@ -165,12 +165,12 @@ internal extension Event {
             case ConfigureNotify:
                 let configureEvent = x11Event.xconfigure
 
-                self.init(withAppKidEventSubType: .windowDidResize, windowNumber: windowNumber)
+                self.init(withAppKidEventSubType: .configurationChanged, windowNumber: windowNumber)
                 deltaX = CGFloat(configureEvent.width) / displayServer.context.scale
                 deltaY = CGFloat(configureEvent.height) / displayServer.context.scale
                 
             default:
-                self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
+                self.init(withAppKidEventSubType: .none, windowNumber: windowNumber)
             }
         
         default:
