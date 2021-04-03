@@ -9,7 +9,16 @@
             },
             "osx": {
                 "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
-            }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
         },
         {
             "label": "clean",
@@ -24,7 +33,16 @@
             },
             "osx": {
                 "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
-            }
+            },
+            "group": "test",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
         },
         {
             "label": "buildShaders",
@@ -34,7 +52,16 @@
             },
             "osx": {
                 "command": "echo NO_OP"
-            }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
         },
         {
             "label": "buildProject_arm64",
@@ -44,24 +71,35 @@
             },
             "osx": {
                 "command": "echo NO_OP"
-            }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
         },
         {
             "label": "upload_jetson",
             "type": "shell",
             "linux": {
-                "command": "cd ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64/debug && rsync -r * jetson.cherryink:/home/palkovnik/lol"
+                "command": "rsync -r ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64/debug/ 192.168.55.1:~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug"
             },
             "osx": {
                 "command": "echo NO_OP"
-            }
-        },
-        {
-            "label": "startRemoteLLDB",
-            "type": "shell",
-            "linux": {
-                "command": "ssh jetson.cherryink -f 'killall -9 lldb-server; sleep 2; cd ~/lol; lldb-server platform --listen \"*:1234\" --server'; sleep 5"
-            }
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
         },
         {
             "label": "build",
