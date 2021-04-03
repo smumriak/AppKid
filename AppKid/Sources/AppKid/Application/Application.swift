@@ -214,6 +214,16 @@ open class Application: Responder {
                 return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
             }
 
+            // palkovnik: code performs one shot of runloop go give timears, dispatch queues and other things to process their events
+            let result = CFRunLoopRunInMode(mode.cfRunLoopMode, 0, true)
+            switch result {
+            case .finished: return nil
+            case .stopped: return nil
+            case .timedOut: break
+            case .handledSource: break
+            default: break
+            }
+            
             if let index = indexOfEvent(matching: mask) {
                 let event = eventQueue[index]
 
@@ -236,9 +246,9 @@ open class Application: Responder {
                 switch result {
                 case .finished: return nil
                 case .stopped: return nil
-                case .timedOut: return nil
-                case .handledSource: continue
-                default: return nil
+                case .timedOut: break
+                case .handledSource: break
+                default: break
                 }
             }
         }
