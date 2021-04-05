@@ -1,5 +1,13 @@
 {
     "sde.languageServerMode": "sourcekit-lsp",
+    "sde.swiftBuildingParams": [
+        "build",
+        "--build-path",
+        "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
+    ],
+    "sde.enableTracing.client": false,
+    "sde.enableTracing.LSPServer": false,
+    "sde.buildOnSave": true,
     "sourcekit-lsp.serverPath": "/opt/swift/usr/bin/sourcekit-lsp",
     "swiftformat.configSearchPaths": [
         ".swiftformat"
@@ -29,11 +37,6 @@
         "random": "cpp",
         "*.volcano": "glsl",
     },
-    "sde.swiftBuildingParams": [
-        "build",
-        "--build-path",
-        "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux-SDE"
-    ],
     "debug.toolBarLocation": "docked",
     "debug.focusWindowOnBreak": true,
     "debug.showInStatusBar": "always",

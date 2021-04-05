@@ -86,7 +86,7 @@
             "label": "upload_jetson",
             "type": "shell",
             "linux": {
-                "command": "rsync -r ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64/debug/ 192.168.55.1:~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug"
+                "command": "rsync -r -l ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64 192.168.55.1:~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
             },
             "osx": {
                 "command": "echo NO_OP"
