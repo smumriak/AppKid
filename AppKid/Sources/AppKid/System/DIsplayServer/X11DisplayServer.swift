@@ -12,6 +12,37 @@ import TinyFoundation
 import CXlib
 import SwiftXlib
 
+internal extension ProcessInfo {
+    static let displayEnvironmentKey = "DISPLAY"
+    static let forceScaleFactorEnvironmentKey = "APPKID_FORCE_SCALE_FACTOR"
+
+    static var display: String? {
+        get {
+            processInfo.environment[displayEnvironmentKey]
+        }
+        set {
+            if let newValue = newValue {
+                setenv(displayEnvironmentKey, newValue, 1)
+            } else {
+                unsetenv(displayEnvironmentKey)
+            }
+        }
+    }
+
+    static var forceScaleFactor: String? {
+        get {
+            processInfo.environment[forceScaleFactorEnvironmentKey]
+        }
+        set {
+            if let newValue = newValue {
+                setenv(forceScaleFactorEnvironmentKey, newValue, 1)
+            } else {
+                unsetenv(forceScaleFactorEnvironmentKey)
+            }
+        }
+    }
+}
+
 internal final class X11DisplayServer: NSObject, DisplayServer {
     var context = X11DisplayServerContext()
     var eventQueueNotificationObserver: NSObjectProtocol?
@@ -41,9 +72,9 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
     init(applicationName appName: String) {
         XInitThreads()
 
-        if ProcessInfo.processInfo.environment["DISPLAY"] == nil {
+        if ProcessInfo.display == nil {
             debugPrint("DISPLAY environment variable is not set. Setting it to :0")
-            setenv("DISPLAY", ":0", 0)
+            ProcessInfo.display = ":0"
         }
 
         guard let displayNumber = ProcessInfo.processInfo.environment["DISPLAY"] else {
@@ -102,8 +133,12 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
 
         super.init()
 
-        gtkDisplayScale.map {
-            context.scale = CGFloat($0)
+        if let forceScaleFactorString = ProcessInfo.forceScaleFactor, let forceScaleFactor = CGFloat(forceScaleFactorString) {
+            context.scale = CGFloat(forceScaleFactor)
+        } else {
+            gtkDisplayScale.map {
+                context.scale = CGFloat($0)
+            }
         }
 
         rootWindow.displayScale = context.scale

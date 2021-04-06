@@ -5,10 +5,16 @@
         "--build-path",
         "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
     ],
-    "sde.enableTracing.client": false,
-    "sde.enableTracing.LSPServer": false,
+    "sde.enableTracing.client": true,
+    "sde.enableTracing.LSPServer": true,
     "sde.buildOnSave": true,
-    "sourcekit-lsp.serverPath": "/opt/swift/usr/bin/sourcekit-lsp",
+    "sourcekit-lsp.trace.server": "messages",
+    "sourcekit-lsp.serverArguments": [
+        "--build-path",
+        "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux",
+        "--configuration",
+        "debug"
+    ],
     "swiftformat.configSearchPaths": [
         ".swiftformat"
     ],
