@@ -23,12 +23,19 @@ public enum VulkanRendererError: Error {
     case noTransferQueueFound
 }
 
+public protocol VulkanRendererDelegate: AnyObject {
+    func didBeginRenderingFrame(renderer: VulkanRenderer)
+    func didEndRenderingFrame(renderer: VulkanRenderer)
+}
+
 public final class VulkanRenderer {
     internal var window: AppKid.Window {
         didSet {
             try? render()
         }
     }
+
+    public weak var delegate: VulkanRendererDelegate? = nil
 
     internal var projectionMatrix: mat4s = .identity
     internal var viewMatrix: mat4s = .identity
@@ -203,16 +210,21 @@ public final class VulkanRenderer {
     }
 
     public func beginFrame() {
+        delegate?.didBeginRenderingFrame(renderer: self)
     }
 
     public func endFrame() {
+        delegate?.didEndRenderingFrame(renderer: self)
     }
 
     public func render() throws {
+        beginFrame()
+        defer { endFrame() }
+
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
-        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier that x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
+        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
         while true {
             do {
@@ -601,6 +613,9 @@ public final class VulkanRenderer {
     }
 }
 
+extension VulkanRenderer: Equatable {
+    public static func == (lhs: VulkanRenderer, rhs: VulkanRenderer) -> Bool { lhs === rhs }
+}
 typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
 typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
 

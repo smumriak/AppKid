@@ -267,6 +267,7 @@ open class Application: Responder {
         if isVulkanRendererEnabled {
             do {
                 let renderer = try VulkanRenderer(window: window, renderStack: renderStack!)
+                renderer.delegate = self
                 
                 try renderer.setupSwapchain()
                 
@@ -326,4 +327,13 @@ public extension Application {
     // MARK: Notifications
 
     static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
+}
+
+extension Application: VulkanRendererDelegate {
+    public func didBeginRenderingFrame(renderer: VulkanRenderer) {
+        let window = renderer.window
+    }
+
+    public func didEndRenderingFrame(renderer: VulkanRenderer) {
+    }
 }
