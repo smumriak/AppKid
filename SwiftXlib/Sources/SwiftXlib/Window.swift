@@ -155,26 +155,23 @@ public class Window: NSObject {
 
     internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None))
 
-    public var basicSyncCounterValue = XSyncValue(hi: 0, lo: 0)
-    public var extendedSyncCounterValue = XSyncValue(hi: 0, lo: 0)
+    public var currentSyncCounterValue: XSyncValue = XSyncValue(hi: 0, lo: 0)
+    public var incomingSyncCounterValue: XSyncValue? = nil
 
     public func sendSyncCounterIfNeeded() {
         guard syncRequested else { return }
 
         let counter: XSyncCounter
-        let value: XSyncValue
         
         if rootWindow?.supportsExtendedSyncCounter == true {
             counter = syncCounter.extended
-            value = extendedSyncCounterValue
         } else {
             counter = syncCounter.basic
-            value = basicSyncCounterValue
         }
 
         if counter == XSyncCounter(None) { return }
 
-        XSyncSetCounter(display.handle, counter, value)
+        XSyncSetCounter(display.handle, counter, currentSyncCounterValue)
 
         display.flush()
 
@@ -182,11 +179,7 @@ public class Window: NSObject {
     }
 
     public func syncRequested(with value: XSyncValue) {
-        if rootWindow?.supportsExtendedSyncCounter == true {
-            extendedSyncCounterValue = value
-        } else {
-            basicSyncCounterValue = value
-        }
+        currentSyncCounterValue = value
         
         syncRequested = true
     }
