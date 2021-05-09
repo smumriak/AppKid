@@ -17,7 +17,7 @@ public extension Notification.Name {
     static let windowDidReceiveSyncRequest = Notification.Name(rawValue: "windowDidReceiveSyncRequest") // XSync requests
 }
 
-public protocol WindowDelegate: class {
+public protocol WindowDelegate: AnyObject {
     func windowShouldClose(_ sender: Window) -> Bool
 }
 

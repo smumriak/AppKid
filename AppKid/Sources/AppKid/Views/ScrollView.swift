@@ -55,7 +55,7 @@ open class ScrollView: View {
     }
 }
 
-public protocol ScrollViewDelegate: class {
+public protocol ScrollViewDelegate: AnyObject {
     func scrollViewDidScroll(_ scrollView: ScrollView)
     func scrollViewShouldScrollToTop(_ scrollView: ScrollView) -> Bool
     func scrollViewDidScrollToTop(_ scrollView: ScrollView)

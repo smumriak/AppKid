@@ -11,7 +11,7 @@ import TinyFoundation
 import SwiftXlib
 import CXlib
 
-protocol NativeWindow: class {
+protocol NativeWindow: AnyObject {
     var title: String { get set }
     var opacity: CGFloat { get set }
 }

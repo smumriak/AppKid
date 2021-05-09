@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal protocol DisplayServer: class {
+internal protocol DisplayServer: AnyObject {
     var applicationName: String { get }
     var hasEvents: Bool { get set }
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-internal protocol CALayerPropertyProtocol: class {
+internal protocol CALayerPropertyProtocol: AnyObject {
     var name: String { get }
 }
 

@@ -22,7 +22,7 @@ public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
 }
 
-public protocol ApplicationDelegate: class {
+public protocol ApplicationDelegate: AnyObject {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool
@@ -217,11 +217,11 @@ open class Application: Responder {
             // palkovnik: code performs one shot of runloop go give timears, dispatch queues and other things to process their events
             let result = CFRunLoopRunInMode(mode.cfRunLoopMode, 0, true)
             switch result {
-            case .finished: return nil
-            case .stopped: return nil
-            case .timedOut: break
-            case .handledSource: break
-            default: break
+                case .finished: return nil
+                case .stopped: return nil
+                case .timedOut: break
+                case .handledSource: break
+                default: break
             }
             
             if let index = indexOfEvent(matching: mask) {
@@ -244,11 +244,11 @@ open class Application: Responder {
                 let result = CFRunLoopRunInMode(mode.cfRunLoopMode, seconds, true)
 
                 switch result {
-                case .finished: return nil
-                case .stopped: return nil
-                case .timedOut: break
-                case .handledSource: break
-                default: break
+                    case .finished: return nil
+                    case .stopped: return nil
+                    case .timedOut: break
+                    case .handledSource: break
+                    default: break
                 }
             }
         }
@@ -267,6 +267,8 @@ open class Application: Responder {
         if isVulkanRendererEnabled {
             do {
                 let renderer = try VulkanRenderer(window: window, renderStack: renderStack!)
+                renderer.delegate = self
+                
                 try renderer.setupSwapchain()
                 
                 vulkanRenderers.append(renderer)
@@ -325,4 +327,13 @@ public extension Application {
     // MARK: Notifications
 
     static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
+}
+
+extension Application: VulkanRendererDelegate {
+    public func didBeginRenderingFrame(renderer: VulkanRenderer) {
+        let window = renderer.window
+    }
+
+    public func didEndRenderingFrame(renderer: VulkanRenderer) {
+    }
 }

@@ -35,8 +35,8 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     }
 
     public func submit(commandBuffers: [CommandBuffer],
-                       waitSemaphores: [Semaphore] = [],
-                       signalSemaphores: [Semaphore] = [],
+                       waitSemaphores: [Volcano.Semaphore] = [],
+                       signalSemaphores: [Volcano.Semaphore] = [],
                        waitStages: [VkPipelineStageFlags] = [],
                        fence: Fence? = nil) throws {
         let commandBuffersHandles: [VkCommandBuffer?] = commandBuffers.map { $0.handle }
@@ -70,7 +70,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     }
 
     public func present(swapchains: [Swapchain],
-                        waitSemaphores: [Semaphore],
+                        waitSemaphores: [Volcano.Semaphore],
                         imageIndices: [CUnsignedInt]) throws {
         let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.handle }
         let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }

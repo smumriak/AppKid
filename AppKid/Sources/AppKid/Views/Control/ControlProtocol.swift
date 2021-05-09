@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol ControlProtocol: class {
+public protocol ControlProtocol: AnyObject {
     typealias ActionIdentifier = Control.ActionIdentifier
 
     typealias Action<Sender> = () -> ()
