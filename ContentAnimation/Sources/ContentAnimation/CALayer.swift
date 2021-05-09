@@ -9,7 +9,7 @@ import Foundation
 import CoreFoundation
 import CairoGraphics
 
-public protocol CALayerDelegate: class {
+public protocol CALayerDelegate: AnyObject {
     func display(_ layer: CALayer)
     func draw(_ layer: CALayer, in context: CairoGraphics.CGContext)
     func layerWillDraw(_ layer: CALayer)

@@ -45,8 +45,8 @@ public final class VulkanRenderer {
     internal fileprivate(set) var commandPool: CommandPool
     internal fileprivate(set) var transferCommandPool: CommandPool
 
-    internal fileprivate(set) var imageAvailableSemaphore: Semaphore
-    internal fileprivate(set) var renderFinishedSemaphore: Semaphore
+    internal fileprivate(set) var imageAvailableSemaphore: Volcano.Semaphore
+    internal fileprivate(set) var renderFinishedSemaphore: Volcano.Semaphore
     internal fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
 
@@ -281,8 +281,8 @@ public final class VulkanRenderer {
         let commandBuffer = commandBuffers[imageIndex]
 
         let submitCommandBuffers: [CommandBuffer] = [commandBuffer]
-        let waitSemaphores: [Semaphore] = [imageAvailableSemaphore]
-        let signalSemaphores: [Semaphore] = [renderFinishedSemaphore]
+        let waitSemaphores: [Volcano.Semaphore] = [imageAvailableSemaphore]
+        let signalSemaphores: [Volcano.Semaphore] = [renderFinishedSemaphore]
         let waitStages: [VkPipelineStageFlags] = [VkPipelineStageFlagBits.colorAttachmentOutput.rawValue]
 
         try graphicsQueue.submit(commandBuffers: submitCommandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence)
