@@ -31,6 +31,9 @@ let package = Package(
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
             ]
         ),
     ]

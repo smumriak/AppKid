@@ -178,7 +178,7 @@ public final class VulkanRenderer {
         let size = VkExtent2D(width: width, height: height)
 
         swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
-        textures = try swapchain.create2DTextures()
+        textures = try swapchain.textures
 
         uniformBuffers = try createUniformBuffers()
 

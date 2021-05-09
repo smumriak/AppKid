@@ -70,6 +70,14 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         try super.init(device: device, handlePointer: handlePointer)
     }
 
+    public var textures: [Texture] {
+        get throws {
+            try rawImages.indices.map {
+                try SwapchainTexture(swapchain: self, imageIndex: $0)
+            }
+        }
+    }
+
     public func create2DTextures() throws -> [Texture] {
         try rawImages.indices.map {
             try SwapchainTexture(swapchain: self, imageIndex: $0)
