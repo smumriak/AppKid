@@ -20,6 +20,7 @@ let package = Package(
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics"),
+        .package(path: "../Volcano"),
     ],
     targets: [
         .target(
@@ -27,6 +28,7 @@ let package = Package(
             dependencies: [
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "Volcano", package: "Volcano"),
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
             ]
         ),

@@ -54,4 +54,7 @@
     "debug.console.collapseIdenticalLines": false,
     "debug.console.wordWrap": true,
     "debug.console.historySuggestions": true,
+    "launches": {
+        "Test": "Test",
+    },
 }

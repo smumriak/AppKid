@@ -23,7 +23,16 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "./clean.sh"
+            "command": "clear; ./clean.sh",
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true,
+            },
         },
         {
             "label": "build_tests",

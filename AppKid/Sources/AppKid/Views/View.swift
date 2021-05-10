@@ -16,26 +16,11 @@ open class View: Responder {
     var layer: CALayer
 
     // MARK: Geometry
-
-    fileprivate var _bounds: CGRect {
-        didSet {
-            invalidateTransforms()
-            setNeedsLayout()
-            setNeedsDisplay()
-        }
-    }
-
-    fileprivate var _center: CGPoint {
-        didSet {
-            invalidateTransforms()
-            setNeedsDisplay()
-        }
-    }
     
     open var frame: CGRect {
         get {
-            let size = _bounds.applying(transform).standardized.size
-            let origin = CGPoint(x: center.x - size.width / 2.0, y: center.y - size.height / 2.0)
+            let size = bounds.applying(transform).standardized.size
+            let origin = CGPoint(x: center.x - size.width * 0.5, y: center.y - size.height * 0.5)
             
             return CGRect(origin: origin, size: size)
         }
@@ -49,26 +34,33 @@ open class View: Responder {
     
     open var bounds: CGRect {
         get {
-            return _bounds
+            return layer.bounds
         }
         set {
-            _bounds = newValue
+            layer.bounds = newValue
+
+            invalidateTransforms()
+            setNeedsLayout()
+            setNeedsDisplay()
         }
     }
     
     open var center: CGPoint {
         get {
-            return _center
+            return layer.position
         }
         set {
-            _center = newValue
+            layer.position = newValue
 
+            invalidateTransforms()
             setNeedsDisplay()
         }
     }
 
     open var transform: CairoGraphics.CGAffineTransform = .identity {
         didSet {
+            layer.affineTransform = transform
+            
             invalidateTransforms()
             setNeedsDisplay()
         }
@@ -124,6 +116,8 @@ open class View: Responder {
 
             layoutSubviews()
 
+            needsLayout = false
+
             viewDelegate?.viewDidLayoutSubviews()
         }
     }
@@ -147,9 +141,6 @@ open class View: Responder {
         layer = CALayer()
         layer.bounds = CGRect(origin: .zero, size: frame.size)
         layer.position = CGPoint(x: frame.midX, y: frame.midY)
-        
-        _bounds = CGRect(origin: .zero, size: frame.size)
-        _center = CGPoint(x: frame.midX, y: frame.midY)
         
         super.init()
     }
@@ -385,5 +376,25 @@ public extension View {
 open class BlueView: View {
     open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
+    }
+}
+
+// MARK: CALayerDelegate
+
+extension View: CALayerDisplayDelegate {
+    public func display(_ layer: CALayer) {
+    }
+
+    public func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {
+    }
+    
+    public func layerWillDraw(_ layer: CALayer) {
+    }
+
+    public func layoutSublayers(of layer: CALayer) {
+    }
+
+    public func action(for layer: CALayer, forKey event: String) -> CAAction? {
+        return nil
     }
 }

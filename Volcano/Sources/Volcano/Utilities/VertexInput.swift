@@ -12,19 +12,33 @@ import SimpleGLM
 public protocol VertexInput {
     static func inputBindingDescription(binding: CUnsignedInt) -> VkVertexInputBindingDescription
     static func attributesDescriptions(binding: CUnsignedInt) -> [VkVertexInputAttributeDescription]
-
-    static func attributesDescriptions<T: VertexInputAttribute>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
 }
 
 public extension VertexInput {
-    static func attributesDescriptions<T>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] where T: VertexInputAttribute {
+    static func attributesDescriptions<T: VertexInputAttribute>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
         return T.descriptions(binding: binding, offset: CUnsignedInt(MemoryLayout<Self>.offset(of: keyPath)!), location: location)
+    }
+
+    static func addAttributes<T: VertexInputAttribute>(for keyPath: KeyPath<Self, T>, binding: CUnsignedInt, result: inout [VkVertexInputAttributeDescription]) {
+        var location: CUnsignedInt = 0
+        if let last = result.last {
+            location = last.location + 1
+        }
+
+        result += attributesDescriptions(for: keyPath, binding: binding, location: location)
     }
 }
 
 public protocol VertexInputAttribute {
     static var format: VkFormat { get }
+    static var locationStride: CUnsignedInt { get }
     static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
+}
+
+public extension KeyPath where Value: VertexInputAttribute {
+    static var locationStride: CUnsignedInt { 
+        return Value.locationStride
+    }
 }
 
 public protocol SingleRowVertexInputAttribute: VertexInputAttribute {}
@@ -32,6 +46,10 @@ public protocol SingleRowVertexInputAttribute: VertexInputAttribute {}
 public extension SingleRowVertexInputAttribute {
     static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription] {
         return [VkVertexInputAttributeDescription(location: location, binding: binding, format: format, offset: offset)]
+    }
+
+    static var locationStride: CUnsignedInt { 
+        return 1
     }
 }
 
@@ -50,6 +68,10 @@ public extension MultiRowVertexInputAttribute {
             attributeDescription.offset = offset + stride * i
             return attributeDescription
         }
+    }
+
+    static var locationStride: CUnsignedInt { 
+        return rowCount
     }
 }
 

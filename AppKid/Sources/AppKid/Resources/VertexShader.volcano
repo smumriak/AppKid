@@ -4,6 +4,21 @@
 #pragma shader_stage(vertex)
 #extension GL_ARB_separate_shader_objects : enable
 
+// two triangles: t0 and t1. starting with top left vertice
+// t0.0 - top left, t0.1 - top right, t0.2 - bottom right
+// t1.0 - top left, t1.1 - bottom left, t1.2 - bottom right
+// x and y are position
+// z and w are texture coordinates
+const vec4 vertices[] =
+{
+    vec4(-1.0, -1.0, 0.0, 0.0), // t0.0
+    vec4(+1.0, -1.0, 1.0, 0.0), // t0.1
+    vec4(+1.0, +1.0, 1.0, 1.0), // t0.2
+    vec4(-1.0, -1.0, 0.0, 0.0), // t1.0
+    vec4(-1.0, +1.0, 0.0, 1.0), // t1.1
+    vec4(+1.0, +1.0, 1.0, 1.0), // t1.1
+};
+
 layout(binding = 0) uniform UniformBufferObject 
 {
     mat4 model;
@@ -11,18 +26,25 @@ layout(binding = 0) uniform UniformBufferObject
     mat4 proj;
 } matrices;
 
-layout(location = 0) in vec2 inPosition;
-layout(location = 1) in vec4 backgrkoundColor;
-layout(location = 2) in vec2 textureCoordinates;
-layout(location = 3) in mat4 transform;
-layout(location = 7) in float borderWidth;
-layout(location = 8) in vec4 borderColor;
-layout(location = 9) in float cornerRadius;
+layout(location = 0) in mat4 transform;
+layout(location = 4) in mat4 contentsTransform;
+layout(location = 8) in vec2 position;
+layout(location = 9) in vec2 anchorPoint;
+layout(location = 10) in vec4 bounds;
+layout(location = 11) in vec4 backgroundColor;
+layout(location = 12) in vec4 borderColor;
+layout(location = 13) in float borderWidth;
+layout(location = 14) in float cornerRadius;
+layout(location = 15) in vec4 shadowColor;
+layout(location = 16) in vec2 shadowOffset;
+layout(location = 17) in float shadowRadius;
+layout(location = 18) in float shadowOpacity;
 
 layout(location = 0) out vec4 fragmentColor;
 
 void main() 
 {
-    gl_Position = matrices.proj * matrices.view * matrices.model * vec4(inPosition, 0.0, 1.0);
-    fragmentColor = backgrkoundColor;
+    gl_Position = matrices.proj * matrices.view * matrices.model * vec4(position, 0.0, 1.0);
+    int lol = gl_VertexIndex;
+    fragmentColor = backgroundColor;
 }

@@ -10,18 +10,35 @@ import CoreFoundation
 import CairoGraphics
 
 public protocol CALayerDelegate: AnyObject {
-    func display(_ layer: CALayer)
     func draw(_ layer: CALayer, in context: CairoGraphics.CGContext)
     func layerWillDraw(_ layer: CALayer)
+    func layoutSublayers(of layer: CALayer)
+    func action(for layer: CALayer, forKey event: String) -> CAAction?
 }
 
 extension CALayerDelegate {
-    func display(_ layer: CALayer) {}
     func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {}
     func layerWillDraw(_ layer: CALayer) {}
+    func layoutSublayers(of layer: CALayer) {}
+    func action(for layer: CALayer, forKey event: String) -> CAAction? { nil }
+}
+
+public protocol CALayerDisplayDelegate: CALayerDelegate {
+    func display(_ layer: CALayer)
+}
+
+public protocol CAAction {
+    func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?)
+}
+
+extension NSNull: CAAction {
+    public func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?) {}
 }
 
 open class CALayer: CAMediaTiming {
+    internal var backingStore: CABackingStore? = nil
+    
+    // palkovnik:Yes, delegate is intentionally retained
     open var delegate: CALayerDelegate? = nil
 
     @CALayerProperty(name: "bounds")
@@ -41,6 +58,9 @@ open class CALayer: CAMediaTiming {
 
     @CALayerProperty(name: "transform")
     open var transform: CATransform3D = .identity
+
+    @CALayerProperty(name: "affineTransform")
+    open var affineTransform: CGAffineTransform = .identity
 
     @CALayerProperty(name: "isHidden")
     open var isHidden: Bool = false
@@ -83,6 +103,8 @@ open class CALayer: CAMediaTiming {
 
     @CALayerProperty(name: "shadowPath")
     open var shadowPath: CairoGraphics.CGPath? = nil
+
+    open var contents: Any?
 
     open var superlayer: CALayer? = nil
     open var sublayers: [CALayer]? = nil

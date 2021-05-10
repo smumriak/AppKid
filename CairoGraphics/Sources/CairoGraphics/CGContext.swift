@@ -56,16 +56,19 @@ open class CGContext {
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
     }
+
+        
+    public init(_ context: CGContext) {
+        self._contextPointer = RetainablePointer(with: context._context)
+        self.size = context.size
+        _state.defaultPattern = cairo_get_source(_context)
+    }
     
     public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
         let cairoContext = cairo_create(surface)!
         self._contextPointer = RetainablePointer(withRetained: cairoContext)
         self.size = size
         _state.defaultPattern = cairo_get_source(_context)
-    }
-    
-    public convenience init(_ context: CGContext) {
-        self.init(cairoContext: context._context, size: context.size)
     }
 }
 

@@ -57,11 +57,11 @@ public final class VulkanRenderer {
     internal fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
 
-    fileprivate var vertices: [VertexDescriptor] = [
-        VertexDescriptor(position: vec2s(-0.5, -0.5), color: vec4s(1.0, 0.0, 0.0, 1.0)),
-        VertexDescriptor(position: vec2s(0.5, 0.5), color: vec4s(0.0, 1.0, 1.0, 1.0)),
-        VertexDescriptor(position: vec2s(-0.5, 0.5), color: vec4s(0.0, 1.0, 0.0, 1.0)),
-        VertexDescriptor(position: vec2s(0.5, -0.5), color: vec4s(1.0, 0.0, 1.0, 1.0)),
+    fileprivate var vertices: [LayerRenderDescriptor] = [
+        LayerRenderDescriptor(position: vec2s(-0.5, -0.5), backgroundColor: vec4s(1.0, 0.0, 0.0, 1.0)),
+        LayerRenderDescriptor(position: vec2s(0.5, 0.5), backgroundColor: vec4s(0.0, 1.0, 1.0, 1.0)),
+        LayerRenderDescriptor(position: vec2s(-0.5, 0.5), backgroundColor: vec4s(0.0, 1.0, 0.0, 1.0)),
+        LayerRenderDescriptor(position: vec2s(0.5, -0.5), backgroundColor: vec4s(1.0, 0.0, 1.0, 1.0)),
     ]
 
     fileprivate var indices: [CUnsignedInt] = [
@@ -315,8 +315,8 @@ public final class VulkanRenderer {
 
         descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
-        descriptor.vertexInputBindingDescriptions = [VertexDescriptor.inputBindingDescription()]
-        descriptor.inputAttributeDescrioptions = VertexDescriptor.attributesDescriptions()
+        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
+        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
 
         descriptor.inputPrimitiveTopology = .triangleList
         descriptor.primitiveRestartEnabled = false
@@ -404,7 +404,7 @@ public final class VulkanRenderer {
             vertices = view.vertices
         }
 
-        let bufferSize = VkDeviceSize(MemoryLayout<VertexDescriptor>.stride * vertices.count)
+        let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * vertices.count)
 
         let stagingBuffer = try Buffer(device: device,
                                        size: bufferSize,
@@ -603,19 +603,12 @@ public final class VulkanRenderer {
             try uniformBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }
     }
-
-    func addVertices(for view: View, verticesStore: inout [VertexDescriptor], indexStore: inout [Int]) {
-        // let vertices = view.vertices
-        
-        view.subviews.forEach { subview in
-            addVertices(for: subview, verticesStore: &verticesStore, indexStore: &indexStore)
-        }
-    }
 }
 
 extension VulkanRenderer: Equatable {
     public static func == (lhs: VulkanRenderer, rhs: VulkanRenderer) -> Bool { lhs === rhs }
 }
+
 typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
 typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
 
@@ -639,50 +632,59 @@ fileprivate extension CGColor {
 }
 
 fileprivate extension View {
-    var vertices: [VertexDescriptor] {
+    var vertices: [LayerRenderDescriptor] {
         let color = backgroundColor.vec4
         let center = self.center
         let bounds = self.bounds
 
-        let topLeft = VertexDescriptor(position: vec2s(center.x - bounds.width * 0.5, center.y - bounds.height * 0.5),
-                                       color: color,
-                                       textureCoordinates: vec2s(x: 0.0, y: 0.0),
-                                       transform: .identity)
+        let topLeft = LayerRenderDescriptor(
+            position: vec2s(center.x - bounds.width * 0.5, center.y - bounds.height * 0.5),
+            backgroundColor: color)
 
-        let bottomRight = VertexDescriptor(position: vec2s(center.x + bounds.width * 0.5, center.y + bounds.height * 0.5),
-                                           color: color,
-                                           textureCoordinates: vec2s(x: 1.0, y: 1.0),
-                                           transform: .identity)
+        let bottomRight = LayerRenderDescriptor(
+            position: vec2s(center.x + bounds.width * 0.5, center.y + bounds.height * 0.5),
+            backgroundColor: color)
 
-        let bottomLeft = VertexDescriptor(position: vec2s(center.x - bounds.width * 0.5, center.y + bounds.height * 0.5),
-                                          color: color,
-                                          textureCoordinates: vec2s(x: 0.0, y: 1.0),
-                                          transform: .identity)
+        let bottomLeft = LayerRenderDescriptor(
+            position: vec2s(center.x - bounds.width * 0.5, center.y + bounds.height * 0.5),
+            backgroundColor: color)
 
-        let topRight = VertexDescriptor(position: vec2s(center.x + bounds.width * 0.5, center.y - bounds.height * 0.5),
-                                        color: color,
-                                        textureCoordinates: vec2s(x: 1.0, y: 0.0),
-                                        transform: .identity)
+        let topRight = LayerRenderDescriptor(
+            position: vec2s(center.x + bounds.width * 0.5, center.y - bounds.height * 0.5),
+            backgroundColor: color)
 
         return [topLeft, bottomRight, bottomLeft, topRight]
     }
 }
 
-struct VertexDescriptor {
-    var position: vec2s = .zero
-    var color: vec4s = .zero
-    var textureCoordinates: vec2s = .zero
-    var transform: mat4s = .identity
-    var borderWidth: Float = .zero
-    var borderColor: vec4s = .zero
-    var cornerRadius: Float = .zero
+struct LayerRenderDescriptor {
+    var transform: mat4s = .identity // +64 bytes
+    var contentsTransform: mat4s = .identity // +64 bytes
+    var position: vec2s = .zero // +8 bytes
+    var anchorPoint: vec2s = .zero // +8 bytes
+    var bounds: vec4s = .zero // +16 bytes
+    var backgroundColor: vec4s = .zero // +16 bytes
+    var borderColor: vec4s = .zero // +16 bytes
+    var borderWidth: Float = .zero // +4 bytes
+    var cornerRadius: Float = .zero // +4 bytes
+    var shadowColor: vec4s = .zero // +16 bytes
+    var shadowOffset: vec2s = .zero // +8 bytes
+    var shadowRadius: Float = .zero // +4 bytes
+    var shadowOpacity: Float = .zero // +4 bytes
+
+    // Totoal before padding: 232 bytes
+
+    var padding0: vec4s = .zero // + 16 bytes
+    var padding1: vec2s = .zero // +8 bytes
+
+    // Total: 256 bytes
 }
 
-extension VertexDescriptor: VertexInput {
+extension LayerRenderDescriptor: VertexInput {
     static func inputBindingDescription(binding: CUnsignedInt = 0) -> VkVertexInputBindingDescription {
         var result = VkVertexInputBindingDescription()
         result.binding = 0
-        result.stride = CUnsignedInt(MemoryLayout<VertexDescriptor>.stride)
+        result.stride = CUnsignedInt(MemoryLayout<Self>.stride)
         result.inputRate = .vertex
 
         return result
@@ -690,14 +692,20 @@ extension VertexDescriptor: VertexInput {
 
     static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
         var result: [VkVertexInputAttributeDescription] = []
-
-        result += attributesDescriptions(for: \.position, binding: binding, location: 0)
-        result += attributesDescriptions(for: \.color, binding: binding, location: 1)
-        result += attributesDescriptions(for: \.textureCoordinates, binding: binding, location: 2)
-        result += attributesDescriptions(for: \.transform, binding: binding, location: 3)
-        result += attributesDescriptions(for: \.borderWidth, binding: binding, location: 7)
-        result += attributesDescriptions(for: \.borderColor, binding: binding, location: 8)
-        result += attributesDescriptions(for: \.cornerRadius, binding: binding, location: 9)
+        
+        result += attributesDescriptions(for: \.transform, binding: binding, location: 0)
+        result += attributesDescriptions(for: \.contentsTransform, binding: binding, location: 4)
+        result += attributesDescriptions(for: \.position, binding: binding, location: 8)
+        result += attributesDescriptions(for: \.anchorPoint, binding: binding, location: 9)
+        result += attributesDescriptions(for: \.bounds, binding: binding, location: 10)
+        result += attributesDescriptions(for: \.backgroundColor, binding: binding, location: 11)
+        result += attributesDescriptions(for: \.borderColor, binding: binding, location: 12)
+        result += attributesDescriptions(for: \.borderWidth, binding: binding, location: 13)
+        result += attributesDescriptions(for: \.cornerRadius, binding: binding, location: 14)
+        result += attributesDescriptions(for: \.shadowColor, binding: binding, location: 15)
+        result += attributesDescriptions(for: \.shadowOffset, binding: binding, location: 16)
+        result += attributesDescriptions(for: \.shadowRadius, binding: binding, location: 17)
+        result += attributesDescriptions(for: \.shadowOpacity, binding: binding, location: 18)
 
         return result
     }

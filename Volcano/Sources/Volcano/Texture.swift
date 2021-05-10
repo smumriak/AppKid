@@ -189,3 +189,9 @@ internal class BufferTexture: Texture {
         fatalError()
     }
 }
+
+public extension Device {
+    func createTexture(with descriptor: TextureDescriptor) throws -> Texture {
+        return try GenericTexture(device: self, descriptor: descriptor)
+    }
+}
