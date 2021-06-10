@@ -13,7 +13,7 @@ open class View: Responder {
     open var tag: UInt = 0
     internal weak var viewDelegate: ViewController? = nil
 
-    var layer: CALayer
+    public var layer: CALayer
 
     // MARK: Geometry
     
@@ -133,7 +133,15 @@ open class View: Responder {
     open var alpha: CGFloat = 1.0
     open var userInteractionEnabled = true
 
-    open var backgroundColor: CairoGraphics.CGColor = .white
+    open var backgroundColor: CairoGraphics.CGColor {
+        get {
+            layer.backgroundColor ?? .white
+        } 
+        set {
+            layer.backgroundColor = newValue
+        }
+    }
+    
 
     // MARK: Init
     
@@ -141,6 +149,7 @@ open class View: Responder {
         layer = CALayer()
         layer.bounds = CGRect(origin: .zero, size: frame.size)
         layer.position = CGPoint(x: frame.midX, y: frame.midY)
+        layer.backgroundColor = .white
         
         super.init()
     }

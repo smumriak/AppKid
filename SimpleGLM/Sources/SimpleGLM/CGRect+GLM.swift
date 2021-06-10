@@ -10,11 +10,5 @@ import cglm
 
 public extension CGRect {
     @inlinable @inline(__always)
-    func glmVetices(clockwise: Bool = true) -> [vec2s] {
-        if clockwise {
-            return [vec2s(minX, minY), vec2s(maxX, minY), vec2s(maxX, maxY), vec2s(minX, maxY)]
-        } else {
-            return [vec2s(minX, minY), vec2s(minX, maxY), vec2s(maxX, maxY), vec2s(maxX, minY)]
-        }
-    }
+    var vec4: vec4s { vec4s(origin.x, origin.y, size.width, size.height) }
 }

@@ -36,10 +36,12 @@ extension NSNull: CAAction {
 }
 
 open class CALayer: CAMediaTiming {
-    internal var backingStore: CABackingStore? = nil
+    public var backingStore: CABackingStore? = nil
     
     // palkovnik:Yes, delegate is intentionally retained
     open var delegate: CALayerDelegate? = nil
+
+    open var contentsScale: CGFloat = 1.0
 
     @CALayerProperty(name: "bounds")
     open var bounds: CGRect = .zero
@@ -59,8 +61,10 @@ open class CALayer: CAMediaTiming {
     @CALayerProperty(name: "transform")
     open var transform: CATransform3D = .identity
 
-    @CALayerProperty(name: "affineTransform")
-    open var affineTransform: CGAffineTransform = .identity
+    open var affineTransform: CGAffineTransform {
+        get { transform.affineTransform }
+        set { transform = newValue.transform3D }
+    }
 
     @CALayerProperty(name: "isHidden")
     open var isHidden: Bool = false

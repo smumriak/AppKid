@@ -10,5 +10,5 @@ import cglm
 
 public extension CGPoint {
     @inlinable @inline(__always)
-    var glmVector: vec2s { vec2s(x, y) }
+    var vec2: vec2s { vec2s(x, y) }
 }

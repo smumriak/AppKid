@@ -23,6 +23,12 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         try end()
     }
 
+    public func record(using body: (CommandBuffer) throws -> ()) throws {
+        try begin()
+        try body(self)
+        try end()
+    }
+
     public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
         var info = VkCommandBufferBeginInfo()
         info.sType = .commandBufferBeginInfo
@@ -89,22 +95,28 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func bind(vertexBuffers: [Buffer], offsets: [VkDeviceSize] = []) throws {
-        let vertexBuffersOffsets: [VkDeviceSize]
+    @inlinable @inline(__always)
+    public func bind(vertexBuffer buffer: Buffer, offset: VkDeviceSize = 0, firstBinding: CUnsignedInt = 0) throws {
+        try bind(vertexBuffers: [buffer], offsets: [offset], firstBinding: firstBinding)
+    }
 
-        if offsets.isEmpty {
-            vertexBuffersOffsets = Array<VkDeviceSize>(repeatElement(0, count: vertexBuffers.count))
+    public func bind(vertexBuffers buffers: [Buffer], offsets inoutOffsets: [VkDeviceSize] = [], firstBinding: CUnsignedInt = 0) throws {
+        let count = buffers.count
+        let offsets: [VkDeviceSize]
+
+        if inoutOffsets.isEmpty {
+            offsets = Array<VkDeviceSize>(repeatElement(0, count: count))
         } else {
-            assert(vertexBuffers.count == offsets.count, "Offstes count should be the same as vertex buffers count")
+            assert(buffers.count == inoutOffsets.count, "Offstes count should be the same as vertex buffers count")
             
-            vertexBuffersOffsets = offsets
+            offsets = inoutOffsets
         }
 
-        try vertexBuffers.map { $0.handle as VkBuffer? }
-            .withUnsafeBufferPointer { vertexBuffers in
-                try vertexBuffersOffsets.withUnsafeBufferPointer { vertexBuffersOffsets in
+        try buffers.map { $0.handle as VkBuffer? }
+            .withUnsafeBufferPointer { buffers in
+                try offsets.withUnsafeBufferPointer { offsets in
                     try vulkanInvoke {
-                        vkCmdBindVertexBuffers(handle, 0, CUnsignedInt(vertexBuffers.count), vertexBuffers.baseAddress!, vertexBuffersOffsets.baseAddress!)
+                        vkCmdBindVertexBuffers(handle, firstBinding, CUnsignedInt(count), buffers.baseAddress!, offsets.baseAddress!)
                     }
                 }
             }
@@ -114,19 +126,20 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         vkCmdBindIndexBuffer(handle, indexBuffer.handle, offset, type)
     }
 
-    public func bind(descriptorSets: [VkDescriptorSet?], for pipeline: GraphicsPipeline) throws {
+    public func bind(descriptorSets: [VkDescriptorSet], for pipeline: GraphicsPipeline) throws {
         try bind(descriptorSets: descriptorSets, bindPoint: .graphics, pipelineLayout: pipeline.layout)
     }
 
-    public func bind(descriptorSets: [VkDescriptorSet?], bindPoint: VkPipelineBindPoint, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
-        try descriptorSets.withUnsafeBufferPointer { descriptorSets in
-            try vulkanInvoke {
-                vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+    public func bind(descriptorSets: [VkDescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
+        try descriptorSets.map { $0 as VkDescriptorSet? }
+            .withUnsafeBufferPointer { descriptorSets in
+                try vulkanInvoke {
+                    vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+                }
             }
-        }
     }
 
-    public func draw(vertexCount: Int = 0, firstVertex: Int = 0, instanceCount: Int = 1, firstInstance: Int = 0) throws {
+    public func draw(vertexCount: Int, firstVertex: Int = 0, instanceCount: Int = 1, firstInstance: Int = 0) throws {
         try vulkanInvoke {
             vkCmdDraw(handle,
                       CUnsignedInt(vertexCount),

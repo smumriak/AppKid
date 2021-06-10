@@ -21,6 +21,7 @@ public class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
 public final class GraphicsPipeline: Pipeline {
     public internal(set) var renderPass: RenderPass
     public internal(set) var subpassIndex: Int
+    public internal(set) var descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>]
 
     public init(device: Device, descriptor pipelineDescriptor: GraphicsPipelineDescriptor, renderPass: RenderPass, subpassIndex: Int) throws {
         let descriptorSetLayouts: [VkDescriptorSetLayout?] = pipelineDescriptor.descriptorSetLayouts.map { $0.pointer }
@@ -88,6 +89,7 @@ public final class GraphicsPipeline: Pipeline {
 
         self.renderPass = renderPass
         self.subpassIndex = subpassIndex
+        self.descriptorSetLayouts = pipelineDescriptor.descriptorSetLayouts
 
         try super.init(device: device, handlePointer: handlePointer, layout: layout)
     }

@@ -41,12 +41,12 @@ let package = Package(
                 .product(name: "SwiftXlib", package: "SwiftXlib"),
             ],
             exclude: [
-                "Resources/FragmentShader.volcano",
-                "Resources/VertexShader.volcano",
+                "Resources/BackgroundDrawFragmentShader.volcano",
+                "Resources/BackgroundDrawVertexShader.volcano",
             ],
             resources: [
-                .copy("Resources/FragmentShader.spv"),
-                .copy("Resources/VertexShader.spv"),
+                .copy("Resources/BackgroundDrawFragmentShader.spv"),
+                .copy("Resources/BackgroundDrawVertexShader.spv"),
             ]
         ),
     ]

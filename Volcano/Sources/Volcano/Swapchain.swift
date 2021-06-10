@@ -78,12 +78,6 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         }
     }
 
-    public func create2DTextures() throws -> [Texture] {
-        try rawImages.indices.map {
-            try SwapchainTexture(swapchain: self, imageIndex: $0)
-        }
-    }
-
     public func getNextImageIndex(semaphore: Semaphore, timeout: UInt64 = .max) throws -> Int {
         var result: CUnsignedInt = 0
 

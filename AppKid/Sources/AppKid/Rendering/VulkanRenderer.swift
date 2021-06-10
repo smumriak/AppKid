@@ -28,68 +28,45 @@ public protocol VulkanRendererDelegate: AnyObject {
     func didEndRenderingFrame(renderer: VulkanRenderer)
 }
 
-public final class VulkanRenderer {
+public final class VulkanRenderer: NSObject {
     internal var window: AppKid.Window {
         didSet {
             try? render()
         }
     }
 
-    public weak var delegate: VulkanRendererDelegate? = nil
+    internal let queues: VulkanRenderContext.Queues
+    internal let pipelines: VulkanRenderContext.Pipelines
+    internal let renderContext: VulkanRenderContext
+    internal fileprivate(set) var presentationQueue: Queue
 
-    internal var projectionMatrix: mat4s = .identity
-    internal var viewMatrix: mat4s = .identity
+    public weak var delegate: VulkanRendererDelegate? = nil
 
     internal fileprivate(set) var renderStack: VulkanRenderStack
 
     internal var device: Device { renderStack.device }
+    
     internal fileprivate(set) var surface: Surface
 
-    internal fileprivate(set) var presentationQueue: Queue
-    internal fileprivate(set) var graphicsQueue: Queue
-    internal fileprivate(set) var transferQueue: Queue
-
-    internal fileprivate(set) var commandPool: CommandPool
-    internal fileprivate(set) var transferCommandPool: CommandPool
 
     internal fileprivate(set) var imageAvailableSemaphore: Volcano.Semaphore
     internal fileprivate(set) var renderFinishedSemaphore: Volcano.Semaphore
     internal fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
 
-    fileprivate var vertices: [LayerRenderDescriptor] = [
-        LayerRenderDescriptor(position: vec2s(-0.5, -0.5), backgroundColor: vec4s(1.0, 0.0, 0.0, 1.0)),
-        LayerRenderDescriptor(position: vec2s(0.5, 0.5), backgroundColor: vec4s(0.0, 1.0, 1.0, 1.0)),
-        LayerRenderDescriptor(position: vec2s(-0.5, 0.5), backgroundColor: vec4s(0.0, 1.0, 0.0, 1.0)),
-        LayerRenderDescriptor(position: vec2s(0.5, -0.5), backgroundColor: vec4s(1.0, 0.0, 1.0, 1.0)),
-    ]
-
-    fileprivate var indices: [CUnsignedInt] = [
-        0, 1, 2, 0, 3, 1,
-    ]
-
-    var vertexShader: Shader
-    var fragmentShader: Shader
-
     var oldSwapchain: Swapchain?
     var swapchain: Swapchain!
-    var textures: [Texture]!
-    var images: [Volcano.Image]!
+    var renderTargets: [VulkanRenderTarget] = []
 
     var pipeline: GraphicsPipeline!
-    var framebuffers: [Framebuffer] = []
     var commandBuffers: [CommandBuffer] = []
     var vertexBuffer: Buffer!
-    var indexBuffer: Buffer!
 
     var uniformBuffers: [Buffer] = []
-    var descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T>!
     var descriptorPool: SmartPointer<VkDescriptorPool_T>!
     var descriptorSets: [VkDescriptorSet] = []
 
     deinit {
-        transformTimer.invalidate()
-
         try? clearSwapchain()
         oldSwapchain = nil
     }
@@ -113,54 +90,26 @@ public final class VulkanRenderer {
             throw VulkanRendererError.noGraphicsQueueFound
         }
 
-        self.graphicsQueue = graphicsQueue
-
         guard let transferQueue = device.allQueues.first(where: { $0.type.contains(.transfer) }) else {
             throw VulkanRendererError.noTransferQueueFound
         }
-
-        self.transferQueue = transferQueue
-
-        commandPool = try CommandPool(device: device, queue: graphicsQueue)
-        transferCommandPool = try CommandPool(device: device, queue: transferQueue, flags: .transient)
 
         imageAvailableSemaphore = try Semaphore(device: device)
         renderFinishedSemaphore = try Semaphore(device: device)
         fence = try Fence(device: device)
 
-        #if os(Linux)
-            let bundle = Bundle.module
-        #else
-            let bundle = Bundle.main
-        #endif
+        renderPass = try device.createMainRenderPasss(format: surface.imageFormat)
+        pipeline = try device.createBackgroundPipeline(renderPass: renderPass)
 
-        vertexShader = try device.shader(named: "VertexShader", in: bundle)
-        fragmentShader = try device.shader(named: "FragmentShader", in: bundle)
+        let queues = VulkanRenderContext.Queues(graphics: graphicsQueue, transfer: transferQueue)
+        let pipelines = VulkanRenderContext.Pipelines(background: pipeline)
+        
+        self.queues = queues
+        self.pipelines = pipelines
 
-        var colorAttachmentDescription = VkAttachmentDescription()
-        colorAttachmentDescription.format = surface.imageFormat
-        colorAttachmentDescription.samples = .one
-        colorAttachmentDescription.loadOp = .clear
-        colorAttachmentDescription.storeOp = .store
-        colorAttachmentDescription.stencilLoadOp = .clear
-        colorAttachmentDescription.stencilStoreOp = .store
-        colorAttachmentDescription.initialLayout = .undefined
-        colorAttachmentDescription.finalLayout = .presentSource
+        renderContext = try VulkanRenderContext(renderStack: renderStack, queues: queues, pipelines: pipelines)
 
-        let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
-        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
-        let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
-
-        renderPass = try RenderPass(device: device, subpasses: [subpass1], dependencies: [dependency1])
-
-        descriptorSetLayout = try createDescriptorSetLayout()
-
-        pipeline = try createGraphicsPipeline()
-
-        vertexBuffer = try createVertexBuffer()
-        indexBuffer = try createIndexBuffer()
-
-        RunLoop.current.add(transformTimer, forMode: .common)
+        super.init()
     }
 
     public func setupSwapchain() throws {
@@ -177,22 +126,17 @@ public final class VulkanRenderer {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: graphicsQueue, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
-        textures = try swapchain.textures
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        renderTargets = try swapchain.textures.map {
+            try VulkanRenderTarget(renderPass: renderPass, colorAttachment: $0, clearColor: VkClearValue(color: .red))
+        }
 
         uniformBuffers = try createUniformBuffers()
 
         descriptorPool = try createDescriptorPool()
         descriptorSets = try createDescriptorSets()
-
-        framebuffers = try createFramebuffers()
-        commandBuffers = try createCommandBuffers()
         
         oldSwapchain = nil
-    }
-
-    fileprivate func updateTransforms() {
-        // let bounds = window.bounds
     }
 
     public func clearSwapchain() throws {
@@ -200,12 +144,11 @@ public final class VulkanRenderer {
 
         oldSwapchain = swapchain
 
-        commandBuffers = []
-        framebuffers = []
-        uniformBuffers = []
-        descriptorSets = []
+        commandBuffers.removeAll()
+        uniformBuffers.removeAll()
+        descriptorSets.removeAll()
         descriptorPool = nil
-        textures = nil
+        renderTargets.removeAll()
         swapchain = nil
     }
 
@@ -229,7 +172,9 @@ public final class VulkanRenderer {
         while true {
             do {
                 object.projection = window.projectionMatrix
-                try drawFrame()
+
+                try drawFrameWithOperations()
+
                 break
             } catch VulkanError.badResult(let errorCode) {
                 if errorCode == .errorOutOfDate {
@@ -237,11 +182,7 @@ public final class VulkanRenderer {
                         break
                     }
 
-                    try clearSwapchain()
-
-                    vertexBuffer = try createVertexBuffer()
-                    indexBuffer = try createIndexBuffer()
-                    
+                    try clearSwapchain()                    
                     try setupSwapchain()
 
                     skipRecreation = true
@@ -269,234 +210,134 @@ public final class VulkanRenderer {
     }
 
     public func updateRenderTargetSize() throws {
-        do {
-            try clearSwapchain()
+        //palkovnik:Disabled this logic for now since recreating swapchain on error gives better performance results
+        // do {
+        //     try clearSwapchain()
 
-            vertexBuffer = try createVertexBuffer()
-            indexBuffer = try createIndexBuffer()
+        //     vertexBuffer = try createVertexBuffer()
 
-            try setupSwapchain()
-        } catch {
-            debugPrint("Failed to recreate swapchain with error: \(error)")
-        }
+        //     try setupSwapchain()
+        // } catch {
+        //     debugPrint("Failed to recreate swapchain with error: \(error)")
+        // }
     }
 
-    public func drawFrame() throws {
+    func drawFrameWithOperations() throws {
         // let startTime = CFAbsoluteTimeGetCurrent()
         // debugPrint("Draw frame start: \(startTime)")
         try fence.reset()
-        
+
+        try renderContext.clear()
+
+        renderContext.add(.pushCommandBuffer())
+
         let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
-
         try self.update(uniformBuffer: uniformBuffers[imageIndex])
+        let renderTarget = renderTargets[imageIndex]
         
-        let commandBuffer = commandBuffers[imageIndex]
+        renderContext.add(.pushRenderTarget(renderTarget: renderTarget))
 
-        let submitCommandBuffers: [CommandBuffer] = [commandBuffer]
+        var index: UInt32 = 0
+
+        try traverseLayerTree(for: window.layer, parentTransform: .identity, index: &index, renderContext: renderContext, descriptorSets: [descriptorSets[imageIndex]])
+
+        renderContext.add(.popRenderTarget(rebind: false))
+
         let waitSemaphores: [Volcano.Semaphore] = [imageAvailableSemaphore]
         let signalSemaphores: [Volcano.Semaphore] = [renderFinishedSemaphore]
         let waitStages: [VkPipelineStageFlags] = [VkPipelineStageFlagBits.colorAttachmentOutput.rawValue]
 
-        try graphicsQueue.submit(commandBuffers: submitCommandBuffers, waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence)
+        renderContext.add(.submitCommandBuffer(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence))
+        renderContext.add(.wait(fence: fence))
+        renderContext.add(.popCommandBuffer())
+
+        try renderContext.performOperations()
+
         try presentationQueue.present(swapchains: [swapchain], waitSemaphores: signalSemaphores, imageIndices: [CUnsignedInt(imageIndex)])
 
-        try fence.wait()
         // let endTime = CFAbsoluteTimeGetCurrent()
         // debugPrint("Draw frame end: \(endTime)")
         // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
 
-    func createGraphicsPipeline() throws -> GraphicsPipeline {
-        let descriptor = GraphicsPipelineDescriptor()
-        descriptor.vertexShader = vertexShader
-        descriptor.fragmentShader = fragmentShader
+    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt32, renderContext: VulkanRenderContext, descriptorSets: [VkDescriptorSet]? = nil) throws {
+        let bounds = layer.bounds
+        let position = layer.position
+        let anchorPoint = layer.anchorPoint
+        let contentsScale = layer.contentsScale
 
-        descriptor.descriptorSetLayouts = [descriptorSetLayout]
+        let needsOffscreenRendering = layer.needsOffscreenRendering
 
-        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
-
-        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
-        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
-
-        descriptor.inputPrimitiveTopology = .triangleList
-        descriptor.primitiveRestartEnabled = false
-
-        descriptor.depthClampEnabled = false
-        descriptor.discardEnabled = false
-        descriptor.polygonMode = .fill
-        descriptor.cullModeFlags = []
-        descriptor.frontFace = .counterClockwise
-        descriptor.depthBiasEnabled = false
-        descriptor.depthBiasConstantFactor = 0.0
-        descriptor.depthBiasClamp = 0.0
-        descriptor.depthBiasSlopeFactor = 0.0
-        descriptor.lineWidth = 1.0
-
-        descriptor.sampleShadingEnabled = false
-        descriptor.rasterizationSamples = .one
-        descriptor.minSampleShading = 1.0
-        descriptor.sampleMasks = []
-        descriptor.alphaToCoverageEnabled = false
-        descriptor.alphaToOneEnabled = false
-
-        descriptor.logicOperationEnabled = false
-        descriptor.logicOperation = .copy
-        descriptor.colorBlendAttachments = [.rgbaBlend]
-        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
-
-        descriptor.dynamicStates = [
-            .viewport,
-            .scissor,
-            .lineWidth,
-        ]
-
-        return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: renderPass, subpassIndex: 0)
-    }
-
-    func createFramebuffers() throws -> [Framebuffer] {
-        try textures.map { texture in
-            try Framebuffer(device: device, size: swapchain.size, renderPass: renderPass, attachments: [texture.imageView])
-        }
-    }
-
-    func createCommandBuffers() throws -> [CommandBuffer] {
-        let renderArea = VkRect2D(offset: .zero, extent: swapchain.size)
-        let clearColor = VkClearValue(color: .white)
-
-        var viewport = VkViewport()
-        viewport.x = 0.0
-        viewport.y = 0.0
-        viewport.width = Float(swapchain.size.width)
-        viewport.height = Float(swapchain.size.height)
-        viewport.minDepth = 0.0
-        viewport.maxDepth = 1.0
-
-        let viewports = [viewport]
-        let scissors = [renderArea]
-
-        let result: [CommandBuffer] = try zip(framebuffers, descriptorSets).map { framebuffer, descriptorSet in
-            let commandBuffer = try commandPool.createCommandBuffer()
-
-            try commandBuffer.record {
-                try commandBuffer.begin(renderPass: renderPass, framebuffer: framebuffer, renderArea: renderArea, clearValues: [clearColor])
-                try commandBuffer.bind(pipeline: pipeline)
-
-                try commandBuffer.setViewports(viewports)
-                try commandBuffer.setScissors(scissors)
-
-                try commandBuffer.bind(vertexBuffers: [vertexBuffer])
-                try commandBuffer.bind(indexBuffer: indexBuffer, type: .uint32)
-                try commandBuffer.bind(descriptorSets: [descriptorSet], for: pipeline)
-
-                try commandBuffer.drawIndexed(indexCount: CUnsignedInt(indices.count))
-
-                try commandBuffer.endRenderPass()
-            }
-
-            return commandBuffer
+        if needsOffscreenRendering {
+            let backingStore: CABackingStore = try {
+                if let result = layer.backingStore, result.fits(size: layer.bounds.size) {
+                    return result
+                } else {
+                    let result = try CABackingStore(size: layer.bounds.size, device: renderStack.device)
+                    layer.backingStore = result
+                    return result
+                }
+            }()
         }
 
-        return result
-    }
+        let toScreenScaleTransform = mat4s(scaleVector: vec3s(x: bounds.width * contentsScale, y: bounds.height * contentsScale, z: 1.0))
+        let anchorPointTransform = mat4s(translationVector: vec3s(x: anchorPoint.x * bounds.width * contentsScale, y: anchorPoint.y * bounds.height * contentsScale, z: 0.0))
 
-    func createVertexBuffer() throws -> Buffer {
-        if let view = window.subviews.first?.subviews.first?.subviews.first {
-            vertices = view.vertices
+        let positionTransform = mat4s(translationVector: vec3s(x: (position.x - bounds.midX) * contentsScale, y: (position.y - bounds.midY) * contentsScale, z: 0.0))
+
+        let layerLocalTransform =
+            parentTransform
+                * positionTransform
+                * anchorPointTransform
+                * layer.transform.mat4
+                * anchorPointTransform.inversed
+
+        let layerScreenTransform = layerLocalTransform * toScreenScaleTransform
+
+        let descriptor = LayerRenderDescriptor(transform: layerScreenTransform,
+                                               contentsTransform: layerScreenTransform,
+                                               position: position.vec2,
+                                               anchorPoint: layer.anchorPoint.vec2,
+                                               bounds: bounds.vec4,
+                                               backgroundColor: layer.backgroundColor?.vec4 ?? .zero,
+                                               borderColor: layer.borderColor?.vec4 ?? .zero,
+                                               borderWidth: Float(layer.borderWidth),
+                                               cornerRadius: Float(layer.cornerRadius),
+                                               shadowOffset: layer.shadowOffset.vec2,
+                                               shadowColor: layer.shadowColor?.vec4 ?? .zero,
+                                               shadowRadius: Float(layer.shadowRadius),
+                                               shadowOpacity: Float(layer.shadowOpacity))
+
+        renderContext.descriptors.append(descriptor)
+
+        renderContext.add(.bindVertexBuffer(index: index))
+
+        renderContext.add(.background(descriptorSets: descriptorSets))
+
+        try layer.sublayers?.forEach {
+            index += 1
+            try traverseLayerTree(for: $0, parentTransform: layerLocalTransform, index: &index, renderContext: renderContext, descriptorSets: descriptorSets)
         }
-
-        let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * vertices.count)
-
-        let stagingBuffer = try Buffer(device: device,
-                                       size: bufferSize,
-                                       usage: [.transferSource],
-                                       memoryProperties: [.hostVisible, .hostCoherent],
-                                       accessQueues: [graphicsQueue, transferQueue])
-
-        try vertices.withUnsafeBufferPointer { vertices in
-            try stagingBuffer.memoryChunk.withMappedData { data, size in
-                data.copyMemory(from: UnsafeRawPointer(vertices.baseAddress!), byteCount: Int(stagingBuffer.size))
-            }
-        }
-
-        let vertexBuffer = try Buffer(device: device,
-                                      size: bufferSize,
-                                      usage: [.vertexBuffer, .transferDestination],
-                                      memoryProperties: .deviceLocal,
-                                      accessQueues: [graphicsQueue, transferQueue])
-
-        try transferQueue.oneShot(in: transferCommandPool) {
-            try $0.copyBuffer(from: stagingBuffer, to: vertexBuffer)
-        }
-
-        return vertexBuffer
-    }
-
-    func createIndexBuffer() throws -> Buffer {
-        let bufferSize = VkDeviceSize(MemoryLayout<CUnsignedInt>.stride * indices.count)
-
-        let stagingBuffer = try Buffer(device: device,
-                                       size: bufferSize,
-                                       usage: [.transferSource],
-                                       memoryProperties: [.hostVisible, .hostCoherent],
-                                       accessQueues: [graphicsQueue, transferQueue])
-
-        try indices.withUnsafeBufferPointer { indices in
-            try stagingBuffer.memoryChunk.withMappedData { data, size in
-                data.copyMemory(from: UnsafeRawPointer(indices.baseAddress!), byteCount: Int(stagingBuffer.size))
-            }
-        }
-
-        let indexBuffer = try Buffer(device: device,
-                                     size: bufferSize,
-                                     usage: [.indexBuffer, .transferDestination],
-                                     memoryProperties: .deviceLocal,
-                                     accessQueues: [graphicsQueue, transferQueue])
-
-        try transferQueue.oneShot(in: transferCommandPool) {
-            try $0.copyBuffer(from: stagingBuffer, to: indexBuffer)
-        }
-        
-        return indexBuffer
     }
 
     func createUniformBuffers() throws -> [Buffer] {
         let size = VkDeviceSize(MemoryLayout<UniformBufferObject>.size)
-        return try textures.indices.map { _ in
+        return try renderTargets.indices.map { _ in
             let result = try Buffer(device: device,
                                     size: size,
                                     usage: [.uniformBuffer],
                                     memoryProperties: [.hostVisible, .hostCoherent],
-                                    accessQueues: [graphicsQueue, transferQueue])
+                                    accessQueues: [queues.graphics, queues.transfer])
 
             try update(uniformBuffer: result)
             return result
         }
     }
 
-    func createDescriptorSetLayout() throws -> SmartPointer<VkDescriptorSetLayout_T> {
-        var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
-        descriptorSetLayoutBinding.binding = 0
-        descriptorSetLayoutBinding.descriptorType = .uniformBuffer
-        descriptorSetLayoutBinding.descriptorCount = 1
-        descriptorSetLayoutBinding.stageFlags = VkShaderStageFlagBits.vertex.rawValue
-        descriptorSetLayoutBinding.pImmutableSamplers = nil
-
-        let descriptorSetLayoutBindings = [descriptorSetLayoutBinding]
-
-        return try descriptorSetLayoutBindings.withUnsafeBufferPointer { descriptorSetLayoutBindings in
-            var info = VkDescriptorSetLayoutCreateInfo()
-            info.sType = .descriptorSetLayoutCreateInfo
-            info.bindingCount = CUnsignedInt(descriptorSetLayoutBindings.count)
-            info.pBindings = descriptorSetLayoutBindings.baseAddress!
-
-            return try device.create(with: &info)
-        }
-    }
-
     func createDescriptorPool() throws -> SmartPointer<VkDescriptorPool_T> {
         var poolSize = VkDescriptorPoolSize()
         poolSize.type = .uniformBuffer
-        poolSize.descriptorCount = CUnsignedInt(textures.count)
+        poolSize.descriptorCount = CUnsignedInt(renderTargets.count)
 
         let sizes = [poolSize]
 
@@ -505,15 +346,15 @@ public final class VulkanRenderer {
             info.sType = .descriptorPoolCreateInfo
             info.poolSizeCount = CUnsignedInt(sizes.count)
             info.pPoolSizes = sizes.baseAddress!
-            info.maxSets = CUnsignedInt(textures.count)
+            info.maxSets = CUnsignedInt(renderTargets.count)
 
             return try device.create(with: &info)
         }
     }
 
     func createDescriptorSets() throws -> [VkDescriptorSet] {
-        let count = textures.count
-        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: descriptorSetLayout, count: count).map { $0.pointer }
+        let count = renderTargets.count
+        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: pipeline.descriptorSetLayouts[0], count: count).map { $0.pointer }
 
         let descriptorSets: [VkDescriptorSet] = try layouts.withUnsafeBufferPointer { layouts in
             var info = VkDescriptorSetAllocateInfo()
@@ -567,36 +408,11 @@ public final class VulkanRenderer {
         let view = mat4s.identity
         // let view = mat4s(lootAt: vec3s(2.0, 2.0, 2.0), center: vec3s(0.0, 0.0, 0.0), up: vec3s(0.0, 0.0, 1.0))
         // let view = mat4s(scaleVector: vec3s(x: 100.0, y: 100.0, z: 1.0))
-        // let projection = mat4s.identity
+        let projection = mat4s.identity
         // let projection = mat4s(perspectiveFieldOfViewY: .pi / 4.0, aspectRatio: Float(bounds.size.width) / Float(bounds.size.height), near: 0.1, far: 10.0)
-        let projection = window.projectionMatrix
+        // let projection = window.projectionMatrix
         return (model: model, view: view, projection: projection)
     }()
-
-    lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        if let view = self.window.subviews.first?.subviews.first?.subviews.first {
-            let bounds = view.bounds
-            let center = view.center
-
-            var mat: mat4s = .identity
-            mat = mat * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
-            mat = mat * view.transform.mat4
-            mat = mat * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
-            
-            self.object.model = mat
-
-            // self.object.model = view.transformToWindow.mat4
-
-            // self.object.view = .identity
-            //     // * mat4s(translationVector: vec3s(x: -bounds.minX, y: -bounds.minY, z: 0.0))
-            //     // * mat4s(translationVector: vec3s(x: -bounds.width * 0.5, y: -bounds.height * 0.5, z: 0.0))
-            //     * mat4s(translationVector: vec3s(x: center.x, y: center.y, z: 0.0))
-            //     * mat4s(rotationAngle: .pi / 4.0, axis: vec3s(x: 0.0, y: 0.0, z: 1.0))
-            //     * mat4s(translationVector: vec3s(x: -center.x, y: -center.y, z: 0.0))
-            // // * mat4s(translationVector: vec3s(x: bounds.width * 0.5, y: bounds.height * 0.5, z: 0.0))
-            // // * mat4s(translationVector: vec3s(x: bounds.minX, y: bounds.minY, z: 0.0))
-        }
-    }
 
     func update(uniformBuffer: Buffer) throws {
         try withUnsafePointer(to: object) {
@@ -605,8 +421,8 @@ public final class VulkanRenderer {
     }
 }
 
-extension VulkanRenderer: Equatable {
-    public static func == (lhs: VulkanRenderer, rhs: VulkanRenderer) -> Bool { lhs === rhs }
+public extension VulkanRenderer {
+    static func == (lhs: VulkanRenderer, rhs: VulkanRenderer) -> Bool { lhs === rhs }
 }
 
 typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
@@ -614,10 +430,7 @@ typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
 
 fileprivate extension Window {
     var projectionMatrix: mat4s {
-        return
-            mat4s(scaleVector: vec3s(x: bounds.width != 0 ? 2.0 / bounds.width : 1.0, y: bounds.height != 0 ? 2.0 / bounds.height : 1.0, z: 1.0))
-            * mat4s(translationVector: vec3s(x: -bounds.width * 0.5, y: -bounds.height * 0.5, z: 1.0))
-            * mat4s(scaleVector: vec3s(x: contentScaleFactor, y: contentScaleFactor, z: contentScaleFactor))
+        return .orthographic(left: 0.0, right: bounds.width * contentScaleFactor, bottom: 0.0, top: bounds.height * contentScaleFactor, near: -1.0, far: 1.0)
     }
 }
 
@@ -631,32 +444,7 @@ fileprivate extension CGColor {
     }
 }
 
-fileprivate extension View {
-    var vertices: [LayerRenderDescriptor] {
-        let color = backgroundColor.vec4
-        let center = self.center
-        let bounds = self.bounds
-
-        let topLeft = LayerRenderDescriptor(
-            position: vec2s(center.x - bounds.width * 0.5, center.y - bounds.height * 0.5),
-            backgroundColor: color)
-
-        let bottomRight = LayerRenderDescriptor(
-            position: vec2s(center.x + bounds.width * 0.5, center.y + bounds.height * 0.5),
-            backgroundColor: color)
-
-        let bottomLeft = LayerRenderDescriptor(
-            position: vec2s(center.x - bounds.width * 0.5, center.y + bounds.height * 0.5),
-            backgroundColor: color)
-
-        let topRight = LayerRenderDescriptor(
-            position: vec2s(center.x + bounds.width * 0.5, center.y - bounds.height * 0.5),
-            backgroundColor: color)
-
-        return [topLeft, bottomRight, bottomLeft, topRight]
-    }
-}
-
+// align each field by 16
 struct LayerRenderDescriptor {
     var transform: mat4s = .identity // +64 bytes
     var contentsTransform: mat4s = .identity // +64 bytes
@@ -667,15 +455,15 @@ struct LayerRenderDescriptor {
     var borderColor: vec4s = .zero // +16 bytes
     var borderWidth: Float = .zero // +4 bytes
     var cornerRadius: Float = .zero // +4 bytes
-    var shadowColor: vec4s = .zero // +16 bytes
     var shadowOffset: vec2s = .zero // +8 bytes
+    var shadowColor: vec4s = .zero // +16 bytes
     var shadowRadius: Float = .zero // +4 bytes
     var shadowOpacity: Float = .zero // +4 bytes
 
     // Totoal before padding: 232 bytes
 
-    var padding0: vec4s = .zero // + 16 bytes
-    var padding1: vec2s = .zero // +8 bytes
+    var padding0: vec2s = .zero // + 8 bytes
+    var padding1: vec4s = .zero // +16 bytes
 
     // Total: 256 bytes
 }
@@ -685,27 +473,27 @@ extension LayerRenderDescriptor: VertexInput {
         var result = VkVertexInputBindingDescription()
         result.binding = 0
         result.stride = CUnsignedInt(MemoryLayout<Self>.stride)
-        result.inputRate = .vertex
+        result.inputRate = .instance
 
         return result
     }
 
     static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
         var result: [VkVertexInputAttributeDescription] = []
-        
-        result += attributesDescriptions(for: \.transform, binding: binding, location: 0)
-        result += attributesDescriptions(for: \.contentsTransform, binding: binding, location: 4)
-        result += attributesDescriptions(for: \.position, binding: binding, location: 8)
-        result += attributesDescriptions(for: \.anchorPoint, binding: binding, location: 9)
-        result += attributesDescriptions(for: \.bounds, binding: binding, location: 10)
-        result += attributesDescriptions(for: \.backgroundColor, binding: binding, location: 11)
-        result += attributesDescriptions(for: \.borderColor, binding: binding, location: 12)
-        result += attributesDescriptions(for: \.borderWidth, binding: binding, location: 13)
-        result += attributesDescriptions(for: \.cornerRadius, binding: binding, location: 14)
-        result += attributesDescriptions(for: \.shadowColor, binding: binding, location: 15)
-        result += attributesDescriptions(for: \.shadowOffset, binding: binding, location: 16)
-        result += attributesDescriptions(for: \.shadowRadius, binding: binding, location: 17)
-        result += attributesDescriptions(for: \.shadowOpacity, binding: binding, location: 18)
+
+        addAttributes(for: \.transform, binding: binding, result: &result)
+        addAttributes(for: \.contentsTransform, binding: binding, result: &result)
+        addAttributes(for: \.position, binding: binding, result: &result)
+        addAttributes(for: \.anchorPoint, binding: binding, result: &result)
+        addAttributes(for: \.bounds, binding: binding, result: &result)
+        addAttributes(for: \.backgroundColor, binding: binding, result: &result)
+        addAttributes(for: \.borderColor, binding: binding, result: &result)
+        addAttributes(for: \.borderWidth, binding: binding, result: &result)
+        addAttributes(for: \.cornerRadius, binding: binding, result: &result)
+        addAttributes(for: \.shadowOffset, binding: binding, result: &result)
+        addAttributes(for: \.shadowColor, binding: binding, result: &result)
+        addAttributes(for: \.shadowRadius, binding: binding, result: &result)
+        addAttributes(for: \.shadowOpacity, binding: binding, result: &result)
 
         return result
     }
@@ -741,4 +529,98 @@ internal extension VkPipelineColorBlendAttachmentState {
 
         return colorBlendAttachment
     }()
+}
+
+internal extension Device {
+    func createMainRenderPasss(format: VkFormat = .rgba8UNorm) throws -> RenderPass {
+        var colorAttachmentDescription = VkAttachmentDescription()
+        colorAttachmentDescription.format = format
+        colorAttachmentDescription.samples = .one
+        colorAttachmentDescription.loadOp = .clear
+        colorAttachmentDescription.storeOp = .store
+        colorAttachmentDescription.stencilLoadOp = .clear
+        colorAttachmentDescription.stencilStoreOp = .store
+        colorAttachmentDescription.initialLayout = .undefined
+        colorAttachmentDescription.finalLayout = .presentSource
+
+        let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
+        let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
+
+        return try RenderPass(device: self, subpasses: [subpass1], dependencies: [dependency1])
+    }
+
+    func createBackgroundPipeline(renderPass: RenderPass, subpassIndex: Int = 0) throws -> GraphicsPipeline {
+        #if os(Linux)
+            let bundle = Bundle.module
+        #else
+            let bundle = Bundle.main
+        #endif
+
+        let vertexShader = try shader(named: "BackgroundDrawVertexShader", in: bundle)
+        let fragmentShader = try shader(named: "BackgroundDrawFragmentShader", in: bundle)
+
+        var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
+        descriptorSetLayoutBinding.binding = 0
+        descriptorSetLayoutBinding.descriptorType = .uniformBuffer
+        descriptorSetLayoutBinding.descriptorCount = 1
+        descriptorSetLayoutBinding.stageFlags = VkShaderStageFlagBits.vertex.rawValue
+        descriptorSetLayoutBinding.pImmutableSamplers = nil
+
+        let descriptorSetLayoutBindings = [descriptorSetLayoutBinding]
+
+        let descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T> = try descriptorSetLayoutBindings.withUnsafeBufferPointer { descriptorSetLayoutBindings in
+            var info = VkDescriptorSetLayoutCreateInfo()
+            info.sType = .descriptorSetLayoutCreateInfo
+            info.bindingCount = CUnsignedInt(descriptorSetLayoutBindings.count)
+            info.pBindings = descriptorSetLayoutBindings.baseAddress!
+
+            return try create(with: &info)
+        }
+
+        let descriptor = GraphicsPipelineDescriptor()
+        descriptor.vertexShader = vertexShader
+        descriptor.fragmentShader = fragmentShader
+
+        descriptor.descriptorSetLayouts = [descriptorSetLayout]
+
+        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
+
+        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
+        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
+
+        descriptor.inputPrimitiveTopology = .triangleList
+        descriptor.primitiveRestartEnabled = false
+
+        descriptor.depthClampEnabled = false
+        descriptor.discardEnabled = false
+        descriptor.polygonMode = .fill
+        descriptor.cullModeFlags = []
+        descriptor.frontFace = .counterClockwise
+        descriptor.depthBiasEnabled = false
+        descriptor.depthBiasConstantFactor = 0.0
+        descriptor.depthBiasClamp = 0.0
+        descriptor.depthBiasSlopeFactor = 0.0
+        descriptor.lineWidth = 1.0
+
+        descriptor.sampleShadingEnabled = false
+        descriptor.rasterizationSamples = .one
+        descriptor.minSampleShading = 1.0
+        descriptor.sampleMasks = []
+        descriptor.alphaToCoverageEnabled = false
+        descriptor.alphaToOneEnabled = false
+
+        descriptor.logicOperationEnabled = false
+        descriptor.logicOperation = .copy
+        descriptor.colorBlendAttachments = [.rgbaBlend]
+        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
+
+        descriptor.dynamicStates = [
+            .viewport,
+            .scissor,
+            .lineWidth,
+        ]
+
+        return try GraphicsPipeline(device: self, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
+    }
 }

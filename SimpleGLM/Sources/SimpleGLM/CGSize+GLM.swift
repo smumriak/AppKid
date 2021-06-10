@@ -10,5 +10,5 @@ import cglm
 
 public extension CGSize {
     @inlinable @inline(__always)
-    var glmVector: vec2s { vec2s(width, height) }
+    var vec2: vec2s { vec2s(width, height) }
 }

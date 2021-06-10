@@ -11,19 +11,19 @@
 // z and w are texture coordinates
 const vec4 vertices[] =
 {
-    vec4(-1.0, -1.0, 0.0, 0.0), // t0.0
-    vec4(+1.0, -1.0, 1.0, 0.0), // t0.1
+    vec4(+0.0, +0.0, 0.0, 0.0), // t0.0
+    vec4(+1.0, +0.0, 1.0, 0.0), // t0.1
     vec4(+1.0, +1.0, 1.0, 1.0), // t0.2
-    vec4(-1.0, -1.0, 0.0, 0.0), // t1.0
-    vec4(-1.0, +1.0, 0.0, 1.0), // t1.1
-    vec4(+1.0, +1.0, 1.0, 1.0), // t1.1
+    vec4(+0.0, +0.0, 0.0, 0.0), // t1.0
+    vec4(+0.0, +1.0, 0.0, 1.0), // t1.1
+    vec4(+1.0, +1.0, 1.0, 1.0), // t1.2
 };
 
 layout(binding = 0) uniform UniformBufferObject 
 {
     mat4 model;
     mat4 view;
-    mat4 proj;
+    mat4 projection;
 } matrices;
 
 layout(location = 0) in mat4 transform;
@@ -35,8 +35,8 @@ layout(location = 11) in vec4 backgroundColor;
 layout(location = 12) in vec4 borderColor;
 layout(location = 13) in float borderWidth;
 layout(location = 14) in float cornerRadius;
-layout(location = 15) in vec4 shadowColor;
-layout(location = 16) in vec2 shadowOffset;
+layout(location = 15) in vec2 shadowOffset;
+layout(location = 16) in vec4 shadowColor;
 layout(location = 17) in float shadowRadius;
 layout(location = 18) in float shadowOpacity;
 
@@ -44,7 +44,6 @@ layout(location = 0) out vec4 fragmentColor;
 
 void main() 
 {
-    gl_Position = matrices.proj * matrices.view * matrices.model * vec4(position, 0.0, 1.0);
-    int lol = gl_VertexIndex;
+    gl_Position = matrices.projection * transform * vec4(vertices[gl_VertexIndex].xy, 0.0, 1.0);
     fragmentColor = backgroundColor;
 }

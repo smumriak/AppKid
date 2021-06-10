@@ -64,7 +64,7 @@ public extension MultiRowVertexInputAttribute {
             var attributeDescription = VkVertexInputAttributeDescription()
             attributeDescription.binding = binding
             attributeDescription.location = location + i
-            attributeDescription.format = .r32g32SFloat
+            attributeDescription.format = format
             attributeDescription.offset = offset + stride * i
             return attributeDescription
         }
