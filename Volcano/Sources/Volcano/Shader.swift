@@ -17,7 +17,7 @@ public enum VulkanShaderError: Error {
 public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
     public let entryPoint: String
 
-    public convenience init(named name: String, entryPoint: String = "main", in bundle: Bundle? = nil, device: Device) throws {
+    public convenience init(named name: String, entryPoint: String = "main", in bundle: Bundle? = nil, subdirectory: String? = nil, device: Device) throws {
         let bundle = bundle ?? Bundle.main
 
         let nameCasted = name as NSString
@@ -27,7 +27,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
             fileExtension = "spv"
         }
 
-        guard let url = bundle.url(forResource: fileName, withExtension: fileExtension) else {
+        guard let url = bundle.url(forResource: fileName, withExtension: fileExtension, subdirectory: subdirectory) else {
             throw VulkanShaderError.noSuchFile
         }
 

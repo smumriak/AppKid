@@ -116,6 +116,7 @@ internal class VulkanRenderContext {
 extension VulkanRenderContext {
     struct Pipelines {
         let background: GraphicsPipeline
+        let border: GraphicsPipeline
     }
 
     struct Queues {
@@ -130,6 +131,11 @@ internal class VulkanRenderOperation {
     @inlinable @inline(__always)
     static func background(descriptorSets: [VkDescriptorSet]? = nil) -> VulkanRenderOperation {
         return BackgroundRenderOperation(descriptorSets: descriptorSets)
+    }
+
+    @inlinable @inline(__always)
+    static func border(descriptorSets: [VkDescriptorSet]? = nil) -> VulkanRenderOperation {
+        return BorderRenderOperation(descriptorSets: descriptorSets)
     }
 
     @inlinable @inline(__always)
@@ -265,10 +271,30 @@ internal class BackgroundRenderOperation: VulkanRenderOperation {
     override func perform(in context: VulkanRenderContext) throws {
         let commandBuffer = context.commandBuffer
         let backgroundPipeline = context.pipelines.background
-        try commandBuffer.bind(pipeline: context.pipelines.background)
+        try commandBuffer.bind(pipeline: backgroundPipeline)
 
         if let descriptorSets = self.descriptorSets {
             try commandBuffer.bind(descriptorSets: descriptorSets, for: backgroundPipeline)
+        }
+
+        try commandBuffer.draw(vertexCount: 6)
+    }
+}
+
+internal class BorderRenderOperation: VulkanRenderOperation {
+    internal let descriptorSets: [VkDescriptorSet]?
+
+    init(descriptorSets: [VkDescriptorSet]?) {
+        self.descriptorSets = descriptorSets
+    }
+
+    override func perform(in context: VulkanRenderContext) throws {
+        let commandBuffer = context.commandBuffer
+        let borderPipeline = context.pipelines.border
+        try commandBuffer.bind(pipeline: borderPipeline)
+
+        if let descriptorSets = self.descriptorSets {
+            try commandBuffer.bind(descriptorSets: descriptorSets, for: borderPipeline)
         }
 
         try commandBuffer.draw(vertexCount: 6)

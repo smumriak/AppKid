@@ -20,8 +20,10 @@ class RootViewController: ViewController {
         result.tag = 1
         result.backgroundColor = .green
         result.backgroundColor.alpha = 0.5
-        result.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
         result.masksToBounds = true
+        result.layer.cornerRadius = 16.0
+        result.layer.borderColor = .black
+        result.layer.borderWidth = 1.0
 
         return result
     }()
@@ -31,8 +33,8 @@ class RootViewController: ViewController {
 
         result.tag = 2
         result.backgroundColor = .red
-        result.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi / 2)
         result.masksToBounds = false
+        result.layer.cornerRadius = 12.0
 
         return result
     }()
@@ -42,7 +44,7 @@ class RootViewController: ViewController {
 
         result.tag = 3
         result.backgroundColor = .gray
-        result.transform = CairoGraphics.CGAffineTransform.identity.rotated(by: .pi)
+        result.layer.cornerRadius = 6.0
 
         return result
     }()
@@ -51,6 +53,9 @@ class RootViewController: ViewController {
         let result = BlueView(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
         result.tag = 4
         result.backgroundColor = .blue
+        result.layer.borderColor = .magenta
+        result.layer.borderWidth = 1.0
+        result.layer.cornerRadius = 10.0
 
         return result
     }()
@@ -214,6 +219,9 @@ class RootViewController: ViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        redSubview.center = CGPoint(x: greenSubview.bounds.midX, y: greenSubview.bounds.midY)
+        graySubview.center = CGPoint(x: redSubview.bounds.midX, y: redSubview.bounds.midY)
 
         becomeFirstResponder()
     }

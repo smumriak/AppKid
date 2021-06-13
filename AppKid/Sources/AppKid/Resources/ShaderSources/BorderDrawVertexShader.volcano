@@ -1,4 +1,9 @@
-// code courtesy of https://vulkan-tutorial.com
+//
+//  BorderDrawVertexShader.volcano
+//  AppKid
+//
+//  Created by Serhii Mumriak on 10.06.2021.
+//
 
 #version 450
 #pragma shader_stage(vertex)
@@ -40,10 +45,42 @@ layout(location = 16) in vec4 shadowColor;
 layout(location = 17) in float shadowRadius;
 layout(location = 18) in float shadowOpacity;
 
-layout(location = 0) out vec4 fragmentColor;
+layout(location = 0) out vec2 textureCoordinates;
+
+layout(location = 1) out LayerRenderingDescriptor 
+{
+    mat4 transform;
+    mat4 contentsTransform;
+    vec2 position;
+    vec2 anchorPoint;
+    vec4 bounds;
+    vec4 backgroundColor;
+    vec4 borderColor;
+    float borderWidth;
+    float cornerRadius;
+    vec2 shadowOffset;
+    vec4 shadowColor;
+    float shadowRadius;
+    float shadowOpacity;
+} layer;
 
 void main() 
 {
     gl_Position = matrices.projection * transform * vec4(vertices[gl_VertexIndex].xy, 0.0, 1.0);
-    fragmentColor = backgroundColor;
+    
+    textureCoordinates = vertices[gl_VertexIndex].zw;
+
+    layer.transform = transform;
+    layer.contentsTransform = contentsTransform;
+    layer.position = position;
+    layer.anchorPoint = anchorPoint;
+    layer.bounds = bounds;
+    layer.backgroundColor = backgroundColor;
+    layer.borderColor = borderColor;
+    layer.borderWidth = borderWidth;
+    layer.cornerRadius = cornerRadius;
+    layer.shadowOffset = shadowOffset;
+    layer.shadowColor = shadowColor;
+    layer.shadowRadius = shadowRadius;
+    layer.shadowOpacity = shadowOpacity;
 }

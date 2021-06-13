@@ -48,7 +48,6 @@ public final class VulkanRenderer: NSObject {
     
     internal fileprivate(set) var surface: Surface
 
-
     internal fileprivate(set) var imageAvailableSemaphore: Volcano.Semaphore
     internal fileprivate(set) var renderFinishedSemaphore: Volcano.Semaphore
     internal fileprivate(set) var fence: Fence
@@ -58,7 +57,6 @@ public final class VulkanRenderer: NSObject {
     var swapchain: Swapchain!
     var renderTargets: [VulkanRenderTarget] = []
 
-    var pipeline: GraphicsPipeline!
     var commandBuffers: [CommandBuffer] = []
     var vertexBuffer: Buffer!
 
@@ -99,10 +97,14 @@ public final class VulkanRenderer: NSObject {
         fence = try Fence(device: device)
 
         renderPass = try device.createMainRenderPasss(format: surface.imageFormat)
-        pipeline = try device.createBackgroundPipeline(renderPass: renderPass)
+        let backgroundPipeline = try device.createBackgroundPipeline(renderPass: renderPass)
+        let borderPipeline = try device.createBorderPipeline(renderPass: renderPass)
 
         let queues = VulkanRenderContext.Queues(graphics: graphicsQueue, transfer: transferQueue)
-        let pipelines = VulkanRenderContext.Pipelines(background: pipeline)
+        let pipelines = VulkanRenderContext.Pipelines(
+            background: backgroundPipeline,
+            border: borderPipeline
+        )
         
         self.queues = queues
         self.pipelines = pipelines
@@ -126,7 +128,7 @@ public final class VulkanRenderer: NSObject {
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .immediate, size: size, graphicsQueue: queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
         renderTargets = try swapchain.textures.map {
             try VulkanRenderTarget(renderPass: renderPass, colorAttachment: $0, clearColor: VkClearValue(color: .red))
         }
@@ -182,7 +184,7 @@ public final class VulkanRenderer: NSObject {
                         break
                     }
 
-                    try clearSwapchain()                    
+                    try clearSwapchain()
                     try setupSwapchain()
 
                     skipRecreation = true
@@ -210,12 +212,9 @@ public final class VulkanRenderer: NSObject {
     }
 
     public func updateRenderTargetSize() throws {
-        //palkovnik:Disabled this logic for now since recreating swapchain on error gives better performance results
+        // palkovnik:Disabled this logic for now since recreating swapchain on error gives better performance results
         // do {
         //     try clearSwapchain()
-
-        //     vertexBuffer = try createVertexBuffer()
-
         //     try setupSwapchain()
         // } catch {
         //     debugPrint("Failed to recreate swapchain with error: \(error)")
@@ -311,8 +310,12 @@ public final class VulkanRenderer: NSObject {
         renderContext.descriptors.append(descriptor)
 
         renderContext.add(.bindVertexBuffer(index: index))
-
         renderContext.add(.background(descriptorSets: descriptorSets))
+
+        if layer.borderWidth > 0 && layer.borderColor != nil {
+            renderContext.add(.bindVertexBuffer(index: index))
+            renderContext.add(.border(descriptorSets: descriptorSets))
+        }
 
         try layer.sublayers?.forEach {
             index += 1
@@ -354,7 +357,7 @@ public final class VulkanRenderer: NSObject {
 
     func createDescriptorSets() throws -> [VkDescriptorSet] {
         let count = renderTargets.count
-        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: pipeline.descriptorSetLayouts[0], count: count).map { $0.pointer }
+        let layouts: [VkDescriptorSetLayout?] = Array<SmartPointer<VkDescriptorSetLayout_T>>(repeating: pipelines.background.descriptorSetLayouts[0], count: count).map { $0.pointer }
 
         let descriptorSets: [VkDescriptorSet] = try layouts.withUnsafeBufferPointer { layouts in
             var info = VkDescriptorSetAllocateInfo()
@@ -557,8 +560,82 @@ internal extension Device {
             let bundle = Bundle.main
         #endif
 
-        let vertexShader = try shader(named: "BackgroundDrawVertexShader", in: bundle)
-        let fragmentShader = try shader(named: "BackgroundDrawFragmentShader", in: bundle)
+        let vertexShader = try shader(named: "BackgroundDrawVertexShader", in: bundle, subdirectory: "ShaderBinaries")
+        let fragmentShader = try shader(named: "BackgroundDrawFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
+
+        var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
+        descriptorSetLayoutBinding.binding = 0
+        descriptorSetLayoutBinding.descriptorType = .uniformBuffer
+        descriptorSetLayoutBinding.descriptorCount = 1
+        descriptorSetLayoutBinding.stageFlags = VkShaderStageFlagBits.vertex.rawValue
+        descriptorSetLayoutBinding.pImmutableSamplers = nil
+
+        let descriptorSetLayoutBindings = [descriptorSetLayoutBinding]
+
+        let descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T> = try descriptorSetLayoutBindings.withUnsafeBufferPointer { descriptorSetLayoutBindings in
+            var info = VkDescriptorSetLayoutCreateInfo()
+            info.sType = .descriptorSetLayoutCreateInfo
+            info.bindingCount = CUnsignedInt(descriptorSetLayoutBindings.count)
+            info.pBindings = descriptorSetLayoutBindings.baseAddress!
+
+            return try create(with: &info)
+        }
+
+        let descriptor = GraphicsPipelineDescriptor()
+        descriptor.vertexShader = vertexShader
+        descriptor.fragmentShader = fragmentShader
+
+        descriptor.descriptorSetLayouts = [descriptorSetLayout]
+
+        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
+
+        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
+        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
+
+        descriptor.inputPrimitiveTopology = .triangleList
+        descriptor.primitiveRestartEnabled = false
+
+        descriptor.depthClampEnabled = false
+        descriptor.discardEnabled = false
+        descriptor.polygonMode = .fill
+        descriptor.cullModeFlags = []
+        descriptor.frontFace = .counterClockwise
+        descriptor.depthBiasEnabled = false
+        descriptor.depthBiasConstantFactor = 0.0
+        descriptor.depthBiasClamp = 0.0
+        descriptor.depthBiasSlopeFactor = 0.0
+        descriptor.lineWidth = 1.0
+
+        descriptor.sampleShadingEnabled = false
+        descriptor.rasterizationSamples = .one
+        descriptor.minSampleShading = 1.0
+        descriptor.sampleMasks = []
+        descriptor.alphaToCoverageEnabled = false
+        descriptor.alphaToOneEnabled = false
+
+        descriptor.logicOperationEnabled = false
+        descriptor.logicOperation = .copy
+        descriptor.colorBlendAttachments = [.rgbaBlend]
+        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
+
+        descriptor.dynamicStates = [
+            .viewport,
+            .scissor,
+            .lineWidth,
+        ]
+
+        return try GraphicsPipeline(device: self, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
+    }
+
+    func createBorderPipeline(renderPass: RenderPass, subpassIndex: Int = 0) throws -> GraphicsPipeline {
+        #if os(Linux)
+            let bundle = Bundle.module
+        #else
+            let bundle = Bundle.main
+        #endif
+
+        let vertexShader = try shader(named: "BorderDrawVertexShader", in: bundle, subdirectory: "ShaderBinaries")
+        let fragmentShader = try shader(named: "BorderDrawFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
 
         var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
         descriptorSetLayoutBinding.binding = 0

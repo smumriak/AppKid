@@ -126,8 +126,8 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 }
 
 public extension Device {
-    func shader(named name: String, in bundle: Bundle? = nil) throws -> Shader {
-        return try Shader(named: name, in: bundle, device: self)
+    func shader(named name: String, entryPoint: String = "main", in bundle: Bundle? = nil, subdirectory: String? = nil) throws -> Shader {
+        return try Shader(named: name, entryPoint: entryPoint, in: bundle, subdirectory: subdirectory, device: self)
     }
 }
 

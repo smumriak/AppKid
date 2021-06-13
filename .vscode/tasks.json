@@ -57,7 +57,7 @@
             "label": "buildShaders",
             "type": "shell",
             "linux": {
-                "command": "glslc ./AppKid/Sources/AppKid/Resources/BackgroundDrawFragmentShader.volcano -o ./AppKid/Sources/AppKid/Resources/BackgroundDrawFragmentShader.spv && glslc ./AppKid/Sources/AppKid/Resources/BackgroundDrawVertexShader.volcano -o ./AppKid/Sources/AppKid/Resources/BackgroundDrawVertexShader.spv"
+                "command": "./buildShaders.sh"
             },
             "osx": {
                 "command": "echo NO_OP"

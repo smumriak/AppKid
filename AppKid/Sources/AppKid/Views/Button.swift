@@ -32,6 +32,9 @@ open class Button: Control {
         super.init(with: frame)
 
         add(subview: titleLabel)
+
+        layer.borderColor = .black
+        layer.borderWidth = 2.0
     }
 
     open func set(title: String?, for state: State) {
@@ -78,8 +81,8 @@ open class Button: Control {
     open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
 
-        context.strokeColor = .black
-        context.lineWidth = 2.0
+        context.strokeColor = layer.borderColor
+        context.lineWidth = layer.borderWidth
         context.stroke(bounds)
     }
 }
