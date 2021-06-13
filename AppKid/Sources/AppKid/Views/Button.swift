@@ -81,9 +81,11 @@ open class Button: Control {
     open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
 
-        context.strokeColor = layer.borderColor
-        context.lineWidth = layer.borderWidth
-        context.stroke(bounds)
+        if layer.borderWidth > 0, let borderColor = layer.borderColor {
+            context.strokeColor = borderColor
+            context.lineWidth = layer.borderWidth
+            context.stroke(bounds)
+        }
     }
 }
 
