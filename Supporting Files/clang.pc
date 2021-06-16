@@ -1,0 +1,13 @@
+prefix=/usr/lib/llvm-11
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: clang
+Description: Lib Clang
+Version: 11.0.0
+URL: http://www.llvm.org/
+Requires:
+Conflicts:
+Libs: -L${libdir} -lclang
+Cflags: -I${includedir}

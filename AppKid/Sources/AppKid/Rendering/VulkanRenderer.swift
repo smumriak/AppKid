@@ -15,6 +15,7 @@ import ContentAnimation
 import CairoGraphics
 import CXlib
 import SwiftXlib
+import LayerRenderingData
 
 public enum VulkanRendererError: Error {
     case noDiscreteGPU
@@ -305,7 +306,9 @@ public final class VulkanRenderer: NSObject {
                                                shadowOffset: layer.shadowOffset.vec2,
                                                shadowColor: layer.shadowColor?.vec4 ?? .zero,
                                                shadowRadius: Float(layer.shadowRadius),
-                                               shadowOpacity: Float(layer.shadowOpacity))
+                                               shadowOpacity: Float(layer.shadowOpacity),
+                                               padding0: .zero,
+                                               padding1: .zero)
 
         renderContext.descriptors.append(descriptor)
 
@@ -313,7 +316,6 @@ public final class VulkanRenderer: NSObject {
         renderContext.add(.background(descriptorSets: descriptorSets))
 
         if layer.borderWidth > 0 && layer.borderColor != nil {
-            renderContext.add(.bindVertexBuffer(index: index))
             renderContext.add(.border(descriptorSets: descriptorSets))
         }
 
@@ -447,56 +449,12 @@ fileprivate extension CGColor {
     }
 }
 
-// align each field by 16
-struct LayerRenderDescriptor {
-    var transform: mat4s = .identity // +64 bytes
-    var contentsTransform: mat4s = .identity // +64 bytes
-    var position: vec2s = .zero // +8 bytes
-    var anchorPoint: vec2s = .zero // +8 bytes
-    var bounds: vec4s = .zero // +16 bytes
-    var backgroundColor: vec4s = .zero // +16 bytes
-    var borderColor: vec4s = .zero // +16 bytes
-    var borderWidth: Float = .zero // +4 bytes
-    var cornerRadius: Float = .zero // +4 bytes
-    var shadowOffset: vec2s = .zero // +8 bytes
-    var shadowColor: vec4s = .zero // +16 bytes
-    var shadowRadius: Float = .zero // +4 bytes
-    var shadowOpacity: Float = .zero // +4 bytes
-
-    // Totoal before padding: 232 bytes
-
-    var padding0: vec2s = .zero // + 8 bytes
-    var padding1: vec4s = .zero // +16 bytes
-
-    // Total: 256 bytes
-}
-
 extension LayerRenderDescriptor: VertexInput {
-    static func inputBindingDescription(binding: CUnsignedInt = 0) -> VkVertexInputBindingDescription {
+    public static func inputBindingDescription(binding: CUnsignedInt = 0) -> VkVertexInputBindingDescription {
         var result = VkVertexInputBindingDescription()
         result.binding = 0
         result.stride = CUnsignedInt(MemoryLayout<Self>.stride)
         result.inputRate = .instance
-
-        return result
-    }
-
-    static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
-        var result: [VkVertexInputAttributeDescription] = []
-
-        addAttributes(for: \.transform, binding: binding, result: &result)
-        addAttributes(for: \.contentsTransform, binding: binding, result: &result)
-        addAttributes(for: \.position, binding: binding, result: &result)
-        addAttributes(for: \.anchorPoint, binding: binding, result: &result)
-        addAttributes(for: \.bounds, binding: binding, result: &result)
-        addAttributes(for: \.backgroundColor, binding: binding, result: &result)
-        addAttributes(for: \.borderColor, binding: binding, result: &result)
-        addAttributes(for: \.borderWidth, binding: binding, result: &result)
-        addAttributes(for: \.cornerRadius, binding: binding, result: &result)
-        addAttributes(for: \.shadowOffset, binding: binding, result: &result)
-        addAttributes(for: \.shadowColor, binding: binding, result: &result)
-        addAttributes(for: \.shadowRadius, binding: binding, result: &result)
-        addAttributes(for: \.shadowOpacity, binding: binding, result: &result)
 
         return result
     }

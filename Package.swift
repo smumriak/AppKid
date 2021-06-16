@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 //
 //  Package.swift
 //  SwiftyFan
@@ -25,9 +25,10 @@ let package = Package(
         .package(path: "./Volcano"),
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
         .package(path: "./SimpleGLM"),
+        .package(name: "glslImporter", path: "./Tools/glslImporter"),
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "SwiftyFan",
             dependencies: [
                 .product(name: "AppKid", package: "AppKid"),

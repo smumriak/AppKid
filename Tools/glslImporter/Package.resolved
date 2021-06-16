@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "cglm",
-        "repositoryURL": "https://github.com/recp/cglm",
-        "state": {
-          "branch": "master",
-          "revision": "c783c4210152522ef61f40863f7c91f74186cb2a",
-          "version": null
-        }
-      },
-      {
         "package": "swift-argument-parser",
         "repositoryURL": "https://github.com/apple/swift-argument-parser",
         "state": {

@@ -11,26 +11,10 @@
 
 #include "Rectangle.h"
 
-layout(location = 0) in vec2 textureCoordinates;
+@in vec2 textureCoordinates;
+@in LayerRenderDescriptor layer;
 
-layout(location = 1) in LayerRenderingDescriptor 
-{
-    mat4 transform;
-    mat4 contentsTransform;
-    vec2 position;
-    vec2 anchorPoint;
-    vec4 bounds;
-    vec4 backgroundColor;
-    vec4 borderColor;
-    float borderWidth;
-    float cornerRadius;
-    vec2 shadowOffset;
-    vec4 shadowColor;
-    float shadowRadius;
-    float shadowOpacity;
-} layer;
-
-layout(location = 0) out vec4 outColor;
+@out vec4 outColor;
 
 void main() 
 {

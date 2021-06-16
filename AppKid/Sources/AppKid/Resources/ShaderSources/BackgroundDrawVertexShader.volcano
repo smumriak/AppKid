@@ -31,38 +31,10 @@ layout(binding = 0) uniform UniformBufferObject
     mat4 projection;
 } matrices;
 
-layout(location = 0) in mat4 transform;
-layout(location = 4) in mat4 contentsTransform;
-layout(location = 8) in vec2 position;
-layout(location = 9) in vec2 anchorPoint;
-layout(location = 10) in vec4 bounds;
-layout(location = 11) in vec4 backgroundColor;
-layout(location = 12) in vec4 borderColor;
-layout(location = 13) in float borderWidth;
-layout(location = 14) in float cornerRadius;
-layout(location = 15) in vec2 shadowOffset;
-layout(location = 16) in vec4 shadowColor;
-layout(location = 17) in float shadowRadius;
-layout(location = 18) in float shadowOpacity;
+@in LayerRenderDescriptor UNUSED_NAME;
 
-layout(location = 0) out vec2 textureCoordinates;
-
-layout(location = 1) out LayerRenderingDescriptor 
-{
-    mat4 transform;
-    mat4 contentsTransform;
-    vec2 position;
-    vec2 anchorPoint;
-    vec4 bounds;
-    vec4 backgroundColor;
-    vec4 borderColor;
-    float borderWidth;
-    float cornerRadius;
-    vec2 shadowOffset;
-    vec4 shadowColor;
-    float shadowRadius;
-    float shadowOpacity;
-} layer;
+@out vec2 textureCoordinates;
+@out LayerRenderDescriptor layer;
 
 void main() 
 {

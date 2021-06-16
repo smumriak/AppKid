@@ -16,13 +16,13 @@ public extension Array where Element == String {
         }
     }
 
-    func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>?>) throws -> (R)) throws -> R {
+    func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>?>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
         return try cStrings.map { UnsafePointer($0.pointer) as UnsafePointer<Int8>? }.withUnsafeBufferPointer(body)
     }
 
-    func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>>) throws -> (R)) throws -> R {
+    func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
         return try cStrings.map { UnsafePointer($0.pointer) }.withUnsafeBufferPointer(body)

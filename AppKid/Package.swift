@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 //
 //  Package.swift
 //  AppKid
@@ -25,6 +25,7 @@ let package = Package(
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
         .package(path: "../SimpleGLM"),
         .package(path: "../SwiftXlib"),
+        .package(path: "../Tools/glslImporter"),
     ],
     targets: [
         .target(
@@ -39,12 +40,19 @@ let package = Package(
                 .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .product(name: "SwiftXlib", package: "SwiftXlib"),
+                .target(name: "LayerRenderingData"),
             ],
             exclude: [
                 "Resources/ShaderSources",
             ],
             resources: [
                 .copy("Resources/ShaderBinaries"),
+            ]
+        ),
+        .target(
+            name: "LayerRenderingData",
+            dependencies: [
+                .product(name: "cglm", package: "cglm"),
             ]
         ),
     ]

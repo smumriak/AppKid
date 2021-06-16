@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 //
 //  Package.swift
 //  SharedSystemLibs
@@ -14,12 +14,18 @@ let package = Package(
         .macOS(.v10_15),
     ],
     products: [
+        .library(name: "CCore", targets: ["CCore"]),
         .library(name: "CXlib", targets: ["CXlib"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
         .library(name: "CVulkan", targets: ["CVulkan"]),
     ],
     targets: [
+        .target(
+            name: "CCore",
+            dependencies: [],
+            path: "CCore"
+        ),
         .systemLibrary(
             name: "CXlib",
             path: "CXlib",

@@ -10,8 +10,35 @@ import CVulkan
 import SimpleGLM
 
 public protocol VertexInput {
+    init()
     static func inputBindingDescription(binding: CUnsignedInt) -> VkVertexInputBindingDescription
-    static func attributesDescriptions(binding: CUnsignedInt) -> [VkVertexInputAttributeDescription]
+}
+
+public extension VertexInput {
+    typealias AttributesAccumulator = (attributes: [VkVertexInputAttributeDescription], offset: CUnsignedInt)
+
+    static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
+        let mirror = Mirror(reflecting: Self())
+
+        let result: AttributesAccumulator = mirror.children.reduce(AttributesAccumulator([], 0)) { accumulator, child -> AttributesAccumulator in
+            guard let vertexInputAttribute = child.value as? VertexInputAttribute else {
+                fatalError("Gathering vertex input attributes only supported if all stored properties are conforming to VertexInputAttribute protocol")
+            }
+
+            let vertexInputAttributeType = type(of: vertexInputAttribute)
+
+            var location: CUnsignedInt = 0
+            if let last = accumulator.attributes.last {
+                location = last.location + 1
+            }
+
+            let attributes = accumulator.attributes + vertexInputAttributeType.descriptions(binding: binding, offset: accumulator.offset, location: location)
+            let offset = accumulator.offset + CUnsignedInt(vertexInputAttributeType.stride)
+            return (attributes, offset)
+        }
+
+        return result.attributes
+    }
 }
 
 public extension VertexInput {
@@ -35,8 +62,14 @@ public protocol VertexInputAttribute {
     static func descriptions(binding: CUnsignedInt, offset: CUnsignedInt, location: CUnsignedInt) -> [VkVertexInputAttributeDescription]
 }
 
+public extension VertexInputAttribute {
+    static var stride: Int {
+        return MemoryLayout<Self>.stride
+    }
+}
+
 public extension KeyPath where Value: VertexInputAttribute {
-    static var locationStride: CUnsignedInt { 
+    static var locationStride: CUnsignedInt {
         return Value.locationStride
     }
 }
@@ -48,7 +81,7 @@ public extension SingleRowVertexInputAttribute {
         return [VkVertexInputAttributeDescription(location: location, binding: binding, format: format, offset: offset)]
     }
 
-    static var locationStride: CUnsignedInt { 
+    static var locationStride: CUnsignedInt {
         return 1
     }
 }
@@ -70,7 +103,7 @@ public extension MultiRowVertexInputAttribute {
         }
     }
 
-    static var locationStride: CUnsignedInt { 
+    static var locationStride: CUnsignedInt {
         return rowCount
     }
 }

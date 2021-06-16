@@ -1,5 +1,5 @@
 //
-//  CCore_umbrella.h
+//  CCore.h
 //  CCore
 //
 //  Created by Serhii Mumriak on 21.04.2020.

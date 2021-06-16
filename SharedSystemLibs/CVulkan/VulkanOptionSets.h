@@ -8,7 +8,7 @@
 #ifndef VulkanOptionSets_h
 #define VulkanOptionSets_h 1
 
-#include "../CCore/CCore_umbrella.h"
+#include "../CCore/include/CCore.h"
 
 AK_EXISTING_OPTIONS(VkFormatFeatureFlagBits);
 AK_EXISTING_OPTIONS(VkImageUsageFlagBits);

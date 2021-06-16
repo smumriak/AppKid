@@ -1,0 +1,12 @@
+//
+//  module.modulemap
+//  CClang
+//
+//  Created by Serhii Mumriak on 13.06.2021.
+//
+
+module CClang [system] {
+    header "CClang_umbrella.h"
+    link "clang"
+    export *
+}

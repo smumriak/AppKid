@@ -8,7 +8,7 @@
 #ifndef VulkanEnums_h
 #define VulkanEnums_h
 
-#include "../CCore/CCore_umbrella.h"
+#include "../CCore/include/CCore.h"
 
 //AK_EXISTING_ENUM(VkResult);
 AK_EXISTING_ENUM(VkStructureType);

@@ -11,6 +11,7 @@ import CairoGraphics
 import Volcano
 import CVulkan
 import TinyFoundation
+import LayerRenderingData
 
 internal class VulkanRenderContext {
     let renderStack: VulkanRenderStack

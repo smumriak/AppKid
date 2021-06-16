@@ -32,7 +32,7 @@ struct _XIC {};
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI.h>
 
-#include "../CCore/CCore_umbrella.h"
+#include "../CCore/include/CCore.h"
 
 #include "XlibResult.h"
 #include "XlibEventKeyMask.h"
