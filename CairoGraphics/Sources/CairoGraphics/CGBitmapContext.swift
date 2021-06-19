@@ -21,7 +21,7 @@ public extension CGContext {
 
 public extension CGContext {
     convenience init?(width: Int, height: Int, bitsPerComponent: Int, bytesPerRow: Int, space: CGColorSpace, bitMapInfo: CGBitmapInfo) {
-        let surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, CInt(width), CInt(height))!
+        let surface = cairo_image_surface_create(.argb32, CInt(width), CInt(height))!
         self.init(surface: surface, size: CGSize(width: width, height: height))
         cairo_surface_destroy(surface)
     }

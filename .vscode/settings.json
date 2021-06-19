@@ -42,6 +42,7 @@
     "files.associations": {
         "random": "cpp",
         "*.volcano": "glsl",
+        "*.volcano.glsl": "glsl",
     },
     "debug.toolBarLocation": "docked",
     "debug.focusWindowOnBreak": true,

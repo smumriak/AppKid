@@ -14,16 +14,67 @@ public enum CGPathFillRule: Int {
     case evenOdd
 }
 
+internal extension CGPathFillRule {
+    var cairoFillRule: cairo_fill_rule_t {
+        switch self {
+            case .winding: return .winding
+            case .evenOdd: return .evenOdd
+        }
+    }
+}
+
 public enum CGLineCap: Int {
     case butt
     case round
     case square
 }
 
+internal extension CGLineCap {
+    var cairoLineCap: cairo_line_cap_t {
+        switch self {
+            case .butt: return .butt
+            case .round: return .round
+            case .square: return .square
+        }
+    }
+}
+
+internal extension cairo_line_cap_t {
+    var lineCap: CGLineCap {
+        switch self {
+            case .butt: return .butt
+            case .round: return .round
+            case .square: return .square
+            default: fatalError("Invalid line cap in cairo context")
+        }
+    }
+}
+
 public enum CGLineJoin: Int {
     case miter
     case round
     case bevel
+}
+
+internal extension CGLineJoin {
+    var cairoLineJoin: cairo_line_join_t {
+        switch self {
+            case .miter: return .miter
+            case .round: return .round
+            case .bevel: return .bevel
+        }
+    }
+}
+
+internal extension cairo_line_join_t {
+    var lineJoin: CGLineJoin {
+        switch self {
+            case .miter: return .miter
+            case .round: return .round
+            case .bevel: return .bevel
+            default: fatalError("Invalid line cap in cairo context")
+        }
+    }
 }
 
 open class CGContext {
@@ -57,7 +108,6 @@ open class CGContext {
         _state.defaultPattern = cairo_get_source(_context)
     }
 
-        
     public init(_ context: CGContext) {
         self._contextPointer = RetainablePointer(with: context._context)
         self.size = context.size
@@ -199,22 +249,12 @@ public extension CGContext {
     func fillPath(using rule: CGPathFillRule = .winding) {
         cairo_set_source(_context, _state.fillPattern)
 
-        switch rule {
-        case .winding:
-            cairo_set_fill_rule(_context, CAIRO_FILL_RULE_WINDING)
-        case .evenOdd:
-            cairo_set_fill_rule(_context, CAIRO_FILL_RULE_EVEN_ODD)
-        }
+        cairo_set_fill_rule(_context, rule.cairoFillRule)
         cairo_fill(_context)
     }
     
     func clip(using rule: CGPathFillRule = .winding) {
-        switch rule {
-        case .winding:
-            cairo_set_fill_rule(_context, CAIRO_FILL_RULE_WINDING)
-        case .evenOdd:
-            cairo_set_fill_rule(_context, CAIRO_FILL_RULE_EVEN_ODD)
-        }
+        cairo_set_fill_rule(_context, rule.cairoFillRule)
         cairo_clip_preserve(_context)
     }
 
@@ -274,49 +314,19 @@ public extension CGContext {
 
     var lineCap: CGLineCap {
         get {
-            let lineCap = cairo_get_line_cap(_context)
-
-            switch lineCap {
-            case CAIRO_LINE_CAP_BUTT: return .butt
-            case CAIRO_LINE_CAP_ROUND: return .round
-            case CAIRO_LINE_CAP_SQUARE: return .square
-            default: fatalError("Invalid line cap in cairo context")
-            }
+            return cairo_get_line_cap(_context).lineCap
         }
         set {
-            let lineCap: cairo_line_cap_t = {
-                switch newValue {
-                case .butt: return CAIRO_LINE_CAP_BUTT
-                case .round: return CAIRO_LINE_CAP_ROUND
-                case .square: return CAIRO_LINE_CAP_SQUARE
-                }
-            }()
-
-            cairo_set_line_cap(_context, lineCap)
+            cairo_set_line_cap(_context, newValue.cairoLineCap)
         }
     }
 
     var lineJoin: CGLineJoin {
         get {
-            let lineJoin = cairo_get_line_join(_context)
-
-            switch lineJoin {
-            case CAIRO_LINE_JOIN_MITER: return .miter
-            case CAIRO_LINE_JOIN_ROUND: return .round
-            case CAIRO_LINE_JOIN_BEVEL: return .bevel
-            default: fatalError("Invalid line join in cairo context")
-            }
+            return cairo_get_line_join(_context).lineJoin
         }
         set {
-            let lineJoin: cairo_line_join_t = {
-                switch newValue {
-                case .miter: return CAIRO_LINE_JOIN_MITER
-                case .round: return CAIRO_LINE_JOIN_ROUND
-                case .bevel: return CAIRO_LINE_JOIN_BEVEL
-                }
-            }()
-
-            cairo_set_line_join(_context, lineJoin)
+            cairo_set_line_join(_context, newValue.cairoLineJoin)
         }
     }
 
