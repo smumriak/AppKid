@@ -261,6 +261,7 @@ public final class VulkanRenderer: NSObject {
     }
 
     fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt32, renderContext: VulkanRenderContext, descriptorSets: [VkDescriptorSet]? = nil) throws {
+        let currentLayerIndex = index
         let bounds = layer.bounds
         let position = layer.position
         let anchorPoint = layer.anchorPoint
@@ -312,16 +313,17 @@ public final class VulkanRenderer: NSObject {
 
         renderContext.descriptors.append(descriptor)
 
-        renderContext.add(.bindVertexBuffer(index: index))
+        renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
         renderContext.add(.background(descriptorSets: descriptorSets))
-
-        if layer.borderWidth > 0 && layer.borderColor != nil {
-            renderContext.add(.border(descriptorSets: descriptorSets))
-        }
 
         try layer.sublayers?.forEach {
             index += 1
             try traverseLayerTree(for: $0, parentTransform: layerLocalTransform, index: &index, renderContext: renderContext, descriptorSets: descriptorSets)
+        }
+
+        if layer.borderWidth > 0 && layer.borderColor != nil {
+            renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+            renderContext.add(.border(descriptorSets: descriptorSets))
         }
     }
 
@@ -518,7 +520,7 @@ internal extension Device {
             let bundle = Bundle.main
         #endif
 
-        let vertexShader = try shader(named: "BackgroundDrawVertexShader", in: bundle, subdirectory: "ShaderBinaries")
+        let vertexShader = try shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
         let fragmentShader = try shader(named: "BackgroundDrawFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
 
         var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
@@ -592,7 +594,7 @@ internal extension Device {
             let bundle = Bundle.main
         #endif
 
-        let vertexShader = try shader(named: "BorderDrawVertexShader", in: bundle, subdirectory: "ShaderBinaries")
+        let vertexShader = try shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
         let fragmentShader = try shader(named: "BorderDrawFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
 
         var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()

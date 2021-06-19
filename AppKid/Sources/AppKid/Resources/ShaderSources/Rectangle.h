@@ -54,9 +54,9 @@ float RoundedRectContains(RoundedRect rect, vec2 point)
     vec2 center = vec2(rect.bounds.x + rect.bounds.z * 0.5, rect.bounds.y + rect.bounds.w * 0.5);
     point -= center;
 
-    vec2 externalRoundedBounds = rect.bounds.zw * 0.5 - rect.cornerRadius;
+    vec2 externalRoundedBoundsSize = rect.bounds.zw * 0.5 - rect.cornerRadius;
     
-    return pow(max(abs(point.x) - externalRoundedBounds.x, 0), 2) + pow(max(abs(point.y) - externalRoundedBounds.y, 0), 2) <= pow(rect.cornerRadius, 2) ? 1 : 0;
+    return pow(max(abs(point.x) - externalRoundedBoundsSize.x, 0), 2) + pow(max(abs(point.y) - externalRoundedBoundsSize.y, 0), 2) <= pow(rect.cornerRadius, 2) ? 1 : 0;
 }
 
 float RoundedRectBorderContains(RoundedRect rect, float borderWidth, vec2 point)
@@ -64,10 +64,14 @@ float RoundedRectBorderContains(RoundedRect rect, float borderWidth, vec2 point)
     vec2 center = vec2(rect.bounds.x + rect.bounds.z * 0.5, rect.bounds.y + rect.bounds.w * 0.5);
     point -= center;
 
-    vec2 externalRoundedBounds = rect.bounds.zw * 0.5 - rect.cornerRadius;
-    vec2 internalRoundedBounds = rect.bounds.zw * 0.5 - rect.cornerRadius - borderWidth;
-    
-    return pow(max(abs(point.x) - externalRoundedBounds.x, 0), 2) + pow(max(abs(point.y) - externalRoundedBounds.y, 0), 2) <= pow(rect.cornerRadius, 2)
-        && pow(max(abs(point.x) - internalRoundedBounds.x, 0), 2) + pow(max(abs(point.y) - internalRoundedBounds.y, 0), 2) > pow(rect.cornerRadius, 2)
-        ? 1 : 0;
+    float externalRadius = rect.cornerRadius;
+    float internalRadius = max(externalRadius - borderWidth, 0.0);
+
+    vec2 externalSize = rect.bounds.zw * 0.5 - vec2(externalRadius);
+    vec2 internalSize = (rect.bounds.zw - vec2(2.0 * borderWidth)) * 0.5 - vec2(internalRadius);
+
+    bool fitsOutside = pow(max(abs(point.x) - externalSize.x, 0), 2) + pow(max(abs(point.y) - externalSize.y, 0), 2) <= pow(externalRadius, 2);
+    bool fitsInside = pow(max(abs(point.x) - internalSize.x, 0), 2) + pow(max(abs(point.y) - internalSize.y, 0), 2) > pow(internalRadius, 2);
+
+    return fitsOutside && fitsInside ? 1.0 : 0.0;
 }

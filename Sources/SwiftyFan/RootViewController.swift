@@ -21,7 +21,7 @@ class RootViewController: ViewController {
         result.backgroundColor = .green
         result.backgroundColor.alpha = 0.5
         result.masksToBounds = true
-        result.layer.cornerRadius = 16.0
+        result.layer.cornerRadius = 20.0
         result.layer.borderColor = .black
         result.layer.borderWidth = 1.0
 
@@ -35,6 +35,8 @@ class RootViewController: ViewController {
         result.backgroundColor = .red
         result.masksToBounds = false
         result.layer.cornerRadius = 12.0
+        result.layer.borderColor = .black
+        result.layer.borderWidth = 1.0
 
         return result
     }()
@@ -45,6 +47,8 @@ class RootViewController: ViewController {
         result.tag = 3
         result.backgroundColor = .gray
         result.layer.cornerRadius = 6.0
+        result.layer.borderColor = .black
+        result.layer.borderWidth = 1.0
 
         return result
     }()
@@ -153,6 +157,10 @@ class RootViewController: ViewController {
         graySubview.transform = graySubview.transform.rotated(by: .pi / 20)
     }
 
+    lazy var borderWidthTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned greenSubview] _ in
+        greenSubview.layer.borderWidth += 2.0 / 60.0
+    }
+
     let sensorLabel: Label = {
         let result = Label(with: .zero)
 
@@ -186,6 +194,7 @@ class RootViewController: ViewController {
 
     deinit {
         transformTimer.invalidate()
+        // borderWidthTimer.invalidate()
         // sensorTimer.invalidate()
     }
 
@@ -210,6 +219,7 @@ class RootViewController: ViewController {
         view.add(subview: closeOtherWindows)
 
         RunLoop.current.add(transformTimer, forMode: .common)
+        // RunLoop.current.add(borderWidthTimer, forMode: .common)
         // RunLoop.current.add(sensorTimer, forMode: .common)
     }
 
