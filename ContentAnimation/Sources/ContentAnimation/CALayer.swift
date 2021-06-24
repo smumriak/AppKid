@@ -36,12 +36,12 @@ extension NSNull: CAAction {
 }
 
 open class CALayer: CAMediaTiming {
-    public var backingStore: CABackingStore? = nil
-    
-    // palkovnik:Yes, delegate is intentionally retained
-    open var delegate: CALayerDelegate? = nil
+    open weak var delegate: CALayerDelegate? = nil
 
     open var contentsScale: CGFloat = 1.0
+    
+    public var renderID: UInt? = 0
+    public var needsDisplay = false
 
     @CALayerProperty(name: "bounds")
     open var bounds: CGRect = .zero
@@ -189,6 +189,41 @@ open class CALayer: CAMediaTiming {
                 properties[$0] = $1
             }
         }
+    }
+
+    open func draw(in context: CGContext) {
+        guard let delegate = self.delegate else {
+            return
+        }
+
+        delegate.draw(self, in: context)
+    }
+    
+    open func display() {
+        if let delegate = delegate as? CALayerDisplayDelegate {
+            delegate.display(self)
+        } else if (contents == nil || contents is CABackingStore) && (bounds.width > 0 && bounds.height > 0) {
+            do {
+                let backingStore: CABackingStore = try {
+                    if let backingStore = contents as? CABackingStore, backingStore.fits(size: bounds.size) {
+                        return backingStore
+                    } else {
+                        return try CABackingStoreContext.global.createBackingStore(size: bounds.size)
+                    }
+                }()
+                
+                delegate?.layerWillDraw(self)
+                backingStore.update(width: Int(bounds.width), height: Int(bounds.height)) { context in
+                    draw(in: context)
+                }
+
+                contents = backingStore
+            } catch {
+                fatalError("Failed to create backing store with error: \(error)")
+            }
+        }
+
+        needsDisplay = false
     }
 }
 

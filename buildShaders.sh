@@ -2,19 +2,19 @@
 
 arch=`uname`
 
-resourcesPath=./AppKid/Sources/AppKid/Resources
+resourcesPath=./ContentAnimation/Sources/ContentAnimation/Resources
 shadersSourceCodePath=$resourcesPath/ShaderSources
 shadersBinariesCodePath=$resourcesPath/ShaderBinaries
-importHeaderSearchPath=./AppKid/Sources/LayerRenderingData/include
+importHeaderSearchPath=./ContentAnimation/Sources/LayerRenderingData/include
 
 glslImporterBuildPath=~/Library/Developer/Xcode/DerivedData/glslImporter-$arch
-appKidShadersBuildPath=~/Library/Developer/Xcode/DerivedData/AppKidShaders-$arch
+contentAnimationShadersBuildPath=~/Library/Developer/Xcode/DerivedData/ContentAnimationShaders-$arch
 
-mkdir -p $appKidShadersBuildPath
+mkdir -p $contentAnimationShadersBuildPath
 
 find $shadersSourceCodePath -name "*.volcano" | while read file; do
     shaderName=`basename $file .volcano`
-    outputAfterImport=$appKidShadersBuildPath/$shaderName.volcano.glsl
+    outputAfterImport=$contentAnimationShadersBuildPath/$shaderName.volcano.glsl
     swift run --build-path $glslImporterBuildPath glslImporter $file -I $importHeaderSearchPath -o $outputAfterImport || exit 1
     glslc $outputAfterImport -I $shadersSourceCodePath -o $shadersBinariesCodePath/$shaderName.spv|| exit 1
 done || exit 1

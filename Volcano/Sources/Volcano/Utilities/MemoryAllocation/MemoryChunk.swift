@@ -13,6 +13,13 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     public let offset: VkDeviceSize
     public let size: VkDeviceSize
     public let properties: VkMemoryPropertyFlagBits
+    public internal(set) var currentlyMappedPointer: UnsafeMutableRawPointer? = nil
+
+    deinit {
+        if currentlyMappedPointer != nil {
+            try? unmapData()
+        }
+    }
 
     public init(parent: MemoryChunk, offset: VkDeviceSize, size: VkDeviceSize) throws {
         if offset + size > parent.size {
@@ -43,20 +50,39 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         try super.init(device: device, handlePointer: handlePointer)
     }
 
+    public func mapData(_ offset: VkDeviceSize = 0) throws -> UnsafeMutableRawPointer {
+        assert(properties.contains(.hostVisible), "Only host visible memory can be mapped")
+        assert(currentlyMappedPointer == nil, "Memory chunk is already mapped")
+
+        // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
+        let remainingMemorySize = self.size - offset
+
+        try vulkanInvoke {
+            vkMapMemory(device.handle, handle, self.offset + offset, remainingMemorySize, 0, &currentlyMappedPointer)
+        }
+
+        return currentlyMappedPointer!
+    }
+
+    public func unmapData() throws {
+        assert(currentlyMappedPointer != nil, "Memory chunk is not mapped")
+
+        try vulkanInvoke {
+            vkUnmapMemory(device.handle, handle)
+        }
+
+        currentlyMappedPointer = nil
+    }
+
     public func withMappedData<R>(_ offset: VkDeviceSize = 0, body: (_ data: UnsafeMutableRawPointer, _ size: VkDeviceSize) throws -> (R)) throws -> R {
         // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
         let remainingMemorySize = self.size - offset
 
-        var data: UnsafeMutableRawPointer? = nil
-        try vulkanInvoke {
-            vkMapMemory(device.handle, handle, self.offset + offset, remainingMemorySize, 0, &data)
-        }
+        let data: UnsafeMutableRawPointer = try mapData(offset)
 
-        let result: R = try body(data!, remainingMemorySize)
+        let result: R = try body(data, remainingMemorySize)
  
-        try vulkanInvoke {
-            vkUnmapMemory(device.handle, handle)
-        }
+        try unmapData()
 
         return result
     }
@@ -70,16 +96,11 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         let byteCount = min(dataSize, remainingMemorySize)
 
         if properties.contains(.hostVisible) {
-            var rawMemoryChunk: UnsafeMutableRawPointer? = nil
-            try vulkanInvoke {
-                vkMapMemory(device.handle, handle, self.offset + offset, size, 0, &rawMemoryChunk)
-            }
+            let rawMemoryChunk: UnsafeMutableRawPointer = try mapData(offset)
 
-            rawMemoryChunk?.copyMemory(from: UnsafeRawPointer(data.baseAddress!), byteCount: Int(byteCount))
- 
-            try vulkanInvoke {
-                vkUnmapMemory(device.handle, handle)
-            }
+            rawMemoryChunk.copyMemory(from: UnsafeRawPointer(data.baseAddress!), byteCount: Int(byteCount))
+
+            try unmapData()
         } else {
             fatalError("Memory that is not host visible is not yet writable")
         }

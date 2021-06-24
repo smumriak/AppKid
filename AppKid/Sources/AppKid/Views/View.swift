@@ -9,7 +9,7 @@ import Foundation
 import CairoGraphics
 import ContentAnimation
 
-open class View: Responder {
+open class View: Responder, CALayerDelegate {
     open var tag: UInt = 0
     internal weak var viewDelegate: ViewController? = nil
 
@@ -82,7 +82,11 @@ open class View: Responder {
 
     internal var transformsAreValid = false
 
-    open var masksToBounds = true
+    open var masksToBounds: Bool {
+        get { layer.masksToBounds }
+        set { layer.masksToBounds = newValue }
+    }
+
     open var cornerRaidus: CGFloat = 0.0
     open var anchorPoint = CGPoint(x: 0.5, y: 0.5)
 
@@ -136,13 +140,12 @@ open class View: Responder {
     open var backgroundColor: CairoGraphics.CGColor {
         get {
             layer.backgroundColor ?? .white
-        } 
+        }
         set {
             layer.backgroundColor = newValue
         }
     }
     
-
     // MARK: Init
     
     public init(with frame: CGRect) {
@@ -150,6 +153,7 @@ open class View: Responder {
         layer.bounds = CGRect(origin: .zero, size: frame.size)
         layer.position = CGPoint(x: frame.midX, y: frame.midY)
         layer.backgroundColor = .white
+        layer.masksToBounds = true
         
         super.init()
     }
@@ -372,6 +376,21 @@ open class View: Responder {
     open override var nextResponder: Responder? {
         return viewDelegate ?? superview ?? super.nextResponder
     }
+
+    // MARK: CALayerDelegate
+
+    public func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {
+    }
+    
+    public func layerWillDraw(_ layer: CALayer) {
+    }
+
+    public func layoutSublayers(of layer: CALayer) {
+    }
+
+    public func action(for layer: CALayer, forKey event: String) -> CAAction? {
+        return nil
+    }
 }
 
 // MARK: Equatable
@@ -385,25 +404,5 @@ public extension View {
 open class BlueView: View {
     open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
-    }
-}
-
-// MARK: CALayerDelegate
-
-extension View: CALayerDisplayDelegate {
-    public func display(_ layer: CALayer) {
-    }
-
-    public func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {
-    }
-    
-    public func layerWillDraw(_ layer: CALayer) {
-    }
-
-    public func layoutSublayers(of layer: CALayer) {
-    }
-
-    public func action(for layer: CALayer, forKey event: String) -> CAAction? {
-        return nil
     }
 }

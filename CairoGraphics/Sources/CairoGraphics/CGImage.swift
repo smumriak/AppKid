@@ -10,6 +10,24 @@ import CoreFoundation
 import TinyFoundation
 import STBImageRead
 
+enum ImageFormat {
+    case png
+    case jpeg
+    case gif
+
+    var header: [UInt8] {
+        switch self {
+            case .png: return [0x89, 0x50, 0x4E, 0x47]
+            case .jpeg: return [0xFF, 0xD8]
+            case .gif: return [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]
+        }
+    }
+
+    static var maxHeaderSize: Int = Array<ImageFormat>(arrayLiteral: .png, .jpeg, .gif)
+        .map { $0.header.count }
+        .reduce(0) { max($0, $1) }
+}
+
 public final class CGImage {
     public internal(set) var isMask: Bool
     public internal(set) var width: Int
@@ -25,23 +43,39 @@ public final class CGImage {
         bitmap?.deallocate()
     }
 
-    public init?(pngData: Data) {
-        var width: Int32 = 0
-        var height: Int32 = 0
-        var numberOfChannels: Int32 = 0
-
-        let pixelData: UnsafeMutablePointer<stbi_uc> = pngData.withUnsafeBytes { pngData in
-            let boundData = pngData.bindMemory(to: stbi_uc.self)
-            return stbi_load_from_memory(boundData.baseAddress!, Int32(pngData.count), &width, &height, &numberOfChannels, 4)
+    public init?(dataProvider: CGDataProvider) {
+        guard let data = dataProvider.data else {
+            return nil
         }
 
-        self.isMask = false
-        self.width = Int(width)
-        self.height = Int(height)
-        self.bitsPerComponent = 8
-        self.bitsPerPixel = 32
-        self.bytesPerRow = self.width * bitsPerPixel
 
-        self.bitmap = UnsafeMutableRawBufferPointer(start: UnsafeMutableRawPointer(pixelData), count: self.width)
+        let headerSize = ImageFormat.maxHeaderSize
+        let header = data[0..<headerSize].map { $0 }
+
+        switch header {
+            case ImageFormat.jpeg.header, ImageFormat.png.header, ImageFormat.gif.header:
+                var width: Int32 = 0
+                var height: Int32 = 0
+                var bitsPerPixel: Int32 = 0
+
+                let pixelData: UnsafeMutablePointer<stbi_uc> = data.withUnsafeBytes { pngData in
+                    let boundData = pngData.bindMemory(to: stbi_uc.self)
+                    return stbi_load_from_memory(boundData.baseAddress!, Int32(pngData.count), &width, &height, &bitsPerPixel, 4)
+                }
+
+                self.isMask = false
+                self.width = Int(width)
+                self.height = Int(height)
+                self.bitsPerComponent = 8
+                self.bitsPerPixel = Int(bitsPerPixel)
+                self.bytesPerRow = Int(width) * Int(bitsPerPixel)
+
+                self.bitmap = UnsafeMutableRawBufferPointer(start: UnsafeMutableRawPointer(pixelData), count: self.width)
+
+            default:
+                return nil
+        }
+
+        return nil
     }
 }

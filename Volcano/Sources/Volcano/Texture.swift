@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public protocol Texture {
+public protocol Texture: AnyObject {
     var textureType: VkImageViewType { get }
     var pixelFormat: VkFormat { get }
     var width: Int { get }
@@ -31,6 +31,10 @@ public protocol Texture {
     var imageView: ImageView { get }
     
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture
+}
+
+public extension Texture {
+    var extent: VkExtent3D { return VkExtent3D(width: CUnsignedInt(width), height: CUnsignedInt(height), depth: CUnsignedInt(depth)) }
 }
 
 internal class SwapchainTexture: Texture {
@@ -109,7 +113,6 @@ internal class GenericTexture: Texture {
 
     init(device: Device, descriptor: TextureDescriptor) throws {
         let image = try Image(device: device, descriptor: descriptor.imageDescriptor)
-        let imageView = try ImageView(image: image, descriptor: descriptor.imageViewDescriptor)
 
         let memoryTypes = device.physicalDevice.memoryTypes
 
@@ -127,6 +130,10 @@ internal class GenericTexture: Texture {
 
         let memoryChunk = try MemoryChunk(device: device, size: memoryRequirements.size, memoryIndex: CUnsignedInt(memoryIndex), properties: VkMemoryPropertyFlagBits(rawValue: memoryType.propertyFlags))
 
+        try memoryChunk.bind(to: image)
+
+        let imageView = try ImageView(image: image, descriptor: descriptor.imageViewDescriptor)
+        
         self.memoryChunk = memoryChunk
         self.image = image
         self.imageView = imageView
@@ -147,8 +154,6 @@ internal class GenericTexture: Texture {
         self.isDepthTexture = descriptor.isDepthTexture
         self.isStencilTexture = descriptor.isStencilTexture
         self.layout = descriptor.initialLayout
-
-        try memoryChunk.bind(to: image)
     }
 
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture {

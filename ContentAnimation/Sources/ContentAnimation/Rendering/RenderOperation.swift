@@ -1,6 +1,6 @@
 //
-//  VulkanRenderOperation.swift
-//  AppKid
+//  RenderOperation.swift
+//  ContentAnimation
 //
 //  Created by Serhii Mumriak on 13.04.2021.
 //
@@ -14,28 +14,27 @@ import TinyFoundation
 import LayerRenderingData
 
 internal class VulkanRenderContext {
-    let renderStack: VulkanRenderStack
-    let renderTargetsStack = SimpleStack<VulkanRenderTarget>()
+    let renderStack: VolcanoRenderStack
+    let renderTargetsStack = SimpleStack<RenderTarget>()
     let commandBuffersStack = SimpleStack<CommandBuffer>()
     let viewportsStack = SimpleStack<VkViewport>()
-    let queues: Queues
     let pipelines: Pipelines
     let imageFormat: VkFormat
 
     @inlinable @inline(__always)
-    var graphicsQueue: Queue { queues.graphics }
+    var graphicsQueue: Queue { renderStack.queues.graphics }
 
     @inlinable @inline(__always)
-    var transferQueue: Queue { queues.transfer }
+    var transferQueue: Queue { renderStack.queues.transfer }
     
     let commandPool: CommandPool
     let transferCommandPool: CommandPool
 
     var descriptors: [LayerRenderDescriptor] = []
-    var operations: [VulkanRenderOperation] = []
+    var operations: [RenderOperation] = []
 
     @inlinable @inline(__always)
-    var renderTarget: VulkanRenderTarget { renderTargetsStack.root }
+    var renderTarget: RenderTarget { renderTargetsStack.root }
 
     @inlinable @inline(__always)
     var commandBuffer: CommandBuffer { commandBuffersStack.root }
@@ -84,14 +83,13 @@ internal class VulkanRenderContext {
         return vertexBuffer
     }
 
-    init(renderStack: VulkanRenderStack, queues: Queues, pipelines: Pipelines, imageFormat: VkFormat = .rgba8UNorm) throws {
+    init(renderStack: VolcanoRenderStack, pipelines: Pipelines, imageFormat: VkFormat = .rgba8UNorm) throws {
         let device = renderStack.device
 
         self.renderStack = renderStack
-        self.queues = queues
         self.pipelines = pipelines
-        self.commandPool = try CommandPool(device: device, queue: queues.graphics)
-        self.transferCommandPool = try CommandPool(device: device, queue: queues.transfer, flags: .transient)
+        self.commandPool = try CommandPool(device: device, queue: renderStack.queues.graphics)
+        self.transferCommandPool = try CommandPool(device: device, queue: renderStack.queues.transfer, flags: .transient)
         self.imageFormat = imageFormat
     }
 
@@ -105,11 +103,11 @@ internal class VulkanRenderContext {
         try operations.forEach { try $0.perform(in: self) }
     }
 
-    func add(_ operation: VulkanRenderOperation) {
+    func add(_ operation: RenderOperation) {
         operations.append(operation)
     }
 
-    func add(_ operations: [VulkanRenderOperation]) {
+    func add(_ operations: [RenderOperation]) {
         self.operations.append(contentsOf: operations)
     }
 }
@@ -119,68 +117,63 @@ extension VulkanRenderContext {
         let background: GraphicsPipeline
         let border: GraphicsPipeline
     }
-
-    struct Queues {
-        let graphics: Queue
-        let transfer: Queue
-    }
 }
 
-internal class VulkanRenderOperation {
+internal class RenderOperation {
     func perform(in context: VulkanRenderContext) throws {}
 
     @inlinable @inline(__always)
-    static func background(descriptorSets: [VkDescriptorSet]? = nil) -> VulkanRenderOperation {
+    static func background(descriptorSets: [VkDescriptorSet]? = nil) -> RenderOperation {
         return BackgroundRenderOperation(descriptorSets: descriptorSets)
     }
 
     @inlinable @inline(__always)
-    static func border(descriptorSets: [VkDescriptorSet]? = nil) -> VulkanRenderOperation {
+    static func border(descriptorSets: [VkDescriptorSet]? = nil) -> RenderOperation {
         return BorderRenderOperation(descriptorSets: descriptorSets)
     }
 
     @inlinable @inline(__always)
-    static func bindVertexBuffer(index: CUnsignedInt, firstBinding: CUnsignedInt = 0) -> VulkanRenderOperation {
+    static func bindVertexBuffer(index: CUnsignedInt, firstBinding: CUnsignedInt = 0) -> RenderOperation {
         return BindVertexBufferRenderOperation(index: index, firstBinding: firstBinding)
     }
 
     @inlinable @inline(__always)
-    static func pushCommandBuffer() -> VulkanRenderOperation {
+    static func pushCommandBuffer() -> RenderOperation {
         return PushCommandBufferRenderOperation()
     }
 
     @inlinable @inline(__always)
-    static func popCommandBuffer() -> VulkanRenderOperation {
+    static func popCommandBuffer() -> RenderOperation {
         return PopCommandBufferRenderOperation()
     }
 
     @inlinable @inline(__always)
-    static func wait(fence: Fence) -> VulkanRenderOperation {
+    static func wait(fence: Fence) -> RenderOperation {
         return WaitFenceRenderOperation(fence: fence)
     }
 
     @inlinable @inline(__always)
-    static func reset(fence: Fence) -> VulkanRenderOperation {
+    static func reset(fence: Fence) -> RenderOperation {
         return ResetFenceRenderOperation(fence: fence)
     }
 
     @inlinable @inline(__always)
-    static func submitCommandBuffer(waitSemaphores: [Volcano.Semaphore], signalSemaphores: [Volcano.Semaphore], waitStages: [VkPipelineStageFlags], fence: Fence) -> VulkanRenderOperation {
+    static func submitCommandBuffer(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = [], waitStages: [VkPipelineStageFlags] = [], fence: Fence) -> RenderOperation {
         return SubmitCommandBufferRenderOperation(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence)
     }
 
     @inlinable @inline(__always)
-    static func pushRenderTarget(renderTarget: VulkanRenderTarget) -> VulkanRenderOperation {
+    static func pushRenderTarget(renderTarget: RenderTarget) -> RenderOperation {
         return PushRenderTargetRenderOperation(renderTarget: renderTarget)
     }
 
     @inlinable @inline(__always)
-    static func popRenderTarget(rebind: Bool) -> VulkanRenderOperation {
+    static func popRenderTarget(rebind: Bool) -> RenderOperation {
         return PopRenderTargetRenderOperation(rebind: rebind)
     }
 }
 
-internal class BindVertexBufferRenderOperation: VulkanRenderOperation {
+internal class BindVertexBufferRenderOperation: RenderOperation {
     fileprivate let index: UInt32
     fileprivate lazy var offset = VkDeviceSize(index * UInt32(MemoryLayout<LayerRenderDescriptor>.stride))
     fileprivate let firstBinding: CUnsignedInt
@@ -198,7 +191,7 @@ internal class BindVertexBufferRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class PushCommandBufferRenderOperation: VulkanRenderOperation {
+internal class PushCommandBufferRenderOperation: RenderOperation {
     override func perform(in context: VulkanRenderContext) throws {
         let commandBuffer = try context.commandPool.createCommandBuffer()
         context.commandBuffersStack.push(commandBuffer)
@@ -206,13 +199,13 @@ internal class PushCommandBufferRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class PopCommandBufferRenderOperation: VulkanRenderOperation {
+internal class PopCommandBufferRenderOperation: RenderOperation {
     override func perform(in context: VulkanRenderContext) throws {
         context.commandBuffersStack.pop()
     }
 }
 
-internal class WaitFenceRenderOperation: VulkanRenderOperation {
+internal class WaitFenceRenderOperation: RenderOperation {
     internal let fence: Fence
     
     init(fence: Fence) {
@@ -226,7 +219,7 @@ internal class WaitFenceRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class ResetFenceRenderOperation: VulkanRenderOperation {
+internal class ResetFenceRenderOperation: RenderOperation {
     internal let fence: Fence
 
     init(fence: Fence) {
@@ -240,7 +233,7 @@ internal class ResetFenceRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class SubmitCommandBufferRenderOperation: VulkanRenderOperation {
+internal class SubmitCommandBufferRenderOperation: RenderOperation {
     fileprivate let waitSemaphores: [Volcano.Semaphore]
     fileprivate let signalSemaphores: [Volcano.Semaphore]
     fileprivate let waitStages: [VkPipelineStageFlags]
@@ -262,7 +255,7 @@ internal class SubmitCommandBufferRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class BackgroundRenderOperation: VulkanRenderOperation {
+internal class BackgroundRenderOperation: RenderOperation {
     internal let descriptorSets: [VkDescriptorSet]?
 
     init(descriptorSets: [VkDescriptorSet]?) {
@@ -282,7 +275,7 @@ internal class BackgroundRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class BorderRenderOperation: VulkanRenderOperation {
+internal class BorderRenderOperation: RenderOperation {
     internal let descriptorSets: [VkDescriptorSet]?
 
     init(descriptorSets: [VkDescriptorSet]?) {
@@ -302,10 +295,10 @@ internal class BorderRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class PushRenderTargetRenderOperation: VulkanRenderOperation {
-    internal let renderTarget: VulkanRenderTarget
+internal class PushRenderTargetRenderOperation: RenderOperation {
+    internal let renderTarget: RenderTarget
 
-    init(renderTarget: VulkanRenderTarget) {
+    init(renderTarget: RenderTarget) {
         self.renderTarget = renderTarget
 
         super.init()
@@ -329,7 +322,7 @@ internal class PushRenderTargetRenderOperation: VulkanRenderOperation {
     }
 }
 
-internal class PopRenderTargetRenderOperation: VulkanRenderOperation {
+internal class PopRenderTargetRenderOperation: RenderOperation {
     internal let rebind: Bool
 
     init(rebind: Bool = true) {

@@ -22,14 +22,14 @@ public final class Image: NSObject {
             fileExtension = "png"
         }
         
-        guard let path = bundle.path(forResource: fileName, ofType: fileExtension) else {
+        guard let url = bundle.url(forResource: fileName, withExtension: fileExtension) else {
             return nil
         }
 
-        guard let data = NSData(contentsOfFile: path) else {
+        guard let dataProvider = CGDataProvider(url: url) else {
             return nil
         }
 
-        cgImage = CGImage(pngData: data as Data)
+        cgImage = CGImage(dataProvider: dataProvider)
     }
 }

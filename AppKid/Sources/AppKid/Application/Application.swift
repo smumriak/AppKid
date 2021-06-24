@@ -9,14 +9,13 @@ import Foundation
 import CoreFoundation
 import CXlib
 import CairoGraphics
-import Volcano
-import CVulkan
+import ContentAnimation
 
 // apple failed a little bit :) rdar://problem/14497260
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
-internal var isVulkanRendererEnabled = false
+internal var isVulkanRenderingEnabled = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -43,13 +42,12 @@ open class Application: Responder {
     open unowned(unsafe) var delegate: ApplicationDelegate?
 
     internal var displayServer: X11DisplayServer
-    internal var renderStack: VulkanRenderStack? = nil
     
     open fileprivate(set) var isRunning = false
     
     open fileprivate(set) var windows: [Window] = []
     internal var softwareRenderers: [SoftwareRenderer] = []
-    internal var vulkanRenderers: [VulkanRenderer] = []
+    internal var vulkanRenderers: [VulkanSwapchainRenderer] = []
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -97,8 +95,10 @@ open class Application: Responder {
         displayServer = X11DisplayServer(applicationName: "SwiftyFan")
 
         do {
-            renderStack = try VulkanRenderStack()
-            isVulkanRendererEnabled = true
+            try VolcanoRenderStack.setupGlobalStack()
+            let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
+            CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
+            isVulkanRenderingEnabled = true
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering")
         }
@@ -160,7 +160,7 @@ open class Application: Responder {
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             RunLoop.current.add(vulkanRenderTimer, forMode: .common)
         } else {
             RunLoop.current.add(softwareRenderTimer, forMode: .common)
@@ -181,7 +181,7 @@ open class Application: Responder {
             send(event: event)
         }
 
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             vulkanRenderTimer.invalidate()
         } else {
             softwareRenderTimer.invalidate()
@@ -264,12 +264,9 @@ open class Application: Responder {
 
     open func add(window: Window) {
         windows.append(window)
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             do {
-                let renderer = try VulkanRenderer(window: window, renderStack: renderStack!)
-                renderer.delegate = self
-                
-                try renderer.setupSwapchain()
+                let renderer = try VulkanSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
                 
                 vulkanRenderers.append(renderer)
             } catch {
@@ -288,7 +285,7 @@ open class Application: Responder {
 
     open func remove(windowNumer index: Array<Window>.Index) {
         // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             // let renderer = vulkanRenderers.remove(at: index)
             // try? renderer.device.waitForIdle()
             vulkanRenderers.remove(at: index)
@@ -327,13 +324,4 @@ public extension Application {
     // MARK: Notifications
 
     static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
-}
-
-extension Application: VulkanRendererDelegate {
-    public func didBeginRenderingFrame(renderer: VulkanRenderer) {
-        let window = renderer.window
-    }
-
-    public func didEndRenderingFrame(renderer: VulkanRenderer) {
-    }
 }

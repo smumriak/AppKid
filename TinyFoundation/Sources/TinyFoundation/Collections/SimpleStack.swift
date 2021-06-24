@@ -1,28 +1,27 @@
 //
 //  SimpleStack.swift
-//  AppKid
+//  TinyFoundation
 //
 //  Created by Serhii Mumriak on 13.04.2021.
 //
 
 import Foundation
-import CoreFoundation
-import Volcano
-import TinyFoundation
 
-internal class SimpleStack<Type> {
+public class SimpleStack<Type> {
     fileprivate var entities: [Type] = []
 
-    @inlinable @inline(__always)
-    var root: Type {
+    public init() {
+    }
+
+    public var root: Type {
         entities.first!
     }
 
-    func push(_ entity: Type) {
+    public func push(_ entity: Type) {
         entities.append(entity)
     }
 
-    func pop() {
+    public func pop() {
         entities.removeLast()
     }
 }

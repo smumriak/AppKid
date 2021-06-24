@@ -78,11 +78,11 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         }
     }
 
-    public func getNextImageIndex(semaphore: Semaphore, timeout: UInt64 = .max) throws -> Int {
+    public func getNextImageIndex(semaphore: Semaphore? = nil, fence: Fence? = nil, timeout: UInt64 = .max) throws -> Int {
         var result: CUnsignedInt = 0
 
         try vulkanInvoke {
-            device.vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore.handle, nil, &result)
+            device.vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore?.handle, fence?.handle, &result)
         }
 
         return Int(result)

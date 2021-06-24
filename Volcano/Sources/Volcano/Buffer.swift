@@ -8,6 +8,8 @@
 import TinyFoundation
 import CVulkan
 
+public typealias VkDeviceSize = CVulkan.VkDeviceSize
+
 public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
     public let size: VkDeviceSize
     public let usage: VkBufferUsageFlagBits

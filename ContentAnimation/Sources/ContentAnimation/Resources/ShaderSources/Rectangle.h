@@ -65,7 +65,7 @@ float RoundedRectBorderContains(RoundedRect rect, float borderWidth, vec2 point)
     point -= center;
 
     float externalRadius = rect.cornerRadius;
-    float internalRadius = max(externalRadius - borderWidth, 0.0);
+    float internalRadius = max(externalRadius - borderWidth, min(externalRadius, 2.0));
 
     vec2 externalSize = rect.bounds.zw * 0.5 - vec2(externalRadius);
     vec2 internalSize = (rect.bounds.zw - vec2(2.0 * borderWidth)) * 0.5 - vec2(internalRadius);

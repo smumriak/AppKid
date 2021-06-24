@@ -90,7 +90,6 @@ open class CGContext {
 
     internal var _state = CGContextState()
     internal var _statesStack: [CGContextState] = []
-    open internal(set) var size: CGSize
 
     open var shouldAntialias = false {
         didSet {
@@ -101,23 +100,36 @@ open class CGContext {
             }
         }
     }
+
+    public internal(set) var bitmapInfo: CGBitmapInfo = []
+    public internal(set) var alphaInfo: CGImageAlphaInfo = .none
+    public internal(set) var bitsPerComponent: Int = 0
+    public internal(set) var bitsPerPixel: Int = 0
+    public internal(set) var bytesPerRow: Int = 0
+    public internal(set) var colorSpace: CGColorSpace? = nil
+    public internal(set) var data: UnsafeMutableRawPointer? = nil
+    public internal(set) var height: Int = 0
+    public internal(set) var width: Int = 0
     
-    internal init(cairoContext: UnsafeMutablePointer<cairo_t>, size: CGSize) {
+    internal init(cairoContext: UnsafeMutablePointer<cairo_t>, width: Int, height: Int) {
         self._contextPointer = RetainablePointer(with: cairoContext)
-        self.size = size
+        self.width = width
+        self.height = height
         _state.defaultPattern = cairo_get_source(_context)
     }
 
     public init(_ context: CGContext) {
         self._contextPointer = RetainablePointer(with: context._context)
-        self.size = context.size
+        self.width = context.width
+        self.height = context.height
         _state.defaultPattern = cairo_get_source(_context)
     }
     
-    public init(surface: UnsafeMutablePointer<cairo_surface_t>, size: CGSize) {
+    public init(surface: UnsafeMutablePointer<cairo_surface_t>, width: Int, height: Int) {
         let cairoContext = cairo_create(surface)!
         self._contextPointer = RetainablePointer(withRetained: cairoContext)
-        self.size = size
+        self.width = width
+        self.height = height
         _state.defaultPattern = cairo_get_source(_context)
     }
 }
@@ -372,5 +384,25 @@ public extension CGContext {
     func concatenate(_ transform: CGAffineTransform) {
         var matrix = transform._matrix
         cairo_transform(_context, &matrix)
+    }
+}
+
+public extension CGContext {
+    func makeImage() -> CGImage? {
+        guard let bitmapDataPointer = data?.assumingMemoryBound(to: UInt8.self) else {
+            return nil
+        }
+
+        let dataSize = width * bytesPerRow
+
+        guard dataSize > 0 else {
+            return nil
+        }
+
+        guard let dataProvider = CGDataProvider(dataInfo: nil, data: bitmapDataPointer, size: dataSize, releaseCallback: nil) else {
+            return nil
+        }
+
+        return CGImage(dataProvider: dataProvider)
     }
 }

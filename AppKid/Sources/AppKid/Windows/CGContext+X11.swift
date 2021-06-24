@@ -32,7 +32,7 @@ internal class X11RenderContext: CairoGraphics.CGContext {
 
             self.nativeWindow = nativeWindow
         
-            super.init(surface: surface, size: CGSize(width: Int(windowAttributes.width), height: Int(windowAttributes.height)))
+            super.init(surface: surface, width: Int(windowAttributes.width), height: Int(windowAttributes.height))
         #else
             fatalError("Running on non-Linux targets is not supported at the moment")
         #endif

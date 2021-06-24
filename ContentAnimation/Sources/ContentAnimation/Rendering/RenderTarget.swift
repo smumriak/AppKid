@@ -1,6 +1,6 @@
 //
-//  VulkanRenderTarget.swift
-//  AppKid
+//  RenderTarget.swift
+//  ContentAnimation
 //
 //  Created by Serhii Mumriak on 28.08.2020.
 //
@@ -10,7 +10,7 @@ import Volcano
 import TinyFoundation
 import CVulkan
 
-internal final class VulkanRenderTarget {
+internal final class RenderTarget {
     let renderPass: RenderPass
     let colorAttachment: Texture
     let framebuffer: Framebuffer

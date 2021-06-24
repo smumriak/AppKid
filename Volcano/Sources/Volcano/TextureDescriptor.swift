@@ -71,7 +71,7 @@ internal extension TextureDescriptor {
         result.mipLevels = CUnsignedInt(mipmapLevelCount)
         result.arrayLayers = CUnsignedInt(arrayLength)
         result.samples = sampleCount
-        result.tiling = .optimal
+        result.tiling = tiling
 
         var imageUsageFlags: VkImageUsageFlagBits = []
 

@@ -168,8 +168,25 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         let copySize = min(sourceSize, remainingDestinationSize)
 
         var bufferCopyRegion = VkBufferCopy(srcOffset: sourceOffset, dstOffset: destinationOffset, size: copySize)
+
         try vulkanInvoke {
             vkCmdCopyBuffer(handle, sourceBuffer.handle, destinationBuffer.handle, 1, &bufferCopyRegion)
+        }
+    }
+    
+    public func copyBuffer(from buffer: Buffer, to texture: Texture, bufferOffset: VkDeviceSize = 0, bytesPerRow: CUnsignedInt? = nil, height: CUnsignedInt? = nil, textureRect: VkRect3D? = nil, aspect: VkImageAspectFlagBits = .color, copiedLayersRange: Range<CUnsignedInt> = 0..<1) throws {
+        let textureRect = textureRect ?? VkRect3D(offset: .zero, extent: texture.extent)
+        let bytesPerRow: CUnsignedInt = bytesPerRow ?? 0
+        let height: CUnsignedInt = height ?? 0
+
+        assert(bytesPerRow == 0 || bytesPerRow >= textureRect.width, "According to vulkan spec the bytes per row has to be either 0 or greater than equal to texture's width")
+        assert(height == 0 || height >= textureRect.height, "According to vulkan spec the height has to be either 0 or greater than equal to texture's height")
+
+        let imageSubresource = VkImageSubresourceLayers(aspectMask: aspect.rawValue, mipLevel: CUnsignedInt(texture.mipmapLevelCount), baseArrayLayer: copiedLayersRange.startIndex, layerCount: CUnsignedInt(copiedLayersRange.count))
+        var bufferCopyRegion = VkBufferImageCopy(bufferOffset: bufferOffset, bufferRowLength: bytesPerRow, bufferImageHeight: height, imageSubresource: imageSubresource, imageOffset: textureRect.offset, imageExtent: textureRect.extent)
+        
+        try vulkanInvoke {
+            vkCmdCopyBufferToImage(handle, buffer.handle, texture.image.handle, .transferDestinationOptimal, 1, &bufferCopyRegion)
         }
     }
 }

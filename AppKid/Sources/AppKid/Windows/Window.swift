@@ -83,7 +83,7 @@ open class Window: View {
 
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
-        if !isVulkanRendererEnabled {
+        if !isVulkanRenderingEnabled {
             _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
             _graphicsContext?.shouldAntialias = true
         }
@@ -116,13 +116,7 @@ open class Window: View {
 
         guard let index = application.windows.firstIndex(of: self) else { return }
 
-        if isVulkanRendererEnabled {
-            let renderer = application.vulkanRenderers[index]
-            do {
-                try renderer.updateRenderTargetSize()
-            } catch {
-                fatalError("Failed to update render target size with error: \(error)")
-            }
+        if isVulkanRenderingEnabled {
         } else {
             _graphicsContext?.updateSurface()
         }
@@ -138,7 +132,7 @@ open class Window: View {
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
 
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             let renderer = application.vulkanRenderers[index]
             do {
                 try renderer.render()
@@ -149,7 +143,7 @@ open class Window: View {
     }
 
     internal func createRenderer() -> SoftwareRenderer {
-        if isVulkanRendererEnabled {
+        if isVulkanRenderingEnabled {
             fatalError("Vulkan renderer is enabled")
         }
         return SoftwareRenderer(context: _graphicsContext!)

@@ -49,7 +49,10 @@ public extension Font {
         public let rawValue: RawValue
 
         public init?(rawValue: RawValue) {
-            guard (100...1000) ~= rawValue else { return nil }
+            guard (100...1000) ~= rawValue else {
+                return nil
+            }
+
             self.rawValue = rawValue
         }
 
@@ -72,18 +75,18 @@ public extension Font {
 
         public init(pangoStyle: PangoStyle) {
             switch pangoStyle {
-            case PANGO_STYLE_NORMAL: self = .normal
-            case PANGO_STYLE_OBLIQUE: self = .oblique
-            case PANGO_STYLE_ITALIC: self = .italic
-            default: self = .normal
+                case PANGO_STYLE_NORMAL: self = .normal
+                case PANGO_STYLE_OBLIQUE: self = .oblique
+                case PANGO_STYLE_ITALIC: self = .italic
+                default: self = .normal
             }
         }
 
         public var pangoStyle: PangoStyle {
             switch self {
-            case .normal: return PANGO_STYLE_NORMAL
-            case .oblique: return PANGO_STYLE_OBLIQUE
-            case .italic: return PANGO_STYLE_ITALIC
+                case .normal: return PANGO_STYLE_NORMAL
+                case .oblique: return PANGO_STYLE_OBLIQUE
+                case .italic: return PANGO_STYLE_ITALIC
             }
         }
     }

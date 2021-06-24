@@ -8,6 +8,7 @@
 import Foundation
 import CoreFoundation
 import CairoGraphics
+import ContentAnimation
 
 open class Label: View {
     open var text: String? = nil {
@@ -40,6 +41,8 @@ open class Label: View {
         layout.text = text ?? ""
         layout.textColor = textColor
         layout.font = font
+
+        layer.delegate = self
     }
 
     // MARK: Rendering
@@ -47,6 +50,12 @@ open class Label: View {
     open override func render(in context: CairoGraphics.CGContext) {
         super.render(in: context)
 
+        let textRect = self.textRect(for: bounds, limitedToNumberOfLines: 0)
+
+        renderText(in: context, textRect: textRect)
+    }
+
+    public override func draw(_ layer: CALayer, in context: CGContext) {
         let textRect = self.textRect(for: bounds, limitedToNumberOfLines: 0)
 
         renderText(in: context, textRect: textRect)

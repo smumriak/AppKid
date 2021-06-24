@@ -8,6 +8,9 @@
 import Foundation
 import CVulkan
 
+public typealias VkOffset2D = CVulkan.VkOffset2D
+public typealias VkExtent2D = CVulkan.VkExtent2D
+
 public extension CGPoint {
     var vkOffset2D: VkOffset2D { VkOffset2D(x: CInt(ceil(x)), y: CInt(ceil(y))) }
 }

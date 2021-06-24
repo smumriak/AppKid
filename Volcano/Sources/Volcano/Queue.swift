@@ -70,7 +70,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     }
 
     public func present(swapchains: [Swapchain],
-                        waitSemaphores: [Volcano.Semaphore],
+                        waitSemaphores: [Volcano.Semaphore] = [],
                         imageIndices: [CUnsignedInt]) throws {
         let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.handle }
         let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }

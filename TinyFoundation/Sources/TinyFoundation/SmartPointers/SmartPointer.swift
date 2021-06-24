@@ -43,6 +43,11 @@ public protocol SmartPointerProtocol {
 }
 
 public extension SmartPointerProtocol {
+    @inlinable @inline(__always)
+    var optionalPointer: Pointer_t? { return pointer }
+}
+
+public extension SmartPointerProtocol {
     var pointee: Pointee {
         get { return pointer.pointee }
         set { pointer.pointee = newValue }
@@ -60,12 +65,12 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
 
         func invoke(with pointer: Pointer_t) {
             switch self {
-            case .none:
-                break
-            case .system:
-                pointer.deallocate()
-            case .custom(let deleter):
-                deleter(pointer)
+                case .none:
+                    break
+                case .system:
+                    pointer.deallocate()
+                case .custom(let deleter):
+                    deleter(pointer)
             }
         }
     }
@@ -96,5 +101,15 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
 
     public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
         return UnsafeMutableRawPointer(pointer).assumingMemoryBound(to: type)
+    }
+}
+
+public extension Array {
+    func pointers<Type>() -> [UnsafeMutablePointer<Type>] where Element == SmartPointer<Type> {
+        return map { $0.pointer }
+    }
+
+    func optionalPointers<Type>() -> [UnsafeMutablePointer<Type>?] where Element == SmartPointer<Type> {
+        return map { $0.pointer }
     }
 }
