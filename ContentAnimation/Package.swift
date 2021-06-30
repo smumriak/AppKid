@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "ContentAnimation",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     products: [
         .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"]),

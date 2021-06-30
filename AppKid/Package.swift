@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "AppKid",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     products: [
         .library(name: "AppKid", type: .dynamic, targets: ["AppKid"]),

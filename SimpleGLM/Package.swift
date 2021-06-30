@@ -10,6 +10,9 @@ import PackageDescription
 
 let package = Package(
     name: "SimpleGLM",
+    platforms: [
+        .macOS(.v11),
+    ],
     products: [
         .library(name: "SimpleGLM", targets: ["SimpleGLM"]),
     ],

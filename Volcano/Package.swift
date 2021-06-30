@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "Volcano",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     products: [
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),

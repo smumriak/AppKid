@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftyFan",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     products: [
         .executable(name: "SwiftyFan", targets: ["SwiftyFan"]),

@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "TinyFoundation",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v11),
     ],
     products: [
         .library(name: "TinyFoundation", type: .dynamic, targets: ["TinyFoundation"]),
