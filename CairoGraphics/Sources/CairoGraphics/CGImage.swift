@@ -48,7 +48,6 @@ public final class CGImage {
             return nil
         }
 
-
         let headerSize = ImageFormat.maxHeaderSize
         let header = data[0..<headerSize].map { $0 }
 
@@ -77,5 +76,25 @@ public final class CGImage {
         }
 
         return nil
+    }
+
+    internal init?(context: CGContext) {
+        guard let pixelData = context.data else {
+            return nil
+        }
+
+        let size = context.height * context.bytesPerRow
+
+        let copyData = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 1)
+        copyData.copyMemory(from: pixelData, byteCount: size)
+
+        self.bitmap = UnsafeMutableRawBufferPointer(start: copyData, count: size)
+
+        self.isMask = false
+        self.width = context.width
+        self.height = context.height
+        self.bitsPerComponent = context.bitsPerComponent
+        self.bitsPerPixel = context.bitsPerPixel
+        self.bytesPerRow = context.bytesPerRow
     }
 }

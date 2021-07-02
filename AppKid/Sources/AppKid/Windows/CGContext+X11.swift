@@ -11,7 +11,11 @@ import CairoGraphics
 import CCairo
 import TinyFoundation
 
-internal class X11RenderContext: CairoGraphics.CGContext {
+#if os(macOS)
+import class CairoGraphics.CGContext
+#endif
+
+internal class X11RenderContext: CGContext {
     var surfacePointer: RetainablePointer<cairo_surface_t>
     var surface: UnsafeMutablePointer<cairo_surface_t> {
         get {

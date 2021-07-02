@@ -10,6 +10,10 @@ import CoreFoundation
 import CXlib
 import CairoGraphics
 
+#if os(macOS)
+import struct CairoGraphics.CGAffineTransform
+#endif
+
 public extension Notification.Name {
     static let windowDidExpose = Notification.Name(rawValue: "windowDidExpose")
     static let windowDidResize = Notification.Name(rawValue: "windowDidResize")
@@ -41,11 +45,11 @@ open class Window: View {
     
     internal var _graphicsContext: X11RenderContext?
 
-    override var transformToWindow: CairoGraphics.CGAffineTransform {
+    override var transformToWindow: CGAffineTransform {
         return .identity
     }
 
-    override var transformFromWindow: CairoGraphics.CGAffineTransform {
+    override var transformFromWindow: CGAffineTransform {
         return .identity
     }
 
@@ -60,7 +64,7 @@ open class Window: View {
         set {}
     }
     
-    open override var transform: CairoGraphics.CGAffineTransform {
+    open override var transform: CGAffineTransform {
         get { return .identity }
         set {}
     }

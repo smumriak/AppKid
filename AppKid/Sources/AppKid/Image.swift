@@ -9,6 +9,10 @@ import Foundation
 import TinyFoundation
 import CairoGraphics
 
+#if os(macOS)
+import class CairoGraphics.CGImage
+#endif
+
 public final class Image: NSObject {
     public internal(set) var cgImage: CGImage?
     public internal(set) var images: [Image]?

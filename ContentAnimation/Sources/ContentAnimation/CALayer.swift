@@ -9,15 +9,22 @@ import Foundation
 import CoreFoundation
 import CairoGraphics
 
+#if os(macOS)
+import struct CairoGraphics.CGAffineTransform
+import struct CairoGraphics.CGColor
+import class CairoGraphics.CGPath
+import class CairoGraphics.CGContext
+#endif
+
 public protocol CALayerDelegate: AnyObject {
-    func draw(_ layer: CALayer, in context: CairoGraphics.CGContext)
+    func draw(_ layer: CALayer, in context: CGContext)
     func layerWillDraw(_ layer: CALayer)
     func layoutSublayers(of layer: CALayer)
     func action(for layer: CALayer, forKey event: String) -> CAAction?
 }
 
 extension CALayerDelegate {
-    func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {}
+    func draw(_ layer: CALayer, in context: CGContext) {}
     func layerWillDraw(_ layer: CALayer) {}
     func layoutSublayers(of layer: CALayer) {}
     func action(for layer: CALayer, forKey event: String) -> CAAction? { nil }
@@ -76,7 +83,7 @@ open class CALayer: CAMediaTiming {
     open var masksToBounds: Bool = false
 
     @CALayerProperty(name: "backgroundColor")
-    open var backgroundColor: CairoGraphics.CGColor? = nil
+    open var backgroundColor: CGColor? = nil
 
     @CALayerProperty(name: "cornerRadius")
     open var cornerRadius: CGFloat = 0.0
@@ -88,13 +95,13 @@ open class CALayer: CAMediaTiming {
     open var borderWidth: CGFloat = 0.0
 
     @CALayerProperty(name: "borderColor")
-    open var borderColor: CairoGraphics.CGColor? = nil
+    open var borderColor: CGColor? = nil
 
     @CALayerProperty(name: "opacity")
     open var opacity: Float = 1.0
 
     @CALayerProperty(name: "shadowColor")
-    open var shadowColor: CairoGraphics.CGColor? = .black
+    open var shadowColor: CGColor? = .black
 
     @CALayerProperty(name: "shadowOpacity")
     open var shadowOpacity: Float = 0.0
@@ -106,7 +113,7 @@ open class CALayer: CAMediaTiming {
     open var shadowRadius: CGFloat = 3
 
     @CALayerProperty(name: "shadowPath")
-    open var shadowPath: CairoGraphics.CGPath? = nil
+    open var shadowPath: CGPath? = nil
 
     open var contents: Any?
 

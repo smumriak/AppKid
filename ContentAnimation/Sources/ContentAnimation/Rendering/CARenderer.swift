@@ -16,6 +16,10 @@ import CXlib
 import SwiftXlib
 import LayerRenderingData
 
+#if os(macOS)
+import struct CairoGraphics.CGColor
+#endif
+
 open class CARenderer: NSObject {
     internal var frameTime: CFTimeInterval = 0.0
     internal let queues: VolcanoRenderStack.Queues

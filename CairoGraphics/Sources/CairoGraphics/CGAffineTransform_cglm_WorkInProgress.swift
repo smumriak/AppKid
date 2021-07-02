@@ -8,7 +8,6 @@
 import Foundation
 import CCairo
 import SimpleGLM
-import cglm
 
 // public typealias CGAffineTransform = CGAffineTransform_cglm_WorkInProgress;
 

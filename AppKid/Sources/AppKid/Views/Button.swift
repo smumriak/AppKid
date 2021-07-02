@@ -8,9 +8,14 @@
 import Foundation
 import CairoGraphics
 
+#if os(macOS)
+import struct CairoGraphics.CGColor
+import class CairoGraphics.CGContext
+#endif
+
 open class Button: Control {
     var stateToTitle: [State: String] = [:]
-    var stateToTextColor: [State: CairoGraphics.CGColor] = [:]
+    var stateToTextColor: [State: CGColor] = [:]
 
     open fileprivate(set) var titleLabel: Label?
 
@@ -48,7 +53,7 @@ open class Button: Control {
         setNeedsLayout()
     }
 
-    open func set(textColor: CairoGraphics.CGColor?, for state: State) {
+    open func set(textColor: CGColor?, for state: State) {
         if let textColor = textColor {
             stateToTextColor[state] = textColor
         } else {
@@ -78,7 +83,7 @@ open class Button: Control {
         titleLabel.textColor = stateToTextColor[state] ?? stateToTextColor[.normal] ?? Button.defaultTitleColor
     }
 
-    open override func render(in context: CairoGraphics.CGContext) {
+    open override func render(in context: CGContext) {
         super.render(in: context)
 
         if layer.borderWidth > 0, let borderColor = layer.borderColor {
@@ -90,5 +95,5 @@ open class Button: Control {
 }
 
 public extension Button {
-    static let defaultTitleColor: CairoGraphics.CGColor = .black
+    static let defaultTitleColor: CGColor = .black
 }

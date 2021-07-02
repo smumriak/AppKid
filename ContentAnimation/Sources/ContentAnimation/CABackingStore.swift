@@ -11,6 +11,12 @@ import TinyFoundation
 import CairoGraphics
 import Volcano
 
+#if os(macOS)
+import class CairoGraphics.CGContext
+import class CairoGraphics.CGColorSpace
+import class CairoGraphics.CGImage
+#endif
+
 public struct CABackingStoreFlags: OptionSet {
     public typealias RawValue = UInt
     public let rawValue: RawValue

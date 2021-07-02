@@ -9,6 +9,12 @@ import Foundation
 import CairoGraphics
 import ContentAnimation
 
+#if os(macOS)
+import struct CairoGraphics.CGAffineTransform
+import struct CairoGraphics.CGColor
+import class CairoGraphics.CGContext
+#endif
+
 open class View: Responder, CALayerDelegate {
     open var tag: UInt = 0
     internal weak var viewDelegate: ViewController? = nil
@@ -57,7 +63,7 @@ open class View: Responder, CALayerDelegate {
         }
     }
 
-    open var transform: CairoGraphics.CGAffineTransform = .identity {
+    open var transform: CGAffineTransform = .identity {
         didSet {
             layer.affineTransform = transform
             
@@ -68,14 +74,14 @@ open class View: Responder, CALayerDelegate {
 
     var contentScaleFactor: CGFloat = 1.0
 
-    fileprivate var _transformToWindow: CairoGraphics.CGAffineTransform = .identity
-    internal var transformToWindow: CairoGraphics.CGAffineTransform {
+    fileprivate var _transformToWindow: CGAffineTransform = .identity
+    internal var transformToWindow: CGAffineTransform {
         rebuildTransformsIfNeeded()
         return _transformToWindow
     }
 
-    fileprivate var _transformFromWindow: CairoGraphics.CGAffineTransform = .identity
-    internal var transformFromWindow: CairoGraphics.CGAffineTransform {
+    fileprivate var _transformFromWindow: CGAffineTransform = .identity
+    internal var transformFromWindow: CGAffineTransform {
         rebuildTransformsIfNeeded()
         return _transformFromWindow
     }
@@ -137,7 +143,7 @@ open class View: Responder, CALayerDelegate {
     open var alpha: CGFloat = 1.0
     open var userInteractionEnabled = true
 
-    open var backgroundColor: CairoGraphics.CGColor {
+    open var backgroundColor: CGColor {
         get {
             layer.backgroundColor ?? .white
         }
@@ -291,7 +297,7 @@ open class View: Responder, CALayerDelegate {
 
     // MARK: Rendering
 
-    open func render(in context: CairoGraphics.CGContext) {
+    open func render(in context: CGContext) {
         context.fillColor = backgroundColor
 
         context.fill(bounds)
@@ -379,7 +385,7 @@ open class View: Responder, CALayerDelegate {
 
     // MARK: CALayerDelegate
 
-    public func draw(_ layer: CALayer, in context: CairoGraphics.CGContext) {
+    public func draw(_ layer: CALayer, in context: CGContext) {
     }
     
     public func layerWillDraw(_ layer: CALayer) {
@@ -402,7 +408,7 @@ public extension View {
 }
 
 open class BlueView: View {
-    open override func render(in context: CairoGraphics.CGContext) {
+    open override func render(in context: CGContext) {
         super.render(in: context)
     }
 }

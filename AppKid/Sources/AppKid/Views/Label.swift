@@ -10,6 +10,11 @@ import CoreFoundation
 import CairoGraphics
 import ContentAnimation
 
+#if os(macOS)
+import struct CairoGraphics.CGColor
+import class CairoGraphics.CGContext
+#endif
+
 open class Label: View {
     open var text: String? = nil {
         didSet {
@@ -17,7 +22,7 @@ open class Label: View {
         }
     }
 
-    open var textColor: CairoGraphics.CGColor = .black {
+    open var textColor: CGColor = .black {
         didSet {
             layout.textColor = textColor
         }
@@ -47,7 +52,7 @@ open class Label: View {
 
     // MARK: Rendering
 
-    open override func render(in context: CairoGraphics.CGContext) {
+    open override func render(in context: CGContext) {
         super.render(in: context)
 
         let textRect = self.textRect(for: bounds, limitedToNumberOfLines: 0)
@@ -65,7 +70,7 @@ open class Label: View {
         return bounds
     }
 
-    open func renderText(in context: CairoGraphics.CGContext, textRect: CGRect) {
+    open func renderText(in context: CGContext, textRect: CGRect) {
         layout.render(in: context, rect: textRect)
     }
 }

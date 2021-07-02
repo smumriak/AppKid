@@ -389,20 +389,6 @@ public extension CGContext {
 
 public extension CGContext {
     func makeImage() -> CGImage? {
-        guard let bitmapDataPointer = data?.assumingMemoryBound(to: UInt8.self) else {
-            return nil
-        }
-
-        let dataSize = width * bytesPerRow
-
-        guard dataSize > 0 else {
-            return nil
-        }
-
-        guard let dataProvider = CGDataProvider(dataInfo: nil, data: bitmapDataPointer, size: dataSize, releaseCallback: nil) else {
-            return nil
-        }
-
-        return CGImage(dataProvider: dataProvider)
+        return CGImage(context: self)
     }
 }

@@ -9,6 +9,10 @@ import Foundation
 import CairoGraphics
 import SimpleGLM
 
+#if os(macOS)
+import struct CairoGraphics.CGAffineTransform
+#endif
+
 // palkovnik:TODO:Implement this thing using mat4 from cglm
 
 public struct CATransform3D {
