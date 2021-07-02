@@ -7,7 +7,7 @@
 
 import Foundation
 import CoreFoundation
-import CairoGraphics
+@_spi(AppKid) import CairoGraphics
 import ContentAnimation
 
 #if os(macOS)

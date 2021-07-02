@@ -10,64 +10,46 @@ import CPango
 import CCairo
 import TinyFoundation
 
-open class TextLayout {
+@_spi(AppKid) open class TextLayout {
     fileprivate var hasChanged = false
 
-    var layoutPointer: RetainablePointer<PangoLayout>
-    var layout: UnsafeMutablePointer<PangoLayout> {
-        get {
-            return layoutPointer.pointer
-        }
-        set {
-            layoutPointer.pointer = newValue
-        }
-    }
+    var layout: RetainablePointer<PangoLayout>
+    var pangoContext: RetainablePointer<PangoContext>
 
-    var pangoContextPointer: RetainablePointer<PangoContext>
-    var pangoContext: UnsafeMutablePointer<PangoContext> {
-        get {
-            return pangoContextPointer.pointer
-        }
-        set {
-            pangoContextPointer.pointer = newValue
-        }
-    }
-    
     open var font: Font = .systemFont(ofSize: 17) {
         didSet {
-            pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
+            pango_layout_set_font_description(layout.pointer, font.cairoFontDescription.pointer)
             hasChanged = true
         }
     }
 
     open var text: String = "" {
         didSet {
-            pango_layout_set_text(layout, text.cString(using: .utf8), -1)
+            pango_layout_set_text(layout.pointer, text.cString(using: .utf8), -1)
         }
     }
 
     open var textColor: CGColor = .black
     
     public init() {
-        let pangoContext = pango_font_map_create_context(pango_cairo_font_map_get_default())!
-        pangoContextPointer = RetainablePointer(withRetained: pangoContext)
+        let defaultFontMap = pango_cairo_font_map_get_default()
+        pangoContext = RetainablePointer(withRetained: pango_font_map_create_context(defaultFontMap)!)
 
-        let layout = pango_layout_new(pangoContext)!
-        layoutPointer = RetainablePointer(withRetained: layout)
+        layout = RetainablePointer(withRetained: pango_layout_new(pangoContext.pointer)!)
 
-        pango_layout_set_font_description(layout, font.cairoFontDescription.pointer)
+        pango_layout_set_font_description(layout.pointer, font.cairoFontDescription.pointer)
 
         let fontOptions = CopyablePointer(with: cairo_font_options_create())
         cairo_font_options_set_antialias(fontOptions.pointer, CAIRO_ANTIALIAS_GOOD)
         cairo_font_options_set_hint_style(fontOptions.pointer, CAIRO_HINT_STYLE_FULL)
         cairo_font_options_set_hint_metrics(fontOptions.pointer, CAIRO_HINT_METRICS_ON)
         cairo_font_options_set_subpixel_order(fontOptions.pointer, CAIRO_SUBPIXEL_ORDER_DEFAULT)
-        pango_cairo_context_set_font_options(pangoContext, fontOptions.pointer)
+        pango_cairo_context_set_font_options(pangoContext.pointer, fontOptions.pointer)
 
-        pango_layout_set_wrap(layout, PANGO_WRAP_WORD)
-        pango_layout_set_ellipsize(layout, PANGO_ELLIPSIZE_END)
+        pango_layout_set_wrap(layout.pointer, PANGO_WRAP_WORD)
+        pango_layout_set_ellipsize(layout.pointer, PANGO_ELLIPSIZE_END)
 
-        pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER)
+        pango_layout_set_alignment(layout.pointer, PANGO_ALIGN_CENTER)
 
         // FIXME: palkovnik: Figure out why center alignment produces invalid positions. Use following code to produce debug information for forum questions
         // UPD 17.04.2020. The issue does no longer reproduce. Meanwhile pango update to version 1.44.7 was pushed to pop!_os
@@ -82,27 +64,29 @@ open class TextLayout {
 
     open func render(in context: CGContext, rect: CGRect) {
         if text.isEmpty { return }
+
+        let cairoContextPointer = context.context.pointer
         
-        pango_cairo_update_context(context._context, pangoContext)
+        pango_cairo_update_context(cairoContextPointer, pangoContext.pointer)
 
         let newWidth = CInt(rect.width.rounded(.down)) * PANGO_SCALE
         let newHeight = CInt(rect.height.rounded(.down)) * PANGO_SCALE
         
-        if newWidth != pango_layout_get_height(layout) {
-            pango_layout_set_width(layout, newWidth)
+        if newWidth != pango_layout_get_height(layout.pointer) {
+            pango_layout_set_width(layout.pointer, newWidth)
         }
 
-        if newHeight != pango_layout_get_height(layout) {
-            pango_layout_set_height(layout, newHeight)
+        if newHeight != pango_layout_get_height(layout.pointer) {
+            pango_layout_set_height(layout.pointer, newHeight)
         }
 
         if hasChanged {
-            pango_layout_context_changed(layout)
+            pango_layout_context_changed(layout.pointer)
             hasChanged = false
         }
 
         context.move(to: rect.origin)
-        cairo_set_source(context._context, textColor.cairoPattern.pointer)
-        pango_cairo_show_layout(context._context, layout)
+        cairo_set_source(cairoContextPointer, textColor.cairoPattern.pointer)
+        pango_cairo_show_layout(cairoContextPointer, layout.pointer)
     }
 }

@@ -20,7 +20,7 @@ open class CGPath {
         }
     }
     
-    internal init?(currentPath context: UnsafeMutablePointer<cairo_t>) {
+    internal init?(from context: UnsafeMutablePointer<cairo_t>) {
         if let path = cairo_copy_path(context) {
             _pathPointer = CopyablePointer(with: path)
         } else {
