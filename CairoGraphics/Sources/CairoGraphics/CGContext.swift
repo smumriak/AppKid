@@ -77,12 +77,53 @@ internal extension cairo_line_join_t {
     }
 }
 
+@_spi(AppKid) public class CGContextDataStore {
+    //palkovnik: swift-atomics libabry can not be built on macOS. oh the irony
+    private let semaphore = DispatchSemaphore(value: 1)
+    
+    private var useCount: UInt
+
+    public let surface: SmartPointer<cairo_surface_t>
+    public let data: UnsafeMutableRawPointer
+
+    public init(surface: SmartPointer<cairo_surface_t>, useCount: UInt = 1) {
+        self.surface = surface
+        self.data = UnsafeMutableRawPointer(cairo_image_surface_get_data(surface.pointer))
+        self.useCount = useCount
+    }
+
+    public func currentValue() -> UInt {
+        semaphore.wait()
+        defer { semaphore.signal() }
+
+        return useCount
+    }
+
+    public func increaseUseCount() {
+        semaphore.wait()
+        defer { semaphore.signal() }
+
+        useCount += 1
+    }
+
+    public func decreaseUseCount() {
+        semaphore.wait()
+        defer { semaphore.signal() }
+
+        assert(useCount > 0, "Can't decrement use count from zero")
+
+        useCount -= 1
+    }
+}
+
 open class CGContext {
     @_spi(AppKid) public var context: RetainablePointer<cairo_t>
     @_spi(AppKid) public var surface: RetainablePointer<cairo_surface_t>
 
     internal var _state = CGContextState()
     internal var _statesStack: [CGContextState] = []
+
+    internal var dataStore: CGContextDataStore?
 
     open var shouldAntialias = false {
         didSet {
@@ -100,9 +141,13 @@ open class CGContext {
     public internal(set) var bitsPerPixel: Int = 0
     public internal(set) var bytesPerRow: Int = 0
     public internal(set) var colorSpace: CGColorSpace? = nil
-    public internal(set) var data: UnsafeMutableRawPointer? = nil
+    public var data: UnsafeMutableRawPointer? { dataStore?.data }
     public internal(set) var height: Int = 0
     public internal(set) var width: Int = 0
+
+    deinit {
+        dataStore?.decreaseUseCount()
+    }
     
     internal init(cairoContext: UnsafeMutablePointer<cairo_t>, width: Int, height: Int) {
         self.context = RetainablePointer(with: cairoContext)
@@ -120,9 +165,9 @@ open class CGContext {
         _state.defaultPattern = cairo_get_source(self.context.pointer)
     }
     
-    public init(surface: UnsafeMutablePointer<cairo_surface_t>, width: Int, height: Int) {
-        self.context = RetainablePointer(withRetained: cairo_create(surface)!)
-        self.surface = RetainablePointer(with: surface)
+    public init(surface: RetainablePointer<cairo_surface_t>, width: Int, height: Int) {
+        self.context = RetainablePointer(withRetained: cairo_create(surface.pointer)!)
+        self.surface = surface
         self.width = width
         self.height = height
         _state.defaultPattern = cairo_get_source(context.pointer)
@@ -254,6 +299,8 @@ public extension CGContext {
 
 public extension CGContext {
     func fillPath(using rule: CGPathFillRule = .winding) {
+        recreateDataIfNeeded()
+
         cairo_set_source(context.pointer, _state.fillPattern)
 
         cairo_set_fill_rule(context.pointer, rule.cairoFillRule)
@@ -261,15 +308,21 @@ public extension CGContext {
     }
     
     func clip(using rule: CGPathFillRule = .winding) {
+        recreateDataIfNeeded()
+
         cairo_set_fill_rule(context.pointer, rule.cairoFillRule)
         cairo_clip_preserve(context.pointer)
     }
 
     func resetClip() {
+        recreateDataIfNeeded()
+
         cairo_reset_clip(context.pointer)
     }
     
     func strokePath() {
+        recreateDataIfNeeded()
+
         cairo_set_source(context.pointer, _state.strokePattern)
         cairo_stroke(context.pointer)
     }
@@ -385,5 +438,25 @@ public extension CGContext {
 public extension CGContext {
     func makeImage() -> CGImage? {
         return CGImage(context: self)
+    }
+}
+
+internal extension CGContext {
+    func recreateDataIfNeeded() {
+        guard let oldDataStore = dataStore else {
+            return
+        }
+
+        if oldDataStore.currentValue() <= 1 {
+            return
+        }
+
+        let surfaceRaw = cairo_image_surface_create(cairo_image_surface_get_format(oldDataStore.surface.pointer), CInt(width), CInt(height))!
+
+        let surface = RetainablePointer(withRetained: surfaceRaw)
+
+        self.context = RetainablePointer(withRetained: cairo_create(surface.pointer)!)
+        self.surface = surface
+        dataStore = CGContextDataStore(surface: surface)
     }
 }

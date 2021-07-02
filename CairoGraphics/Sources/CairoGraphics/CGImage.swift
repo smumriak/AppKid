@@ -37,10 +37,15 @@ public final class CGImage {
     public internal(set) var bytesPerRow: Int
     public internal(set) var colorSpace: CGColorSpace?
 
-    internal var bitmap: UnsafeMutableRawBufferPointer?
+    @_spi(AppKid) public internal(set) var dataStore: CGContextDataStore?
+    @_spi(AppKid) public internal(set) var bitmap: UnsafeMutableRawBufferPointer?
 
     deinit {
-        bitmap?.deallocate()
+        if let dataStore = dataStore {
+            dataStore.decreaseUseCount()
+        } else {
+            bitmap?.deallocate()
+        }
     }
 
     public init?(dataProvider: CGDataProvider) {
@@ -79,16 +84,14 @@ public final class CGImage {
     }
 
     internal init?(context: CGContext) {
-        guard let pixelData = context.data else {
+        guard let dataStore = dataStore else {
             return nil
         }
 
-        let size = context.height * context.bytesPerRow
+        dataStore.increaseUseCount()
+        self.dataStore = dataStore
 
-        let copyData = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 1)
-        copyData.copyMemory(from: pixelData, byteCount: size)
-
-        self.bitmap = UnsafeMutableRawBufferPointer(start: copyData, count: size)
+        self.bitmap  = UnsafeMutableRawBufferPointer(start: dataStore.data, count: context.bytesPerRow * context.height)
 
         self.isMask = false
         self.width = context.width
@@ -96,5 +99,17 @@ public final class CGImage {
         self.bitsPerComponent = context.bitsPerComponent
         self.bitsPerPixel = context.bitsPerPixel
         self.bytesPerRow = context.bytesPerRow
+
+        //
+        //        guard let pixelData = context.data else {
+        //            return nil
+        //        }
+        //
+        //        let size = context.height * context.bytesPerRow
+        //
+        //        let copyData = UnsafeMutableRawPointer.allocate(byteCount: size, alignment: 1)
+        //        copyData.copyMemory(from: pixelData, byteCount: size)
+        //
+        //        self.bitmap = UnsafeMutableRawBufferPointer(start: copyData, count: size)
     }
 }

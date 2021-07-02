@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TinyFoundation
 import CCairo
 
 public extension CGContext {
@@ -35,17 +36,20 @@ public extension CGContext {
 public extension CGContext {
     convenience init?(data: UnsafeMutableRawPointer? = nil, width: Int, height: Int, bitsPerComponent: Int, bytesPerRow: Int, space: CGColorSpace, bitMapInfo: CGBitmapInfo) {
         let bitmapData: UnsafeMutableRawPointer?
-        let surface: UnsafeMutablePointer<cairo_surface_t>
+        let surfaceRaw: UnsafeMutablePointer<cairo_surface_t>
         if let data = data {
             let rebound = data.assumingMemoryBound(to: UInt8.self)
-            surface = cairo_image_surface_create_for_data(rebound, .argb32, CInt(width), CInt(height), CInt(MemoryLayout<UInt32>.stride))!
+            let stride = cairo_format_stride_for_width(.argb32, CInt(width))
+            surfaceRaw = cairo_image_surface_create_for_data(rebound, .argb32, CInt(width), CInt(height), stride)!
             bitmapData = data
         } else {
-            surface = cairo_image_surface_create(.argb32, CInt(width), CInt(height))!
-            bitmapData = UnsafeMutableRawPointer(cairo_image_surface_get_data(surface))
+            surfaceRaw = cairo_image_surface_create(.argb32, CInt(width), CInt(height))!
+            bitmapData = UnsafeMutableRawPointer(cairo_image_surface_get_data(surfaceRaw))
         }
+
+        let surface = RetainablePointer(withRetained: surfaceRaw)
+
         self.init(surface: surface, width: width, height: height)
-        cairo_surface_destroy(surface)
-        self.data = bitmapData
+        self.dataStore = CGContextDataStore(surface: surface)
     }
 }
