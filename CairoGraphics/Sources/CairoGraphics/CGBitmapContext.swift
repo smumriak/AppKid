@@ -35,16 +35,13 @@ public extension CGContext {
 
 public extension CGContext {
     convenience init?(data: UnsafeMutableRawPointer? = nil, width: Int, height: Int, bitsPerComponent: Int, bytesPerRow: Int, space: CGColorSpace, bitMapInfo: CGBitmapInfo) {
-        let bitmapData: UnsafeMutableRawPointer?
         let surfaceRaw: UnsafeMutablePointer<cairo_surface_t>
         if let data = data {
             let rebound = data.assumingMemoryBound(to: UInt8.self)
             let stride = cairo_format_stride_for_width(.argb32, CInt(width))
             surfaceRaw = cairo_image_surface_create_for_data(rebound, .argb32, CInt(width), CInt(height), stride)!
-            bitmapData = data
         } else {
             surfaceRaw = cairo_image_surface_create(.argb32, CInt(width), CInt(height))!
-            bitmapData = UnsafeMutableRawPointer(cairo_image_surface_get_data(surfaceRaw))
         }
 
         let surface = RetainablePointer(withRetained: surfaceRaw)

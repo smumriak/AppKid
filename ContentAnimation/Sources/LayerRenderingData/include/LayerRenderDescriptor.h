@@ -20,6 +20,7 @@ struct LayerRenderDescriptor {
   vec4s borderColor;       // +16 bytes
   float borderWidth;       // +4 bytes
   float cornerRadius;      // +4 bytes
+  int masksToBounds;       // +4 byte
   vec2s shadowOffset;      // +8 bytes
   vec4s shadowColor;       // +16 bytes
   float shadowRadius;      // +4 bytes

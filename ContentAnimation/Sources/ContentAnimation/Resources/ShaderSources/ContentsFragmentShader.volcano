@@ -1,5 +1,5 @@
 //
-//  BackgroundDrawFragmentShader.volcano
+//  BackgroundFragmentShader.volcano
 //  AppKid
 //
 //  Created by Serhii Mumriak on 10.06.2021.
@@ -18,7 +18,7 @@
 
 void main() 
 {
-    if (layer.cornerRadius > 0.0) 
+    if (layer.masksToBounds == 1 && layer.cornerRadius > 0.0)
     {
         RoundedRect roundedRect = RoundedRectMake(layer.bounds, layer.cornerRadius);
         float mixValue = RoundedRectContains(roundedRect, textureCoordinates * layer.bounds.zw);

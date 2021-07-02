@@ -116,6 +116,7 @@ extension VulkanRenderContext {
     struct Pipelines {
         let background: GraphicsPipeline
         let border: GraphicsPipeline
+        let contents: GraphicsPipeline
     }
 }
 
