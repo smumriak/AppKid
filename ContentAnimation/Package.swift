@@ -21,7 +21,6 @@ let package = Package(
         .package(path: "../TinyFoundation"),
         .package(path: "../CairoGraphics"),
         .package(path: "../Volcano"),
-        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
         .package(path: "../SimpleGLM"),
         .package(path: "../Tools/glslImporter"),
     ],
@@ -33,7 +32,6 @@ let package = Package(
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "Volcano", package: "Volcano"),
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
-                .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "LayerRenderingData"),
             ],
@@ -47,7 +45,7 @@ let package = Package(
         .target(
             name: "LayerRenderingData",
             dependencies: [
-                .product(name: "cglm", package: "cglm"),
+                .product(name: "SimpleGLM", package: "SimpleGLM"),
             ]
         ),
     ]

@@ -22,7 +22,6 @@ let package = Package(
         .package(path: "../CairoGraphics"),
         .package(path: "../ContentAnimation"),
         .package(path: "../Volcano"),
-        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
         .package(path: "../SimpleGLM"),
         .package(path: "../SwiftXlib"),
     ],
@@ -36,7 +35,6 @@ let package = Package(
                 .product(name: "ContentAnimation", package: "ContentAnimation"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "Volcano", package: "Volcano"),
-                .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .product(name: "SwiftXlib", package: "SwiftXlib"),
             ]

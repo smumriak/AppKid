@@ -24,7 +24,6 @@ let package = Package(
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
-        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
     ],
     targets: [
         .target(
@@ -33,7 +32,6 @@ let package = Package(
                 .product(name: "CCairo", package: "SharedSystemLibs"),
                 .product(name: "CPango", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
-                .product(name: "cglm", package: "cglm"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "STBImageRead"),
                 .target(name: "STBImageWrite"),
