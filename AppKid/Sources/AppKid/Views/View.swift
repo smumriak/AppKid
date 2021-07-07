@@ -10,9 +10,9 @@ import CairoGraphics
 import ContentAnimation
 
 #if os(macOS)
-import struct CairoGraphics.CGAffineTransform
-import struct CairoGraphics.CGColor
-import class CairoGraphics.CGContext
+    import struct CairoGraphics.CGAffineTransform
+    import struct CairoGraphics.CGColor
+    import class CairoGraphics.CGContext
 #endif
 
 open class View: Responder, CALayerDelegate {
@@ -72,7 +72,14 @@ open class View: Responder, CALayerDelegate {
         }
     }
 
-    var contentScaleFactor: CGFloat = 1.0
+    var contentScaleFactor: CGFloat {
+        get {
+            return layer.contentsScale
+        }
+        set {
+            layer.contentsScale = newValue
+        }
+    }
 
     fileprivate var _transformToWindow: CGAffineTransform = .identity
     internal var transformToWindow: CGAffineTransform {
@@ -100,7 +107,14 @@ open class View: Responder, CALayerDelegate {
     
     open internal(set) weak var superview: View? = nil
     open internal(set) var subviews = [View]()
-    open internal(set) weak var window: Window? = nil
+    open internal(set) weak var window: Window? = nil {
+        didSet {
+            // palkovnik: Here? Maybe not. I don't know
+            if let window = window {
+                contentScaleFactor = window.contentScaleFactor
+            }
+        }
+    }
     
     internal var dirtyRect: CGRect? {
         didSet {
@@ -160,8 +174,10 @@ open class View: Responder, CALayerDelegate {
         layer.position = CGPoint(x: frame.midX, y: frame.midY)
         layer.backgroundColor = .white
         layer.masksToBounds = true
-        
+
         super.init()
+
+        layer.delegate = self
     }
 
     // MARK: View Hierarchy Manipulation

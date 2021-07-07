@@ -28,7 +28,7 @@ struct LayerRenderDescriptor {
 
   // Totoal before padding: 232 bytes
 
-  vec2s padding0; // + 8 bytes
+  float padding0; // + 4 bytes
   vec4s padding1; // +16 bytes
                        // Total: 256 bytes
 };

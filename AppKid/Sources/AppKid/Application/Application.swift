@@ -9,7 +9,7 @@ import Foundation
 import CoreFoundation
 import CXlib
 import CairoGraphics
-import ContentAnimation
+@_spi(AppKid) import ContentAnimation
 
 // apple failed a little bit :) rdar://problem/14497260
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
@@ -47,7 +47,7 @@ open class Application: Responder {
     
     open fileprivate(set) var windows: [Window] = []
     internal var softwareRenderers: [SoftwareRenderer] = []
-    internal var vulkanRenderers: [VulkanSwapchainRenderer] = []
+    internal var vulkanRenderers: [VolcanoSwapchainRenderer] = []
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -266,7 +266,7 @@ open class Application: Responder {
         windows.append(window)
         if isVulkanRenderingEnabled {
             do {
-                let renderer = try VulkanSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
+                let renderer = try VolcanoSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
                 
                 vulkanRenderers.append(renderer)
             } catch {

@@ -11,6 +11,8 @@
 
 #include "Rectangle.h"
 
+layout(set = 1, binding = 0) uniform sampler2D textureSampler;
+
 @in vec2 textureCoordinates;
 @in LayerRenderDescriptor layer;
 
@@ -22,10 +24,10 @@ void main()
     {
         RoundedRect roundedRect = RoundedRectMake(layer.bounds, layer.cornerRadius);
         float mixValue = RoundedRectContains(roundedRect, textureCoordinates * layer.bounds.zw);
-        outColor = mix(layer.backgroundColor, vec4(0), 1 - mixValue);
+        outColor = mix(texture(textureSampler, textureCoordinates), vec4(0), 1 - mixValue);
     }
     else
     {
-        outColor = layer.backgroundColor;
+        outColor = texture(textureSampler, textureCoordinates);
     }
 }

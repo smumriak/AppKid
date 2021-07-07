@@ -40,5 +40,9 @@ AK_EXISTING_ENUM(VkPrimitiveTopology);
 AK_EXISTING_ENUM(VkLogicOp);
 AK_EXISTING_ENUM(VkSampleCountFlagBits);
 AK_EXISTING_ENUM(VkImageTiling);
+AK_EXISTING_ENUM(VkSamplerAddressMode);
+AK_EXISTING_ENUM(VkFilter);
+AK_EXISTING_ENUM(VkSamplerMipmapMode);
+AK_EXISTING_ENUM(VkBorderColor);
 
 #endif /* VulkanEnums_h */

@@ -18,7 +18,7 @@ public extension CGContext {
     internal(set) static var current: CGContext? = nil
     
     static func begin(size: CGSize) -> CGContext {
-        if let context = CGContext(width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 32, space: CGColorSpace(), bitMapInfo: CGContext.CGBitmapInfo(rawValue: 0)) {
+        if let context = CGContext(width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: Int(size.width) * 32, colorSpace: CGColorSpace(), bitmapInfo: []) {
             push(context)
             return context
         } else {

@@ -81,29 +81,29 @@ internal extension GraphicsPipelineDescriptor {
         info.sType = .pipelineViewportStateCreateInfo
 
         switch viewportState {
-        case .static(let viewports, let scissors):
-            return try viewports.withUnsafeBufferPointer { viewports in
-                return try scissors.withUnsafeBufferPointer { scissors in
-                    info.viewportCount = CUnsignedInt(viewports.count)
-                    info.pViewports = viewports.baseAddress!
-                    info.scissorCount = CUnsignedInt(scissors.count)
-                    info.pScissors = scissors.baseAddress!
+            case .static(let viewports, let scissors):
+                return try viewports.withUnsafeBufferPointer { viewports in
+                    return try scissors.withUnsafeBufferPointer { scissors in
+                        info.viewportCount = CUnsignedInt(viewports.count)
+                        info.pViewports = viewports.baseAddress!
+                        info.scissorCount = CUnsignedInt(scissors.count)
+                        info.pScissors = scissors.baseAddress!
 
-                    return try withUnsafePointer(to: &info) { info in
-                        return try body(info)
+                        return try withUnsafePointer(to: &info) { info in
+                            return try body(info)
+                        }
                     }
                 }
-            }
             
-        case .dynamic(let viewportsCount, let scissorsCount):
-            info.viewportCount = CUnsignedInt(viewportsCount)
-            info.pViewports = nil
-            info.scissorCount = CUnsignedInt(scissorsCount)
-            info.pScissors = nil
+            case .dynamic(let viewportsCount, let scissorsCount):
+                info.viewportCount = CUnsignedInt(viewportsCount)
+                info.pViewports = nil
+                info.scissorCount = CUnsignedInt(scissorsCount)
+                info.pScissors = nil
 
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
+                return try withUnsafePointer(to: &info) { info in
+                    return try body(info)
+                }
         }
     }
 
@@ -242,8 +242,8 @@ public enum ViewportState: PipelineStatePiece {
 
     public var dynamicStates: [VkDynamicState] {
         switch self {
-        case .static(_, _): return []
-        case .dynamic(_, _): return [.viewport, .scissor]
+            case .static(_, _): return []
+            case .dynamic(_, _): return [.viewport, .scissor]
         }
     }
 }
@@ -315,5 +315,12 @@ public extension VkPipelineColorBlendStateCreateInfo {
     var logicOperation: VkLogicOp {
         get { logicOp }
         set { logicOp = newValue }
+    }
+}
+
+public extension VkDescriptorSetLayoutBinding {
+    var stages: VkShaderStageFlagBits {
+        get { VkShaderStageFlagBits(rawValue: stageFlags) }
+        set { stageFlags = newValue.rawValue }
     }
 }

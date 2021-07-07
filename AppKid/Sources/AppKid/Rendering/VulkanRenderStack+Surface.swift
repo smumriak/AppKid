@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 23.08.2020.
 //
 
-import ContentAnimation
+@_spi(AppKid) import ContentAnimation
 import Volcano
 
 public extension VolcanoRenderStack {
@@ -13,7 +13,7 @@ public extension VolcanoRenderStack {
         #if os(Linux)
             return try physicalDevice.createXlibSurface(display: window.nativeWindow.display.handle, window: window.nativeWindow.windowID)
         #elseif os(macOS)
-            fatalError("macOS rendering is not currently supported")
+            fatalError("macOS rendering is not supported and probably never will be. Use AppKit or Catalyst")
         #elseif os(Windows)
             #error("Wrong OS! (For now)")
         #else

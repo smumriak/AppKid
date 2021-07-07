@@ -17,8 +17,114 @@ import SwiftXlib
 import LayerRenderingData
 
 #if os(macOS)
-import struct CairoGraphics.CGColor
+    import struct CairoGraphics.CGColor
+    import class CairoGraphics.CGImage
 #endif
+
+internal class DescriptorSetContainer {
+    let device: Device
+    let layout: SmartPointer<VkDescriptorSetLayout_T>
+    let descriptorSet: VkDescriptorSet
+
+    init(bindings: [VkDescriptorSetLayoutBinding], pool: SmartPointer<VkDescriptorPool_T>, device: Device) throws {
+        self.device = device
+
+        layout = try bindings.withUnsafeBufferPointer { bindings in
+            var info = VkDescriptorSetLayoutCreateInfo()
+            info.sType = .descriptorSetLayoutCreateInfo
+            info.bindingCount = CUnsignedInt(bindings.count)
+            info.pBindings = bindings.baseAddress!
+
+            return try device.create(with: &info)
+        }
+
+        descriptorSet = try withUnsafePointer(to: layout.optionalPointer) { layout in
+            var info = VkDescriptorSetAllocateInfo()
+            info.sType = .descriptorSetAllocateInfo
+            info.descriptorPool = pool.pointer
+            info.descriptorSetCount = 1
+            info.pSetLayouts = layout
+
+            var result: VkDescriptorSet? = nil
+
+            try vulkanInvoke {
+                vkAllocateDescriptorSets(device.handle, &info, &result)
+            }
+
+            return result!
+        }
+    }
+}
+
+internal class DescriptorSets {
+    let device: Device
+    let pool: SmartPointer<VkDescriptorPool_T>
+    let matrices: DescriptorSetContainer
+    let contentsSampler: DescriptorSetContainer
+
+    init(device: Device) throws {
+        self.device = device
+        
+        let sizes = [
+            VkDescriptorPoolSize(type: .uniformBuffer, descriptorCount: 1),
+            VkDescriptorPoolSize(type: .combinedImageSampler, descriptorCount: 1),
+        ]
+
+        pool = try sizes.withUnsafeBufferPointer { sizes in
+            var info = VkDescriptorPoolCreateInfo()
+            info.sType = .descriptorPoolCreateInfo
+            info.poolSizeCount = CUnsignedInt(sizes.count)
+            info.pPoolSizes = sizes.baseAddress!
+            info.maxSets = 2
+
+            return try device.create(with: &info)
+        }
+
+        var matricesBinding = VkDescriptorSetLayoutBinding()
+        matricesBinding.binding = 0
+        matricesBinding.descriptorType = .uniformBuffer
+        matricesBinding.descriptorCount = 1
+        matricesBinding.stages = .vertex
+        matricesBinding.pImmutableSamplers = nil
+
+        matrices = try DescriptorSetContainer(bindings: [matricesBinding], pool: pool, device: device)
+
+        var contentsSamplerBinding = VkDescriptorSetLayoutBinding()
+        contentsSamplerBinding.binding = 0
+        contentsSamplerBinding.descriptorType = .combinedImageSampler
+        contentsSamplerBinding.descriptorCount = 1
+        contentsSamplerBinding.stages = .fragment
+        contentsSamplerBinding.pImmutableSamplers = nil
+
+        contentsSampler = try DescriptorSetContainer(bindings: [contentsSamplerBinding], pool: pool, device: device)
+    }
+
+    func setMatricesBuffer(_ buffer: Buffer) throws {
+        var bufferInfo = VkDescriptorBufferInfo()
+        bufferInfo.buffer = buffer.handle
+        bufferInfo.offset = 0
+        bufferInfo.range = VkDeviceSize(MemoryLayout<UniformBufferObject>.stride)
+
+        try withUnsafePointer(to: &bufferInfo) { bufferInfo in
+            var writeInfo = VkWriteDescriptorSet()
+            writeInfo.sType = .writeDescriptorSet
+            writeInfo.dstSet = matrices.descriptorSet
+            writeInfo.dstBinding = 0
+            writeInfo.dstArrayElement = 0
+            writeInfo.descriptorCount = 1
+            writeInfo.descriptorType = .uniformBuffer
+            writeInfo.pBufferInfo = bufferInfo
+            writeInfo.pImageInfo = nil
+            writeInfo.pTexelBufferView = nil
+
+            try withUnsafePointer(to: &writeInfo) { writeInfo in
+                try vulkanInvoke {
+                    vkUpdateDescriptorSets(device.handle, 1, writeInfo, 0, nil)
+                }
+            }
+        }
+    }
+}
 
 open class CARenderer: NSObject {
     internal var frameTime: CFTimeInterval = 0.0
@@ -36,10 +142,10 @@ open class CARenderer: NSObject {
     internal fileprivate(set) var renderPass: RenderPass
     internal fileprivate(set) var renderTarget: RenderTarget
 
-    fileprivate var uniformBuffer: Buffer
-    fileprivate var descriptorPool: SmartPointer<VkDescriptorPool_T>
-    fileprivate var descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T>
-    fileprivate var descriptorSet: VkDescriptorSet
+    internal fileprivate(set) var descriptorSets: DescriptorSets
+    internal fileprivate(set) var contentsTextureSampler: Sampler
+
+    fileprivate var matricesBuffer: Buffer
 
     open var layer: CALayer? = nil
 
@@ -57,97 +163,24 @@ open class CARenderer: NSObject {
 
         renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
 
-        var descriptorSetLayoutBinding = VkDescriptorSetLayoutBinding()
-        descriptorSetLayoutBinding.binding = 0
-        descriptorSetLayoutBinding.descriptorType = .uniformBuffer
-        descriptorSetLayoutBinding.descriptorCount = 1
-        descriptorSetLayoutBinding.stageFlags = VkShaderStageFlagBits.vertex.rawValue
-        descriptorSetLayoutBinding.pImmutableSamplers = nil
-
-        let descriptorSetLayoutBindings = [descriptorSetLayoutBinding]
-
-        let descriptorSetLayout: SmartPointer<VkDescriptorSetLayout_T> = try descriptorSetLayoutBindings.withUnsafeBufferPointer { descriptorSetLayoutBindings in
-            var info = VkDescriptorSetLayoutCreateInfo()
-            info.sType = .descriptorSetLayoutCreateInfo
-            info.bindingCount = CUnsignedInt(descriptorSetLayoutBindings.count)
-            info.pBindings = descriptorSetLayoutBindings.baseAddress!
-
-            return try device.create(with: &info)
-        }
-
-        self.descriptorSetLayout = descriptorSetLayout
-
-        uniformBuffer = try Buffer(device: device,
-                                   size: VkDeviceSize(MemoryLayout<UniformBufferObject>.size),
-                                   usage: [.uniformBuffer],
-                                   memoryProperties: [.hostVisible, .hostCoherent],
-                                   accessQueues: [queues.graphics, queues.transfer])
+        matricesBuffer = try Buffer(device: device,
+                                    size: VkDeviceSize(MemoryLayout<UniformBufferObject>.size),
+                                    usage: [.uniformBuffer],
+                                    memoryProperties: [.hostVisible, .hostCoherent],
+                                    accessQueues: [queues.graphics, queues.transfer])
 
         var poolSize = VkDescriptorPoolSize()
         poolSize.type = .uniformBuffer
         poolSize.descriptorCount = 1
 
-        let sizes = [poolSize]
+        descriptorSets = try DescriptorSets(device: device)
+        try descriptorSets.setMatricesBuffer(matricesBuffer)
 
-        let descriptorPool: SmartPointer<VkDescriptorPool_T> = try sizes.withUnsafeBufferPointer { sizes in
-            var info = VkDescriptorPoolCreateInfo()
-            info.sType = .descriptorPoolCreateInfo
-            info.poolSizeCount = CUnsignedInt(sizes.count)
-            info.pPoolSizes = sizes.baseAddress!
-            info.maxSets = 1
+        contentsTextureSampler = try Sampler(device: device)
 
-            return try device.create(with: &info)
-        }
-
-        self.descriptorPool = descriptorPool
-
-        let descriptorSetLayouts = [descriptorSetLayout]
-
-        let descriptorSet: VkDescriptorSet = try withUnsafePointer(to: descriptorSetLayout.optionalPointer) { descriptorSetLayout in
-            var info = VkDescriptorSetAllocateInfo()
-            info.sType = .descriptorSetAllocateInfo
-            info.descriptorPool = descriptorPool.pointer
-            info.descriptorSetCount = 1
-            info.pSetLayouts = descriptorSetLayout
-
-            var result: VkDescriptorSet? = nil
-
-            try vulkanInvoke {
-                vkAllocateDescriptorSets(device.handle, &info, &result)
-            }
-
-            return result!
-        }
-        
-        var descriptorBufferInfo = VkDescriptorBufferInfo()
-        descriptorBufferInfo.buffer = uniformBuffer.handle
-        descriptorBufferInfo.offset = 0
-        descriptorBufferInfo.range = VkDeviceSize(MemoryLayout<UniformBufferObject>.stride)
-
-        try withUnsafePointer(to: &descriptorBufferInfo) { descriptorBufferInfo in
-            var descriptorWrite = VkWriteDescriptorSet()
-            descriptorWrite.sType = .writeDescriptorSet
-            descriptorWrite.dstSet = descriptorSet
-            descriptorWrite.dstBinding = 0
-            descriptorWrite.dstArrayElement = 0
-            descriptorWrite.descriptorCount = 1
-            descriptorWrite.descriptorType = .uniformBuffer
-            descriptorWrite.pBufferInfo = descriptorBufferInfo
-            descriptorWrite.pImageInfo = nil
-            descriptorWrite.pTexelBufferView = nil
-
-            try withUnsafePointer(to: &descriptorWrite) { descriptorWrite in
-                try vulkanInvoke {
-                    vkUpdateDescriptorSets(device.handle, 1, descriptorWrite, 0, nil)
-                }
-            }
-        }
-
-        self.descriptorSet = descriptorSet
-
-        let backgroundPipeline = try device.createBackgroundPipeline(renderPass: renderPass, descriptorSetLayouts: descriptorSetLayouts)
-        let borderPipeline = try device.createBorderPipeline(renderPass: renderPass, descriptorSetLayouts: descriptorSetLayouts)
-        let contentsPipeline = try device.createContentsPipeline(renderPass: renderPass, descriptorSetLayouts: descriptorSetLayouts)
+        let backgroundPipeline = try device.createBackgroundPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout])
+        let borderPipeline = try device.createBorderPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout])
+        let contentsPipeline = try device.createContentsPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout, descriptorSets.contentsSampler.layout])
 
         let pipelines = VulkanRenderContext.Pipelines(
             background: backgroundPipeline,
@@ -160,10 +193,6 @@ open class CARenderer: NSObject {
         renderContext = try VulkanRenderContext(renderStack: renderStack, pipelines: pipelines)
 
         super.init()
-
-        // renderTargets = try swapchain.textures.map {
-        //     try RenderTarget(renderPass: renderPass, colorAttachment: $0, clearColor: VkClearValue(color: .red))
-        // }
     }
 
     // MARK: Public interface
@@ -203,7 +232,7 @@ open class CARenderer: NSObject {
         try renderContext.clear()
 
         object.projection = layer.projectionMatrix
-        try update(uniformBuffer: uniformBuffer)
+        try update(matricesBuffer: matricesBuffer)
 
         renderContext.add(.pushCommandBuffer())
 
@@ -211,7 +240,7 @@ open class CARenderer: NSObject {
 
         var index: UInt32 = 0
 
-        try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext, descriptorSets: [descriptorSet])
+        try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext)
 
         renderContext.add(.popRenderTarget(rebind: false))
 
@@ -227,7 +256,11 @@ open class CARenderer: NSObject {
         // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
 
-    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt32, renderContext: VulkanRenderContext, descriptorSets: [VkDescriptorSet]? = nil) throws {
+    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt32, renderContext: VulkanRenderContext) throws {
+        if layer.isHidden || layer.opacity <= 0.01 {
+            return
+        }
+
         let currentLayerIndex = index
         let bounds = layer.bounds
         let position = layer.position
@@ -275,16 +308,39 @@ open class CARenderer: NSObject {
         renderContext.descriptors.append(descriptor)
 
         renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background(descriptorSets: descriptorSets))
+        renderContext.add(.background(matricesDescriptorSet: descriptorSets.matrices))
+
+        var contentsTexture: Texture? = nil
+
+        switch layer.contents {
+            case .some(let image as CGImage):
+                break
+
+            case .some(let backingStore as CABackingStore):
+                contentsTexture = backingStore.currentTexture
+
+                if contentsTexture == nil {
+                    contentsTexture = try backingStore.makeTexture(device: device, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
+
+                    backingStore.currentTexture = contentsTexture
+                }
+
+            default:
+                break
+        }
+
+        if let contentsTexture = contentsTexture {
+            renderContext.add(.contents(texture: contentsTexture, sampler: contentsTextureSampler, matricesDescriptorSet: descriptorSets.matrices, contentsSamplerDescriptorSet: descriptorSets.contentsSampler))
+        }
 
         try layer.sublayers?.forEach {
             index += 1
-            try traverseLayerTree(for: $0, parentTransform: layerLocalTransform, index: &index, renderContext: renderContext, descriptorSets: descriptorSets)
+            try traverseLayerTree(for: $0, parentTransform: layerLocalTransform, index: &index, renderContext: renderContext)
         }
 
         if layer.borderWidth > 0 && layer.borderColor != nil {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.border(descriptorSets: descriptorSets))
+            renderContext.add(.border(matricesDescriptorSet: descriptorSets.matrices))
         }
     }
 
@@ -295,9 +351,9 @@ open class CARenderer: NSObject {
         return (model: model, view: view, projection: projection)
     }()
 
-    func update(uniformBuffer: Buffer) throws {
+    func update(matricesBuffer: Buffer) throws {
         try withUnsafePointer(to: object) {
-            try uniformBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
+            try matricesBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }
     }
 }

@@ -11,6 +11,8 @@ import CVulkan
 public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
     public unowned let image: Image
     public let imageFormat: VkFormat
+    public let subresourceRange: VkImageSubresourceRange
+    public let aspect: VkImageAspectFlagBits
 
     public init(image: Image, descriptor: ImageViewDescriptor) throws {
         self.image = image
@@ -21,6 +23,9 @@ public final class ImageView: VulkanDeviceEntity<SmartPointer<VkImageView_T>> {
         let handlePointer: SmartPointer<VkImageView_T> = try descriptor.withUnsafeImageViewCreateInfoPointer(for: image) { info in
             return try device.create(with: info)
         }
+
+        subresourceRange = descriptor.subresourceRange
+        aspect = descriptor.aspect
 
         try super.init(device: device, handlePointer: handlePointer)
     }
@@ -36,20 +41,25 @@ public class ImageViewDescriptor {
     public var format: VkFormat = .rgba8UNorm
     public var componentMapping: VkComponentMapping = .identity
 
-    public var aspect: VkImageAspectFlagBits = []
+    public var aspect: VkImageAspectFlagBits = .color
     public var baseMipLevel: CUnsignedInt = 0
     public var levelCount: CUnsignedInt = 1
     public var baseArrayLayer: CUnsignedInt = 0
     public var layerCount: CUnsignedInt = 1
 
-    internal func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
-        var subresourceRange = VkImageSubresourceRange()
-        subresourceRange.aspectMask = aspect.rawValue
-        subresourceRange.baseMipLevel = baseMipLevel
-        subresourceRange.levelCount = levelCount
-        subresourceRange.baseArrayLayer = baseArrayLayer
-        subresourceRange.layerCount = layerCount
+    internal var subresourceRange: VkImageSubresourceRange {
+        var result = VkImageSubresourceRange()
 
+        result.aspectMask = aspect.rawValue
+        result.baseMipLevel = baseMipLevel
+        result.levelCount = levelCount
+        result.baseArrayLayer = baseArrayLayer
+        result.layerCount = layerCount
+
+        return result
+    }
+
+    internal func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
         var info = VkImageViewCreateInfo()
         info.sType = .imageViewCreateInfo
         info.flags = flags.rawValue

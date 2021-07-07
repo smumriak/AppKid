@@ -46,8 +46,6 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
             fatalError("Could not query vulkan devices with error: \(error)")
         }
     }()
-
-    public internal(set) lazy var discreteGPUDevice: PhysicalDevice? = physicalDevices.first
     
     public init() {
         do {

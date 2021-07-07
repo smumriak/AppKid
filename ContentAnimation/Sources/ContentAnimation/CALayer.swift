@@ -54,7 +54,11 @@ open class CALayer: CAMediaTiming {
     open var bounds: CGRect = .zero
 
     @CALayerProperty(name: "position")
-    open var position: CGPoint = .zero
+    open var position: CGPoint = .zero {
+        didSet {
+            needsDisplay = true
+        }
+    }
 
     @CALayerProperty(name: "zPosition")
     open var zPosition: CGFloat = 0.0
@@ -211,16 +215,19 @@ open class CALayer: CAMediaTiming {
             delegate.display(self)
         } else if (contents == nil || contents is CABackingStore) && (bounds.width > 0 && bounds.height > 0) {
             do {
+                let pixelBounds = CGRect(origin: CGPoint(x: 0.0, y: 0.0), size: CGSize(width: bounds.width * contentsScale, height: bounds.height * contentsScale))
+
                 let backingStore: CABackingStore = try {
-                    if let backingStore = contents as? CABackingStore, backingStore.fits(size: bounds.size) {
+                    if let backingStore = contents as? CABackingStore, backingStore.fits(size: pixelBounds.size) {
                         return backingStore
                     } else {
-                        return try CABackingStoreContext.global.createBackingStore(size: bounds.size)
+                        return try CABackingStoreContext.global.createBackingStore(size: pixelBounds.size)
                     }
                 }()
                 
                 delegate?.layerWillDraw(self)
-                backingStore.update(width: Int(bounds.width), height: Int(bounds.height)) { context in
+                backingStore.update(width: Int(pixelBounds.width), height: Int(pixelBounds.height)) { context in
+                    context.scaleBy(x: contentsScale, y: contentsScale)
                     draw(in: context)
                 }
 

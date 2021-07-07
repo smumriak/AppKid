@@ -10,8 +10,12 @@ import PackageDescription
 
 let package = Package(
     name: "glslImporter",
+    platforms: [
+        .macOS(.v11),
+    ],
     products: [
         .executable(name: "glslImporter", targets: ["glslImporter"]),
+        // .plugin(name: "GLSLImporterPlugin", targets: ["GLSLImporterPlugin"])
     ],
     dependencies: [
         .package(path: "../../TinyFoundation"),
@@ -28,6 +32,11 @@ let package = Package(
             resources: [
                 .copy("Resources/GLSLTypesInclude.h"),
             ]),
+        // .plugin(
+        //     name: "GLSLImporterPlugin",
+        //     capability: .buildTool(),
+        //     dependencies: [.target(name: "glslImporter")]
+        // ),
         .systemLibrary(
             name: "CClang",
             pkgConfig: "clang",

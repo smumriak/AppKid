@@ -10,14 +10,14 @@ import Volcano
 import TinyFoundation
 import CVulkan
 
-public enum VolcanoRenderStackError: Error {
+@_spi(AppKid) public enum VolcanoRenderStackError: Error {
     case noDiscreteGPU
     case noPresentationQueueFound
     case noGraphicsQueueFound
     case noTransferQueueFound
 }
 
-public final class VolcanoRenderStack {
+@_spi(AppKid) public final class VolcanoRenderStack {
     public struct Queues {
         public let graphics: Queue
         public let transfer: Queue
@@ -41,7 +41,11 @@ public final class VolcanoRenderStack {
     internal init() throws {
         instance = Instance()
 
-        guard let physicalDevice = instance.discreteGPUDevice else {
+        let physicalDevice = instance.physicalDevices.first {
+            $0.features.samplerAnisotropy.bool == true
+        }
+
+        guard let physicalDevice = physicalDevice else {
             throw VolcanoRenderStackError.noDiscreteGPU
         }
 

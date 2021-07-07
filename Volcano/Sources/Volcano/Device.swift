@@ -33,7 +33,8 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
 
     public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default]) throws {
-        let enabledFeatures = physicalDevice.features
+        var enabledFeatures = physicalDevice.features
+        enabledFeatures.samplerAnisotropy = true.vkBool
 
         let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME].cStrings
         let extensionsNamesPointers: [UnsafePointer<Int8>?] = extensions.map { UnsafePointer($0.pointer) }

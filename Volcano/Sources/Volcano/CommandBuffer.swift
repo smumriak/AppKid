@@ -174,19 +174,74 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
     
-    public func copyBuffer(from buffer: Buffer, to texture: Texture, bufferOffset: VkDeviceSize = 0, bytesPerRow: CUnsignedInt? = nil, height: CUnsignedInt? = nil, textureRect: VkRect3D? = nil, aspect: VkImageAspectFlagBits = .color, copiedLayersRange: Range<CUnsignedInt> = 0..<1) throws {
+    public func copyBuffer(from buffer: Buffer, to texture: Texture, bufferOffset: VkDeviceSize = 0, mipLevel: CUnsignedInt = 0, texelsPerRow: CUnsignedInt? = nil, height: CUnsignedInt? = nil, textureRect: VkRect3D? = nil, copiedLayersRange: Range<CUnsignedInt> = 0..<1) throws {
         let textureRect = textureRect ?? VkRect3D(offset: .zero, extent: texture.extent)
-        let bytesPerRow: CUnsignedInt = bytesPerRow ?? 0
+        let texelsPerRow: CUnsignedInt = texelsPerRow ?? 0
         let height: CUnsignedInt = height ?? 0
 
-        assert(bytesPerRow == 0 || bytesPerRow >= textureRect.width, "According to vulkan spec the bytes per row has to be either 0 or greater than equal to texture's width")
+        assert(texelsPerRow == 0 || texelsPerRow >= textureRect.width, "According to vulkan spec the bytes per row has to be either 0 or greater than equal to texture's width")
         assert(height == 0 || height >= textureRect.height, "According to vulkan spec the height has to be either 0 or greater than equal to texture's height")
 
-        let imageSubresource = VkImageSubresourceLayers(aspectMask: aspect.rawValue, mipLevel: CUnsignedInt(texture.mipmapLevelCount), baseArrayLayer: copiedLayersRange.startIndex, layerCount: CUnsignedInt(copiedLayersRange.count))
-        var bufferCopyRegion = VkBufferImageCopy(bufferOffset: bufferOffset, bufferRowLength: bytesPerRow, bufferImageHeight: height, imageSubresource: imageSubresource, imageOffset: textureRect.offset, imageExtent: textureRect.extent)
+        let imageSubresource = VkImageSubresourceLayers(aspectMask: texture.imageView.aspect.rawValue, mipLevel: mipLevel, baseArrayLayer: copiedLayersRange.startIndex, layerCount: CUnsignedInt(copiedLayersRange.count))
+        var bufferCopyRegion = VkBufferImageCopy(bufferOffset: bufferOffset, bufferRowLength: texelsPerRow, bufferImageHeight: height, imageSubresource: imageSubresource, imageOffset: textureRect.offset, imageExtent: textureRect.extent)
         
         try vulkanInvoke {
-            vkCmdCopyBufferToImage(handle, buffer.handle, texture.image.handle, .transferDestinationOptimal, 1, &bufferCopyRegion)
+            vkCmdCopyBufferToImage(handle, buffer.handle, texture.image.handle, texture.layout, 1, &bufferCopyRegion)
         }
+    }
+
+    public func transitionLayout(for texture: Texture, newLayout: VkImageLayout) throws {
+        var barrier = VkImageMemoryBarrier()
+        barrier.sType = .imageMemoryBarrier
+
+        var sourceAccessMask: VkAccessFlagBits = []
+        var destinationAccessMask: VkAccessFlagBits = []
+
+        var sourceStage: VkPipelineStageFlagBits = []
+        var destinationStage: VkPipelineStageFlagBits = []
+
+        let oldLayout = texture.layout
+
+        switch (oldLayout, newLayout) {
+            case (.undefined, .transferDestinationOptimal):
+                destinationAccessMask.formUnion(.transferWrite)
+
+                sourceStage.formUnion(.topOfPipe)
+                destinationStage.formUnion(.transfer)
+
+            case (.transferDestinationOptimal, .shaderReadOnlyOptimal):
+                sourceAccessMask.formUnion(.transferWrite)
+                destinationAccessMask.formUnion(.shaderRead)
+
+                sourceStage.formUnion(.transfer)
+                destinationStage.formUnion(.fragmentShader)
+            
+            default:
+                assertionFailure("Unsupported layout transition from \(oldLayout) to \(newLayout)")
+        }
+
+        barrier.srcAccessMask = sourceAccessMask.rawValue
+        barrier.dstAccessMask = destinationAccessMask.rawValue
+
+        barrier.oldLayout = oldLayout
+        barrier.newLayout = newLayout
+
+        barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED
+        barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED
+
+        barrier.subresourceRange = texture.imageView.subresourceRange
+
+        barrier.image = texture.image.handle
+
+        try vulkanInvoke {
+            vkCmdPipelineBarrier(handle,
+                                 sourceStage.rawValue, destinationStage.rawValue,
+                                 0,
+                                 0, nil, // memory barriers
+                                 0, nil, // buffer memory barriers
+                                 1, &barrier) // image memory barriers
+        }
+
+        texture.setLayout(newLayout)
     }
 }

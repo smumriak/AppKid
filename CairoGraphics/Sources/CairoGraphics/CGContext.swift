@@ -458,5 +458,7 @@ internal extension CGContext {
         self.context = RetainablePointer(withRetained: cairo_create(surface.pointer)!)
         self.surface = surface
         dataStore = CGContextDataStore(surface: surface)
+
+        dataStore?.data.copyMemory(from: oldDataStore.data, byteCount: height * bytesPerRow)
     }
 }

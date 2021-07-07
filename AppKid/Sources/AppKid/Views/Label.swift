@@ -19,18 +19,21 @@ open class Label: View {
     open var text: String? = nil {
         didSet {
             layout.text = text ?? ""
+            layer.needsDisplay = true
         }
     }
 
     open var textColor: CGColor = .black {
         didSet {
             layout.textColor = textColor
+            layer.needsDisplay = true
         }
     }
 
     open var font: Font = .systemFont(ofSize: 17) {
         didSet {
             layout.font = font
+            layer.needsDisplay = true
         }
     }
 
@@ -47,7 +50,7 @@ open class Label: View {
         layout.textColor = textColor
         layout.font = font
 
-        layer.delegate = self
+        layer.needsDisplay = true
     }
 
     // MARK: Rendering

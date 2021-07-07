@@ -11,7 +11,7 @@ import CXlib
 import CairoGraphics
 
 #if os(macOS)
-import struct CairoGraphics.CGAffineTransform
+    import struct CairoGraphics.CGAffineTransform
 #endif
 
 public extension Notification.Name {
@@ -99,6 +99,8 @@ open class Window: View {
         super.init(with: frame)
         
         transformsAreValid = true
+
+        contentScaleFactor = nativeWindow.displayScale
     }
 
     public convenience required init(contentRect: CGRect) {
@@ -161,17 +163,17 @@ open class Window: View {
     
     open func send(event: Event) {
         switch event.type {
-        case _ where event.type.isAnyMouse:
-            sendMouseEvent(event)
+            case _ where event.type.isAnyMouse:
+                sendMouseEvent(event)
 
-        case _ where event.type.isAnyKeyboard:
-            sendKeyboardEvent(event)
+            case _ where event.type.isAnyKeyboard:
+                sendKeyboardEvent(event)
 
-        case .appKidDefined:
-            handleAppKidEvent(event)
+            case .appKidDefined:
+                handleAppKidEvent(event)
 
-        default:
-            break
+            default:
+                break
         }
     }
 
@@ -236,8 +238,8 @@ open class Window: View {
     }
 }
 
-extension Window {
-    public static func == (lhs: Window, rhs: Window) -> Bool {
+public extension Window {
+    static func == (lhs: Window, rhs: Window) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.nativeWindow == rhs.nativeWindow
     }
 }
@@ -249,86 +251,86 @@ fileprivate extension Window {
         let application = Application.shared
 
         switch event.type {
-        case .leftMouseDown:
-            leftMouseDownView = hitTest(event.locationInWindow) ?? self
-            leftMouseDownView?.mouseDown(with: event)
+            case .leftMouseDown:
+                leftMouseDownView = hitTest(event.locationInWindow) ?? self
+                leftMouseDownView?.mouseDown(with: event)
 
-            while true {
-                guard let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                    break
+                while true {
+                    guard let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                        break
+                    }
+
+                    application.send(event: nextEvent)
+
+                    if nextEvent.type == .leftMouseUp {
+                        application.discardEvent(matching: .any, before: nextEvent)
+                        break
+                    }
                 }
 
-                application.send(event: nextEvent)
+            case .leftMouseDragged:
+                leftMouseDownView?.mouseDragged(with: event)
 
-                if nextEvent.type == .leftMouseUp {
-                    application.discardEvent(matching: .any, before: nextEvent)
-                    break
-                }
-            }
+            case .leftMouseUp:
+                leftMouseDownView?.mouseUp(with: event)
+                leftMouseDownView = nil
 
-        case .leftMouseDragged:
-            leftMouseDownView?.mouseDragged(with: event)
+            case .rightMouseDown:
+                rightMouseDownView = hitTest(event.locationInWindow) ?? self
+                rightMouseDownView?.rightMouseDown(with: event)
 
-        case .leftMouseUp:
-            leftMouseDownView?.mouseUp(with: event)
-            leftMouseDownView = nil
+                while true {
+                    guard let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                        break
+                    }
 
-        case .rightMouseDown:
-            rightMouseDownView = hitTest(event.locationInWindow) ?? self
-            rightMouseDownView?.rightMouseDown(with: event)
+                    application.send(event: nextEvent)
 
-            while true {
-                guard let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                    break
-                }
-
-                application.send(event: nextEvent)
-
-                if nextEvent.type == .rightMouseUp {
-                    application.discardEvent(matching: .any, before: nextEvent)
-                    break
-                }
-            }
-
-        case .rightMouseDragged:
-            rightMouseDownView?.rightMouseDragged(with: event)
-
-        case .rightMouseUp:
-            rightMouseDownView?.rightMouseUp(with: event)
-            rightMouseDownView = nil
-
-        case .otherMouseDown:
-            otherMouseDownView = hitTest(event.locationInWindow) ?? self
-            otherMouseDownView?.otherMouseDown(with: event)
-
-            while true {
-                guard let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                    break
+                    if nextEvent.type == .rightMouseUp {
+                        application.discardEvent(matching: .any, before: nextEvent)
+                        break
+                    }
                 }
 
-                application.send(event: nextEvent)
+            case .rightMouseDragged:
+                rightMouseDownView?.rightMouseDragged(with: event)
 
-                if nextEvent.type == .otherMouseUp {
-                    application.discardEvent(matching: .any, before: nextEvent)
-                    break
+            case .rightMouseUp:
+                rightMouseDownView?.rightMouseUp(with: event)
+                rightMouseDownView = nil
+
+            case .otherMouseDown:
+                otherMouseDownView = hitTest(event.locationInWindow) ?? self
+                otherMouseDownView?.otherMouseDown(with: event)
+
+                while true {
+                    guard let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
+                        break
+                    }
+
+                    application.send(event: nextEvent)
+
+                    if nextEvent.type == .otherMouseUp {
+                        application.discardEvent(matching: .any, before: nextEvent)
+                        break
+                    }
                 }
-            }
 
-        case .otherMouseDragged:
-            otherMouseDownView?.otherMouseDragged(with: event)
+            case .otherMouseDragged:
+                otherMouseDownView?.otherMouseDragged(with: event)
 
-        case .otherMouseUp:
-            otherMouseDownView?.otherMouseUp(with: event)
-            otherMouseDownView = nil
+            case .otherMouseUp:
+                otherMouseDownView?.otherMouseUp(with: event)
+                otherMouseDownView = nil
 
-        case .scrollWheel:
-            let view = hitTest(event.locationInWindow) ?? self
-            view.scrollWheel(with: event)
+            case .scrollWheel:
+                let view = hitTest(event.locationInWindow) ?? self
+                view.scrollWheel(with: event)
 
-        default:
-            guard let handler = Responder.mouseEventTypeToHandler[event.type] else { return }
-            let view = hitTest(event.locationInWindow) ?? self
-            handler(view)(event)
+            default:
+                guard let handler = Responder.mouseEventTypeToHandler[event.type] else { return }
+                let view = hitTest(event.locationInWindow) ?? self
+                handler(view)(event)
         }
     }
 
@@ -336,14 +338,14 @@ fileprivate extension Window {
 
     func sendKeyboardEvent(_ event: Event) {
         switch event.type {
-        case .keyDown:
-            firstResponder?.keyDown(with: event)
+            case .keyDown:
+                firstResponder?.keyDown(with: event)
 
-        case .keyUp:
-            firstResponder?.keyUp(with: event)
+            case .keyUp:
+                firstResponder?.keyUp(with: event)
 
-        default:
-            break
+            default:
+                break
         }
     }
 
@@ -353,53 +355,53 @@ fileprivate extension Window {
         let notificationCenter = NotificationCenter.default
 
         switch event.subType {
-        case .windowDeleteRequest:
-            performClose(self)
+            case .windowDeleteRequest:
+                performClose(self)
 
-        case .windowMapped:
-            isMapped = true
+            case .windowMapped:
+                isMapped = true
 
-        case .windowUnmapped:
-            isMapped = false
+            case .windowUnmapped:
+                isMapped = false
 
-        case .windowExposed:
-            if isMapped && shouldPerformRootViewControllerSetup {
-                setupRootViewController()
+            case .windowExposed:
+                if isMapped && shouldPerformRootViewControllerSetup {
+                    setupRootViewController()
 
-                shouldPerformRootViewControllerSetup = false
-            }
+                    shouldPerformRootViewControllerSetup = false
+                }
 
-            if isMapped {
-                updateSurface()
-            }
-
-            nativeWindow.window.sendSyncCounterIfNeeded()
-
-            notificationCenter.post(name: .windowDidExpose, object: self)
-
-        case .configurationChanged:
-            let newSize = CGSize(width: event.deltaX, height: event.deltaY)
-            let sizeChanged = (newSize != bounds.size)
-
-            if sizeChanged {
                 if isMapped {
                     updateSurface()
                 }
-            }
 
-            nativeWindow.window.sendSyncCounterIfNeeded()
+                nativeWindow.window.sendSyncCounterIfNeeded()
 
-            if sizeChanged {
-                notificationCenter.post(name: .windowDidResize, object: self)
-            }
+                notificationCenter.post(name: .windowDidExpose, object: self)
 
-        case .windowSyncRequest:
-            nativeWindow.window.syncRequested(with: event.syncCounterValue)
+            case .configurationChanged:
+                let newSize = CGSize(width: event.deltaX, height: event.deltaY)
+                let sizeChanged = (newSize != bounds.size)
+
+                if sizeChanged {
+                    if isMapped {
+                        updateSurface()
+                    }
+                }
+
+                nativeWindow.window.sendSyncCounterIfNeeded()
+
+                if sizeChanged {
+                    notificationCenter.post(name: .windowDidResize, object: self)
+                }
+
+            case .windowSyncRequest:
+                nativeWindow.window.syncRequested(with: event.syncCounterValue)
             
-            notificationCenter.post(name: .windowDidReceiveSyncRequest, object: self)
+                notificationCenter.post(name: .windowDidReceiveSyncRequest, object: self)
 
-        default:
-            break
+            default:
+                break
         }
     }
 }

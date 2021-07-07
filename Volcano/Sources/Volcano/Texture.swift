@@ -25,12 +25,18 @@ public protocol Texture: AnyObject {
     var accessQueueFamiliesIndices: [CUnsignedInt] { get }
     var isDepthTexture: Bool { get }
     var isStencilTexture: Bool { get }
-    var layout: VkImageLayout { get }
+    var layout: VkImageLayout { get @_spi(AppKid) set }
 
     var image: Image { get }
     var imageView: ImageView { get }
     
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture
+}
+
+@_spi(AppKid) public extension Texture {
+    @_spi(AppKid) func setLayout(_ layout: VkImageLayout) {
+        self.layout = layout
+    }
 }
 
 public extension Texture {

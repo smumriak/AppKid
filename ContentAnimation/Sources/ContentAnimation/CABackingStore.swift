@@ -8,16 +8,16 @@
 import Foundation
 import CoreFoundation
 import TinyFoundation
-import CairoGraphics
+@_spi(AppKid) import CairoGraphics
 import Volcano
 
 #if os(macOS)
-import class CairoGraphics.CGContext
-import class CairoGraphics.CGColorSpace
-import class CairoGraphics.CGImage
+    import class CairoGraphics.CGContext
+    import class CairoGraphics.CGColorSpace
+    import class CairoGraphics.CGImage
 #endif
 
-public struct CABackingStoreFlags: OptionSet {
+@_spi(AppKid) public struct CABackingStoreFlags: OptionSet {
     public typealias RawValue = UInt
     public let rawValue: RawValue
 
@@ -26,7 +26,7 @@ public struct CABackingStoreFlags: OptionSet {
     }
 }
 
-public class CABackingStoreContext {
+@_spi(AppKid) public class CABackingStoreContext {
     public let device: Device
     public let accessQueues: [Queue]
 
@@ -50,7 +50,7 @@ public class CABackingStoreContext {
     }
 }
 
-public class CABackingStore {
+@_spi(AppKid) public class CABackingStore {
     public fileprivate(set) var frontContext: CGContext
     public fileprivate(set) var backContext: CGContext
     public var frontTexture: Texture?
@@ -60,6 +60,7 @@ public class CABackingStore {
     public fileprivate(set) var colorSpace: CGColorSpace
     public let width: Int
     public let height: Int
+    public var currentTexture: Texture?
 
     public init(size: CGSize, device: Device, accessQueues: [Queue]) throws {
         width = Int(size.width.rounded(.up))
@@ -70,17 +71,24 @@ public class CABackingStore {
         bytesPerRow = width * bytesPerPixel
         colorSpace = CGColorSpace()
 
-        frontContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitMapInfo: [])!
-        backContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitMapInfo: [])!
+        let alphaInfo: CGContext.CGImageAlphaInfo = .premultipliedFirst
+        let pixelFormat: CGContext.CGImagePixelFormatInfo = .packed
+
+        let bitmapInfo: CGContext.CGBitmapInfo = [alphaInfo.bitmapInfo, pixelFormat.bitmapInfo]
+
+        frontContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, colorSpace: colorSpace, bitmapInfo: bitmapInfo)!
+        backContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, colorSpace: colorSpace, bitmapInfo: bitmapInfo)!
     }
 
     public var image: CGImage? {
         return frontContext.makeImage()
     }
 
-    public func makeTexture(device: Device, accessQueues: [Queue], transferQueue: Queue, transferCommandPool: CommandPool) throws -> Texture {
+    public func makeTexture(device: Device, graphicsQueue: Queue, commandPool: CommandPool) throws -> Texture {
         let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8UNorm, width: width, height: height, mipmapped: false)
-        textureDescriptor.usage = .renderTarget
+        textureDescriptor.usage = [.renderTarget, .shaderRead]
+        textureDescriptor.tiling = .optimal
+        textureDescriptor.memoryProperties = .deviceLocal
 
         let result = try device.createTexture(with: textureDescriptor)
 
@@ -89,14 +97,16 @@ public class CABackingStore {
                                        size: stagingBufferSize,
                                        usage: [.transferSource],
                                        memoryProperties: [.hostVisible, .hostCoherent],
-                                       accessQueues: accessQueues)
+                                       accessQueues: [graphicsQueue])
 
         try stagingBuffer.memoryChunk.withMappedData { data, size in
             data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
         }
 
-        try transferQueue.oneShot(in: transferCommandPool) {
-            try $0.copyBuffer(from: stagingBuffer, to: result)
+        try graphicsQueue.oneShot(in: commandPool) {
+            try $0.transitionLayout(for: result, newLayout: .transferDestinationOptimal)
+            try $0.copyBuffer(from: stagingBuffer, to: result, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
+            try $0.transitionLayout(for: result, newLayout: .shaderReadOnlyOptimal)
         }
 
         return result
@@ -112,7 +122,7 @@ public class CABackingStore {
     }
 }
 
-public extension CALayer {
+internal extension CALayer {
     var needsOffscreenRendering: Bool {
         return masksToBounds == true
             || mask != nil

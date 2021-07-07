@@ -1,5 +1,5 @@
 //
-//  VulkanSwapchainRenderer.swift
+//  VolcanoSwapchainRenderer.swift
 //  AppKid
 //
 //  Created by Serhii Mumriak on 23.08.2020.
@@ -8,14 +8,14 @@
 import Foundation
 import CoreFoundation
 import TinyFoundation
-import ContentAnimation
+@_spi(AppKid) import ContentAnimation
 import Volcano
 
-public enum VulkanSwapchainRendererError: Error {
+public enum VolcanoSwapchainRendererError: Error {
     case noPresentationQueueFound
 }
 
-internal class VulkanSwapchainRenderer {
+internal class VolcanoSwapchainRenderer {
     let window: Window
     let renderStack: VolcanoRenderStack
     let presentationQueue: Queue
@@ -44,7 +44,7 @@ internal class VulkanSwapchainRenderer {
         self.surface = surface
 
         guard let presentationQueue = try device.allQueues.first(where: { try surface.supportsPresenting(on: $0) }) else {
-            throw VulkanSwapchainRendererError.noPresentationQueueFound
+            throw VolcanoSwapchainRendererError.noPresentationQueueFound
         }
 
         self.presentationQueue = presentationQueue
