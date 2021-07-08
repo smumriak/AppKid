@@ -56,38 +56,19 @@ internal class DescriptorSetContainer {
     }
 }
 
-internal class DescriptorSets {
-    let device: Device
-    let pool: SmartPointer<VkDescriptorPool_T>
-    let matrices: DescriptorSetContainer
-    let contentsSampler: DescriptorSetContainer
+internal class DescriptorSetsLayouts {
+    let modelViewProjection: DescriptorSetLayout
+    let contentsSampler: DescriptorSetLayout
 
     init(device: Device) throws {
-        self.device = device
-        
-        let sizes = [
-            VkDescriptorPoolSize(type: .uniformBuffer, descriptorCount: 1),
-            VkDescriptorPoolSize(type: .combinedImageSampler, descriptorCount: 1),
-        ]
+        var modelViewProjectionBinding = VkDescriptorSetLayoutBinding()
+        modelViewProjectionBinding.binding = 0
+        modelViewProjectionBinding.descriptorType = .uniformBuffer
+        modelViewProjectionBinding.descriptorCount = 1
+        modelViewProjectionBinding.stages = .vertex
+        modelViewProjectionBinding.pImmutableSamplers = nil
 
-        pool = try sizes.withUnsafeBufferPointer { sizes in
-            var info = VkDescriptorPoolCreateInfo()
-            info.sType = .descriptorPoolCreateInfo
-            info.poolSizeCount = CUnsignedInt(sizes.count)
-            info.pPoolSizes = sizes.baseAddress!
-            info.maxSets = 2
-
-            return try device.create(with: &info)
-        }
-
-        var matricesBinding = VkDescriptorSetLayoutBinding()
-        matricesBinding.binding = 0
-        matricesBinding.descriptorType = .uniformBuffer
-        matricesBinding.descriptorCount = 1
-        matricesBinding.stages = .vertex
-        matricesBinding.pImmutableSamplers = nil
-
-        matrices = try DescriptorSetContainer(bindings: [matricesBinding], pool: pool, device: device)
+        modelViewProjection = try DescriptorSetLayout(device: device, bindings: [modelViewProjectionBinding])
 
         var contentsSamplerBinding = VkDescriptorSetLayoutBinding()
         contentsSamplerBinding.binding = 0
@@ -96,41 +77,15 @@ internal class DescriptorSets {
         contentsSamplerBinding.stages = .fragment
         contentsSamplerBinding.pImmutableSamplers = nil
 
-        contentsSampler = try DescriptorSetContainer(bindings: [contentsSamplerBinding], pool: pool, device: device)
-    }
-
-    func setMatricesBuffer(_ buffer: Buffer) throws {
-        var bufferInfo = VkDescriptorBufferInfo()
-        bufferInfo.buffer = buffer.handle
-        bufferInfo.offset = 0
-        bufferInfo.range = VkDeviceSize(MemoryLayout<UniformBufferObject>.stride)
-
-        try withUnsafePointer(to: &bufferInfo) { bufferInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
-            writeInfo.dstSet = matrices.descriptorSet
-            writeInfo.dstBinding = 0
-            writeInfo.dstArrayElement = 0
-            writeInfo.descriptorCount = 1
-            writeInfo.descriptorType = .uniformBuffer
-            writeInfo.pBufferInfo = bufferInfo
-            writeInfo.pImageInfo = nil
-            writeInfo.pTexelBufferView = nil
-
-            try withUnsafePointer(to: &writeInfo) { writeInfo in
-                try vulkanInvoke {
-                    vkUpdateDescriptorSets(device.handle, 1, writeInfo, 0, nil)
-                }
-            }
-        }
+        contentsSampler = try DescriptorSetLayout(device: device, bindings: [contentsSamplerBinding])
     }
 }
 
 open class CARenderer: NSObject {
     internal var frameTime: CFTimeInterval = 0.0
     internal let queues: VolcanoRenderStack.Queues
-    internal let pipelines: VulkanRenderContext.Pipelines
-    internal let renderContext: VulkanRenderContext
+    internal let pipelines: RenderContext.Pipelines
+    internal let renderContext: RenderContext
 
     public fileprivate(set) var texture: Texture
     internal let renderStack: VolcanoRenderStack
@@ -142,10 +97,7 @@ open class CARenderer: NSObject {
     internal fileprivate(set) var renderPass: RenderPass
     internal fileprivate(set) var renderTarget: RenderTarget
 
-    internal fileprivate(set) var descriptorSets: DescriptorSets
-    internal fileprivate(set) var contentsTextureSampler: Sampler
-
-    fileprivate var matricesBuffer: Buffer
+    internal fileprivate(set) var descriptorSetsLayouts: DescriptorSetsLayouts
 
     open var layer: CALayer? = nil
 
@@ -163,26 +115,17 @@ open class CARenderer: NSObject {
 
         renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
 
-        matricesBuffer = try Buffer(device: device,
-                                    size: VkDeviceSize(MemoryLayout<UniformBufferObject>.size),
-                                    usage: [.uniformBuffer],
-                                    memoryProperties: [.hostVisible, .hostCoherent],
-                                    accessQueues: [queues.graphics, queues.transfer])
-
         var poolSize = VkDescriptorPoolSize()
         poolSize.type = .uniformBuffer
         poolSize.descriptorCount = 1
 
-        descriptorSets = try DescriptorSets(device: device)
-        try descriptorSets.setMatricesBuffer(matricesBuffer)
+        descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
-        contentsTextureSampler = try Sampler(device: device)
+        let backgroundPipeline = try device.createBackgroundPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
+        let borderPipeline = try device.createBorderPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
+        let contentsPipeline = try device.createContentsPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler])
 
-        let backgroundPipeline = try device.createBackgroundPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout])
-        let borderPipeline = try device.createBorderPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout])
-        let contentsPipeline = try device.createContentsPipeline(renderPass: renderPass, descriptorSetLayouts: [descriptorSets.matrices.layout, descriptorSets.contentsSampler.layout])
-
-        let pipelines = VulkanRenderContext.Pipelines(
+        let pipelines = RenderContext.Pipelines(
             background: backgroundPipeline,
             border: borderPipeline,
             contents: contentsPipeline
@@ -190,7 +133,7 @@ open class CARenderer: NSObject {
         
         self.pipelines = pipelines
         
-        renderContext = try VulkanRenderContext(renderStack: renderStack, pipelines: pipelines)
+        renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
 
         super.init()
     }
@@ -231,14 +174,15 @@ open class CARenderer: NSObject {
 
         try renderContext.clear()
 
-        object.projection = layer.projectionMatrix
-        try update(matricesBuffer: matricesBuffer)
+        let modelViewProjection: RenderContext.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
+
+        renderContext.add(.updateModelViewProjection(modelViewProjection: modelViewProjection))
 
         renderContext.add(.pushCommandBuffer())
 
         renderContext.add(.pushRenderTarget(renderTarget: renderTarget))
 
-        var index: UInt32 = 0
+        var index: UInt = 0
 
         try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext)
 
@@ -256,7 +200,7 @@ open class CARenderer: NSObject {
         // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
 
-    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt32, renderContext: VulkanRenderContext) throws {
+    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext) throws {
         if layer.isHidden || layer.opacity <= 0.01 {
             return
         }
@@ -308,7 +252,7 @@ open class CARenderer: NSObject {
         renderContext.descriptors.append(descriptor)
 
         renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background(matricesDescriptorSet: descriptorSets.matrices))
+        renderContext.add(.background())
 
         var contentsTexture: Texture? = nil
 
@@ -330,7 +274,8 @@ open class CARenderer: NSObject {
         }
 
         if let contentsTexture = contentsTexture {
-            renderContext.add(.contents(texture: contentsTexture, sampler: contentsTextureSampler, matricesDescriptorSet: descriptorSets.matrices, contentsSamplerDescriptorSet: descriptorSets.contentsSampler))
+            renderContext.add(.contents(texture: contentsTexture, layerIndex: index))
+            renderContext.contentsDescriptorsCount += 1
         }
 
         try layer.sublayers?.forEach {
@@ -340,20 +285,7 @@ open class CARenderer: NSObject {
 
         if layer.borderWidth > 0 && layer.borderColor != nil {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.border(matricesDescriptorSet: descriptorSets.matrices))
-        }
-    }
-
-    lazy var object: UniformBufferObject = {
-        let model = mat4s.identity
-        let view = mat4s.identity
-        let projection = mat4s.identity
-        return (model: model, view: view, projection: projection)
-    }()
-
-    func update(matricesBuffer: Buffer) throws {
-        try withUnsafePointer(to: object) {
-            try matricesBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
+            renderContext.add(.border())
         }
     }
 }
@@ -363,7 +295,6 @@ public extension CARenderer {
 }
 
 typealias Transform = (model: mat4s, view: mat4s, projection: mat4s)
-typealias UniformBufferObject = (model: mat4s, view: mat4s, projection: mat4s)
 
 fileprivate extension CALayer {
     var projectionMatrix: mat4s {
@@ -443,7 +374,7 @@ internal extension Device {
         return try RenderPass(device: self, subpasses: [subpass1], dependencies: [dependency1])
     }
 
-    func createBackgroundPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>]) throws -> GraphicsPipeline {
+    func createBackgroundPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout]) throws -> GraphicsPipeline {
         #if os(Linux)
             let bundle = Bundle.module
         #else
@@ -498,7 +429,7 @@ internal extension Device {
         return try GraphicsPipeline(device: self, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
     }
 
-    func createBorderPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>]) throws -> GraphicsPipeline {
+    func createBorderPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout]) throws -> GraphicsPipeline {
         #if os(Linux)
             let bundle = Bundle.module
         #else
@@ -554,7 +485,7 @@ internal extension Device {
         return try GraphicsPipeline(device: self, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
     }
 
-    func createContentsPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>]) throws -> GraphicsPipeline {
+    func createContentsPipeline(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout]) throws -> GraphicsPipeline {
         #if os(Linux)
             let bundle = Bundle.module
         #else

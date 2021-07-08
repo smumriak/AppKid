@@ -104,12 +104,12 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     }
 }
 
-public extension Array {
-    func pointers<Type>() -> [UnsafeMutablePointer<Type>] where Element == SmartPointer<Type> {
+public extension Array where Element: SmartPointerProtocol {
+    func pointers() -> [Element.Pointer_t] {
         return map { $0.pointer }
     }
 
-    func optionalPointers<Type>() -> [UnsafeMutablePointer<Type>?] where Element == SmartPointer<Type> {
+    func optionalPointers() -> [Element.Pointer_t?] {
         return map { $0.pointer }
     }
 }

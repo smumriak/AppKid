@@ -87,7 +87,7 @@ open class Window: View {
 
     internal init(nativeWindow: X11NativeWindow) {
         self.nativeWindow = nativeWindow
-        if !isVulkanRenderingEnabled {
+        if !isVolcanoRenderingEnabled {
             _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
             _graphicsContext?.shouldAntialias = true
         }
@@ -122,7 +122,7 @@ open class Window: View {
 
         guard let index = application.windows.firstIndex(of: self) else { return }
 
-        if isVulkanRenderingEnabled {
+        if isVolcanoRenderingEnabled {
         } else {
             _graphicsContext?.updateSurface()
         }
@@ -138,8 +138,8 @@ open class Window: View {
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
 
-        if isVulkanRenderingEnabled {
-            let renderer = application.vulkanRenderers[index]
+        if isVolcanoRenderingEnabled {
+            let renderer = application.volcanoRenderers[index]
             do {
                 try renderer.render()
             } catch {
@@ -149,7 +149,7 @@ open class Window: View {
     }
 
     internal func createRenderer() -> SoftwareRenderer {
-        if isVulkanRenderingEnabled {
+        if isVolcanoRenderingEnabled {
             fatalError("Vulkan renderer is enabled")
         }
         return SoftwareRenderer(context: _graphicsContext!)

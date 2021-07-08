@@ -6,12 +6,12 @@
 //
 
 import Foundation
+import Collections
 
 public class SimpleStack<Type> {
-    fileprivate var entities: [Type] = []
+    fileprivate var entities: Deque<Type> = []
 
-    public init() {
-    }
+    public init() {}
 
     public var root: Type {
         entities.first!

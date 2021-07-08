@@ -13,12 +13,15 @@ import CVulkan
 import TinyFoundation
 import LayerRenderingData
 
-internal class VulkanRenderContext {
+internal class RenderContext {
+    typealias ModelViewProjection = (model: mat4s, view: mat4s, projection: mat4s)
+
     let renderStack: VolcanoRenderStack
     let renderTargetsStack = SimpleStack<RenderTarget>()
     let commandBuffersStack = SimpleStack<CommandBuffer>()
     let viewportsStack = SimpleStack<VkViewport>()
     let pipelines: Pipelines
+    let descriptorSetsLayouts: DescriptorSetsLayouts
     let imageFormat: VkFormat
 
     @inlinable @inline(__always)
@@ -55,6 +58,30 @@ internal class VulkanRenderContext {
         }
     }
 
+    let modelViewProjectionBuffer: Buffer
+    let modelViewProjectionDescriptorPool: DescriptorPool
+    let modelViewProjectionDescriptorSet: DescriptorSet
+
+    var contentsDescriptorsCount: UInt = 0
+    private var contentsDescriptorsSet: [UInt: DescriptorSet] = [:]
+
+    private var _contentsDescriptorsPool: DescriptorPool? = nil
+    var contentsDescriptorsPool: DescriptorPool {
+        get throws {
+            if let contentsDescriptorsPool = _contentsDescriptorsPool, contentsDescriptorsPool.maxSets == contentsDescriptorsCount {
+                return contentsDescriptorsPool
+            } else {
+                let sizes = [VkDescriptorPoolSize(type: .combinedImageSampler, descriptorCount: CUnsignedInt(contentsDescriptorsCount))]
+
+                _contentsDescriptorsPool = try DescriptorPool(device: renderStack.device, sizes: sizes, maxSets: contentsDescriptorsCount)
+
+                return _contentsDescriptorsPool!
+            }
+        }
+    }
+
+    internal let contentsTextureSampler: Sampler
+
     private func createVertexBuffer() throws -> Buffer {
         let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * descriptors.count)
 
@@ -83,20 +110,95 @@ internal class VulkanRenderContext {
         return vertexBuffer
     }
 
-    init(renderStack: VolcanoRenderStack, pipelines: Pipelines, imageFormat: VkFormat = .rgba8UNorm) throws {
+    internal func contentsDescriptorSet(for texture: Texture, layerIndex: UInt) throws -> DescriptorSet {
+        if let descriptorSet = contentsDescriptorsSet[layerIndex] {
+            return descriptorSet
+        }
+
+        let descriptorSet = try contentsDescriptorsPool.allocate(with: descriptorSetsLayouts.contentsSampler)
+        contentsDescriptorsSet[layerIndex] = descriptorSet
+
+        var imageInfo = VkDescriptorImageInfo()
+        imageInfo.imageLayout = .shaderReadOnlyOptimal
+        imageInfo.imageView = texture.imageView.handle
+        imageInfo.sampler = contentsTextureSampler.handle
+
+        try withUnsafePointer(to: &imageInfo) { imageInfo in
+            var writeInfo = VkWriteDescriptorSet()
+            writeInfo.sType = .writeDescriptorSet
+            writeInfo.dstSet = descriptorSet.handle
+            writeInfo.dstBinding = 0
+            writeInfo.dstArrayElement = 0
+            writeInfo.descriptorCount = 1
+            writeInfo.descriptorType = .combinedImageSampler
+            writeInfo.pBufferInfo = nil
+            writeInfo.pImageInfo = imageInfo
+            writeInfo.pTexelBufferView = nil
+
+            try withUnsafePointer(to: &writeInfo) { writeInfo in
+                try vulkanInvoke {
+                    vkUpdateDescriptorSets(renderStack.device.handle, 1, writeInfo, 0, nil)
+                }
+            }
+        }
+
+        return descriptorSet
+    }
+
+    init(renderStack: VolcanoRenderStack, pipelines: Pipelines, descriptorSetsLayouts: DescriptorSetsLayouts, imageFormat: VkFormat = .rgba8UNorm) throws {
         let device = renderStack.device
 
         self.renderStack = renderStack
         self.pipelines = pipelines
+        self.descriptorSetsLayouts = descriptorSetsLayouts
         self.commandPool = try CommandPool(device: device, queue: renderStack.queues.graphics)
         self.transferCommandPool = try CommandPool(device: device, queue: renderStack.queues.transfer, flags: .transient)
         self.imageFormat = imageFormat
+
+        modelViewProjectionBuffer = try Buffer(device: device,
+                                               size: VkDeviceSize(MemoryLayout<ModelViewProjection>.size),
+                                               usage: [.uniformBuffer],
+                                               memoryProperties: [.hostVisible, .hostCoherent],
+                                               accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
+
+        let sizes = [VkDescriptorPoolSize(type: .uniformBuffer, descriptorCount: 1)]
+        modelViewProjectionDescriptorPool = try DescriptorPool(device: device, sizes: sizes, maxSets: 1)
+        let modelViewProjectionDescriptorSet = try modelViewProjectionDescriptorPool.allocate(with: descriptorSetsLayouts.modelViewProjection)
+        self.modelViewProjectionDescriptorSet = modelViewProjectionDescriptorSet
+
+        var bufferInfo = VkDescriptorBufferInfo()
+        bufferInfo.buffer = modelViewProjectionBuffer.handle
+        bufferInfo.offset = 0
+        bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext.ModelViewProjection>.stride)
+
+        try withUnsafePointer(to: &bufferInfo) { bufferInfo in
+            var writeInfo = VkWriteDescriptorSet()
+            writeInfo.sType = .writeDescriptorSet
+            writeInfo.dstSet = modelViewProjectionDescriptorSet.handle
+            writeInfo.dstBinding = 0
+            writeInfo.dstArrayElement = 0
+            writeInfo.descriptorCount = 1
+            writeInfo.descriptorType = .uniformBuffer
+            writeInfo.pBufferInfo = bufferInfo
+            writeInfo.pImageInfo = nil
+            writeInfo.pTexelBufferView = nil
+
+            try withUnsafePointer(to: &writeInfo) { writeInfo in
+                try vulkanInvoke {
+                    vkUpdateDescriptorSets(device.handle, 1, writeInfo, 0, nil)
+                }
+            }
+        }
+
+        contentsTextureSampler = try Sampler(device: device)
     }
 
     func clear() throws {
         descriptors.removeAll()
         operations.removeAll()
         _vertexBuffer = nil
+        _contentsDescriptorsPool = nil
+        contentsDescriptorsSet.removeAll()
     }
 
     func performOperations() throws {
@@ -112,7 +214,7 @@ internal class VulkanRenderContext {
     }
 }
 
-extension VulkanRenderContext {
+extension RenderContext {
     struct Pipelines {
         let background: GraphicsPipeline
         let border: GraphicsPipeline
@@ -121,20 +223,20 @@ extension VulkanRenderContext {
 }
 
 internal class RenderOperation {
-    func perform(in context: VulkanRenderContext) throws {}
+    func perform(in context: RenderContext) throws {}
 
     @inlinable @inline(__always)
-    static func background(matricesDescriptorSet: DescriptorSetContainer) -> RenderOperation {
-        return BackgroundRenderOperation(matricesDescriptorSet: matricesDescriptorSet)
+    static func background() -> RenderOperation {
+        return BackgroundRenderOperation()
     }
 
     @inlinable @inline(__always)
-    static func border(matricesDescriptorSet: DescriptorSetContainer) -> RenderOperation {
-        return BorderRenderOperation(matricesDescriptorSet: matricesDescriptorSet)
+    static func border() -> RenderOperation {
+        return BorderRenderOperation()
     }
 
     @inlinable @inline(__always)
-    static func bindVertexBuffer(index: CUnsignedInt, firstBinding: CUnsignedInt = 0) -> RenderOperation {
+    static func bindVertexBuffer(index: UInt, firstBinding: UInt = 0) -> RenderOperation {
         return BindVertexBufferRenderOperation(index: index, firstBinding: firstBinding)
     }
 
@@ -174,31 +276,36 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func contents(texture: Texture, sampler: Sampler, matricesDescriptorSet: DescriptorSetContainer, contentsSamplerDescriptorSet: DescriptorSetContainer) -> RenderOperation {
-        return ContentsRenderOperation(texture: texture, sampler: sampler, matricesDescriptorSet: matricesDescriptorSet, contentsSamplerDescriptorSet: contentsSamplerDescriptorSet)
+    static func contents(texture: Texture, layerIndex: UInt) -> RenderOperation {
+        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex)
+    }
+
+    @inlinable @inline(__always)
+    static func updateModelViewProjection(modelViewProjection: RenderContext.ModelViewProjection) -> RenderOperation {
+        return UpdateModelViewProjectionRenderOperation(modelViewProjection: modelViewProjection)
     }
 }
 
 internal class BindVertexBufferRenderOperation: RenderOperation {
-    fileprivate let index: UInt32
+    fileprivate let index: CUnsignedInt
     fileprivate lazy var offset = VkDeviceSize(index * UInt32(MemoryLayout<LayerRenderDescriptor>.stride))
     fileprivate let firstBinding: CUnsignedInt
 
-    init(index: UInt32, firstBinding: CUnsignedInt) {
-        self.index = index
-        self.firstBinding = firstBinding
+    init(index: UInt, firstBinding: UInt) {
+        self.index = CUnsignedInt(index)
+        self.firstBinding = CUnsignedInt(firstBinding)
 
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let vertexBuffer = try context.vertexBuffer
         try context.commandBuffer.bind(vertexBuffer: vertexBuffer, offset: offset, firstBinding: firstBinding)
     }
 }
 
 internal class PushCommandBufferRenderOperation: RenderOperation {
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = try context.commandPool.createCommandBuffer()
         context.commandBuffersStack.push(commandBuffer)
         try commandBuffer.begin()
@@ -206,7 +313,7 @@ internal class PushCommandBufferRenderOperation: RenderOperation {
 }
 
 internal class PopCommandBufferRenderOperation: RenderOperation {
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         context.commandBuffersStack.pop()
     }
 }
@@ -220,7 +327,7 @@ internal class WaitFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         try fence.wait()
     }
 }
@@ -234,7 +341,7 @@ internal class ResetFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         try fence.reset()
     }
 }
@@ -254,7 +361,7 @@ internal class SubmitCommandBufferRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
 
         try commandBuffer.end()
@@ -264,36 +371,24 @@ internal class SubmitCommandBufferRenderOperation: RenderOperation {
 }
 
 internal class BackgroundRenderOperation: RenderOperation {
-    internal let matricesDescriptorSet: DescriptorSetContainer
-
-    init(matricesDescriptorSet: DescriptorSetContainer) {
-        self.matricesDescriptorSet = matricesDescriptorSet
-    }
-
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
         let backgroundPipeline = context.pipelines.background
         try commandBuffer.bind(pipeline: backgroundPipeline)
 
-        try commandBuffer.bind(descriptorSets: [matricesDescriptorSet.descriptorSet], for: backgroundPipeline)
+        try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: backgroundPipeline)
 
         try commandBuffer.draw(vertexCount: 6)
     }
 }
 
 internal class BorderRenderOperation: RenderOperation {
-    internal let matricesDescriptorSet: DescriptorSetContainer
-
-    init(matricesDescriptorSet: DescriptorSetContainer) {
-        self.matricesDescriptorSet = matricesDescriptorSet
-    }
-
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
         let borderPipeline = context.pipelines.border
         try commandBuffer.bind(pipeline: borderPipeline)
 
-        try commandBuffer.bind(descriptorSets: [matricesDescriptorSet.descriptorSet], for: borderPipeline)
+        try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: borderPipeline)
 
         try commandBuffer.draw(vertexCount: 6)
     }
@@ -308,7 +403,7 @@ internal class PushRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         context.renderTargetsStack.push(renderTarget)
         
         let commandBuffer = context.commandBuffer
@@ -335,7 +430,7 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
 
         try commandBuffer.endRenderPass()
@@ -352,48 +447,36 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
 
 internal class ContentsRenderOperation: RenderOperation {
     internal let texture: Texture
-    internal let sampler: Sampler
-    internal let matricesDescriptorSet: DescriptorSetContainer
-    internal let contentsSamplerDescriptorSet: DescriptorSetContainer
+    internal let layerIndex: UInt
 
-    init(texture: Texture, sampler: Sampler, matricesDescriptorSet: DescriptorSetContainer, contentsSamplerDescriptorSet: DescriptorSetContainer) {
+    init(texture: Texture, layerIndex: UInt) {
         self.texture = texture
-        self.sampler = sampler
-        self.matricesDescriptorSet = matricesDescriptorSet
-        self.contentsSamplerDescriptorSet = contentsSamplerDescriptorSet
+        self.layerIndex = layerIndex
     }
 
-    override func perform(in context: VulkanRenderContext) throws {
-        var imageInfo = VkDescriptorImageInfo()
-        imageInfo.imageLayout = .shaderReadOnlyOptimal
-        imageInfo.imageView = texture.imageView.handle
-        imageInfo.sampler = sampler.handle
-
-        try withUnsafePointer(to: &imageInfo) { imageInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
-            writeInfo.dstSet = contentsSamplerDescriptorSet.descriptorSet
-            writeInfo.dstBinding = 0
-            writeInfo.dstArrayElement = 0
-            writeInfo.descriptorCount = 1
-            writeInfo.descriptorType = .combinedImageSampler
-            writeInfo.pBufferInfo = nil
-            writeInfo.pImageInfo = imageInfo
-            writeInfo.pTexelBufferView = nil
-
-            try withUnsafePointer(to: &writeInfo) { writeInfo in
-                try vulkanInvoke {
-                    vkUpdateDescriptorSets(context.renderStack.device.handle, 1, writeInfo, 0, nil)
-                }
-            }
-        }
-
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
         let contentsPipeline = context.pipelines.contents
         try commandBuffer.bind(pipeline: contentsPipeline)
 
-        try commandBuffer.bind(descriptorSets: [matricesDescriptorSet.descriptorSet, contentsSamplerDescriptorSet.descriptorSet], for: contentsPipeline)
+        let contentsDescriptorSet = try context.contentsDescriptorSet(for: texture, layerIndex: layerIndex)
+
+        try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet, contentsDescriptorSet], for: contentsPipeline)
 
         try commandBuffer.draw(vertexCount: 6)
+    }
+}
+
+internal class UpdateModelViewProjectionRenderOperation: RenderOperation {
+    internal let modelViewProjection: RenderContext.ModelViewProjection
+
+    init(modelViewProjection: RenderContext.ModelViewProjection) {
+        self.modelViewProjection = modelViewProjection
+    }
+
+    override func perform(in context: RenderContext) throws {
+        try withUnsafePointer(to: modelViewProjection) {
+            try context.modelViewProjectionBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
+        }
     }
 }

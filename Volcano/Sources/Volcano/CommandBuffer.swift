@@ -126,6 +126,19 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         vkCmdBindIndexBuffer(handle, indexBuffer.handle, offset, type)
     }
 
+    public func bind(descriptorSets: [DescriptorSet], for pipeline: GraphicsPipeline) throws {
+        try bind(descriptorSets: descriptorSets, bindPoint: .graphics, pipelineLayout: pipeline.layout)
+    }
+
+    public func bind(descriptorSets: [DescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
+        try descriptorSets.optionalPointers()
+            .withUnsafeBufferPointer { descriptorSets in
+                try vulkanInvoke {
+                    vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+                }
+            }
+    }
+
     public func bind(descriptorSets: [VkDescriptorSet], for pipeline: GraphicsPipeline) throws {
         try bind(descriptorSets: descriptorSets, bindPoint: .graphics, pipelineLayout: pipeline.layout)
     }

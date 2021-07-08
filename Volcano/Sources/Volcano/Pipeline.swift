@@ -21,24 +21,23 @@ public class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
 public final class GraphicsPipeline: Pipeline {
     public internal(set) var renderPass: RenderPass
     public internal(set) var subpassIndex: Int
-    public internal(set) var descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>]
+    public internal(set) var descriptorSetLayouts: [DescriptorSetLayout]
 
     public init(device: Device, descriptor pipelineDescriptor: GraphicsPipelineDescriptor, renderPass: RenderPass, subpassIndex: Int) throws {
-        let descriptorSetLayouts: [VkDescriptorSetLayout?] = pipelineDescriptor.descriptorSetLayouts.map { $0.pointer }
+        let layout: SmartPointer<VkPipelineLayout_T> = try pipelineDescriptor.descriptorSetLayouts.optionalPointers()
+            .withUnsafeBufferPointer { descriptorSetLayouts in
+                return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
+                    var info = VkPipelineLayoutCreateInfo()
+                    info.sType = .pipelineLayoutCreateInfo
+                    info.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
+                    info.pSetLayouts = descriptorSetLayouts.baseAddress!
 
-        let layout: SmartPointer<VkPipelineLayout_T> = try descriptorSetLayouts.withUnsafeBufferPointer { descriptorSetLayouts in
-            return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
-                var info = VkPipelineLayoutCreateInfo()
-                info.sType = .pipelineLayoutCreateInfo
-                info.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
-                info.pSetLayouts = descriptorSetLayouts.baseAddress!
+                    info.pushConstantRangeCount = 0
+                    info.pPushConstantRanges = pushConstants.baseAddress!
 
-                info.pushConstantRangeCount = 0
-                info.pPushConstantRanges = pushConstants.baseAddress!
-
-                return try device.create(with: &info)
+                    return try device.create(with: &info)
+                }
             }
-        }
 
         let handlePointer: SmartPointer<VkPipeline_T> =
             try pipelineDescriptor.withVertexStateCreateInfoPointer { viewportStateInfo in

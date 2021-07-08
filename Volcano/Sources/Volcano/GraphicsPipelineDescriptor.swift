@@ -14,7 +14,7 @@ public class GraphicsPipelineDescriptor {
 
     // MARK: Pipelie Layout
 
-    public var descriptorSetLayouts: [SmartPointer<VkDescriptorSetLayout_T>] = []
+    public var descriptorSetLayouts: [DescriptorSetLayout] = []
     public var pushConstants: [VkPushConstantRange] = []
 
     // MARK: Viewport State

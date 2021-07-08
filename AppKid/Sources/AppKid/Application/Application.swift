@@ -15,7 +15,7 @@ import CairoGraphics
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
-internal var isVulkanRenderingEnabled = false
+internal var isVolcanoRenderingEnabled = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -47,7 +47,7 @@ open class Application: Responder {
     
     open fileprivate(set) var windows: [Window] = []
     internal var softwareRenderers: [SoftwareRenderer] = []
-    internal var vulkanRenderers: [VolcanoSwapchainRenderer] = []
+    internal var volcanoRenderers: [VolcanoSwapchainRenderer] = []
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -71,9 +71,9 @@ open class Application: Responder {
         self.displayServer.flush()
     }
 
-    internal lazy var vulkanRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
+    internal lazy var volcanoRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
-            try zip(self.windows, self.vulkanRenderers).forEach { window, renderer in
+            try zip(self.windows, self.volcanoRenderers).forEach { window, renderer in
                 if window.nativeWindow.syncRequested { return }
 
                 if window.isMapped {
@@ -98,7 +98,7 @@ open class Application: Responder {
             try VolcanoRenderStack.setupGlobalStack()
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
-            isVulkanRenderingEnabled = true
+            isVolcanoRenderingEnabled = true
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering")
         }
@@ -160,8 +160,8 @@ open class Application: Responder {
         #endif
         CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
 
-        if isVulkanRenderingEnabled {
-            RunLoop.current.add(vulkanRenderTimer, forMode: .common)
+        if isVolcanoRenderingEnabled {
+            RunLoop.current.add(volcanoRenderTimer, forMode: .common)
         } else {
             RunLoop.current.add(softwareRenderTimer, forMode: .common)
         }
@@ -181,8 +181,8 @@ open class Application: Responder {
             send(event: event)
         }
 
-        if isVulkanRenderingEnabled {
-            vulkanRenderTimer.invalidate()
+        if isVolcanoRenderingEnabled {
+            volcanoRenderTimer.invalidate()
         } else {
             softwareRenderTimer.invalidate()
         }
@@ -264,11 +264,11 @@ open class Application: Responder {
 
     open func add(window: Window) {
         windows.append(window)
-        if isVulkanRenderingEnabled {
+        if isVolcanoRenderingEnabled {
             do {
                 let renderer = try VolcanoSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
                 
-                vulkanRenderers.append(renderer)
+                volcanoRenderers.append(renderer)
             } catch {
                 fatalError("Failed to create window renderer with error: \(error)")
             }
@@ -285,10 +285,10 @@ open class Application: Responder {
 
     open func remove(windowNumer index: Array<Window>.Index) {
         // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
-        if isVulkanRenderingEnabled {
-            // let renderer = vulkanRenderers.remove(at: index)
+        if isVolcanoRenderingEnabled {
+            // let renderer = volcanoRenderers.remove(at: index)
             // try? renderer.device.waitForIdle()
-            vulkanRenderers.remove(at: index)
+            volcanoRenderers.remove(at: index)
         } else {
             softwareRenderers.remove(at: index)
         }

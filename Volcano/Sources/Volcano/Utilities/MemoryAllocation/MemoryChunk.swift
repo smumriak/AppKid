@@ -113,12 +113,8 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     }
 }
 
-public protocol MemoryBindable {
-    associatedtype Handle
-
-    var handle: Handle { get }
-    
-    static var bindFunction: (_ device: VkDevice?, _ handle: Handle?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> VkResult { get }
+public protocol MemoryBindable: HandleStorageProtocol {   
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> VkResult { get }
 }
 
 extension Buffer: MemoryBindable {
