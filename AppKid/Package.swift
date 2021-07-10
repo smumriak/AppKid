@@ -37,6 +37,9 @@ let package = Package(
                 .product(name: "Volcano", package: "Volcano"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .product(name: "SwiftXlib", package: "SwiftXlib"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
             ]
         ),
     ]

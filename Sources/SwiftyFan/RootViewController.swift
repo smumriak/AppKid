@@ -151,6 +151,13 @@ class RootViewController: ViewController {
         return result
     }()
 
+    var lol: Int = 0
+
+    lazy var textTimer = Timer(timeInterval: 1.0, repeats: true) { [unowned self] _ in
+        spawnWindowButton.set(title: "\(lol)", for: .normal)
+        lol += 1
+    }
+
     lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview] _ in
         greenSubview.transform = greenSubview.transform.rotated(by: .pi / 120)
         redSubview.transform = redSubview.transform.rotated(by: -.pi / 80)
@@ -193,6 +200,7 @@ class RootViewController: ViewController {
     }
 
     deinit {
+        textTimer.invalidate()
         transformTimer.invalidate()
         // borderWidthTimer.invalidate()
         // sensorTimer.invalidate()
@@ -219,6 +227,7 @@ class RootViewController: ViewController {
         view.add(subview: closeOtherWindows)
 
         RunLoop.current.add(transformTimer, forMode: .common)
+        RunLoop.current.add(textTimer, forMode: .common)
         // RunLoop.current.add(borderWidthTimer, forMode: .common)
         // RunLoop.current.add(sensorTimer, forMode: .common)
     }

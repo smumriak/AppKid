@@ -39,7 +39,7 @@ open class Button: Control {
         add(subview: titleLabel)
 
         layer.borderColor = .black
-        layer.borderWidth = 2.0
+        layer.borderWidth = 1.0
     }
 
     open func set(title: String?, for state: State) {

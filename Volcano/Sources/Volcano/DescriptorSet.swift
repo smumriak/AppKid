@@ -64,12 +64,20 @@ public final class DescriptorSetLayout: VulkanDeviceEntity<SmartPointer<VkDescri
     }
 }
 
-public final class DescriptorSet: HandleStorageProtocol {
+public final class DescriptorSet: HandleStorageProtocol, Hashable {
     public let pool: DescriptorPool
     public let handle: VkDescriptorSet
 
     internal init(pool: DescriptorPool, handle: VkDescriptorSet) {
         self.pool = pool
         self.handle = handle
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        handle.hash(into: &hasher)
+    }
+
+    public static func == (lhs: DescriptorSet, rhs: DescriptorSet) -> Bool {
+        lhs.handle == rhs.handle
     }
 }

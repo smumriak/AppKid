@@ -19,7 +19,7 @@ internal class VolcanoSwapchainRenderer {
     let window: Window
     let renderStack: VolcanoRenderStack
     let presentationQueue: Queue
-    var layerRenderer: CARenderer? = nil
+    var layerRenderer: CARenderer! = nil
 
     internal fileprivate(set) var surface: Surface
 
@@ -27,6 +27,8 @@ internal class VolcanoSwapchainRenderer {
     internal let renderFinishedSemaphore: Volcano.Semaphore
 
     internal var device: Device { renderStack.device }
+
+    internal var isRendering: Bool = false
     
     var oldSwapchain: Swapchain?
     var swapchain: Swapchain!
@@ -53,6 +55,16 @@ internal class VolcanoSwapchainRenderer {
         renderFinishedSemaphore = try Semaphore(device: device)
         
         try setupSwapchain()
+
+        let fisrtImageFence = try Fence(device: device)
+        try fisrtImageFence.reset()
+
+        let imageIndex = try swapchain.getNextImageIndex(fence: fisrtImageFence)
+
+        try fisrtImageFence.wait()
+
+        layerRenderer = try CARenderer(texture: swapchain.textures[imageIndex])
+        layerRenderer.layer = window.layer
     }
 
     func setupSwapchain() throws {
@@ -82,6 +94,13 @@ internal class VolcanoSwapchainRenderer {
     }
 
     func render() throws {
+        guard isRendering == false else {
+            return
+        }
+
+        isRendering = true
+        defer { isRendering = false }
+
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
@@ -91,16 +110,16 @@ internal class VolcanoSwapchainRenderer {
             do {
                 let imageIndex = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
 
-                if layerRenderer == nil {
-                    layerRenderer = try CARenderer(texture: swapchain.textures[imageIndex])
-                    layerRenderer?.layer = window.layer
-                } else {
-                    try layerRenderer?.setDestination(swapchain.textures[imageIndex])
-                }
+                try layerRenderer.setDestination(swapchain.textures[imageIndex])
+
+                try layerRenderer?.beginFrame(atTime: 0)
 
                 try layerRenderer?.render(waitSemaphores: [imageAvailableSemaphore], signalSemaphores: [renderFinishedSemaphore])
 
                 try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [renderFinishedSemaphore], imageIndices: [CUnsignedInt(imageIndex)])
+
+                try layerRenderer?.endFrame()
+
                 break
             } catch VulkanError.badResult(let errorCode) {
                 if errorCode == .errorOutOfDate {

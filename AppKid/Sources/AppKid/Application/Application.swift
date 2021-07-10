@@ -73,13 +73,33 @@ open class Application: Responder {
 
     internal lazy var volcanoRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
-            try zip(self.windows, self.volcanoRenderers).forEach { window, renderer in
-                if window.nativeWindow.syncRequested { return }
+            let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
 
-                if window.isMapped {
+            let renderers = Array(
+                zip(self.windows, self.volcanoRenderers)
+                    .lazy
+                    .filter { $0.0.nativeWindow.syncRequested == false && $0.0.isMapped == true }
+                    .map { $0.1 }
+            )
+
+            if renderers.isEmpty {
+                return
+            }
+
+            let fences = renderers.map { $0.layerRenderer.fence }
+
+            try renderStack.device.reset(fences: fences)
+
+            try renderers.forEach { renderer in
                     try renderer.render()
                 }
+
+            try renderStack.device.wait(forFences: fences, waitForAll: true)
+
+            try renderers.forEach { renderer in
+                try renderer.layerRenderer.endFrame()
             }
+            
         } catch {
             fatalError("Failed to render with error: \(error)")
         }

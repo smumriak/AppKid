@@ -23,6 +23,7 @@ let package = Package(
         .package(path: "../Volcano"),
         .package(path: "../SimpleGLM"),
         .package(path: "../Tools/glslImporter"),
+        .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "0.0.0")),
     ],
     targets: [
         .target(
@@ -34,6 +35,7 @@ let package = Package(
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "LayerRenderingData"),
+                .product(name: "Collections", package: "swift-collections"),
             ],
             exclude: [
                 "Resources/ShaderSources",

@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol HandleStorageProtocol {
+public protocol HandleStorageProtocol: Hashable {
     associatedtype Handle_t
 
     var handle: Handle_t { get }

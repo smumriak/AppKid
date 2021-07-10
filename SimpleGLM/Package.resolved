@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "cglm",
+        "repositoryURL": "https://github.com/recp/cglm",
+        "state": {
+          "branch": "master",
+          "revision": "d0d1e4653399a5d7b3a72c01903275590adf935e",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}

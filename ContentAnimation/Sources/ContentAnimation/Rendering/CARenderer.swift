@@ -93,11 +93,13 @@ open class CARenderer: NSObject {
     internal var device: Device { renderStack.device }
 
     internal fileprivate(set) var renderFinishedSemaphore: Volcano.Semaphore
-    internal fileprivate(set) var fence: Fence
+    @_spi(AppKid) public fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
     internal fileprivate(set) var renderTarget: RenderTarget
 
     internal fileprivate(set) var descriptorSetsLayouts: DescriptorSetsLayouts
+
+    internal var isRendering: Bool = false
 
     open var layer: CALayer? = nil
 
@@ -114,10 +116,6 @@ open class CARenderer: NSObject {
         renderPass = try device.createMainRenderPasss(format: texture.pixelFormat)
 
         renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
-
-        var poolSize = VkDescriptorPoolSize()
-        poolSize.type = .uniformBuffer
-        poolSize.descriptorCount = 1
 
         descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
@@ -140,7 +138,7 @@ open class CARenderer: NSObject {
 
     // MARK: Public interface
 
-    open func beginFrame(atTime time: TimeInterval) {
+    open func beginFrame(atTime time: TimeInterval) throws {
         frameTime = time
     }
 
@@ -148,8 +146,10 @@ open class CARenderer: NSObject {
         return 0.0
     }
 
-    open func endFrame() {
+    open func endFrame() throws {
         frameTime = 0.0
+
+        try renderContext.clear()
     }
 
     public func setDestination(_ texture: Texture) {
@@ -157,12 +157,16 @@ open class CARenderer: NSObject {
     }
 
     public func render(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = []) throws {
-        beginFrame(atTime: 0.0)
-        defer { endFrame() }
-
         guard let layer = layer else {
             return
         }
+
+        guard isRendering == false else {
+            return
+        }
+
+        isRendering = true
+        defer { isRendering = false }
 
         if renderTarget.colorAttachment !== texture {
             renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
@@ -195,7 +199,7 @@ open class CARenderer: NSObject {
         renderContext.add(.popCommandBuffer())
 
         try renderContext.performOperations()
-        // let endTime = CFAbsoluteTimeGetCurrent()
+        let endTime = CFAbsoluteTimeGetCurrent()
         // debugPrint("Draw frame end: \(endTime)")
         // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
@@ -275,7 +279,6 @@ open class CARenderer: NSObject {
 
         if let contentsTexture = contentsTexture {
             renderContext.add(.contents(texture: contentsTexture, layerIndex: index))
-            renderContext.contentsDescriptorsCount += 1
         }
 
         try layer.sublayers?.forEach {

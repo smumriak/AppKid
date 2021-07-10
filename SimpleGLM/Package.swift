@@ -17,7 +17,7 @@ let package = Package(
         .library(name: "SimpleGLM", targets: ["SimpleGLM"]),
     ],
     dependencies: [
-        .package(name: "cglm", url: "https://github.com/smumryak/cglm", .branch("master")),
+        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
     ],
     targets: [
         .target(

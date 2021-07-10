@@ -45,8 +45,8 @@ import Volcano
         CABackingStoreContext.global = CABackingStoreContext(device: device, accessQueues: accessQueues)
     }
 
-    public func createBackingStore(size: CGSize) throws -> CABackingStore {
-        return try CABackingStore(size: size, device: device, accessQueues: accessQueues)
+    public func createBackingStore(size: CGSize, scale: CGFloat) throws -> CABackingStore {
+        return try CABackingStore(size: size, scale: scale, device: device, accessQueues: accessQueues)
     }
 }
 
@@ -62,9 +62,11 @@ import Volcano
     public let height: Int
     public var currentTexture: Texture?
 
-    public init(size: CGSize, device: Device, accessQueues: [Queue]) throws {
-        width = Int(size.width.rounded(.up))
-        height = Int(size.height.rounded(.up))
+    public init(size: CGSize, scale: CGFloat, device: Device, accessQueues: [Queue]) throws {
+        let pixelSize = CGSize(width: size.width * scale, height: size.height * scale)
+
+        width = Int(pixelSize.width.rounded(.up))
+        height = Int(pixelSize.height.rounded(.up))
 
         bitsPerComponent = 8
         bytesPerPixel = 4
@@ -77,7 +79,10 @@ import Volcano
         let bitmapInfo: CGContext.CGBitmapInfo = [alphaInfo.bitmapInfo, pixelFormat.bitmapInfo]
 
         frontContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, colorSpace: colorSpace, bitmapInfo: bitmapInfo)!
+        frontContext.scaleBy(x: scale, y: scale)
+        
         backContext = CGContext(width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, colorSpace: colorSpace, bitmapInfo: bitmapInfo)!
+        backContext.scaleBy(x: scale, y: scale)
     }
 
     public var image: CGImage? {
@@ -112,12 +117,12 @@ import Volcano
         return result
     }
 
-    public func update(width: Int, height: Int, flags: CABackingStoreFlags = [], callback: (_ context: CGContext) -> ()) {
+    public func update(flags: CABackingStoreFlags = [], callback: (_ context: CGContext) -> ()) {
         callback(backContext)
         Swift.swap(&frontContext, &backContext)
     }
 
-    public func fits(size: CGSize) -> Bool {
+    public func fits(size: CGSize, scale: CGFloat) -> Bool {
         return width == Int(size.width.rounded(.up)) && height == Int(size.height.rounded(.up))
     }
 }

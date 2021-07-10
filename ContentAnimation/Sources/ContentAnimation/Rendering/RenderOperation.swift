@@ -7,8 +7,9 @@
 
 import Foundation
 import CoreFoundation
-import CairoGraphics
-import Volcano
+import Collections
+@_spi(AppKid) import CairoGraphics
+@_spi(AppKid) import Volcano
 import CVulkan
 import TinyFoundation
 import LayerRenderingData
@@ -17,9 +18,8 @@ internal class RenderContext {
     typealias ModelViewProjection = (model: mat4s, view: mat4s, projection: mat4s)
 
     let renderStack: VolcanoRenderStack
-    let renderTargetsStack = SimpleStack<RenderTarget>()
-    let commandBuffersStack = SimpleStack<CommandBuffer>()
-    let viewportsStack = SimpleStack<VkViewport>()
+    var renderTargetsStack = Deque<RenderTarget>()
+    var commandBuffersStack = Deque<CommandBuffer>()
     let pipelines: Pipelines
     let descriptorSetsLayouts: DescriptorSetsLayouts
     let imageFormat: VkFormat
@@ -37,13 +37,10 @@ internal class RenderContext {
     var operations: [RenderOperation] = []
 
     @inlinable @inline(__always)
-    var renderTarget: RenderTarget { renderTargetsStack.root }
+    var renderTarget: RenderTarget { renderTargetsStack.first! }
 
     @inlinable @inline(__always)
-    var commandBuffer: CommandBuffer { commandBuffersStack.root }
-
-    @inlinable @inline(__always)
-    var viewport: VkViewport { viewportsStack.root }
+    var commandBuffer: CommandBuffer { commandBuffersStack.first! }
 
     private var _vertexBuffer: Buffer? = nil
 
@@ -62,23 +59,7 @@ internal class RenderContext {
     let modelViewProjectionDescriptorPool: DescriptorPool
     let modelViewProjectionDescriptorSet: DescriptorSet
 
-    var contentsDescriptorsCount: UInt = 0
-    private var contentsDescriptorsSet: [UInt: DescriptorSet] = [:]
-
-    private var _contentsDescriptorsPool: DescriptorPool? = nil
-    var contentsDescriptorsPool: DescriptorPool {
-        get throws {
-            if let contentsDescriptorsPool = _contentsDescriptorsPool, contentsDescriptorsPool.maxSets == contentsDescriptorsCount {
-                return contentsDescriptorsPool
-            } else {
-                let sizes = [VkDescriptorPoolSize(type: .combinedImageSampler, descriptorCount: CUnsignedInt(contentsDescriptorsCount))]
-
-                _contentsDescriptorsPool = try DescriptorPool(device: renderStack.device, sizes: sizes, maxSets: contentsDescriptorsCount)
-
-                return _contentsDescriptorsPool!
-            }
-        }
-    }
+    let contentsDescriptorsSetCache: DescriptorsSetCache
 
     internal let contentsTextureSampler: Sampler
 
@@ -111,12 +92,18 @@ internal class RenderContext {
     }
 
     internal func contentsDescriptorSet(for texture: Texture, layerIndex: UInt) throws -> DescriptorSet {
-        if let descriptorSet = contentsDescriptorsSet[layerIndex] {
-            return descriptorSet
+        let textureIdentifier = texture.textureIdentifier
+
+        if let result = contentsDescriptorsSetCache.existingDescriptorSet(for: textureIdentifier) {
+            return result
         }
 
-        let descriptorSet = try contentsDescriptorsPool.allocate(with: descriptorSetsLayouts.contentsSampler)
-        contentsDescriptorsSet[layerIndex] = descriptorSet
+        let descriptorSet = try contentsDescriptorsSetCache.createDescriptorSet(for: textureIdentifier)
+        texture.addDeinitHook { [weak contentsDescriptorsSetCache] in
+            if let contentsDescriptorsSetCache = contentsDescriptorsSetCache {
+                contentsDescriptorsSetCache.releaseDescriptorSet(for: textureIdentifier)
+            }
+        }
 
         var imageInfo = VkDescriptorImageInfo()
         imageInfo.imageLayout = .shaderReadOnlyOptimal
@@ -191,14 +178,14 @@ internal class RenderContext {
         }
 
         contentsTextureSampler = try Sampler(device: device)
+
+        contentsDescriptorsSetCache = try DescriptorsSetCache(device: device, layout: descriptorSetsLayouts.contentsSampler, sizes: [(type: .combinedImageSampler, count: 500)], maxSets: 500)
     }
 
     func clear() throws {
         descriptors.removeAll()
         operations.removeAll()
         _vertexBuffer = nil
-        _contentsDescriptorsPool = nil
-        contentsDescriptorsSet.removeAll()
     }
 
     func performOperations() throws {
@@ -307,14 +294,14 @@ internal class BindVertexBufferRenderOperation: RenderOperation {
 internal class PushCommandBufferRenderOperation: RenderOperation {
     override func perform(in context: RenderContext) throws {
         let commandBuffer = try context.commandPool.createCommandBuffer()
-        context.commandBuffersStack.push(commandBuffer)
+        context.commandBuffersStack.prepend(commandBuffer)
         try commandBuffer.begin()
     }
 }
 
 internal class PopCommandBufferRenderOperation: RenderOperation {
     override func perform(in context: RenderContext) throws {
-        context.commandBuffersStack.pop()
+        context.commandBuffersStack.removeFirst()
     }
 }
 
@@ -404,9 +391,14 @@ internal class PushRenderTargetRenderOperation: RenderOperation {
     }
 
     override func perform(in context: RenderContext) throws {
-        context.renderTargetsStack.push(renderTarget)
-        
         let commandBuffer = context.commandBuffer
+
+        if context.renderTargetsStack.isEmpty == false {
+            try commandBuffer.endRenderPass()
+        }
+
+        context.renderTargetsStack.prepend(renderTarget)
+        
         var clearValues: [VkClearValue] = []
         if let clearColor = renderTarget.clearColor {
             clearValues.append(clearColor)
@@ -435,12 +427,22 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
 
         try commandBuffer.endRenderPass()
 
-        context.renderTargetsStack.pop()
+        context.renderTargetsStack.removeFirst()
 
         if rebind {
             let renderTarget = context.renderTarget
 
-            try commandBuffer.begin(renderPass: renderTarget.renderPass, framebuffer: renderTarget.framebuffer, renderArea: renderTarget.renderArea)
+            var clearValues: [VkClearValue] = []
+            if let clearColor = renderTarget.clearColor {
+                clearValues.append(clearColor)
+            }
+            try commandBuffer.begin(renderPass: renderTarget.renderPass, framebuffer: renderTarget.framebuffer, renderArea: renderTarget.renderArea, clearValues: clearValues)
+
+            let viewports = [renderTarget.viewport]
+            let scissors = [renderTarget.renderArea]
+        
+            try commandBuffer.setViewports(viewports)
+            try commandBuffer.setScissors(scissors)
         }
     }
 }

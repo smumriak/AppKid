@@ -9,14 +9,6 @@ import TinyFoundation
 import CVulkan
 
 public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffer_T>> {
-    public let fence: Fence
-
-    public override init(device: Device, handlePointer: SmartPointer<VkCommandBuffer_T>) throws {
-        self.fence = try Fence(device: device)
-
-        try super.init(device: device, handlePointer: handlePointer)
-    }
-
     public func record(using body: () throws -> ()) throws {
         try begin()
         try body()

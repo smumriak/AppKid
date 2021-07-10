@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 19.05.2020.
 //
 
+import Foundation
 import TinyFoundation
 import CVulkan
 
@@ -13,6 +14,8 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     public let familyIndex: Int
     public let queueIndex: Int
     public let type: VkQueueFlagBits
+
+    private let semaphore = DispatchSemaphore(value: 1)
 
     public init(device: Device, familyIndex: Int, queueIndex: Int, type: VkQueueFlagBits) throws {
         self.device = device
@@ -60,6 +63,10 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
 
                         submitInfo.commandBufferCount = CUnsignedInt(commandBufferPointer.count)
                         submitInfo.pCommandBuffers = commandBufferPointer.baseAddress!
+
+                        semaphore.wait()
+                        defer { semaphore.signal() }
+
                         try vulkanInvoke {
                             vkQueueSubmit(handle, 1, &submitInfo, fence?.handle)
                         }
@@ -90,6 +97,9 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
                     presentInfo.pImageIndices = imageIndicesPointer.baseAddress!
                     presentInfo.pResults = nil
 
+                    semaphore.wait()
+                    defer { semaphore.signal() }
+
                     try vulkanInvoke {
                         device.vkQueuePresentKHR(handle, &presentInfo)
                     }
@@ -101,7 +111,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     public func oneShot(in commandPool: CommandPool, wait: Bool = true, _ body: (_ commandBuffer: CommandBuffer) throws -> ()) throws {
         let commandBuffer = try commandPool.createCommandBuffer()
 
-        let fence: Fence? = wait ? commandBuffer.fence : nil
+        let fence: Fence? = wait ? try Fence(device: device) : nil
 
         try fence?.reset()
 

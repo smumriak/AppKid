@@ -35,13 +35,13 @@ public class Window: NSObject {
         self.screen = screen
         self.rootWindow = rootWindow
         self.windowID = windowID
-        self.destroyOnDeinit = false
+        self.destroyOnDeinit = destroyOnDeinit
 
         super.init()
     }
 
     public convenience init(rootWindow: RootWindow, windowID: CXlib.Window, setupSyncCounters: Bool = true) {
-        self.init(display: rootWindow.display, screen: rootWindow.screen, rootWindow: rootWindow, windowID: windowID, destroyOnDeinit: false)
+        self.init(display: rootWindow.display, screen: rootWindow.screen, rootWindow: rootWindow, windowID: windowID, destroyOnDeinit: true)
 
         if setupSyncCounters {
             let syncValue = XSyncValue(hi: 0, lo: 0)

@@ -9,7 +9,21 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
+internal var globalTextureCounter: UInt = 0
+internal var globalTextureCounterSemaphore = DispatchSemaphore(value: 1)
+
+internal func grabAvailableGlobalTextureIdentifier() -> UInt {
+    globalTextureCounterSemaphore.wait()
+    defer {
+        globalTextureCounter += 1
+        globalTextureCounterSemaphore.signal()
+    }
+
+    return globalTextureCounter
+}
+
 public protocol Texture: AnyObject {
+    var textureIdentifier: UInt { get }
     var textureType: VkImageViewType { get }
     var pixelFormat: VkFormat { get }
     var width: Int { get }
@@ -29,8 +43,35 @@ public protocol Texture: AnyObject {
 
     var image: Image { get }
     var imageView: ImageView { get }
-    
+
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture
+
+    @_spi(AppKid) var hashable: AnyHashable { get }
+    @_spi(AppKid) var deinitHooks: [() -> ()] { get set }
+}
+
+@_spi(AppKid) public extension Texture {
+    func hash(into hasher: inout Hasher) {
+        textureIdentifier.hash(into: &hasher)
+        image.hash(into: &hasher)
+        imageView.hash(into: &hasher)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.textureIdentifier == rhs.textureIdentifier
+            && lhs.image == rhs.image
+            && lhs.imageView == rhs.imageView
+    }
+
+    @_spi(AppKid) func addDeinitHook(_ hook: @escaping () -> ()) {
+        deinitHooks.append(hook)
+    }
+}
+
+@_spi(AppKid) public extension Texture where Self: Hashable {
+    var hashable: AnyHashable {
+        return self
+    }
 }
 
 @_spi(AppKid) public extension Texture {
@@ -43,8 +84,10 @@ public extension Texture {
     var extent: VkExtent3D { return VkExtent3D(width: CUnsignedInt(width), height: CUnsignedInt(height), depth: CUnsignedInt(depth)) }
 }
 
-internal class SwapchainTexture: Texture {
+internal class SwapchainTexture: Texture, Hashable {
     let swapchain: Swapchain
+
+    let textureIdentifier: UInt
 
     let textureType: VkImageViewType = .type2D
     let pixelFormat: VkFormat
@@ -65,6 +108,12 @@ internal class SwapchainTexture: Texture {
 
     let image: Image
     let imageView: ImageView
+
+    var deinitHooks: [() -> ()] = []
+
+    deinit {
+        deinitHooks.forEach { $0() }
+    }
 
     init(swapchain: Swapchain, imageIndex: Int) throws {
         pixelFormat = swapchain.imageFormat
@@ -87,6 +136,9 @@ internal class SwapchainTexture: Texture {
 
         width = Int(swapchain.size.width)
         height = Int(swapchain.size.height)
+
+        // has to happen in the very end of init!
+        textureIdentifier = grabAvailableGlobalTextureIdentifier()
     }
 
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture {
@@ -94,8 +146,10 @@ internal class SwapchainTexture: Texture {
     }
 }
 
-internal class GenericTexture: Texture {
+internal class GenericTexture: Texture, Hashable {
     let memoryChunk: MemoryChunk
+
+    let textureIdentifier: UInt
 
     let textureType: VkImageViewType
     let pixelFormat: VkFormat
@@ -117,6 +171,12 @@ internal class GenericTexture: Texture {
     let image: Image
     let imageView: ImageView
 
+    var deinitHooks: [() -> ()] = []
+
+    deinit {
+        deinitHooks.forEach { $0() }
+    }
+    
     init(device: Device, descriptor: TextureDescriptor) throws {
         let image = try Image(device: device, descriptor: descriptor.imageDescriptor)
 
@@ -160,6 +220,9 @@ internal class GenericTexture: Texture {
         self.isDepthTexture = descriptor.isDepthTexture
         self.isStencilTexture = descriptor.isStencilTexture
         self.layout = descriptor.initialLayout
+
+        // has to happen in the very end of init!
+        textureIdentifier = grabAvailableGlobalTextureIdentifier()
     }
 
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture {
@@ -167,8 +230,10 @@ internal class GenericTexture: Texture {
     }
 }
 
-internal class BufferTexture: Texture {
+internal class BufferTexture: Texture, Hashable {
     let buffer: Buffer
+
+    let textureIdentifier: UInt
 
     let textureType: VkImageViewType = .type2D
     let pixelFormat: VkFormat = .b8g8r8a8UInt
@@ -190,10 +255,19 @@ internal class BufferTexture: Texture {
     let image: Image
     let imageView: ImageView
 
+    var deinitHooks: [() -> ()] = []
+
+    deinit {
+        deinitHooks.forEach { $0() }
+    }
+
     init(image: Image, imageView: ImageView, buffer: Buffer) throws {
         self.buffer = buffer
         self.image = image
         self.imageView = imageView
+
+        // has to happen in the very end of init!
+        textureIdentifier = grabAvailableGlobalTextureIdentifier()
     }
 
     func makeTextureView(pixelFormat: VkFormat) throws -> Texture {

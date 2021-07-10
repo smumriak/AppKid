@@ -3,10 +3,10 @@
     "pins": [
       {
         "package": "cglm",
-        "repositoryURL": "https://github.com/smumryak/cglm",
+        "repositoryURL": "https://github.com/recp/cglm",
         "state": {
           "branch": "master",
-          "revision": "73f32b9ef7e927f399a27a6ad8efe78368dda5d0",
+          "revision": "d0d1e4653399a5d7b3a72c01903275590adf935e",
           "version": null
         }
       },
@@ -24,8 +24,8 @@
         "repositoryURL": "https://github.com/apple/swift-collections",
         "state": {
           "branch": null,
-          "revision": "d45e63421d3dff834949ac69d3c37691e994bd69",
-          "version": "0.0.3"
+          "revision": "3426dba9ee5c9f8e4981b0fc9d39a818d36eec28",
+          "version": "0.0.4"
         }
       }
     ]
