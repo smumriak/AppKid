@@ -260,10 +260,11 @@ public final class SemaphoreRunLoop {
         }
 
         let signalledSemaphores = try semaphoreSet.wait(forOne: true, timeout: timeout)
-        try signalledSemaphores.map { semaphoreToSource[$0]! }
+        try signalledSemaphores.compactMap { semaphoreToSource[$0] }
             .forEach {
                 try $0.perform()
             }
+
         return true
     }
 }
