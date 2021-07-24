@@ -10,5 +10,5 @@ import CVulkan
 public typealias VkFenceCreateFlagBits = CVulkan.VkFenceCreateFlagBits
 
 public extension VkFenceCreateFlagBits {
-    static let signaled = VK_FENCE_CREATE_SIGNALED_BIT
+    static let signaled: Self = .VK_FENCE_CREATE_SIGNALED_BIT
 }

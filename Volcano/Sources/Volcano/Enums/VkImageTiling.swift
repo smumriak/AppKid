@@ -10,7 +10,7 @@ import CVulkan
 public typealias VkImageTiling = CVulkan.VkImageTiling
 
 public extension VkImageTiling {
-    static let optimal: VkImageTiling = .VK_IMAGE_TILING_OPTIMAL
-    static let linear: VkImageTiling = .VK_IMAGE_TILING_LINEAR
-    static let drmFormatModifierEXT: VkImageTiling = .VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT
+    static let optimal: Self = .VK_IMAGE_TILING_OPTIMAL
+    static let linear: Self = .VK_IMAGE_TILING_LINEAR
+    static let drmFormatModifierEXT: Self = .VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT
 }

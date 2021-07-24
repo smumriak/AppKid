@@ -10,5 +10,5 @@ import CVulkan
 public typealias VkSparseMemoryBindFlagBits = CVulkan.VkSparseMemoryBindFlagBits
 
 public extension VkSparseMemoryBindFlagBits {
-    static let metadata = VK_SPARSE_MEMORY_BIND_METADATA_BIT
+    static let metadata: Self = .VK_SPARSE_MEMORY_BIND_METADATA_BIT
 }

@@ -10,13 +10,13 @@ import CVulkan
 public typealias VkColorComponentFlagBits = CVulkan.VkColorComponentFlagBits
 
 public extension VkColorComponentFlagBits {
-    static let red = VK_COLOR_COMPONENT_R_BIT
-    static let green = VK_COLOR_COMPONENT_G_BIT
-    static let blue = VK_COLOR_COMPONENT_B_BIT
-    static let alpha = VK_COLOR_COMPONENT_A_BIT
+    static let red: Self = .VK_COLOR_COMPONENT_R_BIT
+    static let green: Self = .VK_COLOR_COMPONENT_G_BIT
+    static let blue: Self = .VK_COLOR_COMPONENT_B_BIT
+    static let alpha: Self = .VK_COLOR_COMPONENT_A_BIT
 }
 
 public extension VkColorComponentFlagBits {
-    static let rgba: VkColorComponentFlagBits = [.red, .green, .blue, .alpha]
-    static let rgb: VkColorComponentFlagBits = [.red, .green, .blue]
+    static let rgba: Self = [.red, .green, .blue, .alpha]
+    static let rgb: Self = [.red, .green, .blue]
 }

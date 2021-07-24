@@ -10,7 +10,7 @@ import CVulkan
 public typealias VkCullModeFlagBits = CVulkan.VkCullModeFlagBits
 
 public extension VkCullModeFlagBits {
-    static let front = VK_CULL_MODE_FRONT_BIT
-    static let back = VK_CULL_MODE_BACK_BIT
-    static let frontAndBack = VK_CULL_MODE_FRONT_AND_BACK
+    static let front: Self = .VK_CULL_MODE_FRONT_BIT
+    static let back: Self = .VK_CULL_MODE_BACK_BIT
+    static let frontAndBack: Self = .VK_CULL_MODE_FRONT_AND_BACK
 }

@@ -44,5 +44,6 @@ AK_EXISTING_ENUM(VkSamplerAddressMode);
 AK_EXISTING_ENUM(VkFilter);
 AK_EXISTING_ENUM(VkSamplerMipmapMode);
 AK_EXISTING_ENUM(VkBorderColor);
+AK_EXISTING_ENUM(VkSemaphoreType);
 
 #endif /* VulkanEnums_h */

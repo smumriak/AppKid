@@ -10,7 +10,7 @@ import CVulkan
 public typealias VkFilter = CVulkan.VkFilter
 
 public extension VkFilter {
-    static let nearest: VkFilter = .VK_FILTER_NEAREST
-    static let linear: VkFilter = .VK_FILTER_LINEAR
-    static let cubic: VkFilter = .VK_FILTER_CUBIC_IMG
+    static let nearest: Self = .VK_FILTER_NEAREST
+    static let linear: Self = .VK_FILTER_LINEAR
+    static let cubic: Self = .VK_FILTER_CUBIC_IMG
 }

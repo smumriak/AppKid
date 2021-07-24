@@ -10,5 +10,5 @@ import CVulkan
 public typealias VkImageViewCreateFlagBits = CVulkan.VkImageViewCreateFlagBits
 
 public extension VkImageViewCreateFlagBits {
-    static let fragmentDensityMapDynamicExt = VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT
+    static let fragmentDensityMapDynamicExt: Self = .VK_IMAGE_VIEW_CREATE_FRAGMENT_DENSITY_MAP_DYNAMIC_BIT_EXT
 }

@@ -10,13 +10,13 @@ import CVulkan
 public typealias VkImageViewType = CVulkan.VkImageViewType
 
 public extension VkImageViewType {
-    static let type1D: VkImageViewType = .VK_IMAGE_VIEW_TYPE_1D
-    static let type2D: VkImageViewType = .VK_IMAGE_VIEW_TYPE_2D
-    static let type3D: VkImageViewType = .VK_IMAGE_VIEW_TYPE_3D
-    static let typeCube: VkImageViewType = .VK_IMAGE_VIEW_TYPE_CUBE
-    static let type1DArray: VkImageViewType = .VK_IMAGE_VIEW_TYPE_1D_ARRAY
-    static let type2DArray: VkImageViewType = .VK_IMAGE_VIEW_TYPE_2D_ARRAY
-    static let typeCubeArray: VkImageViewType = .VK_IMAGE_VIEW_TYPE_CUBE_ARRAY
+    static let type1D: Self = .VK_IMAGE_VIEW_TYPE_1D
+    static let type2D: Self = .VK_IMAGE_VIEW_TYPE_2D
+    static let type3D: Self = .VK_IMAGE_VIEW_TYPE_3D
+    static let typeCube: Self = .VK_IMAGE_VIEW_TYPE_CUBE
+    static let type1DArray: Self = .VK_IMAGE_VIEW_TYPE_1D_ARRAY
+    static let type2DArray: Self = .VK_IMAGE_VIEW_TYPE_2D_ARRAY
+    static let typeCubeArray: Self = .VK_IMAGE_VIEW_TYPE_CUBE_ARRAY
 }
 
 public extension VkImageViewType {

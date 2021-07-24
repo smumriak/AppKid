@@ -10,6 +10,6 @@ import CVulkan
 public typealias VkFramebufferCreateFlagBits = CVulkan.VkFramebufferCreateFlagBits
 
 public extension VkFramebufferCreateFlagBits {
-    static let imageless = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
-    static let imagelessKhr = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR
+    static let imageless: Self = .VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT
+    static let imagelessKhr: Self = .VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT_KHR
 }

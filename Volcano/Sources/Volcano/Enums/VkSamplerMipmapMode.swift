@@ -10,6 +10,6 @@ import CVulkan
 public typealias VkSamplerMipmapMode = CVulkan.VkSamplerMipmapMode
 
 public extension VkSamplerMipmapMode {
-    static let nearest: VkSamplerMipmapMode = .VK_SAMPLER_MIPMAP_MODE_NEAREST
-    static let linear: VkSamplerMipmapMode = .VK_SAMPLER_MIPMAP_MODE_LINEAR
+    static let nearest: Self = .VK_SAMPLER_MIPMAP_MODE_NEAREST
+    static let linear: Self = .VK_SAMPLER_MIPMAP_MODE_LINEAR
 }

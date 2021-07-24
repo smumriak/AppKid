@@ -10,7 +10,7 @@ import CVulkan
 public typealias VkCommandPoolCreateFlagBits = CVulkan.VkCommandPoolCreateFlagBits
 
 public extension VkCommandPoolCreateFlagBits {
-    static let transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
-    static let resetCommandBuffer = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-    static let protected = VK_COMMAND_POOL_CREATE_PROTECTED_BIT
+    static let transient: Self = .VK_COMMAND_POOL_CREATE_TRANSIENT_BIT
+    static let resetCommandBuffer: Self = .VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+    static let protected: Self = .VK_COMMAND_POOL_CREATE_PROTECTED_BIT
 }

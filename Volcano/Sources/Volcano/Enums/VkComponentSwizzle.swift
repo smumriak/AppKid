@@ -10,11 +10,11 @@ import CVulkan
 public typealias VkComponentSwizzle = CVulkan.VkComponentSwizzle
 
 public extension VkComponentSwizzle {
-    static let identity: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_IDENTITY
-    static let zero: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_ZERO
-    static let one: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_ONE
-    static let r: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_R
-    static let g: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_G
-    static let b: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_B
-    static let a: VkComponentSwizzle = .VK_COMPONENT_SWIZZLE_A
+    static let identity: Self = .VK_COMPONENT_SWIZZLE_IDENTITY
+    static let zero: Self = .VK_COMPONENT_SWIZZLE_ZERO
+    static let one: Self = .VK_COMPONENT_SWIZZLE_ONE
+    static let r: Self = .VK_COMPONENT_SWIZZLE_R
+    static let g: Self = .VK_COMPONENT_SWIZZLE_G
+    static let b: Self = .VK_COMPONENT_SWIZZLE_B
+    static let a: Self = .VK_COMPONENT_SWIZZLE_A
 }
