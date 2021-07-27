@@ -57,7 +57,7 @@ internal extension Event {
 
         if type == .none {
             let eventString = event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
-            throw EventCreationError.nativeEventIgnored(description: "XInput2 event type: \(eventString)")
+            throw Error.nativeEventIgnored(description: "XInput2 event type: \(eventString)")
         }
 
         let deviceEvent = event.deviceEvent
@@ -66,14 +66,14 @@ internal extension Event {
 
         guard let windowNumber = application.windows.firstIndex(where: { $0.nativeWindow.windowID == deviceEvent.event }) else {
             let eventString = event.xcookie.xInput2EventType.map { String(reflecting: $0) } ?? "unknown"
-            throw EventCreationError.noWindow(description: "XInput2 event type: \(eventString). Foreign window ID: \(deviceEvent.event)")
+            throw Error.noWindow(description: "XInput2 event type: \(eventString). Foreign window ID: \(deviceEvent.event)")
         }
 
         let window = application.windows[windowNumber]
         let nativeWindow = window.nativeWindow
 
         if type == .mouseMoved && window.acceptsMouseMovedEvents == false {
-            throw EventCreationError.eventIgnored(description: "Window does not accept mouse move event.")
+            throw Error.eventIgnored(description: "Window does not accept mouse move event.")
         }
 
         let currentModifierFlags = displayServer.context.currentModifierFlags
@@ -129,7 +129,7 @@ internal extension Event {
             }
 
             if keySymbol == NoSymbol {
-                throw EventCreationError.eventIgnored(description: "Keyboard event with invalid key symbol. Key code: \(keyCode)")
+                throw Error.eventIgnored(description: "Keyboard event with invalid key symbol. Key code: \(keyCode)")
             } else {
                 let location = CGPoint(x: CGFloat.nan, y: CGFloat.nan)
 
@@ -156,7 +156,7 @@ internal extension Event {
             }
 
         default:
-            throw EventCreationError.eventIgnored(description: "Event type: \(type)")
+            throw Error.eventIgnored(description: "Event type: \(type)")
         }
     }
 }

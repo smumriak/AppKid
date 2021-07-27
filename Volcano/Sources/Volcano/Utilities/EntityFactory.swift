@@ -18,9 +18,22 @@ public extension HandleStorage where Handle.Pointee: EntityFactory {
             Info.createFunction(handle, info, callbacks, &pointer)
         }
 
-        // palkovnik:TODO:Validate if this has to retain the thing. Maybe it needs to
         return SmartPointer(with: pointer!) { [unowned self] in
             Info.deleteFunction(self.handle, $0, callbacks)
+        }
+    }
+
+    func create<Info: EntityInfo>(with chain: VulkanStructureChain<Info>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+        try chain.withUnsafeChainPointer { info in
+            var pointer: UnsafeMutablePointer<Info.Result>? = nil
+
+            try vulkanInvoke {
+                Info.createFunction(handle, info, callbacks, &pointer)
+            }
+
+            return SmartPointer(with: pointer!) { [unowned self] in
+                Info.deleteFunction(self.handle, $0, callbacks)
+            }
         }
     }
 }

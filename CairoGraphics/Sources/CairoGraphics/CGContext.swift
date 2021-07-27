@@ -79,7 +79,7 @@ internal extension cairo_line_join_t {
 
 @_spi(AppKid) public class CGContextDataStore {
     //palkovnik: swift-atomics libabry can not be built on macOS. oh the irony
-    private let semaphore = DispatchSemaphore(value: 1)
+    private let lock = NSRecursiveLock()
     
     private var useCount: UInt
 
@@ -93,22 +93,22 @@ internal extension cairo_line_join_t {
     }
 
     public func currentValue() -> UInt {
-        semaphore.wait()
-        defer { semaphore.signal() }
+        lock.lock()
+        defer { lock.unlock() }
 
         return useCount
     }
 
     public func increaseUseCount() {
-        semaphore.wait()
-        defer { semaphore.signal() }
+        lock.lock()
+        defer { lock.unlock() }
 
         useCount += 1
     }
 
     public func decreaseUseCount() {
-        semaphore.wait()
-        defer { semaphore.signal() }
+        lock.lock()
+        defer { lock.unlock() }
 
         assert(useCount > 0, "Can't decrement use count from zero")
 

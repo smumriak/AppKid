@@ -15,7 +15,6 @@ open class ScrollView: View {
         didSet {
             invalidateTransforms()
             setNeedsLayout()
-            setNeedsDisplay()
         }
     }
 

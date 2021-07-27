@@ -17,12 +17,13 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     public var imageFormat: VkFormat { return selectedFormat.format }
     public var colorSpace: VkColorSpaceKHR { return selectedFormat.colorSpace }
     public internal(set) var capabilities: VkSurfaceCapabilitiesKHR
+    public internal(set) var capabilities2: VkSurfaceCapabilities2KHR
     public let presetModes: [VkPresentModeKHR]
 
     #if os(Linux)
         internal convenience init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkXlibSurfaceCreateInfoKHR()
-            info.sType = .xlibSurfaceCreateInfoKHR
+            info.sType = .xlibSurfaceCreateInfoKhr
             info.dpy = display
             info.window = window
 
@@ -64,9 +65,14 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
         }
 
         self.supportedFormats = supportedFormats
+        
+        var surfaceInfo: VkPhysicalDeviceSurfaceInfo2KHR = .new()
+        surfaceInfo.surface = handlePointer.pointer
 
-        capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
-        presetModes = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfacePresentModesKHR)
+        capabilities2 = try physicalDevice.loadData(with: &surfaceInfo, using: physicalDevice.instance.vkGetPhysicalDeviceSurfaceCapabilities2KHR)
+        capabilities = capabilities2.surfaceCapabilities
+
+        presetModes = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: physicalDevice.instance.vkGetPhysicalDeviceSurfacePresentModesKHR)
 
         try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
     }
@@ -74,7 +80,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int) throws -> Bool {
         var supportsPresentingVKBool: VkBool32 = false.vkBool
         try vulkanInvoke {
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), handle, &supportsPresentingVKBool)
+            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), handle, &supportsPresentingVKBool)
         }
         return supportsPresentingVKBool.bool
     }
@@ -86,13 +92,17 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 
         var supportsPresentingVKBool: VkBool32 = false.vkBool
         try vulkanInvoke {
-            vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queue.familyIndex), handle, &supportsPresentingVKBool)
+            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queue.familyIndex), handle, &supportsPresentingVKBool)
         }
         return supportsPresentingVKBool.bool
     }
 
     public func refreshCapabilities() throws {
-        capabilities = try physicalDevice.loadData(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceCapabilitiesKHR)
+        var surfaceInfo: VkPhysicalDeviceSurfaceInfo2KHR = .new()
+        surfaceInfo.surface = handlePointer.pointer
+        
+        capabilities2 = try physicalDevice.loadData(with: &surfaceInfo, using: physicalDevice.instance.vkGetPhysicalDeviceSurfaceCapabilities2KHR)
+        capabilities = capabilities2.surfaceCapabilities
     }
 }
 

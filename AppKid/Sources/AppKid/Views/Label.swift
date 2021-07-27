@@ -11,29 +11,29 @@ import CoreFoundation
 import ContentAnimation
 
 #if os(macOS)
-import struct CairoGraphics.CGColor
-import class CairoGraphics.CGContext
+    import struct CairoGraphics.CGColor
+    import class CairoGraphics.CGContext
 #endif
 
 open class Label: View {
     open var text: String? = nil {
         didSet {
             layout.text = text ?? ""
-            layer.needsDisplay = true
+            layer.setNeedsDisplay()
         }
     }
 
     open var textColor: CGColor = .black {
         didSet {
             layout.textColor = textColor
-            layer.needsDisplay = true
+            layer.setNeedsDisplay()
         }
     }
 
     open var font: Font = .systemFont(ofSize: 17) {
         didSet {
             layout.font = font
-            layer.needsDisplay = true
+            layer.setNeedsDisplay()
         }
     }
 
@@ -50,7 +50,7 @@ open class Label: View {
         layout.textColor = textColor
         layout.font = font
 
-        layer.needsDisplay = true
+        layer.setNeedsDisplay()
     }
 
     // MARK: Rendering

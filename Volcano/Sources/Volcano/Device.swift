@@ -31,25 +31,34 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     internal let vkGetSwapchainImagesKHR: PFN_vkGetSwapchainImagesKHR
     internal let vkAcquireNextImageKHR: PFN_vkAcquireNextImageKHR
     internal let vkQueuePresentKHR: PFN_vkQueuePresentKHR
+    internal let vkGetSemaphoreCounterValueKHR: PFN_vkGetSemaphoreCounterValueKHR
+    internal let vkWaitSemaphoresKHR: PFN_vkWaitSemaphoresKHR
+    internal let vkSignalSemaphoreKHR: PFN_vkSignalSemaphoreKHR
 
-    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default]) throws {
-        var enabledFeatures = physicalDevice.features
-        enabledFeatures.samplerAnisotropy = true.vkBool
+    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<VulkanExtensionName> = []) throws {
+        var features = physicalDevice.features
+        features.samplerAnisotropy = true.vkBool
 
-        let extensions = [VK_KHR_SWAPCHAIN_EXTENSION_NAME].cStrings
-        let extensionsNamesPointers: [UnsafePointer<Int8>?] = extensions.map { UnsafePointer($0.pointer) }
+        // let features11 = physicalDevice.features11
+        // var features12 = physicalDevice.features12
+        // features12.timelineSemaphore = true.vkBool
+
+        var features2 = physicalDevice.features2
+        features2.features = features
+
+        var extensions = extensions
+        extensions.formUnion([.timelineSemaphore])
 
         let processedQueueRequests = try processQueueRequests(from: queueRequests, familiesDescriptors: physicalDevice.queueFamiliesDescriptors)
+        var timelineSemaphoreFeatures = VkPhysicalDeviceTimelineSemaphoreFeatures.new()
+        timelineSemaphoreFeatures.timelineSemaphore = true.vkBool
 
-        let handlePointer: SmartPointer<VkDevice_T> = try withUnsafePointer(to: enabledFeatures) { enabledFeatures in
-            try extensionsNamesPointers.withUnsafeBufferPointer { extensions in
-                try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
+        let handlePointer: SmartPointer<VkDevice_T> =
+            try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
+                return try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo()
-
                     info.sType = .deviceCreateInfo
                     info.flags = 0
-
-                    info.pEnabledFeatures = enabledFeatures
 
                     info.enabledExtensionCount = CUnsignedInt(extensions.count)
                     info.ppEnabledExtensionNames = extensions.baseAddress!
@@ -57,16 +66,24 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
                     info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreateInfos.count)
                     info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
 
-                    return try physicalDevice.create(with: &info)
+                    let chain = VulkanStructureChain(root: info)
+                    // chain.add(chainElement: features12)
+                    // chain.add(chainElement: features11)
+                    chain.add(chainElement: timelineSemaphoreFeatures)
+                    chain.add(chainElement: features2)
+        
+                    return try physicalDevice.create(with: chain)
                 }
             }
-        }
 
         vkCreateSwapchainKHR = try handlePointer.loadFunction(named: "vkCreateSwapchainKHR")
         vkDestroySwapchainKHR = try handlePointer.loadFunction(named: "vkDestroySwapchainKHR")
         vkGetSwapchainImagesKHR = try handlePointer.loadFunction(named: "vkGetSwapchainImagesKHR")
         vkAcquireNextImageKHR = try handlePointer.loadFunction(named: "vkAcquireNextImageKHR")
         vkQueuePresentKHR = try handlePointer.loadFunction(named: "vkQueuePresentKHR")
+        vkGetSemaphoreCounterValueKHR = try handlePointer.loadFunction(named: "vkGetSemaphoreCounterValueKHR")
+        vkWaitSemaphoresKHR = try handlePointer.loadFunction(named: "vkWaitSemaphoresKHR")
+        vkSignalSemaphoreKHR = try handlePointer.loadFunction(named: "vkSignalSemaphoreKHR")
 
         try super.init(physicalDevice: physicalDevice, handlePointer: handlePointer)
 
@@ -76,7 +93,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
             var queuesArray: [Queue] = []
 
             for queueIndex in 0..<queueRequest.priorities.count {
-                queuesArray.append(try Queue(device: self, familyIndex: familyIndex, queueIndex: queueIndex, type: queueRequest.type))
+                try queuesArray.append(Queue(device: self, familyIndex: familyIndex, queueIndex: queueIndex, type: queueRequest.type))
             }
 
             queuesByFamilyIndex[CUnsignedInt(familyIndex)] = queuesArray
@@ -86,22 +103,6 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     public func waitForIdle() throws {
         try vulkanInvoke {
             vkDeviceWaitIdle(handle)
-        }
-    }
-    
-    public func wait(forFences fences: [Fence], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
-        var handles: [VkFence?] = fences.map { return $0.handle }
-
-        try vulkanInvoke {
-            vkWaitForFences(handle, CUnsignedInt(handles.count), &handles, waitForAll.vkBool, timeout)
-        }
-    }
-    
-    public func reset(fences: [Fence]) throws {
-        var handles: [VkFence?] = fences.map { return $0.handle }
-
-        try vulkanInvoke {
-            vkResetFences(handle, CUnsignedInt(handles.count), &handles)
         }
     }
     

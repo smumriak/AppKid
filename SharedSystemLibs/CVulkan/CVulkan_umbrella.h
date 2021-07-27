@@ -42,9 +42,13 @@ struct VkSwapchainKHR_T {};
 #if defined(__linux__)
 
 #define VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_XCB_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
 #include <X11/Xlib.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_xlib.h>
+#include <vulkan/vulkan_xcb.h>
+#include <vulkan/vulkan_wayland.h>
 
 #else
 
@@ -56,6 +60,7 @@ static inline void * cVulkanGetInstanceProcAddr(VkInstance instance, const char*
 {
     return vkGetInstanceProcAddr(instance, pName);
 }
+
 static inline void * cVulkanGetDeviceProcAddr(VkDevice device, const char* pName)
 {
     return vkGetDeviceProcAddr(device, pName);

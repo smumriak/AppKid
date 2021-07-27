@@ -47,7 +47,6 @@ open class View: Responder, CALayerDelegate {
 
             invalidateTransforms()
             setNeedsLayout()
-            setNeedsDisplay()
         }
     }
     
@@ -59,7 +58,6 @@ open class View: Responder, CALayerDelegate {
             layer.position = newValue
 
             invalidateTransforms()
-            setNeedsDisplay()
         }
     }
 
@@ -68,7 +66,6 @@ open class View: Responder, CALayerDelegate {
             layer.affineTransform = transform
             
             invalidateTransforms()
-            setNeedsDisplay()
         }
     }
 
@@ -324,15 +321,8 @@ open class View: Responder, CALayerDelegate {
     }
     
     open func setNeedsDisplay(in rect: CGRect) {
-        if let dirtyRect = dirtyRect {
-            let minX = min(dirtyRect.minX, rect.minX)
-            let minY = min(dirtyRect.minY, rect.minY)
-            let maxX = max(dirtyRect.maxX, rect.maxX)
-            let maxY = max(dirtyRect.maxY, rect.maxY)
-            self.dirtyRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
-        } else {
-            dirtyRect = rect
-        }
+        dirtyRect = dirtyRect?.union(rect) ?? rect
+        layer.setNeedsDisplay()
     }
 
     // MARK: Hit Test

@@ -18,6 +18,6 @@ public extension VkQueueGlobalPriorityEXT {
 
 public extension VkQueueGlobalPriorityEXT {
     var info: VkDeviceQueueGlobalPriorityCreateInfoEXT {
-        VkDeviceQueueGlobalPriorityCreateInfoEXT(sType: .deviceQueueGlobalPriorityCreateInfoEXT, pNext: nil, globalPriority: self)
+        VkDeviceQueueGlobalPriorityCreateInfoEXT(sType: .deviceQueueGlobalPriorityCreateInfoExt, pNext: nil, globalPriority: self)
     }
 }

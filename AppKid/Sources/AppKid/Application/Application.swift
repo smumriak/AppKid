@@ -54,8 +54,6 @@ open class Application: Responder {
     
     internal fileprivate(set) var startTime = CFAbsoluteTimeGetCurrent()
     
-    internal var runLoopSource: CFRunLoopSource? = nil
-    
     internal var lastClickTimestamp: TimeInterval = .zero
     internal var clickCount: Int = .zero
 
@@ -71,7 +69,7 @@ open class Application: Responder {
         self.displayServer.flush()
     }
 
-    internal lazy var volcanoRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
+    internal lazy var volcanoRenderTimerSync = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         do {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
 
@@ -86,15 +84,9 @@ open class Application: Responder {
                 return
             }
 
-            let fences = renderers.map { $0.layerRenderer.fence }
-
-            try renderStack.device.reset(fences: fences)
-
             try renderers.forEach { renderer in
-                    try renderer.render()
-                }
-
-            try renderStack.device.wait(forFences: fences, waitForAll: true)
+                try renderer.render()
+            }
 
             try renderers.forEach { renderer in
                 try renderer.layerRenderer.endFrame()
@@ -102,6 +94,39 @@ open class Application: Responder {
             
         } catch {
             fatalError("Failed to render with error: \(error)")
+        }
+    }
+
+    internal lazy var volcanoRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
+        Task(priority: .userInitiated) { @MainActor in
+            let renderers = Array(
+                zip(self.windows, self.volcanoRenderers)
+                    .lazy
+                    .filter {
+                        $0.0.nativeWindow.syncRequested == false
+                            && $0.0.isMapped == true
+                            && $0.1.isRendering == false
+                    }
+                    .map { $0.1 }
+            )
+
+            if renderers.isEmpty {
+                return
+            }
+            
+            do {
+                try await withThrowingTaskGroup(of: Void.self) { taskGroup in
+                    renderers.forEach { renderer in
+                        taskGroup.async {
+                            try await renderer.asyncRender()
+                        }
+                    }
+
+                    while let _ = try await taskGroup.next() {}
+                }
+            } catch {
+                fatalError("Failed to render with error: \(error)")
+            }
         }
     }
 
@@ -120,7 +145,7 @@ open class Application: Responder {
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
             isVolcanoRenderingEnabled = true
         } catch {
-            debugPrint("Could not start vulkan rendering. Falling back to software rendering")
+            debugPrint("Could not start vulkan rendering. Falling back to software rendering. Error: \(error)")
         }
 
         displayServer.activate()
@@ -138,7 +163,7 @@ open class Application: Responder {
     // MARK: Run Loop
 
     open func stop() {
-        CFRunLoopStop(RunLoop.current.getCFRunLoop())
+        CFRunLoopStop(CFRunLoopGetCurrent())
     }
 
     // MARK: Termination
@@ -161,6 +186,15 @@ open class Application: Responder {
             let windows = self.windows
             windows.forEach { $0.close() }
 
+            if isVolcanoRenderingEnabled {
+                let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
+                do {
+                    try renderStack.cleanup()
+                } catch {
+                    fatalError("Got vulkan error while cleaning up the render stack: \(error)")
+                }
+            }
+
             exit(0)
         }
     }
@@ -178,7 +212,7 @@ open class Application: Responder {
         #else
             let trackingCFRunLoopMode = CFRunLoopMode(rawValue: RunLoop.Mode.tracking.rawValue as CFString)
         #endif
-        CFRunLoopAddCommonMode(RunLoop.current.getCFRunLoop(), trackingCFRunLoopMode)
+        CFRunLoopAddCommonMode(CFRunLoopGetCurrent(), trackingCFRunLoopMode)
 
         if isVolcanoRenderingEnabled {
             RunLoop.current.add(volcanoRenderTimer, forMode: .common)
@@ -234,16 +268,16 @@ open class Application: Responder {
                 return Event(withAppKidEventSubType: .terminate, windowNumber: NSNotFound)
             }
 
-            // palkovnik: code performs one shot of runloop go give timears, dispatch queues and other things to process their events
-            let result = CFRunLoopRunInMode(mode.cfRunLoopMode, 0, true)
-            switch result {
-                case .finished: return nil
-                case .stopped: return nil
-                case .timedOut: break
-                case .handledSource: break
-                default: break
+            if date.timeIntervalSinceReferenceDate <= Date().timeIntervalSinceReferenceDate {
+                return nil
             }
-            
+
+            // palkovnik: code performs one shot of runloop go give timers, dispatch queues and other things to process their events
+            let result = RunLoop.current.run(mode: mode, before: Date())
+            if result == false {
+                return nil
+            }
+
             if let index = indexOfEvent(matching: mask) {
                 let event = eventQueue[index]
 
@@ -259,16 +293,9 @@ open class Application: Responder {
 
                 return event
             } else {
-                let seconds = date.timeIntervalSinceReferenceDate - CFAbsoluteTimeGetCurrent()
-
-                let result = CFRunLoopRunInMode(mode.cfRunLoopMode, seconds, true)
-
-                switch result {
-                    case .finished: return nil
-                    case .stopped: return nil
-                    case .timedOut: break
-                    case .handledSource: break
-                    default: break
+                let result = RunLoop.current.run(mode: mode, before: date)
+                if result == false {
+                    return nil
                 }
             }
         }

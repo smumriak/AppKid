@@ -10,7 +10,7 @@ import Volcano
 import TinyFoundation
 import CVulkan
 
-internal final class RenderTarget {
+@_spi(AppKid) public final class RenderTarget {
     let renderPass: RenderPass
     let colorAttachment: Texture
     let framebuffer: Framebuffer

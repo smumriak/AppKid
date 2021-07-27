@@ -5,27 +5,108 @@
 //  Created by Serhii Mumriak on 22.07.2021.
 //
 
+import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class TimelineSemaphore: VulkanDeviceEntity<SmartPointer<VkSemaphore_T>> {
-    public init(device: Device) throws {
-        var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: nil, flags: 0)
+public final class TimelineSemaphore: AbstractSemaphore {
+    public init(device: Device, initialValue: UInt64 = 0) throws {
+        var typeInfo = VkSemaphoreTypeCreateInfo()
+        typeInfo.sType = .semaphoreTypeCreateInfo
+        typeInfo.semaphoreType = .timeline
+        typeInfo.initialValue = initialValue
 
-        let handlePointer = try device.create(with: &info)
+        let handlePointer: SmartPointer<VkSemaphore_T> = try withUnsafePointer(to: &typeInfo) { typeInfo in
+            var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: typeInfo, flags: 0)
+
+            return try device.create(with: &info)
+        }
+
+        _value = initialValue
 
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    var value: UInt64 {
+    internal let valueLock = NSRecursiveLock()
+    internal var _value: UInt64
+    public var value: UInt64 {
         get throws {
-            return 0
+            valueLock.lock()
+            defer { valueLock.unlock() }
+
+            try vulkanInvoke {
+                device.vkGetSemaphoreCounterValueKHR(device.handle, handle, &_value)
+            }
+
+            return _value
         }
     }
 
-    func wait(timeout: UInt64) throws {
+    public func wait(value: UInt64? = nil, timeout: UInt64 = .max) throws {
+        let value: UInt64 = {
+            if let value = value {
+                return value
+            } else {
+                valueLock.lock()
+                defer { valueLock.unlock() }
+
+                return _value + 1
+            }
+        }()
+
+        try [value].withUnsafeBufferPointer { values in
+            try [self].optionalPointers().withUnsafeBufferPointer { semaphores in
+                let flags: VkSemaphoreWaitFlagBits = []
+
+                var info = VkSemaphoreWaitInfo()
+                info.sType = .semaphoreWaitInfo
+                info.flags = flags.rawValue
+                info.semaphoreCount = CUnsignedInt(semaphores.count)
+                info.pSemaphores = semaphores.baseAddress!
+                info.pValues = values.baseAddress!
+                
+                try vulkanInvoke {
+                    device.vkWaitSemaphoresKHR(device.handle, &info, timeout)
+                }
+            }
+        }
     }
 
-    func signal(with value: UInt64) throws {
+    public func signal(increment: UInt64 = 1) throws {
+        valueLock.lock()
+        defer { valueLock.unlock() }
+
+        var info = VkSemaphoreSignalInfo()
+        info.sType = .semaphoreSignalInfo
+        info.semaphore = handle
+        info.value = _value + increment
+
+        try vulkanInvoke {
+            device.vkSignalSemaphoreKHR(device.handle, &info)
+        }
+
+        _value = info.value
+    }
+}
+
+extension Device {
+    func wait(for semaphores: [TimelineSemaphore], values: [UInt64], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
+        assert(semaphores.count == values.count)
+        try values.withUnsafeBufferPointer { values in
+            try semaphores.optionalPointers().withUnsafeBufferPointer { semaphores in
+                let flags: VkSemaphoreWaitFlagBits = waitForAll ? [] : .any
+
+                var info = VkSemaphoreWaitInfo()
+                info.sType = .semaphoreWaitInfo
+                info.flags = flags.rawValue
+                info.semaphoreCount = CUnsignedInt(semaphores.count)
+                info.pSemaphores = semaphores.baseAddress!
+                info.pValues = values.baseAddress!
+                
+                try vulkanInvoke {
+                    self.vkWaitSemaphoresKHR(handle, &info, timeout)
+                }
+            }
+        }
     }
 }

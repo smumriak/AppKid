@@ -15,6 +15,9 @@ extension VkPhysicalDevice_T: DataLoader {}
 
 public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>> {
     public let features: VkPhysicalDeviceFeatures
+    // public let features11: VkPhysicalDeviceVulkan11Features
+    // public let features12: VkPhysicalDeviceVulkan12Features
+    public let features2: VkPhysicalDeviceFeatures2
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
     public lazy var queueFamiliesDescriptors: [QueueFamilyDescriptor] = queueFamiliesProperties.enumerated()
@@ -23,6 +26,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
 
     public let memoryProperties: VkPhysicalDeviceMemoryProperties
     public let extensionProperties: [VkExtensionProperties]
+    public let supportedExtensionsVersions: [VulkanExtensionName: UInt]
 
     public lazy var memoryTypes: [VkMemoryType] = {
         return withUnsafeBytes(of: memoryProperties.memoryTypes) {
@@ -54,7 +58,31 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     }()
 
     internal override init(instance: Instance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
-        features = try handlePointer.loadData(using: vkGetPhysicalDeviceFeatures)
+        // var features11: VkPhysicalDeviceVulkan11Features = .new()
+        // var features12: VkPhysicalDeviceVulkan12Features = .new()
+        var features2: VkPhysicalDeviceFeatures2 = .new()
+
+        // try withUnsafeMutablePointer(to: &features11) { features11 in
+        // try withUnsafeMutablePointer(to: &features12) { features12 in
+        // features11.pointee.pNext = UnsafeMutableRawPointer(features12)
+        // features2.pNext = UnsafeMutableRawPointer(features11)
+
+        try withUnsafeMutablePointer(to: &features2) { features2 in
+            try vulkanInvoke {
+                vkGetPhysicalDeviceFeatures2(handlePointer.pointer, features2)
+            }
+        }
+
+        // features2.pNext = nil
+        // features11.pointee.pNext = nil
+        // }
+        // }
+
+        // self.features11 = features11
+        // self.features12 = features12
+        self.features2 = features2
+        features = features2.features
+
         properties = try handlePointer.loadData(using: vkGetPhysicalDeviceProperties)
         queueFamiliesProperties = try handlePointer.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)
         memoryProperties = try handlePointer.loadData(using: vkGetPhysicalDeviceMemoryProperties)
@@ -71,6 +99,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         }
 
         extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
+        supportedExtensionsVersions = Dictionary(uniqueKeysWithValues: extensionProperties.compactMap { $0.nameVersionKeyValue })
 
         try super.init(instance: instance, handlePointer: handlePointer)
     }

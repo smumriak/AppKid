@@ -7,7 +7,7 @@
 
 import CVulkan
 
-public protocol EntityInfo {
+public protocol EntityInfo: VulkanChainableStructure {
     associatedtype Parent: EntityFactory
     associatedtype Result
 

@@ -181,7 +181,7 @@ public extension Event.EventTypeMask {
 }
 
 public extension Event {
-    enum EventCreationError: Error, CustomDebugStringConvertible {
+    enum Error: Swift.Error, CustomDebugStringConvertible {
         case eventIgnored(description: String)
         case nativeEventIgnored(description: String)
         case noWindow(description: String)
@@ -251,7 +251,7 @@ public class Event: NSObject {
     
     public convenience init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {
         guard type.isAnyMouse else {
-            throw EventCreationError.incompatibleEventType
+            throw Error.incompatibleEventType
         }
         
         self.init(type: type, location: location, modifierFlags: modifierFlags, windowNumber: windowNumber)

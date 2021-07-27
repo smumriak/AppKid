@@ -9,12 +9,12 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public enum VulkanShaderError: Error {
-    case noData
-    case noSuchFile
-}
-
 public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
+    public enum Error: Swift.Error {
+        case noData
+        case noSuchFile
+    }
+
     public let entryPoint: String
 
     public convenience init(named name: String, entryPoint: String = "main", in bundle: Bundle? = nil, subdirectory: String? = nil, device: Device) throws {
@@ -28,7 +28,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
         }
 
         guard let url = bundle.url(forResource: fileName, withExtension: fileExtension, subdirectory: subdirectory) else {
-            throw VulkanShaderError.noSuchFile
+            throw Error.noSuchFile
         }
 
         let data = try Data(contentsOf: url, options: [])
@@ -38,7 +38,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
 
     public init(data: Data, entryPoint: String = "main", device: Device) throws {
         if data.isEmpty {
-            throw VulkanShaderError.noData
+            throw Error.noData
         }
         var info = VkShaderModuleCreateInfo()
         info.sType = .shaderModuleCreateInfo

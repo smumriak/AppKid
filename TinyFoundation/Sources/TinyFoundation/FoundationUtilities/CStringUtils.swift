@@ -28,3 +28,14 @@ public extension Array where Element == String {
         return try cStrings.map { UnsafePointer($0.pointer) }.withUnsafeBufferPointer(body)
     }
 }
+
+public extension Set where Element == String {
+    var cStrings: [SmartPointer<Int8>] {
+        let deleter = SmartPointer<Int8>.Deleter.custom { free($0) }
+
+        return map {
+            SmartPointer<Int8>(with: strdup($0), deleter: deleter)
+        }
+    }
+}
+

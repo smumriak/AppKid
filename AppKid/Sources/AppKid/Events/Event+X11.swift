@@ -114,12 +114,12 @@ internal extension Event {
         
         if type == .none {
             let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
-            throw EventCreationError.nativeEventIgnored(description: "X11 event type: \(eventString)")
+            throw Error.nativeEventIgnored(description: "X11 event type: \(eventString)")
         }
 
         guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
             let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
-            throw EventCreationError.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
+            throw Error.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }
 
         switch type {
@@ -174,7 +174,7 @@ internal extension Event {
             }
         
         default:
-            throw EventCreationError.eventIgnored(description: "Event type: \(type)")
+            throw Error.eventIgnored(description: "Event type: \(type)")
         }
     }
 }

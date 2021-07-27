@@ -2,15 +2,15 @@
 //  VertexInput.swift
 //  Volcano
 //
-//  Created by Serhii Mumriak on 20.01.2020.
+//  Created by Serhii Mumriak on 20.01.2021.
 //
 
 import Foundation
+import TinyFoundation
 import CVulkan
 import SimpleGLM
 
-public protocol VertexInput {
-    init()
+public protocol VertexInput: PublicInitializable {
     static func inputBindingDescription(binding: CUnsignedInt) -> VkVertexInputBindingDescription
 }
 

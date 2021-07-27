@@ -40,7 +40,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
 
         let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR()
-            info.sType = .swapchainCreateInfoKHR
+            info.sType = .swapchainCreateInfoKhr
             info.surface = surface.handle
             info.minImageCount = imageCount
             info.imageFormat = surface.imageFormat
@@ -70,11 +70,9 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    public var textures: [Texture] {
-        get throws {
-            try rawImages.indices.map {
-                try SwapchainTexture(swapchain: self, imageIndex: $0)
-            }
+    public func creteTextures() throws -> [Texture] {
+        try rawImages.indices.map {
+            try SwapchainTexture(swapchain: self, imageIndex: $0)
         }
     }
 

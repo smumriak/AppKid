@@ -8,7 +8,9 @@
 import TinyFoundation
 import CVulkan
 
-public final class Semaphore: VulkanDeviceEntity<SmartPointer<VkSemaphore_T>> {
+public class AbstractSemaphore: VulkanDeviceEntity<SmartPointer<VkSemaphore_T>> {}
+
+public class Semaphore: AbstractSemaphore {
     public init(device: Device) throws {
         var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: nil, flags: 0)
 

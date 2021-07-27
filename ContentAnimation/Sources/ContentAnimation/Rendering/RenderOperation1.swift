@@ -14,33 +14,33 @@ import CVulkan
 import TinyFoundation
 import LayerRenderingData
 
-internal class RenderContext {
+@_spi(AppKid) public class RenderContext1 {
     typealias ModelViewProjection = (model: mat4s, view: mat4s, projection: mat4s)
 
-    let renderStack: VolcanoRenderStack
-    var renderTargetsStack = Deque<RenderTarget>()
-    var commandBuffersStack = Deque<CommandBuffer>()
+    @usableFromInline let renderStack: VolcanoRenderStack
+    @usableFromInline var renderTargetsStack = Deque<RenderTarget>()
+    @usableFromInline var commandBuffersStack = Deque<CommandBuffer>()
     let pipelines: Pipelines
     let descriptorSetsLayouts: DescriptorSetsLayouts
     let imageFormat: VkFormat
 
     @inlinable @inline(__always)
-    var graphicsQueue: Queue { renderStack.queues.graphics }
+    internal var graphicsQueue: Queue { renderStack.queues.graphics }
 
     @inlinable @inline(__always)
-    var transferQueue: Queue { renderStack.queues.transfer }
+    internal var transferQueue: Queue { renderStack.queues.transfer }
     
     let commandPool: CommandPool
     let transferCommandPool: CommandPool
 
     var descriptors: [LayerRenderDescriptor] = []
-    var operations: [RenderOperation] = []
+    var operations: [RenderOperation1] = []
 
     @inlinable @inline(__always)
-    var renderTarget: RenderTarget { renderTargetsStack.first! }
+    internal var renderTarget: RenderTarget { renderTargetsStack.first! }
 
     @inlinable @inline(__always)
-    var commandBuffer: CommandBuffer { commandBuffersStack.first! }
+    internal var commandBuffer: CommandBuffer { commandBuffersStack.first! }
 
     private var _vertexBuffer: Buffer? = nil
 
@@ -58,6 +58,17 @@ internal class RenderContext {
     let modelViewProjectionBuffer: Buffer
     let modelViewProjectionDescriptorPool: DescriptorPool
     let modelViewProjectionDescriptorSet: DescriptorSet
+
+    let modelViewProjection: ModelViewProjection = (.identity, .identity, .identity)
+    func updateModelViewProjection(_ modelViewProjection: ModelViewProjection) throws {
+        guard modelViewProjection != self.modelViewProjection else {
+            return
+        }
+        
+        try withUnsafePointer(to: modelViewProjection) {
+            try modelViewProjectionBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
+        }
+    }
 
     let contentsDescriptorsSetCache: DescriptorsSetCache
 
@@ -156,7 +167,7 @@ internal class RenderContext {
         var bufferInfo = VkDescriptorBufferInfo()
         bufferInfo.buffer = modelViewProjectionBuffer.handle
         bufferInfo.offset = 0
-        bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext.ModelViewProjection>.stride)
+        bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext1.ModelViewProjection>.stride)
 
         try withUnsafePointer(to: &bufferInfo) { bufferInfo in
             var writeInfo = VkWriteDescriptorSet()
@@ -192,16 +203,16 @@ internal class RenderContext {
         try operations.forEach { try $0.perform(in: self) }
     }
 
-    func add(_ operation: RenderOperation) {
+    func add(_ operation: RenderOperation1) {
         operations.append(operation)
     }
 
-    func add(_ operations: [RenderOperation]) {
+    func add(_ operations: [RenderOperation1]) {
         self.operations.append(contentsOf: operations)
     }
 }
 
-extension RenderContext {
+extension RenderContext1 {
     struct Pipelines {
         let background: GraphicsPipeline
         let border: GraphicsPipeline
@@ -209,71 +220,66 @@ extension RenderContext {
     }
 }
 
-internal class RenderOperation {
-    func perform(in context: RenderContext) throws {}
+internal class RenderOperation1 {
+    func perform(in context: RenderContext1) throws {}
 
     @inlinable @inline(__always)
-    static func background() -> RenderOperation {
-        return BackgroundRenderOperation()
+    static func background() -> RenderOperation1 {
+        return BackgroundRenderOperation1()
     }
 
     @inlinable @inline(__always)
-    static func border() -> RenderOperation {
-        return BorderRenderOperation()
+    static func border() -> RenderOperation1 {
+        return BorderRenderOperation1()
     }
 
     @inlinable @inline(__always)
-    static func bindVertexBuffer(index: UInt, firstBinding: UInt = 0) -> RenderOperation {
-        return BindVertexBufferRenderOperation(index: index, firstBinding: firstBinding)
+    static func bindVertexBuffer(index: UInt, firstBinding: UInt = 0) -> RenderOperation1 {
+        return BindVertexBufferRenderOperation1(index: index, firstBinding: firstBinding)
     }
 
     @inlinable @inline(__always)
-    static func pushCommandBuffer() -> RenderOperation {
-        return PushCommandBufferRenderOperation()
+    static func pushCommandBuffer(_ commandBuffer: CommandBuffer? = nil) -> RenderOperation1 {
+        return PushCommandBufferRenderOperation1(commandBuffer: commandBuffer)
     }
 
     @inlinable @inline(__always)
-    static func popCommandBuffer() -> RenderOperation {
-        return PopCommandBufferRenderOperation()
+    static func popCommandBuffer() -> RenderOperation1 {
+        return PopCommandBufferRenderOperation1()
     }
 
     @inlinable @inline(__always)
-    static func wait(fence: Fence) -> RenderOperation {
-        return WaitFenceRenderOperation(fence: fence)
+    static func wait(fence: Fence) -> RenderOperation1 {
+        return WaitFenceRenderOperation1(fence: fence)
     }
 
     @inlinable @inline(__always)
-    static func reset(fence: Fence) -> RenderOperation {
-        return ResetFenceRenderOperation(fence: fence)
+    static func reset(fence: Fence) -> RenderOperation1 {
+        return ResetFenceRenderOperation1(fence: fence)
     }
 
     @inlinable @inline(__always)
-    static func submitCommandBuffer(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = [], waitStages: [VkPipelineStageFlagBits] = [], fence: Fence) -> RenderOperation {
-        return SubmitCommandBufferRenderOperation(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence)
+    static func pushRenderTarget(_ renderTarget: RenderTarget) -> RenderOperation1 {
+        return PushRenderTargetRenderOperation1(renderTarget: renderTarget)
     }
 
     @inlinable @inline(__always)
-    static func pushRenderTarget(renderTarget: RenderTarget) -> RenderOperation {
-        return PushRenderTargetRenderOperation(renderTarget: renderTarget)
+    static func popRenderTarget(rebind: Bool) -> RenderOperation1 {
+        return PopRenderTargetRenderOperation1(rebind: rebind)
     }
 
     @inlinable @inline(__always)
-    static func popRenderTarget(rebind: Bool) -> RenderOperation {
-        return PopRenderTargetRenderOperation(rebind: rebind)
+    static func contents(texture: Texture, layerIndex: UInt) -> RenderOperation1 {
+        return ContentsRenderOperation1(texture: texture, layerIndex: layerIndex)
     }
 
     @inlinable @inline(__always)
-    static func contents(texture: Texture, layerIndex: UInt) -> RenderOperation {
-        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex)
-    }
-
-    @inlinable @inline(__always)
-    static func updateModelViewProjection(modelViewProjection: RenderContext.ModelViewProjection) -> RenderOperation {
-        return UpdateModelViewProjectionRenderOperation(modelViewProjection: modelViewProjection)
+    static func updateModelViewProjection(modelViewProjection: RenderContext1.ModelViewProjection) -> RenderOperation1 {
+        return UpdateModelViewProjectionRenderOperation1(modelViewProjection: modelViewProjection)
     }
 }
 
-internal class BindVertexBufferRenderOperation: RenderOperation {
+internal class BindVertexBufferRenderOperation1: RenderOperation1 {
     fileprivate let index: CUnsignedInt
     fileprivate lazy var offset = VkDeviceSize(index * UInt32(MemoryLayout<LayerRenderDescriptor>.stride))
     fileprivate let firstBinding: CUnsignedInt
@@ -285,27 +291,35 @@ internal class BindVertexBufferRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         let vertexBuffer = try context.vertexBuffer
         try context.commandBuffer.bind(vertexBuffer: vertexBuffer, offset: offset, firstBinding: firstBinding)
     }
 }
 
-internal class PushCommandBufferRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext) throws {
-        let commandBuffer = try context.commandPool.createCommandBuffer()
+internal class PushCommandBufferRenderOperation1: RenderOperation1 {
+    let commandBuffer: CommandBuffer?
+    
+    init(commandBuffer: CommandBuffer? = nil) {
+        self.commandBuffer = commandBuffer
+    }
+
+    override func perform(in context: RenderContext1) throws {
+        let commandBuffer = try commandBuffer ?? context.commandPool.createCommandBuffer()
         context.commandBuffersStack.prepend(commandBuffer)
         try commandBuffer.begin()
     }
 }
 
-internal class PopCommandBufferRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext) throws {
+internal class PopCommandBufferRenderOperation1: RenderOperation1 {
+    override func perform(in context: RenderContext1) throws {
+        try context.commandBuffer.end()
+
         context.commandBuffersStack.removeFirst()
     }
 }
 
-internal class WaitFenceRenderOperation: RenderOperation {
+internal class WaitFenceRenderOperation1: RenderOperation1 {
     internal let fence: Fence
     
     init(fence: Fence) {
@@ -314,12 +328,12 @@ internal class WaitFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         try fence.wait()
     }
 }
 
-internal class ResetFenceRenderOperation: RenderOperation {
+internal class ResetFenceRenderOperation1: RenderOperation1 {
     internal let fence: Fence
 
     init(fence: Fence) {
@@ -328,46 +342,13 @@ internal class ResetFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         try fence.reset()
     }
 }
 
-internal class SubmitCommandBufferRenderOperation: RenderOperation {
-    fileprivate let waitSemaphores: [Volcano.Semaphore]
-    fileprivate let signalSemaphores: [Volcano.Semaphore]
-    fileprivate let waitStages: [VkPipelineStageFlagBits]
-    fileprivate let fence: Fence
-
-    init(waitSemaphores: [Volcano.Semaphore], signalSemaphores: [Volcano.Semaphore], waitStages: [VkPipelineStageFlagBits], fence: Fence) {
-        self.waitSemaphores = waitSemaphores
-        self.signalSemaphores = signalSemaphores
-        self.waitStages = waitStages
-        self.fence = fence
-
-        super.init()
-    }
-
-    override func perform(in context: RenderContext) throws {
-        let commandBuffer = context.commandBuffer
-
-        try commandBuffer.end()
-
-        var descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
-        try waitSemaphores.enumerated().forEach {
-            try descriptor.add(WaitDescriptor(semaphore: $0.element, waitStages: waitStages[$0.offset]))
-        }
-
-        try signalSemaphores.forEach {
-            try descriptor.add(SignalDescriptor(semaphore: $0))
-        }
-
-        try context.graphicsQueue.submit(with: descriptor)
-    }
-}
-
-internal class BackgroundRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext) throws {
+internal class BackgroundRenderOperation1: RenderOperation1 {
+    override func perform(in context: RenderContext1) throws {
         let commandBuffer = context.commandBuffer
         let backgroundPipeline = context.pipelines.background
         try commandBuffer.bind(pipeline: backgroundPipeline)
@@ -378,8 +359,8 @@ internal class BackgroundRenderOperation: RenderOperation {
     }
 }
 
-internal class BorderRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext) throws {
+internal class BorderRenderOperation1: RenderOperation1 {
+    override func perform(in context: RenderContext1) throws {
         let commandBuffer = context.commandBuffer
         let borderPipeline = context.pipelines.border
         try commandBuffer.bind(pipeline: borderPipeline)
@@ -390,7 +371,7 @@ internal class BorderRenderOperation: RenderOperation {
     }
 }
 
-internal class PushRenderTargetRenderOperation: RenderOperation {
+internal class PushRenderTargetRenderOperation1: RenderOperation1 {
     internal let renderTarget: RenderTarget
 
     init(renderTarget: RenderTarget) {
@@ -399,7 +380,7 @@ internal class PushRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         let commandBuffer = context.commandBuffer
 
         if context.renderTargetsStack.isEmpty == false {
@@ -422,7 +403,7 @@ internal class PushRenderTargetRenderOperation: RenderOperation {
     }
 }
 
-internal class PopRenderTargetRenderOperation: RenderOperation {
+internal class PopRenderTargetRenderOperation1: RenderOperation1 {
     internal let rebind: Bool
 
     init(rebind: Bool = true) {
@@ -431,7 +412,7 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         let commandBuffer = context.commandBuffer
 
         try commandBuffer.endRenderPass()
@@ -456,7 +437,7 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
     }
 }
 
-internal class ContentsRenderOperation: RenderOperation {
+internal class ContentsRenderOperation1: RenderOperation1 {
     internal let texture: Texture
     internal let layerIndex: UInt
 
@@ -465,7 +446,7 @@ internal class ContentsRenderOperation: RenderOperation {
         self.layerIndex = layerIndex
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         let commandBuffer = context.commandBuffer
         let contentsPipeline = context.pipelines.contents
         try commandBuffer.bind(pipeline: contentsPipeline)
@@ -478,14 +459,14 @@ internal class ContentsRenderOperation: RenderOperation {
     }
 }
 
-internal class UpdateModelViewProjectionRenderOperation: RenderOperation {
-    internal let modelViewProjection: RenderContext.ModelViewProjection
+internal class UpdateModelViewProjectionRenderOperation1: RenderOperation1 {
+    internal let modelViewProjection: RenderContext1.ModelViewProjection
 
-    init(modelViewProjection: RenderContext.ModelViewProjection) {
+    init(modelViewProjection: RenderContext1.ModelViewProjection) {
         self.modelViewProjection = modelViewProjection
     }
 
-    override func perform(in context: RenderContext) throws {
+    override func perform(in context: RenderContext1) throws {
         try withUnsafePointer(to: modelViewProjection) {
             try context.modelViewProjectionBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }

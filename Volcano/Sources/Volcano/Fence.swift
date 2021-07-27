@@ -7,14 +7,25 @@
 
 import TinyFoundation
 import CVulkan
+import Glibc
 
 public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
-        var info = VkFenceCreateInfo(sType: .VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, pNext: nil, flags: flags.rawValue)
+        var info = VkFenceCreateInfo(sType: .fenceCreateInfo, pNext: nil, flags: flags.rawValue)
         
         let handlePointer = try device.create(with: &info)
         
         try super.init(device: device, handlePointer: handlePointer)
+    }
+    
+    public func isSignaled() throws -> Bool {
+        let result = vkGetFenceStatus(device.handle, handle)
+        
+        switch result {
+            case .success: return true
+            case .notReady: return false
+            default: throw VulkanError.badResult(result)
+        }
     }
     
     public func wait(timeout: UInt64 = .max) throws {
@@ -30,6 +41,24 @@ public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
 
         try vulkanInvoke {
             vkResetFences(device.handle, 1, &handleOptional)
+        }
+    }
+}
+
+public extension Device {
+    func wait(for fences: [Fence], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
+        try fences.optionalPointers().withUnsafeBufferPointer { fences in
+            try vulkanInvoke {
+                vkWaitForFences(handle, CUnsignedInt(fences.count), fences.baseAddress!, waitForAll.vkBool, timeout)
+            }
+        }
+    }
+    
+    func reset(fences: [Fence]) throws {
+        try fences.optionalPointers().withUnsafeBufferPointer { fences in
+            try vulkanInvoke {
+                vkResetFences(handle, CUnsignedInt(fences.count), fences.baseAddress!)
+            }
         }
     }
 }

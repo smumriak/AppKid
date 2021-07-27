@@ -10,19 +10,20 @@ import TinyFoundation
 import CVulkan
 
 internal var globalTextureCounter: UInt = 0
-internal var globalTextureCounterSemaphore = DispatchSemaphore(value: 1)
+internal var globalTextureCounterLock = NSLock()
 
 internal func grabAvailableGlobalTextureIdentifier() -> UInt {
-    globalTextureCounterSemaphore.wait()
+    globalTextureCounterLock.lock()
     defer {
         globalTextureCounter += 1
-        globalTextureCounterSemaphore.signal()
+        globalTextureCounterLock.unlock()
     }
 
     return globalTextureCounter
 }
 
 public protocol Texture: AnyObject {
+    var device: Device { get }
     var textureIdentifier: UInt { get }
     var textureType: VkImageViewType { get }
     var pixelFormat: VkFormat { get }
@@ -85,6 +86,7 @@ public extension Texture {
 }
 
 internal class SwapchainTexture: Texture, Hashable {
+    let device: Device
     let swapchain: Swapchain
 
     let textureIdentifier: UInt
@@ -116,10 +118,12 @@ internal class SwapchainTexture: Texture, Hashable {
     }
 
     init(swapchain: Swapchain, imageIndex: Int) throws {
+        device = swapchain.device
+
         pixelFormat = swapchain.imageFormat
         self.swapchain = swapchain
 
-        image = try Image(device: swapchain.device, swapchainImageHandle: swapchain.rawImages[imageIndex], format: pixelFormat)
+        image = try Image(device: device, swapchainImageHandle: swapchain.rawImages[imageIndex], format: pixelFormat)
 
         let imageViewDescriptor = ImageViewDescriptor()
         imageViewDescriptor.flags = []
@@ -147,6 +151,7 @@ internal class SwapchainTexture: Texture, Hashable {
 }
 
 internal class GenericTexture: Texture, Hashable {
+    let device: Device
     let memoryChunk: MemoryChunk
 
     let textureIdentifier: UInt
@@ -178,6 +183,8 @@ internal class GenericTexture: Texture, Hashable {
     }
     
     init(device: Device, descriptor: TextureDescriptor) throws {
+        self.device = device
+
         let image = try Image(device: device, descriptor: descriptor.imageDescriptor)
 
         let memoryTypes = device.physicalDevice.memoryTypes
@@ -231,6 +238,7 @@ internal class GenericTexture: Texture, Hashable {
 }
 
 internal class BufferTexture: Texture, Hashable {
+    let device: Device
     let buffer: Buffer
 
     let textureIdentifier: UInt
@@ -262,6 +270,8 @@ internal class BufferTexture: Texture, Hashable {
     }
 
     init(image: Image, imageView: ImageView, buffer: Buffer) throws {
+        device = image.device
+        
         self.buffer = buffer
         self.image = image
         self.imageView = imageView

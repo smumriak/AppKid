@@ -50,15 +50,15 @@ open class CALayer: CAMediaTiming {
     public var renderID: UInt? = 0
     public var needsDisplay = false
 
+    public func setNeedsDisplay() {
+        needsDisplay = true
+    }
+
     @CALayerProperty(name: "bounds")
     open var bounds: CGRect = .zero
 
     @CALayerProperty(name: "position")
-    open var position: CGPoint = .zero {
-        didSet {
-            needsDisplay = true
-        }
-    }
+    open var position: CGPoint = .zero
 
     @CALayerProperty(name: "zPosition")
     open var zPosition: CGFloat = 0.0

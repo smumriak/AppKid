@@ -8,7 +8,7 @@
 import Foundation
 
 internal class DylibWrapper {
-    enum DylibError: Error {
+    enum Error: Swift.Error {
         case couldNotOpenLibrary(name: String)
         case noSychSymbol(name: String)
     }
@@ -21,7 +21,7 @@ internal class DylibWrapper {
 
     init(name: String) throws {
         guard let handle = dlopen(name, RTLD_NOW) else {
-            throw DylibError.couldNotOpenLibrary(name: name)
+            throw Error.couldNotOpenLibrary(name: name)
         }
 
         self.handle = handle
@@ -41,7 +41,7 @@ internal class DylibWrapper {
 
     func loadCFunction<Function>(with name: String) throws -> Function {
         guard let symbol = dlsym(handle, name) else {
-            throw DylibError.noSychSymbol(name: name)
+            throw Error.noSychSymbol(name: name)
         }
 
         return unsafeBitCast(symbol, to: Function.self)

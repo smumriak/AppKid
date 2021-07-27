@@ -33,8 +33,10 @@ extension VkInstance_T: DataLoader {}
 public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
+    internal let vkGetPhysicalDeviceSurfaceCapabilities2KHR: PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
     internal let vkGetPhysicalDeviceSurfaceFormatsKHR: PFN_vkGetPhysicalDeviceSurfaceFormatsKHR
     internal let vkGetPhysicalDeviceSurfacePresentModesKHR: PFN_vkGetPhysicalDeviceSurfacePresentModesKHR
+    internal let vkGetPhysicalDeviceExternalFenceProperties: PFN_vkGetPhysicalDeviceExternalFenceProperties
 
     public internal(set) lazy var physicalDevices: [PhysicalDevice] = {
         do {
@@ -47,7 +49,7 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
         }
     }()
     
-    public init() {
+    public init(extensions: Set<VulkanExtensionName> = []) {
         do {
             var applicationInfo = VkApplicationInfo()
             applicationInfo.sType = .applicationInfo
@@ -56,40 +58,46 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
             
             layers.append("VK_LAYER_KHRONOS_validation")
 
-            var extensions: [String] = [VK_KHR_SURFACE_EXTENSION_NAME]
+            var extensions = extensions
+            extensions.formUnion([.getPhysicalDeviceProperties2, .getSurfaceCapabilities2])
 
-            #if canImport(CXlib) && os(Linux)
-                extensions.append(VK_KHR_XLIB_SURFACE_EXTENSION_NAME)
+            #if os(Linux)
+                extensions.insert(.externalFenceCapabilities)
+            #elseif os(Windows)
+                extensions.insert(.externalFenceCapabilities)
             #endif
 
             let handlePointer: ReleasablePointer<VkInstance_T> = try layers.withUnsafeNullableCStringsBufferPointer { layers in
-                try extensions.withUnsafeNullableCStringsBufferPointer { extensions in
-                    var instanceCreationInfo = VkInstanceCreateInfo()
-                    instanceCreationInfo.sType = .instanceCreateInfo
-                    instanceCreationInfo.enabledLayerCount = CUnsignedInt(layers.count)
-                    instanceCreationInfo.ppEnabledLayerNames = layers.baseAddress!
+                try extensions.map { $0.rawValue }
+                    .withUnsafeNullableCStringsBufferPointer { extensions in
+                        var instanceCreationInfo = VkInstanceCreateInfo()
+                        instanceCreationInfo.sType = .instanceCreateInfo
+                        instanceCreationInfo.enabledLayerCount = CUnsignedInt(layers.count)
+                        instanceCreationInfo.ppEnabledLayerNames = layers.baseAddress!
 
-                    withUnsafePointer(to: &applicationInfo) {
-                        instanceCreationInfo.pApplicationInfo = $0
+                        withUnsafePointer(to: &applicationInfo) {
+                            instanceCreationInfo.pApplicationInfo = $0
+                        }
+
+                        instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
+                        instanceCreationInfo.ppEnabledExtensionNames = extensions.baseAddress!
+
+                        var instanceOptional: VkInstance?
+
+                        try vulkanInvoke {
+                            vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
+                        }
+
+                        return ReleasablePointer(with: instanceOptional!)
                     }
-
-                    instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
-                    instanceCreationInfo.ppEnabledExtensionNames = extensions.baseAddress!
-
-                    var instanceOptional: VkInstance?
-
-                    try vulkanInvoke {
-                        vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
-                    }
-
-                    return ReleasablePointer(with: instanceOptional!)
-                }
             }
             
             vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
             vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
+            vkGetPhysicalDeviceSurfaceCapabilities2KHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilities2KHR")
             vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")
             vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfacePresentModesKHR")
+            vkGetPhysicalDeviceExternalFenceProperties = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceExternalFenceProperties")
 
             super.init(handlePointer: handlePointer)
         } catch {

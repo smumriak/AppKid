@@ -15,6 +15,7 @@ import TinyFoundation
 protocol KeySomething: Hashable {}
 
 internal class DescriptorsSetCache {
+    let lock = NSRecursiveLock()
     let device: Device
     let layout: DescriptorSetLayout
     let sizes: [VkDescriptorPoolSize]
@@ -26,6 +27,9 @@ internal class DescriptorsSetCache {
     fileprivate var _currentPool: DescriptorPool? = nil
     fileprivate var currentPool: DescriptorPool {
         get throws {
+            lock.lock()
+            defer { lock.unlock() }
+        
             if _currentPool == nil {
                 _currentPool = try DescriptorPool(device: device, sizes: sizes, maxSets: maxSets)
             }
@@ -42,12 +46,18 @@ internal class DescriptorsSetCache {
     }
 
     func clear() {
+        lock.lock()
+        defer { lock.unlock() }
+        
         usedDescriptors.removeAll()
         freeDescriptors.removeAll()
         _currentPool = nil
     }
 
     func releaseDescriptorSet(for key: AnyHashable) {
+        lock.lock()
+        defer { lock.unlock() }
+        
         if let descriptorSet = usedDescriptors[key] {
             usedDescriptors.removeValue(forKey: key)
             freeDescriptors.insert(descriptorSet)
@@ -55,10 +65,16 @@ internal class DescriptorsSetCache {
     }
 
     func existingDescriptorSet(for key: AnyHashable) -> DescriptorSet? {
+        lock.lock()
+        defer { lock.unlock() }
+        
         return usedDescriptors[key]
     }
 
     func createDescriptorSet(for key: AnyHashable) throws -> DescriptorSet {
+        lock.lock()
+        defer { lock.unlock() }
+        
         if let result = usedDescriptors[key] {
             return result
         } else if let result = freeDescriptors.randomElement() {

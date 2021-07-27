@@ -10,14 +10,14 @@ import Volcano
 import TinyFoundation
 import CVulkan
 
-@_spi(AppKid) public enum VolcanoRenderStackError: Error {
-    case noDiscreteGPU
-    case noPresentationQueueFound
-    case noGraphicsQueueFound
-    case noTransferQueueFound
-}
-
 @_spi(AppKid) public final class VolcanoRenderStack {
+    @_spi(AppKid) public enum Error: Swift.Error {
+        case noDiscreteGPU
+        case noPresentationQueueFound
+        case noGraphicsQueueFound
+        case noTransferQueueFound
+    }
+
     public struct Queues {
         public let graphics: Queue
         public let transfer: Queue
@@ -27,6 +27,7 @@ import CVulkan
     public fileprivate(set) var physicalDevice: PhysicalDevice
     public fileprivate(set) var device: Device
     public fileprivate(set) var queues: Queues
+    public let semaphoreWatcher: SemaphoreWatcher
 
     public static var global: VolcanoRenderStack! = nil
     
@@ -38,15 +39,23 @@ import CVulkan
         Self.global = try VolcanoRenderStack()
     }
 
+    public func cleanup() throws {
+        try semaphoreWatcher.runLoop.stop()
+    }
+
     internal init() throws {
-        instance = Instance()
+        var extensions: Set<VulkanExtensionName> = [.surface]
+        #if os(Linux)
+            extensions.formUnion([.xlibSurface, .xcbSurface, .waylandSurface])
+        #endif
+        instance = Instance(extensions: extensions)
 
         let physicalDevice = instance.physicalDevices.first {
             $0.features.samplerAnisotropy.bool == true
         }
 
         guard let physicalDevice = physicalDevice else {
-            throw VolcanoRenderStackError.noDiscreteGPU
+            throw Error.noDiscreteGPU
         }
 
         self.physicalDevice = physicalDevice
@@ -54,17 +63,22 @@ import CVulkan
         let graphicsQueueRequest = QueueRequest(type: .graphics)
         let transferQueueRequest = QueueRequest(type: .transfer)
 
-        let device = try Device(physicalDevice: physicalDevice, queueRequests: [graphicsQueueRequest, transferQueueRequest])
+        let queueRequests = [graphicsQueueRequest, transferQueueRequest]
+
+        let vulkanExtensions: Set<VulkanExtensionName> = [.swapchain]
+
+        let device = try Device(physicalDevice: physicalDevice, queueRequests: queueRequests, extensions: vulkanExtensions)
 
         guard let graphicsQueue = device.allQueues.first(where: { $0.type.contains(.graphics) }) else {
-            throw VolcanoRenderStackError.noGraphicsQueueFound
+            throw Error.noGraphicsQueueFound
         }
 
         guard let transferQueue = device.allQueues.first(where: { $0.type.contains(.transfer) }) else {
-            throw VolcanoRenderStackError.noTransferQueueFound
+            throw Error.noTransferQueueFound
         }
         
         self.device = device
         self.queues = Queues(graphics: graphicsQueue, transfer: transferQueue)
+        semaphoreWatcher = try SemaphoreWatcher(device: device)
     }
 }
