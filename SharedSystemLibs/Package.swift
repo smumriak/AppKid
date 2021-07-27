@@ -31,7 +31,7 @@ let package = Package(
             path: "CXlib",
             pkgConfig: "x11 xext xi",
             providers: [
-                .apt(["libx11-dev libxext-dev libxi-dev"]),
+                .apt(["libx11-dev libxext-dev libxi-dev libwayland-dev libxcb1-dev"]),
                 .brew(["xquartz"]),
             ]
         ),
