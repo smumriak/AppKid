@@ -9,8 +9,8 @@ import PackagePlugin
 
 // let shaderLibraryPath = targetBuildContext.pluginWorkDirectory
 
-// commandConstructor.addPrebuildCommand(displayName: "Running glslImporter",
-//                                       executable: try targetBuildContext.tool(named: "glslImporter"),
+// try commandConstructor.addPrebuildCommand(displayName: "Running glslImporter",
+//                                       executable: targetBuildContext.tool(named: "glslImporter"),
 //                                       arguments: [],
 //                                       environment: [
 //                                           "PROJECT_DIR": "\(targetBuildContext.packageDirectory)",
