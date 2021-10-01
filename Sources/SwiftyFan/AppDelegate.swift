@@ -13,7 +13,7 @@ class AppDelegate: ApplicationDelegate {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         window.rootViewController = RootViewController()
 
-        application.add(window: window)
+        // application.add(window: window)
 
         return true
     }

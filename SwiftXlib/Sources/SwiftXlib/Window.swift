@@ -13,7 +13,7 @@ public class Window: NSObject {
     public let display: Display
     public let screen: Screen
     public let rootWindow: RootWindow?
-    public let windowID: CXlib.Window
+    public let windowIdentifier: CXlib.Window
     public let destroyOnDeinit: Bool
     
     deinit {
@@ -26,22 +26,22 @@ public class Window: NSObject {
         }
         
         if destroyOnDeinit {
-            XDestroyWindow(display.handle, windowID)
+            XDestroyWindow(display.handle, windowIdentifier)
         }
     }
 
-    internal init(display: Display, screen: Screen, rootWindow: RootWindow?, windowID: CXlib.Window, destroyOnDeinit: Bool) {
+    internal init(display: Display, screen: Screen, rootWindow: RootWindow?, windowIdentifier: CXlib.Window, destroyOnDeinit: Bool) {
         self.display = display
         self.screen = screen
         self.rootWindow = rootWindow
-        self.windowID = windowID
+        self.windowIdentifier = windowIdentifier
         self.destroyOnDeinit = destroyOnDeinit
 
         super.init()
     }
 
-    public convenience init(rootWindow: RootWindow, windowID: CXlib.Window, setupSyncCounters: Bool = true) {
-        self.init(display: rootWindow.display, screen: rootWindow.screen, rootWindow: rootWindow, windowID: windowID, destroyOnDeinit: true)
+    public convenience init(rootWindow: RootWindow, windowIdentifier: CXlib.Window, setupSyncCounters: Bool = true) {
+        self.init(display: rootWindow.display, screen: rootWindow.screen, rootWindow: rootWindow, windowIdentifier: windowIdentifier, destroyOnDeinit: true)
 
         if setupSyncCounters {
             let syncValue = XSyncValue(hi: 0, lo: 0)
@@ -67,22 +67,22 @@ public class Window: NSObject {
 
         internal var bitCount: CInt {
             switch self {
-            case .eight: return 8 // data is a sequence of bytes, i.e. 8 bit array
-            case .sixteen: return 16 // data is a sequence of shorts, i.e. 16 bit array
-            case .thirtyTwo: return 32 // data is a sequence of longs, i.e. 32 bit array on 32 bit systems, 64 bit array on 64 bit systems. fuck you X11
+                case .eight: return 8 // data is a sequence of bytes, i.e. 8 bit array
+                case .sixteen: return 16 // data is a sequence of shorts, i.e. 16 bit array
+                case .thirtyTwo: return 32 // data is a sequence of longs, i.e. 32 bit array on 32 bit systems, 64 bit array on 64 bit systems. fuck you X11
             }
         }
 
         internal var byteCount: CInt {
             switch self {
-            case .eight: return 1
-            case .sixteen: return 2
-            case .thirtyTwo:
-                #if arch(i386) || arch(arm)
-                    return 4
-                #else
-                    return 8
-                #endif
+                case .eight: return 1
+                case .sixteen: return 2
+                case .thirtyTwo:
+                    #if arch(i386) || arch(arm)
+                        return 4
+                    #else
+                        return 8
+                    #endif
             }
         }
     }
@@ -94,7 +94,7 @@ public class Window: NSObject {
         var actualType: Atom = Atom(None)
         var actualFormat: CInt = 0
 
-        XGetWindowProperty(display.handle, windowID, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
+        XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         return itemsBytesPointer.flatMap { itemsBytesPointer in
             let itemsBytesSmartPointer = SmartPointer(with: itemsBytesPointer, deleter: .custom {
@@ -116,7 +116,7 @@ public class Window: NSObject {
         
         withUnsafeBytes(of: value) { bytes in
             let buffer = bytes.bindMemory(to: UInt8.self)
-            _ = XChangeProperty(display.handle, windowID, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(size) / format.byteCount)
+            _ = XChangeProperty(display.handle, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(size) / format.byteCount)
         }
     }
 
@@ -127,7 +127,7 @@ public class Window: NSObject {
         var actualType: Atom = Atom(None)
         var actualFormat: CInt = 0
 
-        XGetWindowProperty(display.handle, windowID, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
+        XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         if let itemsBytesPointer = itemsBytesPointer {
             let itemsBytesSmartPointer = SmartPointer(with: itemsBytesPointer, deleter: .custom {
@@ -147,11 +147,9 @@ public class Window: NSObject {
     public func set<T>(property: Atom, type: Atom, format: PropertyType, mode: XlibPropertyChangeMode = .replace, value: [T]) {
         value.withUnsafeBytes { bytes in
             let buffer = bytes.bindMemory(to: UInt8.self)
-            _ = XChangeProperty(display.handle, windowID, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
+            _ = XChangeProperty(display.handle, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
         }
     }
-
-    public var syncRequested: Bool = false
 
     internal var syncCounter: (basic: XSyncCounter, extended: XSyncCounter) = (XSyncCounter(None), XSyncCounter(None))
 
@@ -159,7 +157,9 @@ public class Window: NSObject {
     public var incomingSyncCounterValue: XSyncValue? = nil
 
     public func sendSyncCounterIfNeeded() {
-        guard syncRequested else { return }
+        guard let newValue = incomingSyncCounterValue else {
+            return
+        }
 
         let counter: XSyncCounter
         
@@ -171,17 +171,16 @@ public class Window: NSObject {
 
         if counter == XSyncCounter(None) { return }
 
-        XSyncSetCounter(display.handle, counter, currentSyncCounterValue)
+        XSyncSetCounter(display.handle, counter, newValue)
+        currentSyncCounterValue = newValue
 
         display.flush()
 
-        syncRequested = false
+        self.incomingSyncCounterValue = nil
     }
 
     public func syncRequested(with value: XSyncValue) {
-        currentSyncCounterValue = value
-        
-        syncRequested = true
+        incomingSyncCounterValue = value
     }
 }
 

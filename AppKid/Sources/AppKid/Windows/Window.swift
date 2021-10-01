@@ -10,6 +10,9 @@ import CoreFoundation
 import CXlib
 import CairoGraphics
 
+// palkovnik: Start from 1
+internal var globalWindowCounter: Int = 1
+
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
 #endif
@@ -31,8 +34,10 @@ extension WindowDelegate {
 
 open class Window: View {
     public weak var delegate: WindowDelegate? = nil
+    internal private(set) var windowKeepAlive: Window?
     
-    public var nativeWindow: X11NativeWindow
+    public internal(set) var windowNumber: Int = 0
+    @_spi(AppKid) public var nativeWindow: X11NativeWindow
 
     public var title: String {
         get {
@@ -85,7 +90,16 @@ open class Window: View {
 
     // MARK: Initialization
 
+    deinit {
+        let application = Application.shared
+
+        // try? application.renderScheduler?.removeRenderer(for: self)
+        application.displayServer.nativeIdentifierToWindowNumber.removeValue(forKey: nativeWindow.windowIdentifier)
+    }
+
     internal init(nativeWindow: X11NativeWindow) {
+        let application = Application.shared
+
         self.nativeWindow = nativeWindow
         if !isVolcanoRenderingEnabled {
             _graphicsContext = X11RenderContext(nativeWindow: nativeWindow)
@@ -96,21 +110,34 @@ open class Window: View {
         frame.size.width /= nativeWindow.displayScale
         frame.size.height /= nativeWindow.displayScale
 
+        repeat {
+            windowNumber = globalWindowCounter
+            globalWindowCounter += 1
+        } while application.windowsByNumber[windowNumber] != nil
+
         super.init(with: frame)
+
+        application.windowsByNumber[windowNumber] = self
         
         transformsAreValid = true
 
         contentScaleFactor = nativeWindow.displayScale
+
+        application.add(window: self)
     }
 
     public convenience required init(contentRect: CGRect) {
-        let displayServer = Application.shared.displayServer
+        let application = Application.shared
+
+        let displayServer = application.displayServer
 
         let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect, title: "Window")
 
         // nativeWindow.transitionToFullScreen()
 
         self.init(nativeWindow: nativeWindow)
+
+        displayServer.nativeIdentifierToWindowNumber[nativeWindow.windowIdentifier] = windowNumber
     }
 
     // MARK: Rendering
@@ -119,8 +146,6 @@ open class Window: View {
 
     internal func updateSurface() {
         let application = Application.shared
-
-        guard let index = application.windows.firstIndex(of: self) else { return }
 
         if isVolcanoRenderingEnabled {
         } else {
@@ -138,14 +163,14 @@ open class Window: View {
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
 
-        if isVolcanoRenderingEnabled {
-            let renderer = application.volcanoRenderers[index]
-            do {
-                try renderer.render()
-            } catch {
-                fatalError("Failed to render with error: \(error)")
-            }
-        }
+        // if isVolcanoRenderingEnabled {
+        //     let renderer = application.volcanoRenderers[windowNumber]
+        //     do {
+        //         try renderer?.render()
+        //     } catch {
+        //         fatalError("Failed to render with error: \(error)")
+        //     }
+        // }
     }
 
     internal func createRenderer() -> SoftwareRenderer {
@@ -234,7 +259,14 @@ open class Window: View {
     }
 
     open func close() {
-        Application.shared.remove(window: self)
+        let application = Application.shared
+
+        application.remove(window: self)
+
+        // try? application.renderScheduler?.removeRenderer(for: self)
+        application.windowsByNumber.removeValue(forKey: windowNumber)
+
+        // palkovnik:TODO:Send destroy request to windowing system asynchronously
     }
 }
 

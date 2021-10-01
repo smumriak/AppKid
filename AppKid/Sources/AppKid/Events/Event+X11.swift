@@ -117,7 +117,7 @@ internal extension Event {
             throw Error.nativeEventIgnored(description: "X11 event type: \(eventString)")
         }
 
-        guard let windowNumber = Application.shared.windows.firstIndex(where: { $0.nativeWindow.windowID == x11Event.xany.window }) else {
+        guard let windowNumber = displayServer.nativeIdentifierToWindowNumber[x11Event.xany.window] else {
             let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
             throw Error.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }

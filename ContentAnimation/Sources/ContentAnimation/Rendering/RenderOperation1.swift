@@ -36,11 +36,25 @@ import LayerRenderingData
     var descriptors: [LayerRenderDescriptor] = []
     var operations: [RenderOperation1] = []
 
-    @inlinable @inline(__always)
-    internal var renderTarget: RenderTarget { renderTargetsStack.first! }
+    public private(set) var disposalBag = DisposalBag()
+
+    @usableFromInline internal var sceneRenderTarget: RenderTarget! {
+        didSet {
+            disposalBag.append(sceneRenderTarget!)
+        }
+    }
+
+    @usableFromInline internal var mainCommandBuffer: CommandBuffer! {
+        didSet {
+            disposalBag.append(mainCommandBuffer!)
+        }
+    }
 
     @inlinable @inline(__always)
-    internal var commandBuffer: CommandBuffer { commandBuffersStack.first! }
+    internal var renderTarget: RenderTarget { renderTargetsStack.first ?? sceneRenderTarget }
+
+    @inlinable @inline(__always)
+    internal var commandBuffer: CommandBuffer { commandBuffersStack.first ?? mainCommandBuffer }
 
     private var _vertexBuffer: Buffer? = nil
 
@@ -77,6 +91,21 @@ import LayerRenderingData
     private func createVertexBuffer() throws -> Buffer {
         let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * descriptors.count)
 
+        let vertexBuffer = try Buffer(device: renderStack.device,
+                                      size: bufferSize,
+                                      usage: [.vertexBuffer, .transferDestination],
+                                      memoryProperties: .deviceLocal,
+                                      accessQueues: [graphicsQueue, transferQueue])
+
+        disposalBag.append(vertexBuffer)
+
+        return vertexBuffer
+    }
+
+    internal func populateVertexBuffer() throws {
+        let vertexBuffer = try self.vertexBuffer
+        let bufferSize = vertexBuffer.size
+
         let stagingBuffer = try Buffer(device: renderStack.device,
                                        size: bufferSize,
                                        usage: [.transferSource],
@@ -89,17 +118,9 @@ import LayerRenderingData
             }
         }
 
-        let vertexBuffer = try Buffer(device: renderStack.device,
-                                      size: bufferSize,
-                                      usage: [.vertexBuffer, .transferDestination],
-                                      memoryProperties: .deviceLocal,
-                                      accessQueues: [graphicsQueue, transferQueue])
-
         try transferQueue.oneShot(in: transferCommandPool) {
             try $0.copyBuffer(from: stagingBuffer, to: vertexBuffer)
         }
-
-        return vertexBuffer
     }
 
     internal func contentsDescriptorSet(for texture: Texture, layerIndex: UInt) throws -> DescriptorSet {
@@ -194,12 +215,14 @@ import LayerRenderingData
     }
 
     func clear() throws {
+        disposalBag = DisposalBag()
         descriptors.removeAll()
         operations.removeAll()
-        _vertexBuffer = nil
+        // _vertexBuffer = nil
     }
 
     func performOperations() throws {
+        try populateVertexBuffer()
         try operations.forEach { try $0.perform(in: self) }
     }
 
@@ -209,6 +232,18 @@ import LayerRenderingData
 
     func add(_ operations: [RenderOperation1]) {
         self.operations.append(contentsOf: operations)
+    }
+}
+
+@_spi(AppKid) public class DisposalBag {
+    private var items: Deque<Any> = []
+
+    public func append(_ item: Any) {
+        items.append(item)
+    }
+
+    public func dispose() {
+        items.removeAll()
     }
 }
 
@@ -222,6 +257,16 @@ extension RenderContext1 {
 
 internal class RenderOperation1 {
     func perform(in context: RenderContext1) throws {}
+
+    @inlinable @inline(__always)
+    static func begineScene() -> RenderOperation1 {
+        return BegineSceneRenderOperation()
+    }
+    
+    @inlinable @inline(__always)
+    static func endScene() -> RenderOperation1 {
+        return EndSceneRenderOperation()
+    }
 
     @inlinable @inline(__always)
     static func background() -> RenderOperation1 {
@@ -276,6 +321,49 @@ internal class RenderOperation1 {
     @inlinable @inline(__always)
     static func updateModelViewProjection(modelViewProjection: RenderContext1.ModelViewProjection) -> RenderOperation1 {
         return UpdateModelViewProjectionRenderOperation1(modelViewProjection: modelViewProjection)
+    }
+}
+
+internal class BegineSceneRenderOperation: RenderOperation1 {
+    override func perform(in context: RenderContext1) throws {
+        guard let commandBuffer = context.mainCommandBuffer else {
+            fatalError("No main command buffer attached")
+        }
+
+        guard let renderTarget = context.sceneRenderTarget else {
+            fatalError("No scene render target attached")
+        }
+        
+        context.commandBuffersStack.prepend(commandBuffer)
+        try commandBuffer.begin()
+
+        context.renderTargetsStack.prepend(renderTarget)
+        
+        var clearValues: [VkClearValue] = []
+        if let clearColor = renderTarget.clearColor {
+            clearValues.append(clearColor)
+        }
+        try commandBuffer.begin(renderPass: renderTarget.renderPass, framebuffer: renderTarget.framebuffer, renderArea: renderTarget.renderArea, clearValues: clearValues)
+
+        let viewports = [renderTarget.viewport]
+        let scissors = [renderTarget.renderArea]
+        
+        try commandBuffer.setViewports(viewports)
+        try commandBuffer.setScissors(scissors)
+    }
+}
+
+internal class EndSceneRenderOperation: RenderOperation1 {
+    override func perform(in context: RenderContext1) throws {
+        let commandBuffer = context.commandBuffer
+
+        try commandBuffer.endRenderPass()
+
+        context.renderTargetsStack.removeFirst()
+
+        try commandBuffer.end()
+
+        context.commandBuffersStack.removeFirst()
     }
 }
 

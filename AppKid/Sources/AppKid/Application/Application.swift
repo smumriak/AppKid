@@ -16,6 +16,7 @@ import CairoGraphics
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
 internal var isVolcanoRenderingEnabled = false
+internal var isRenderingAsync = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -45,9 +46,12 @@ open class Application: Responder {
     
     open fileprivate(set) var isRunning = false
     
-    open fileprivate(set) var windows: [Window] = []
-    internal var softwareRenderers: [SoftwareRenderer] = []
-    internal var volcanoRenderers: [VolcanoSwapchainRenderer] = []
+    open var windows: [Window] { Array(windowsByNumber.values) }
+    internal var windowsByNumber: [Int: Window] = [:]
+    // internal let renderScheduler: RenderScheduler?
+
+    internal var softwareRenderers: [Int: SoftwareRenderer] = [:]
+    internal var volcanoRenderers: [Int: VolcanoSwapchainRenderer] = [:]
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -58,13 +62,17 @@ open class Application: Responder {
     internal var clickCount: Int = .zero
 
     internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        zip(self.windows, self.softwareRenderers).forEach { window, renderer in
-            if window.nativeWindow.syncRequested { return }
-            
-            if window.isMapped {
-                renderer.render(window: window)
+        windowsByNumber.values
+            .lazy
+            .filter {
+                $0.nativeWindow.syncRequested == false && $0.isMapped == true
             }
-        }
+            .map {
+                ($0, self.softwareRenderers[$0.windowNumber])
+            }
+            .forEach {
+                $0.1?.render(window: $0.0)
+            }
 
         self.displayServer.flush()
     }
@@ -73,62 +81,53 @@ open class Application: Responder {
         do {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
 
-            let renderers = Array(
-                zip(self.windows, self.volcanoRenderers)
-                    .lazy
-                    .filter { $0.0.nativeWindow.syncRequested == false && $0.0.isMapped == true }
-                    .map { $0.1 }
-            )
-
-            if renderers.isEmpty {
-                return
-            }
-
-            try renderers.forEach { renderer in
-                try renderer.render()
-            }
-
-            try renderers.forEach { renderer in
-                try renderer.layerRenderer.endFrame()
-            }
-            
+            try windowsByNumber.values
+                .lazy
+                .filter {
+                    $0.nativeWindow.syncRequested == false && $0.isMapped == true
+                }
+                .compactMap {
+                    self.volcanoRenderers[$0.windowNumber]
+                }
+                .forEach { renderer in
+                    try renderer.render()
+                    try renderer.layerRenderer.endFrame()
+                }
         } catch {
             fatalError("Failed to render with error: \(error)")
         }
     }
 
-    internal lazy var volcanoRenderTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        Task(priority: .userInitiated) { @MainActor in
-            let renderers = Array(
-                zip(self.windows, self.volcanoRenderers)
-                    .lazy
-                    .filter {
-                        $0.0.nativeWindow.syncRequested == false
-                            && $0.0.isMapped == true
-                            && $0.1.isRendering == false
-                    }
-                    .map { $0.1 }
-            )
+    // internal lazy var volcanoRenderTimerAsync = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
+    //     Task(priority: .userInitiated) { @MainActor in
+    //         let renderers = windowsByNumber.values
+    //             .lazy
+    //             .filter {
+    //                 $0.nativeWindow.syncRequested == false && $0.isMapped == true
+    //             }
+    //             .compactMap {
+    //                 self.volcanoRenderers[$0.windowNumber]
+    //             }
 
-            if renderers.isEmpty {
-                return
-            }
+    //         if renderers.isEmpty {
+    //             return
+    //         }
             
-            do {
-                try await withThrowingTaskGroup(of: Void.self) { taskGroup in
-                    renderers.forEach { renderer in
-                        taskGroup.async {
-                            try await renderer.asyncRender()
-                        }
-                    }
+    //         do {
+    //             try await withThrowingTaskGroup(of: Void.self) { @MainActor taskGroup in
+    //                 renderers.forEach { renderer in
+    //                     taskGroup.addTask {
+    //                         try await renderer.asyncRender()
+    //                     }
+    //                 }
 
-                    while let _ = try await taskGroup.next() {}
-                }
-            } catch {
-                fatalError("Failed to render with error: \(error)")
-            }
-        }
-    }
+    //                 while let _ = try await taskGroup.next() {}
+    //             }
+    //         } catch {
+    //             fatalError("Failed to render with error: \(error)")
+    //         }
+    //     }
+    // }
 
     // MARK: Initialization
 
@@ -144,8 +143,10 @@ open class Application: Responder {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
             isVolcanoRenderingEnabled = true
+            // renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetMain())
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering. Error: \(error)")
+            // renderScheduler = nil
         }
 
         displayServer.activate()
@@ -154,7 +155,7 @@ open class Application: Responder {
     }
     
     open func window(number windowNumber: Int) -> Window? {
-        return windows.indices.contains(windowNumber) ? windows[windowNumber] : nil
+        return windowsByNumber[windowNumber]
     }
     
     open fileprivate(set) var mainWindow: Window? = nil
@@ -215,7 +216,11 @@ open class Application: Responder {
         CFRunLoopAddCommonMode(CFRunLoopGetCurrent(), trackingCFRunLoopMode)
 
         if isVolcanoRenderingEnabled {
-            RunLoop.current.add(volcanoRenderTimer, forMode: .common)
+            if isRenderingAsync {
+                // RunLoop.current.add(volcanoRenderTimerAsync, forMode: .common)
+            } else {
+                RunLoop.current.add(volcanoRenderTimerSync, forMode: .common)
+            }
         } else {
             RunLoop.current.add(softwareRenderTimer, forMode: .common)
         }
@@ -236,7 +241,11 @@ open class Application: Responder {
         }
 
         if isVolcanoRenderingEnabled {
-            volcanoRenderTimer.invalidate()
+            if isRenderingAsync {
+                // volcanoRenderTimerAsync.invalidate()
+            } else {
+                volcanoRenderTimerSync.invalidate()
+            }
         } else {
             softwareRenderTimer.invalidate()
         }
@@ -309,37 +318,36 @@ open class Application: Responder {
 
     // MARK: Windows
 
-    open func add(window: Window) {
-        windows.append(window)
+    @_spi(AppKid) public func add(window: Window) {
         if isVolcanoRenderingEnabled {
             do {
                 let renderer = try VolcanoSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
                 
-                volcanoRenderers.append(renderer)
+                volcanoRenderers[window.windowNumber] = renderer
+
+                // try renderScheduler?.createRenderer(for: window)
             } catch {
                 fatalError("Failed to create window renderer with error: \(error)")
             }
         } else {
-            softwareRenderers.append(window.createRenderer())
+            let renderer = window.createRenderer()
+
+            softwareRenderers[window.windowNumber] = renderer
         }
     }
 
-    open func remove(window: Window) {
-        if let index = windows.firstIndex(of: window) {
-            remove(windowNumer: index)
-        }
-    }
-
-    open func remove(windowNumer index: Array<Window>.Index) {
+    @_spi(AppKid) public func remove(window: Window) {
         // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
+        let windowNumber = window.windowNumber
+
         if isVolcanoRenderingEnabled {
             // let renderer = volcanoRenderers.remove(at: index)
             // try? renderer.device.waitForIdle()
-            volcanoRenderers.remove(at: index)
+            volcanoRenderers.removeValue(forKey: windowNumber)
         } else {
-            softwareRenderers.remove(at: index)
+            softwareRenderers.removeValue(forKey: windowNumber)
         }
-        windows.remove(at: index)
+        windowsByNumber.removeValue(forKey: windowNumber)
 
         if windows.isEmpty && isRunning && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
             // TODO: palkovnik:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing

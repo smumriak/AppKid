@@ -46,11 +46,11 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
 
         var descriptor = SubmitDescriptor(commandBuffers: commandBuffers, fence: fence)
         try zip(waitSemaphores, waitStages).forEach {
-            try descriptor.add(WaitDescriptor(semaphore: $0.0, waitStages: $0.1))
+            try descriptor.add(.wait($0.0, stages: $0.1))
         }
 
         try signalSemaphores.forEach {
-            try descriptor.add(SignalDescriptor(semaphore: $0))
+            try descriptor.add(.signal($0))
         }
 
         try submit(with: descriptor)
@@ -88,12 +88,11 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
                                     chain.add(chainElement: timelineInfo)
                                 }
 
-                                lock.lock()
-                                defer { lock.unlock() }
-
-                                try chain.withUnsafeChainPointer { info in
-                                    try vulkanInvoke {
-                                        vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
+                                try lock.synchronized {
+                                    try chain.withUnsafeChainPointer { info in
+                                        try vulkanInvoke {
+                                            vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
+                                        }
                                     }
                                 }
                             }
@@ -125,11 +124,10 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
                     presentInfo.pImageIndices = imageIndicesPointer.baseAddress!
                     presentInfo.pResults = nil
 
-                    lock.lock()
-                    defer { lock.unlock() }
-        
-                    try vulkanInvoke {
-                        device.vkQueuePresentKHR(handle, &presentInfo)
+                    try lock.synchronized {
+                        try vulkanInvoke {
+                            device.vkQueuePresentKHR(handle, &presentInfo)
+                        }
                     }
                 }
             }
@@ -166,9 +164,9 @@ public extension Array where Element == Queue {
 }
 
 public struct WaitDescriptor {
-    let semaphore: AbstractSemaphore
-    let value: UInt64
-    let waitStages: VkPipelineStageFlagBits
+    public let semaphore: AbstractSemaphore
+    public let value: UInt64
+    public let waitStages: VkPipelineStageFlagBits
 
     public init(semaphore: Semaphore, waitStages: VkPipelineStageFlagBits) throws {
         self.semaphore = semaphore
@@ -181,11 +179,19 @@ public struct WaitDescriptor {
         self.value = try value ?? (timelineSemaphore.value + 1)
         self.waitStages = waitStages
     }
+
+    public static func wait(_ semaphore: Semaphore, stages: VkPipelineStageFlagBits) throws -> Self {
+        return try Self(semaphore: semaphore, waitStages: stages)
+    }
+
+    public static func wait(_ timelineSemaphore: TimelineSemaphore, value: UInt64? = nil, stages: VkPipelineStageFlagBits) throws -> Self {
+        return try Self(timelineSemaphore: timelineSemaphore, value: value, waitStages: stages)
+    }
 }
 
 public struct SignalDescriptor {
-    let semaphore: AbstractSemaphore
-    let value: UInt64
+    public let semaphore: AbstractSemaphore
+    public let value: UInt64
 
     public init(semaphore: Semaphore) throws {
         self.semaphore = semaphore
@@ -195,6 +201,14 @@ public struct SignalDescriptor {
     public init(timelineSemaphore: TimelineSemaphore, value: UInt64? = nil) throws {
         self.semaphore = timelineSemaphore
         self.value = try value ?? (timelineSemaphore.value + 1)
+    }
+
+    public static func signal(_ semaphore: Semaphore) throws -> Self {
+        return try Self(semaphore: semaphore)
+    }
+
+    public static func signal(_ timelineSemaphore: TimelineSemaphore, value: UInt64? = nil) throws -> Self {
+        return try Self(timelineSemaphore: timelineSemaphore, value: value)
     }
 }
 

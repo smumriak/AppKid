@@ -13,13 +13,10 @@ internal var globalTextureCounter: UInt = 0
 internal var globalTextureCounterLock = NSLock()
 
 internal func grabAvailableGlobalTextureIdentifier() -> UInt {
-    globalTextureCounterLock.lock()
-    defer {
+    return globalTextureCounterLock.synchronized {
         globalTextureCounter += 1
-        globalTextureCounterLock.unlock()
+        return globalTextureCounter
     }
-
-    return globalTextureCounter
 }
 
 public protocol Texture: AnyObject {

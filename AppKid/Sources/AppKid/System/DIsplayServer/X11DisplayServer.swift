@@ -47,6 +47,8 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
     var context = X11DisplayServerContext()
     var eventQueueNotificationObserver: NSObjectProtocol?
 
+    var nativeIdentifierToWindowNumber: [XID: Int] = [:]
+
     let applicationName: String
 
     let display: SwiftXlib.Display
@@ -129,7 +131,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
             inputMethod = nil
         }
 
-        rootWindow = X11NativeWindow(display: display, screen: screen, windowID: screen.pointee.root, title: "root")
+        rootWindow = X11NativeWindow(display: display, screen: screen, windowIdentifier: screen.pointee.root, title: "root")
 
         super.init()
 
@@ -171,14 +173,14 @@ extension X11DisplayServer {
 
         let visual = XDefaultVisualOfScreen(screen)
         let depth = XDefaultDepthOfScreen(screen)
-        let colorMap = XCreateColormap(display.handle, rootWindow.windowID, visual, AllocNone)
+        let colorMap = XCreateColormap(display.handle, rootWindow.windowIdentifier, visual, AllocNone)
         defer { XFreeColormap(display.handle, colorMap) }
 
         attributesMask |= UInt(CWColormap)
         attributes.colormap = colorMap
 
-        let windowID = XCreateWindow(display.handle,
-                                     rootWindow.windowID,
+        let windowIdentifier = XCreateWindow(display.handle,
+                                     rootWindow.windowIdentifier,
                                      intRect.x, intRect.y,
                                      CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
                                      2,
@@ -188,10 +190,10 @@ extension X11DisplayServer {
                                      attributesMask,
                                      &attributes)
 
-        let result = X11NativeWindow(display: display, screen: screen, windowID: windowID, title: title)
+        let result = X11NativeWindow(display: display, screen: screen, windowIdentifier: windowIdentifier, title: title)
         result.displayScale = context.scale
 
-        XStoreName(display.handle, windowID, title)
+        XStoreName(display.handle, windowIdentifier, title)
 
         let classHint = XAllocClassHint()
         defer { XFree(classHint) }
@@ -201,7 +203,7 @@ extension X11DisplayServer {
             classHint?.pointee.res_name = mutableString
             classHint?.pointee.res_class = mutableString
 
-            XSetClassHint(display.handle, windowID, classHint)
+            XSetClassHint(display.handle, windowIdentifier, classHint)
         }
 
         var atoms: [Atom] = [
@@ -210,14 +212,14 @@ extension X11DisplayServer {
             display.syncRequestAtom,
         ]
         atoms.withUnsafeMutableBufferPointer {
-            let _ = XSetWMProtocols(display.handle, windowID, $0.baseAddress!, CInt($0.count))
+            let _ = XSetWMProtocols(display.handle, windowIdentifier, $0.baseAddress!, CInt($0.count))
         }
 
         result.updateListeningEvents(displayServer: self)
         result.map(displayServer: self)
 
         if let inputMethod = inputMethod, let inputStyle = inputStyle {
-            result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowID)
+            result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowIdentifier)
         }
 
         flush()

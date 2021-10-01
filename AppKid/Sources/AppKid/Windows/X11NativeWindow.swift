@@ -19,22 +19,22 @@ protocol NativeWindow: AnyObject {
 public final class X11NativeWindow: NSObject, NativeWindow {
     public fileprivate(set) var display: SwiftXlib.Display
     public fileprivate(set) var screen: UnsafeMutablePointer<CXlib.Screen>
-    public fileprivate(set) var windowID: CXlib.Window
+    public fileprivate(set) var windowIdentifier: CXlib.Window
 
     public fileprivate(set) var window: SwiftXlib.Window
 
     var title: String = "" {
         didSet {
             title.withCString {
-                _ = XStoreName(display.handle, windowID, $0)
+                _ = XStoreName(display.handle, windowIdentifier, $0)
             }
         }
     }
     
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display.handle, windowID, &windowAttributes) == 0 {
-//            fatalError("Can not get window attributes for window with ID: \(windowID)")
+        if XGetWindowAttributes(display.handle, windowIdentifier, &windowAttributes) == 0 {
+//            fatalError("Can not get window attributes for window with ID: \(windowIdentifier)")
         }
         return windowAttributes
     }
@@ -48,7 +48,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     }
 
     var isRoot: Bool {
-        return screen.pointee.root == windowID
+        return screen.pointee.root == windowIdentifier
     }
 
     var acceptsMouseMovedEvents: Bool = false {
@@ -59,7 +59,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                     mask.formUnion(.pointerMotion)
                 }
 
-                XSelectInput(display.handle, windowID, Int(mask.rawValue))
+                XSelectInput(display.handle, windowIdentifier, Int(mask.rawValue))
             }
         }
     }
@@ -68,7 +68,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     // func setFloatsOnTop() {
     //     var event = XClientMessageEvent()
     //     event.type = ClientMessage
-    //     event.window = Application.shared.windows[0].nativeWindow.windowID
+    //     event.window = Application.shared.windows[0].nativeWindow.windowIdentifier
     //     event.message_type = context.stateAtom
     //     event.format = 32
     //     event.data.l.0 = 1
@@ -89,7 +89,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     public func transitionToFullScreen() {
         var event = XClientMessageEvent()
         event.type = ClientMessage
-        event.window = windowID
+        event.window = windowIdentifier
         event.message_type = display.stateAtom
         event.format = 32
         event.data.l.0 = 1
@@ -117,7 +117,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
             withUnsafePointer(to: value) {
                 $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: opacity)) {
                     let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display.handle, windowID, display.opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
+                    XChangeProperty(display.handle, windowIdentifier, display.opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
                 }
             }
         }
@@ -127,13 +127,13 @@ public final class X11NativeWindow: NSObject, NativeWindow {
 
     var inputContext: XIC? = nil
         
-    internal init(display: SwiftXlib.Display, screen: UnsafeMutablePointer<CXlib.Screen>, windowID: CXlib.Window, title: String) {
+    internal init(display: SwiftXlib.Display, screen: UnsafeMutablePointer<CXlib.Screen>, windowIdentifier: CXlib.Window, title: String) {
         self.display = display
         self.screen = screen
-        self.windowID = windowID
+        self.windowIdentifier = windowIdentifier
         self.title = title
         
-        self.window = SwiftXlib.Window(rootWindow: display.rootWindow, windowID: windowID)
+        self.window = SwiftXlib.Window(rootWindow: display.rootWindow, windowIdentifier: windowIdentifier)
 
         super.init()
     }
@@ -155,20 +155,20 @@ public final class X11NativeWindow: NSObject, NativeWindow {
                 }
             }
 
-            XISelectEvents(display.handle, windowID, &eventMasks, CInt(eventMasks.count))
-            XSelectInput(display.handle, windowID, Int(XlibEventTypeMask.geometry.rawValue))
+            XISelectEvents(display.handle, windowIdentifier, &eventMasks, CInt(eventMasks.count))
+            XSelectInput(display.handle, windowIdentifier, Int(XlibEventTypeMask.geometry.rawValue))
         } else {
-            XSelectInput(display.handle, windowID, Int(XlibEventTypeMask.basic.rawValue))
+            XSelectInput(display.handle, windowIdentifier, Int(XlibEventTypeMask.basic.rawValue))
         }
     }
 
     func map(displayServer: X11DisplayServer) {
-        XMapWindow(display.handle, windowID)
+        XMapWindow(display.handle, windowIdentifier)
     }
 }
 
 public extension X11NativeWindow {
     static func == (lhs: X11NativeWindow, rhs: X11NativeWindow) -> Bool {
-        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowID == rhs.windowID
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs) || lhs.windowIdentifier == rhs.windowIdentifier
     }
 }

@@ -83,48 +83,33 @@ internal class DescriptorSetContainer {
     }
 
     public func clear() {
-        lock.lock()
-        defer { lock.unlock() }
-
-        renderTargets.removeAll()
+        lock.synchronized {
+            renderTargets.removeAll()
+        }
     }
 
     public func existingRenderTarget(for texture: Texture) -> RenderTarget? {
-        lock.lock()
-        defer { lock.unlock() }
-
-        let textureIdentifier = ObjectIdentifier(texture)
+        lock.synchronized {
+            let textureIdentifier = ObjectIdentifier(texture)
         
-        return renderTargets[textureIdentifier]
+            return renderTargets[textureIdentifier]
+        }
     }
 
     public func createRenderTarget(for texture: Texture) throws -> RenderTarget {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        let textureIdentifier = ObjectIdentifier(texture)
+        try lock.synchronized {
+            let textureIdentifier = ObjectIdentifier(texture)
 
-        if let result = renderTargets[textureIdentifier] {
-            return result
-        } else {
-            let result = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: clearColor)
+            if let result = renderTargets[textureIdentifier] {
+                return result
+            } else {
+                let result = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: clearColor)
 
-            renderTargets[textureIdentifier] = result
+                renderTargets[textureIdentifier] = result
 
-            return result
+                return result
+            }
         }
-    }
-}
-
-internal class DisposalBag {
-    private var items: [Any] = []
-
-    internal func append(item: Any) {
-        items.append(item)
-    }
-
-    internal func dispose() {
-        items.removeAll()
     }
 }
 
@@ -137,7 +122,7 @@ internal class DisposalBag {
     var pixelFormat: VkFormat
     public var frameTime: CFTimeInterval = 0.0
     public let queues: VolcanoRenderStack.Queues
-    private var renderContext: RenderContext1
+    public private(set) var renderContext: RenderContext1
 
     public let renderStack: VolcanoRenderStack
 
@@ -233,7 +218,7 @@ internal class DisposalBag {
         }
     }
 
-    @_spi(AppKid) public func prepareRenderContext() throws {
+    @_spi(AppKid) public func buildRenderOperations() throws {
         assert(layer != nil, "Layer can not be nil for rendering!")
         guard let layer = layer else {
             throw Error.noLayer
@@ -247,36 +232,36 @@ internal class DisposalBag {
 
         let modelViewProjection: RenderContext1.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
 
+        renderContext.mainCommandBuffer = try commandBuffer
+        renderContext.sceneRenderTarget = renderTarget
+
         renderContext.add(.updateModelViewProjection(modelViewProjection: modelViewProjection))
 
-        renderContext.add(.pushCommandBuffer(try commandBuffer))
-
-        renderContext.add(.pushRenderTarget(renderTarget))
+        renderContext.add(.begineScene())
 
         var index: UInt = 0
 
         try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext)
 
-        renderContext.add(.popRenderTarget(rebind: false))
-        renderContext.add(.popCommandBuffer())
+        renderContext.add(.endScene())
     }
 
-    @_spi(AppKid) public func executeRenderOperations() throws {
+    @_spi(AppKid) public func performRenderOperations() throws {
         try renderContext.performOperations()
     }
 
     @_spi(AppKid) public func submitCommandBuffer(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = [], signalTimelineSemaphores: [TimelineSemaphore] = [], fence: Fence? = nil) throws {
         var descriptor = try SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
         try waitSemaphores.forEach {
-            try descriptor.add(WaitDescriptor(semaphore: $0, waitStages: .colorAttachmentOutput))
+            try descriptor.add(.wait($0, stages: .colorAttachmentOutput))
         }
 
         try signalSemaphores.forEach {
-            try descriptor.add(SignalDescriptor(semaphore: $0))
+            try descriptor.add(.signal($0))
         }
 
         try signalTimelineSemaphores.forEach {
-            try descriptor.add(SignalDescriptor(timelineSemaphore: $0))
+            try descriptor.add(.signal($0))
         }
 
         try renderContext.graphicsQueue.submit(with: descriptor)
@@ -291,11 +276,11 @@ internal class DisposalBag {
         defer { isRendering = false }
 
         // let startTime = CFAbsoluteTimeGetCurrent()
-        try prepareRenderContext()
+        try buildRenderOperations()
 
         // debugPrint("Draw frame start: \(startTime)")
 
-        try executeRenderOperations()
+        try performRenderOperations()
 
         try submitCommandBuffer(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, fence: fence)
 

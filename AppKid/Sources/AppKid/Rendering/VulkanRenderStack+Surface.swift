@@ -11,7 +11,7 @@ import Volcano
 public extension VolcanoRenderStack {
     func createSurface(for window: Window) throws -> Surface {
         #if os(Linux)
-            return try physicalDevice.createXlibSurface(display: window.nativeWindow.display.handle, window: window.nativeWindow.windowID)
+            return try physicalDevice.createXlibSurface(display: window.nativeWindow.display.handle, window: window.nativeWindow.windowIdentifier)
         #elseif os(macOS)
             fatalError("macOS rendering is not supported and probably never will be. Use AppKit or Catalyst")
         #elseif os(Windows)

@@ -15,6 +15,6 @@ public class RootWindow: Window {
     public lazy var supportsExtendedSyncCounter: Bool = hints.contains(display.frameDrawnAtom)
 
     public init(display: Display, screen: Screen) {
-        super.init(display: display, screen: screen, rootWindow: nil, windowID: XDefaultRootWindow(display.handle), destroyOnDeinit: false)
+        super.init(display: display, screen: screen, rootWindow: nil, windowIdentifier: XDefaultRootWindow(display.handle), destroyOnDeinit: false)
     }
 }

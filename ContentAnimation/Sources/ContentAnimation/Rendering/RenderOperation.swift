@@ -185,7 +185,7 @@ internal class RenderContext {
     func clear() throws {
         descriptors.removeAll()
         operations.removeAll()
-        _vertexBuffer = nil
+        // _vertexBuffer = nil
     }
 
     func performOperations() throws {
@@ -355,11 +355,11 @@ internal class SubmitCommandBufferRenderOperation: RenderOperation {
 
         var descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
         try waitSemaphores.enumerated().forEach {
-            try descriptor.add(WaitDescriptor(semaphore: $0.element, waitStages: waitStages[$0.offset]))
+            try descriptor.add(.wait($0.element, stages: waitStages[$0.offset]))
         }
 
         try signalSemaphores.forEach {
-            try descriptor.add(SignalDescriptor(semaphore: $0))
+            try descriptor.add(.signal($0))
         }
 
         try context.graphicsQueue.submit(with: descriptor)

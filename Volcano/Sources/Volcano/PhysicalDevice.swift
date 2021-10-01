@@ -60,6 +60,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     internal override init(instance: Instance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
         // var features11: VkPhysicalDeviceVulkan11Features = .new()
         // var features12: VkPhysicalDeviceVulkan12Features = .new()
+
         var features2: VkPhysicalDeviceFeatures2 = .new()
 
         // try withUnsafeMutablePointer(to: &features11) { features11 in

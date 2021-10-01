@@ -293,13 +293,13 @@ class RootViewController: ViewController {
             Application.shared.terminate()
         } else if event.characters == "w" && event.modifierFlags.contains(.command) {
             view.window.map {
-                Application.shared.remove(window: $0)
+                $0.close()
             }
         } else if event.characters == "n" && event.modifierFlags.contains(.command) {
             let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
             window.rootViewController = RootViewController()
 
-            Application.shared.add(window: window)
+            // Application.shared.add(window: window)
         }
         event.characters.map {
 //            if event.isARepeat {
@@ -315,7 +315,7 @@ class RootViewController: ViewController {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         window.rootViewController = RootViewController()
 
-        Application.shared.add(window: window)
+        // Application.shared.add(window: window)
     }
 
     fileprivate func spawn100WindowsButtonDidTap(sender: Button) {
@@ -324,7 +324,7 @@ class RootViewController: ViewController {
                 let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
                 window.rootViewController = RootViewController()
 
-                Application.shared.add(window: window)
+                // Application.shared.add(window: window)
             }
         }
     }
