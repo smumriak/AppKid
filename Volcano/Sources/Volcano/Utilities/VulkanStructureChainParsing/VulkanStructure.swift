@@ -726,7 +726,7 @@ extension VkPresentInfoKHR: VulkanInStructure {
     public static let type: VkStructureType = .presentInfoKhr
 }
 
-extension VkDeviceGroupPresentCapabilitiesKHR: VulkanInStructure {
+extension VkDeviceGroupPresentCapabilitiesKHR: VulkanOutStructure {
     public static let type: VkStructureType = .deviceGroupPresentCapabilitiesKhr
 }
 
@@ -1092,11 +1092,11 @@ extension VkAcquireProfilingLockInfoKHR: VulkanInStructure {
     public static let type: VkStructureType = .acquireProfilingLockInfoKhr
 }
 
-extension VkPerformanceCounterKHR: VulkanInStructure {
+extension VkPerformanceCounterKHR: VulkanOutStructure {
     public static let type: VkStructureType = .performanceCounterKhr
 }
 
-extension VkPerformanceCounterDescriptionKHR: VulkanInStructure {
+extension VkPerformanceCounterDescriptionKHR: VulkanOutStructure {
     public static let type: VkStructureType = .performanceCounterDescriptionKhr
 }
 
@@ -1850,7 +1850,7 @@ extension VkDeviceDeviceMemoryReportCreateInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .deviceDeviceMemoryReportCreateInfoExt
 }
 
-extension VkDeviceMemoryReportCallbackDataEXT: VulkanInStructure {
+extension VkDeviceMemoryReportCallbackDataEXT: VulkanOutStructure {
     public static let type: VkStructureType = .deviceMemoryReportCallbackDataExt
 }
 
@@ -1966,7 +1966,7 @@ extension VkAccelerationStructureGeometryMotionTrianglesDataNV: VulkanInStructur
     public static let type: VkStructureType = .accelerationStructureGeometryMotionTrianglesDataNv
 }
 
-extension VkPhysicalDeviceRayTracingMotionBlurFeaturesNV: VulkanInStructure {
+extension VkPhysicalDeviceRayTracingMotionBlurFeaturesNV: VulkanOutStructure {
     public static let type: VkStructureType = .physicalDeviceRayTracingMotionBlurFeaturesNv
 }
 

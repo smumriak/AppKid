@@ -513,7 +513,7 @@ public extension VkStructureType {
     static let memoryGetZirconHandleInfoFuchsia: Self = .VK_STRUCTURE_TYPE_MEMORY_GET_ZIRCON_HANDLE_INFO_FUCHSIA
     static let importSemaphoreZirconHandleInfoFuchsia: Self = .VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_ZIRCON_HANDLE_INFO_FUCHSIA
     static let semaphoreGetZirconHandleInfoFuchsia: Self = .VK_STRUCTURE_TYPE_SEMAPHORE_GET_ZIRCON_HANDLE_INFO_FUCHSIA
-    static let subpassShadingPipelineCreateInfoHuawei: Self = .VK_STRUCTURE_TYPE_SUBPASSS_SHADING_PIPELINE_CREATE_INFO_HUAWEI
+    static let subpassShadingPipelineCreateInfoHuawei: Self = .VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI
     static let physicalDeviceSubpassShadingFeaturesHuawei: Self = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI
     static let physicalDeviceSubpassShadingPropertiesHuawei: Self = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI
     static let physicalDeviceExtendedDynamicState2FeaturesExt: Self = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT
