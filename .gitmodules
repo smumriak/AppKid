@@ -1,3 +1,6 @@
 [submodule "CairoGraphics/ThirdParty/stb"]
 	path = CairoGraphics/ThirdParty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Volcano/ThirdParty/VulkanMemoryAllocator"]
+	path = Volcano/ThirdParty/VulkanMemoryAllocator
+	url = git@github.com:GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git

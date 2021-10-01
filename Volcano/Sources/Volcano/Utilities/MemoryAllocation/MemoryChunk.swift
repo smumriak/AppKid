@@ -7,6 +7,7 @@
 
 import TinyFoundation
 import CVulkan
+import VulkanMemoryAllocatorAdapted
 
 public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     public let parent: MemoryChunk?

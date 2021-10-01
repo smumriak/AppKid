@@ -15,6 +15,7 @@ let package = Package(
     ],
     products: [
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
+        .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
@@ -29,9 +30,19 @@ let package = Package(
                 .product(name: "CXlib", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
+                .target(name: "VulkanMemoryAllocatorAdapted"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"]),
+            ]
+        ),
+        .target(
+            name: "VulkanMemoryAllocatorAdapted",
+            dependencies: [
+                .product(name: "CVulkan", package: "SharedSystemLibs"),
+            ],
+            cSettings: [
+                .unsafeFlags(["-Wno-nullability-completeness"])
             ]
         ),
     ]
