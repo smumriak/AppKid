@@ -8,28 +8,18 @@
 import Foundation
 
 internal struct RetainCount {
-    private let lock = NSRecursiveLock()
-    private var value: Int64 = 0
+    @Synchronized private var value: Int64 = 0
 
     mutating func increment() {
-        lock.lock()
-        defer { lock.unlock() }
-
         value += 1
     }
 
     mutating func decrement() {
-        lock.lock()
-        defer { lock.unlock() }
-
         value -= 1
     }
 
     var currentValue: Int64 {
-        lock.lock()
-        defer { lock.unlock() }
-
-        return value
+        value
     }
 }
 

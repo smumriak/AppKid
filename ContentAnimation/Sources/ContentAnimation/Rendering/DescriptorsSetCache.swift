@@ -27,14 +27,13 @@ internal class DescriptorsSetCache {
     fileprivate var _currentPool: DescriptorPool? = nil
     fileprivate var currentPool: DescriptorPool {
         get throws {
-            lock.lock()
-            defer { lock.unlock() }
-        
-            if _currentPool == nil {
-                _currentPool = try DescriptorPool(device: device, sizes: sizes, maxSets: maxSets)
-            }
+            return try lock.synchronized {
+                if _currentPool == nil {
+                    _currentPool = try DescriptorPool(device: device, sizes: sizes, maxSets: maxSets)
+                }
 
-            return _currentPool!
+                return _currentPool!
+            }
         }
     }
 
@@ -46,65 +45,59 @@ internal class DescriptorsSetCache {
     }
 
     func clear() {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        usedDescriptors.removeAll()
-        freeDescriptors.removeAll()
-        _currentPool = nil
+        lock.synchronized {
+            usedDescriptors.removeAll()
+            freeDescriptors.removeAll()
+            _currentPool = nil
+        }
     }
 
     func releaseDescriptorSet(for key: AnyHashable) {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        if let descriptorSet = usedDescriptors[key] {
-            usedDescriptors.removeValue(forKey: key)
-            freeDescriptors.insert(descriptorSet)
+        lock.synchronized {
+            if let descriptorSet = usedDescriptors[key] {
+                usedDescriptors.removeValue(forKey: key)
+                freeDescriptors.insert(descriptorSet)
+            }
         }
     }
 
     func existingDescriptorSet(for key: AnyHashable) -> DescriptorSet? {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        return usedDescriptors[key]
+        return lock.synchronized { usedDescriptors[key] }
     }
 
     func createDescriptorSet(for key: AnyHashable) throws -> DescriptorSet {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        if let result = usedDescriptors[key] {
-            return result
-        } else if let result = freeDescriptors.randomElement() {
-            freeDescriptors.remove(result)
+        return try lock.synchronized {
+            if let result = usedDescriptors[key] {
+                return result
+            } else if let result = freeDescriptors.randomElement() {
+                freeDescriptors.remove(result)
             
-            usedDescriptors[key] = result
-            return result
-        } else {
-            let result: DescriptorSet = try {
-                do {
-                    return try currentPool.allocate(with: layout)
-                } catch {
-                    if case let VulkanError.badResult(vulkanResult) = error {
-                        switch vulkanResult {
-                            case .errmentedPool, .errorOutOfPoolMemory:
-                                _currentPool = nil
+                usedDescriptors[key] = result
+                return result
+            } else {
+                let result: DescriptorSet = try {
+                    do {
+                        return try currentPool.allocate(with: layout)
+                    } catch {
+                        if case let VulkanError.badResult(vulkanResult) = error {
+                            switch vulkanResult {
+                                case .errmentedPool, .errorOutOfPoolMemory:
+                                    _currentPool = nil
 
-                                return try currentPool.allocate(with: layout)
+                                    return try currentPool.allocate(with: layout)
 
-                            default:
-                                throw error
+                                default:
+                                    throw error
+                            }
+                        } else {
+                            throw error
                         }
-                    } else {
-                        throw error
                     }
-                }
-            }()
+                }()
 
-            usedDescriptors[key] = result
-            return result
+                usedDescriptors[key] = result
+                return result
+            }
         }
     }
 }

@@ -78,10 +78,8 @@ internal extension cairo_line_join_t {
 }
 
 @_spi(AppKid) public class CGContextDataStore {
-    //palkovnik: swift-atomics libabry can not be built on macOS. oh the irony
-    private let lock = NSRecursiveLock()
-    
-    private var useCount: UInt
+    // palkovnik: swift-atomics libabry can not be built on macOS. oh the irony
+    @Synchronized private var useCount: UInt
 
     public let surface: SmartPointer<cairo_surface_t>
     public let data: UnsafeMutableRawPointer
@@ -93,23 +91,14 @@ internal extension cairo_line_join_t {
     }
 
     public func currentValue() -> UInt {
-        lock.lock()
-        defer { lock.unlock() }
-
         return useCount
     }
 
     public func increaseUseCount() {
-        lock.lock()
-        defer { lock.unlock() }
-
         useCount += 1
     }
 
     public func decreaseUseCount() {
-        lock.lock()
-        defer { lock.unlock() }
-
         assert(useCount > 0, "Can't decrement use count from zero")
 
         useCount -= 1
