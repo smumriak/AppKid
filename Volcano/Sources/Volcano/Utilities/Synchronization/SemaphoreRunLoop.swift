@@ -23,12 +23,11 @@ internal class TimelineSemaphoreSet {
     }
 
     func add(semaphoresWithWaitValues: [TimelineSemaphore: UInt64]) {
-        lock.lock()
-        defer { lock.unlock() }
-
-        semaphoresWithWaitValues.forEach {
-            semaphoresToWaitValues[$0.key] = $0.value
-            semaphores.insert($0.key)
+        lock.synchronized {
+            semaphoresWithWaitValues.forEach {
+                semaphoresToWaitValues[$0.key] = $0.value
+                semaphores.insert($0.key)
+            }
         }
     }
 
@@ -37,44 +36,42 @@ internal class TimelineSemaphoreSet {
     }
 
     func remove(semaphores: Set<TimelineSemaphore>) {
-        lock.lock()
-        defer { lock.unlock() }
-
-        semaphores.forEach {
-            semaphoresToWaitValues.removeValue(forKey: $0)
-            self.semaphores.remove($0)
+        lock.synchronized {
+            semaphores.forEach {
+                semaphoresToWaitValues.removeValue(forKey: $0)
+                self.semaphores.remove($0)
+            }
         }
     }
 
     func modify(remove semaphoresToRemove: Set<TimelineSemaphore>, add semaphoresWithWaitValuesToAdd: [TimelineSemaphore: UInt64]) {
-        lock.lock()
-        defer { lock.unlock() }
+        lock.synchronized {
+            semaphoresToRemove.forEach {
+                semaphoresToWaitValues.removeValue(forKey: $0)
+            }
 
-        semaphoresToRemove.forEach {
-            semaphoresToWaitValues.removeValue(forKey: $0)
-        }
+            semaphores.subtract(semaphoresToRemove)
+            semaphores.formUnion(semaphoresWithWaitValuesToAdd.keys)
 
-        semaphores.subtract(semaphoresToRemove)
-        semaphores.formUnion(semaphoresWithWaitValuesToAdd.keys)
-
-        semaphoresWithWaitValuesToAdd.forEach {
-            semaphoresToWaitValues[$0.key] = $0.value
+            semaphoresWithWaitValuesToAdd.forEach {
+                semaphoresToWaitValues[$0.key] = $0.value
+            }
         }
     }
 
     func wait(forOne: Bool = true, timeout: UInt64 = .max) throws -> [TimelineSemaphore] {
         var currentSemaphores: [TimelineSemaphore] = []
-        currentSemaphores.reserveCapacity(semaphoresToWaitValues.count)
         var values: [UInt64] = []
-        values.reserveCapacity(semaphoresToWaitValues.count)
 
-        lock.lock()
+        lock.synchronized {
+            currentSemaphores.reserveCapacity(semaphoresToWaitValues.count)
+            values.reserveCapacity(semaphoresToWaitValues.count)
 
-        semaphoresToWaitValues.forEach {
-            currentSemaphores.append($0.key)
-            values.append($0.value)
+            semaphoresToWaitValues.forEach {
+                currentSemaphores.append($0.key)
+                values.append($0.value)
+            }
         }
-        lock.unlock()
         
         try device.wait(for: currentSemaphores, values: values, waitForAll: !forOne, timeout: timeout)
 
@@ -130,8 +127,23 @@ public extension SemaphoreRunLoop {
         }
     }
 
-    class SourceContinuation: Source {
+    class ContinuationSource: Source {
         public typealias Continuation = UnsafeContinuation<Void, Never>
+        public let continuation: Continuation
+
+        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, continuation: Continuation) {
+            self.continuation = continuation
+
+            super.init(with: semaphore, waitValue: waitValue)
+        }
+
+        override func perform() throws {
+            continuation.resume()
+        }
+    }
+
+    class ThrowingContinuationSource: Source {
+        public typealias Continuation = UnsafeContinuation<Void, Error>
         public let continuation: Continuation
 
         public init(with semaphore: TimelineSemaphore, waitValue: UInt64, continuation: Continuation) {
@@ -152,7 +164,7 @@ internal protocol SemaphoreRunLoopDelegate: AnyObject {
     
 public final class SemaphoreRunLoop {
     internal let lock = NSRecursiveLock()
-    internal let wakeUpSemaphore: TimelineSemaphore!
+    internal let wakeUpSemaphore: TimelineSemaphore
     internal var semaphoreSet: TimelineSemaphoreSet
     internal var semaphoreToSource: [TimelineSemaphore: Source] = [:]
 
@@ -163,27 +175,20 @@ public final class SemaphoreRunLoop {
     internal var _isStopped: Bool = false
     internal var isStopped: Bool {
         get {
-            lock.lock()
-            defer { lock.unlock() }
-
-            return _isStopped
+            lock.synchronized { _isStopped }
         }
         set {
-            lock.lock()
-            defer { lock.unlock() }
-
-            _isStopped = newValue
+            lock.synchronized { _isStopped = newValue }
         }
     }
 
     deinit {
-        lock.lock()
-        defer { lock.unlock() }
-
-        do {
-            try wakeUpSemaphore.signal()
-        } catch {
-            fatalError("Got vulkan error while trying to signal the wakeUpSemaphore: \(error)")
+        lock.synchronized {
+            do {
+                try wakeUp()
+            } catch {
+                fatalError("Got vulkan error while trying to signal the wakeUpSemaphore: \(error)")
+            }
         }
     }
 
@@ -198,13 +203,12 @@ public final class SemaphoreRunLoop {
     }
 
     public func add(sources: Set<Source>) throws {
-        lock.lock()
-        defer { lock.unlock() }
+        try lock.synchronized {
+            sourcesToAdd.formUnion(sources)
 
-        sourcesToAdd.formUnion(sources)
-
-        if _isStopped == false {
-            try wakeUpSemaphore.signal()
+            if _isStopped == false {
+                try wakeUp()
+            }
         }
     }
 
@@ -213,51 +217,46 @@ public final class SemaphoreRunLoop {
     }
 
     public func remove(sources: Set<Source>) throws {
-        lock.lock()
-        defer { lock.unlock() }
+        try lock.synchronized {
+            sourcesToRemove.formUnion(sources)
 
-        sourcesToRemove.formUnion(sources)
-
-        if _isStopped == false {
-            try wakeUpSemaphore.signal()
+            if _isStopped == false {
+                try wakeUp()
+            }
         }
     }
 
     public func wakeUp() throws {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        try wakeUpSemaphore.signal()
+        try lock.synchronized {
+            try wakeUpSemaphore.signal()
+        }
     }
 
     public func stop() throws {
-        lock.lock()
-        defer { lock.unlock() }
+        try lock.synchronized {
+            _isStopped = true
 
-        _isStopped = true
-
-        try wakeUpSemaphore.signal()
+            try wakeUp()
+        }
     }
 
     public func run(before limitDate: Date) throws -> Bool {
-        lock.lock()
+        lock.synchronized {
+            let semaphoresToRemove = Set(sourcesToRemove.map { $0.semaphore })
+            let sempahoresToAdd = Dictionary(uniqueKeysWithValues: sourcesToAdd.map { ($0.semaphore, $0.waitValue) })
+            semaphoreSet.modify(remove: semaphoresToRemove, add: sempahoresToAdd)
 
-        let semaphoresToRemove = Set(sourcesToRemove.map { $0.semaphore } )
-        let sempahoresToAdd = Dictionary(uniqueKeysWithValues: sourcesToAdd.map { ($0.semaphore, $0.waitValue) } )
-        semaphoreSet.modify(remove: semaphoresToRemove, add: sempahoresToAdd)
+            sourcesToRemove.forEach {
+                semaphoreToSource.removeValue(forKey: $0.semaphore)
+            }
 
-        sourcesToRemove.forEach {
-            semaphoreToSource.removeValue(forKey: $0.semaphore)
+            sourcesToAdd.forEach {
+                semaphoreToSource[$0.semaphore] = $0
+            }
+
+            sourcesToRemove.removeAll()
+            sourcesToAdd.removeAll()
         }
-
-        sourcesToAdd.forEach {
-            semaphoreToSource[$0.semaphore] = $0
-        }
-
-        sourcesToRemove.removeAll()
-        sourcesToAdd.removeAll()
-
-        lock.unlock()
 
         if isStopped {
             return false
@@ -282,91 +281,12 @@ public final class SemaphoreRunLoop {
                 try $0.perform()
             }
 
+        if signalledSemaphores.contains(wakeUpSemaphore) {
+            try semaphoreSet.modify(remove: [wakeUpSemaphore], add: [wakeUpSemaphore: wakeUpSemaphore.value + 1])
+        }
+
         delegate?.removeSignaledSources(sourcesToRemove)
 
         return true
-    }
-}
-
-public class SemaphoreWatcher {
-    private var thread: Thread
-    private let lock = NSRecursiveLock()
-    public let runLoop: SemaphoreRunLoop
-    public private(set) var sources: Set<SemaphoreRunLoop.Source> = []
-
-    deinit {
-        do {
-            try runLoop.stop()
-        } catch {
-            fatalError("Got vulkan error when tried to stop the SemaphoreRunLoop on deinit of SemaphoreWatcher: \(error)")
-        }
-    }
-
-    public init(device: Device) throws {
-        let runLoop = try SemaphoreRunLoop(device: device)
-        
-        thread = Thread {
-            do {
-                repeat {
-                    _ = try runLoop.run(before: .distantFuture)
-
-                    if runLoop.isStopped {
-                        break
-                    }
-                } while true
-            } catch {
-                fatalError("Got vulkan error while running the SemaphoreRunLoop: \(error)")
-            }
-        }
-
-        self.runLoop = runLoop
-
-        thread.start()
-    }
-
-    @discardableResult
-    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, callback: @escaping SemaphoreRunLoop.SourceCallback.Callback) throws -> SemaphoreRunLoop.SourceCallback {
-        lock.lock()
-        defer { lock.unlock() }
-
-        let source = try SemaphoreRunLoop.SourceCallback(with: semaphore, waitValue: waitValue ?? semaphore.value, callback: callback)
-        sources.insert(source)
-
-        try runLoop.add(source: source)
-
-        return source
-    }
-
-    @discardableResult
-    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, continuation: SemaphoreRunLoop.SourceContinuation.Continuation) throws -> SemaphoreRunLoop.SourceContinuation {
-        lock.lock()
-        defer { lock.unlock() }
-
-        let source = try SemaphoreRunLoop.SourceContinuation(with: semaphore, waitValue: waitValue ?? semaphore.value, continuation: continuation)
-        sources.insert(source)
-
-        try runLoop.add(source: source)
-
-        return source
-    }
-
-    public func remove(semaphore: Semaphore) throws {
-        lock.lock()
-        defer { lock.unlock() }
-        
-        let sources = self.sources.filter { $0.semaphore === semaphore }
-        
-        try runLoop.remove(sources: sources)
-
-        self.sources.subtract(sources)
-    }
-}
-
-extension SemaphoreWatcher: SemaphoreRunLoopDelegate {
-    func removeSignaledSources(_ sources: Set<SemaphoreRunLoop.Source>) {
-        lock.lock()
-        defer { lock.unlock() }
-
-        self.sources.subtract(sources)
     }
 }

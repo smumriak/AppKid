@@ -18,13 +18,15 @@ public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
         try super.init(device: device, handlePointer: handlePointer)
     }
     
-    public func isSignaled() throws -> Bool {
-        let result = vkGetFenceStatus(device.handle, handle)
+    public var isSignaled: Bool {
+        get throws {
+            let result = vkGetFenceStatus(device.handle, handle)
         
-        switch result {
-            case .success: return true
-            case .notReady: return false
-            default: throw VulkanError.badResult(result)
+            switch result {
+                case .success: return true
+                case .notReady: return false
+                default: throw VulkanError.badResult(result)
+            }
         }
     }
     

@@ -31,14 +31,13 @@ public final class TimelineSemaphore: AbstractSemaphore {
     internal var _value: UInt64
     public var value: UInt64 {
         get throws {
-            valueLock.lock()
-            defer { valueLock.unlock() }
+            return try valueLock.synchronized {
+                try vulkanInvoke {
+                    device.vkGetSemaphoreCounterValueKHR(device.handle, handle, &_value)
+                }
 
-            try vulkanInvoke {
-                device.vkGetSemaphoreCounterValueKHR(device.handle, handle, &_value)
+                return _value
             }
-
-            return _value
         }
     }
 
@@ -47,10 +46,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
             if let value = value {
                 return value
             } else {
-                valueLock.lock()
-                defer { valueLock.unlock() }
-
-                return _value + 1
+                return valueLock.synchronized { _value + 1 }
             }
         }()
 
@@ -73,19 +69,18 @@ public final class TimelineSemaphore: AbstractSemaphore {
     }
 
     public func signal(increment: UInt64 = 1) throws {
-        valueLock.lock()
-        defer { valueLock.unlock() }
+        try valueLock.synchronized {
+            var info = VkSemaphoreSignalInfo()
+            info.sType = .semaphoreSignalInfo
+            info.semaphore = handle
+            info.value = _value + increment
 
-        var info = VkSemaphoreSignalInfo()
-        info.sType = .semaphoreSignalInfo
-        info.semaphore = handle
-        info.value = _value + increment
+            try vulkanInvoke {
+                device.vkSignalSemaphoreKHR(device.handle, &info)
+            }
 
-        try vulkanInvoke {
-            device.vkSignalSemaphoreKHR(device.handle, &info)
+            _value = info.value
         }
-
-        _value = info.value
     }
 }
 
