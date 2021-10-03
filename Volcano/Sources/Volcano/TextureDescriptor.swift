@@ -37,12 +37,13 @@ public final class TextureDescriptor {
     public var swizzle: VkComponentMapping = .identity
     public var tiling: VkImageTiling = .optimal
 
-    public var accessQueueFamiliesIndices: [CUnsignedInt] = []
     public var isDepthTexture: Bool = false
     public var isStencilTexture: Bool = false
     public var initialLayout: VkImageLayout = .undefined
-    public var memoryProperties: VkMemoryPropertyFlagBits = []
+    public var requiredMemoryProperties: VkMemoryPropertyFlagBits = []
+    public var preferredMemoryProperties: VkMemoryPropertyFlagBits = []
 
+    public var accessQueueFamiliesIndices: [CUnsignedInt] = []
     public func setAccessQueues(_ accessQueues: [Queue]) {
         accessQueueFamiliesIndices = accessQueues.familyIndices
     }
@@ -61,7 +62,7 @@ public extension TextureDescriptor {
     }
 }
 
-internal extension TextureDescriptor {
+public extension TextureDescriptor {
     var imageDescriptor: ImageDescriptor {
         let result = ImageDescriptor()
 
@@ -72,6 +73,8 @@ internal extension TextureDescriptor {
         result.arrayLayers = CUnsignedInt(arrayLength)
         result.samples = sampleCount
         result.tiling = tiling
+        result.requiredMemoryProperties = requiredMemoryProperties
+        result.preferredMemoryProperties = preferredMemoryProperties
 
         var imageUsageFlags: VkImageUsageFlagBits = []
 
@@ -110,7 +113,7 @@ internal extension TextureDescriptor {
 
     var imageViewDescriptor: ImageViewDescriptor {
         let result = ImageViewDescriptor()
-        //palkovnik:TODO:Add proper calculation of this things instad of hardcode. Too late in the night - brain does not work.
+        // palkovnik:TODO:Add proper calculation of this things instad of hardcode. Too late in the night - brain does not work.
         result.flags = []
         result.type = textureType
         result.format = pixelFormat

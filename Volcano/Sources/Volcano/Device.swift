@@ -25,6 +25,8 @@ extension VkDevice_T: DataLoader {}
 public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
     public internal(set) var queuesByFamilyIndex: [CUnsignedInt: [Queue]] = [:]
     public internal(set) lazy var allQueues: [Queue] = queuesByFamilyIndex.values.flatMap { $0 }.sorted { $0.type < $1.type }
+    private var _memoryAllocator: MemoryAllocator? = nil
+    public var memoryAllocator: MemoryAllocator { _memoryAllocator! }
     
     internal let vkCreateSwapchainKHR: PFN_vkCreateSwapchainKHR
     internal let vkDestroySwapchainKHR: PFN_vkDestroySwapchainKHR
@@ -35,7 +37,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     internal let vkWaitSemaphoresKHR: PFN_vkWaitSemaphoresKHR
     internal let vkSignalSemaphoreKHR: PFN_vkSignalSemaphoreKHR
 
-    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<VulkanExtensionName> = []) throws {
+    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<VulkanExtensionName> = [], memoryAllocatorClass: MemoryAllocator.Type = DirectMemoryAllocator.self) throws {
         var features = physicalDevice.features
         features.samplerAnisotropy = true.vkBool
 
@@ -87,6 +89,8 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
 
         try super.init(physicalDevice: physicalDevice, handlePointer: handlePointer)
 
+        _memoryAllocator = try memoryAllocatorClass.init(device: self)
+
         for queueRequest in processedQueueRequests {
             let familyIndex = queueRequest.index
 
@@ -105,22 +109,12 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
             vkDeviceWaitIdle(handle)
         }
     }
-    
-    internal func memoryRequirements(for bufferHandle: SmartPointer<VkBuffer_T>) throws -> VkMemoryRequirements {
+
+    internal func memoryRequirements<T: SmartPointerProtocol>(for handle: T) throws -> VkMemoryRequirements where T.Pointee: MemoryBacked {
         var result = VkMemoryRequirements()
 
         try vulkanInvoke {
-            vkGetBufferMemoryRequirements(handle, bufferHandle.pointer, &result)
-        }
-        
-        return result
-    }
-
-    internal func memoryRequirements(for imageHandle: SmartPointer<VkImage_T>) throws -> VkMemoryRequirements {
-        var result = VkMemoryRequirements()
-
-        try vulkanInvoke {
-            vkGetImageMemoryRequirements(handle, imageHandle.pointer, &result)
+            T.Pointee.requirementsFunction(self.handle, handle.pointer, &result)
         }
         
         return result

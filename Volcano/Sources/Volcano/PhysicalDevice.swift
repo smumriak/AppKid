@@ -20,6 +20,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     public let features2: VkPhysicalDeviceFeatures2
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
+    public let deviceType: VkPhysicalDeviceType
     public lazy var queueFamiliesDescriptors: [QueueFamilyDescriptor] = queueFamiliesProperties.enumerated()
         .map { QueueFamilyDescriptor(index: $0, properties: $1) }
         .sorted(by: <)
@@ -50,7 +51,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
             return 0
         } else {
             result += properties.limits.maxImageDimension2D
-            if properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU {
+            if properties.deviceType == .discrete {
                 result += 1000
             }
         }
@@ -101,6 +102,8 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
 
         extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
         supportedExtensionsVersions = Dictionary(uniqueKeysWithValues: extensionProperties.compactMap { $0.nameVersionKeyValue })
+
+        deviceType = properties.deviceType
 
         try super.init(instance: instance, handlePointer: handlePointer)
     }

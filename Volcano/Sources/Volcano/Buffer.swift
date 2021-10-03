@@ -11,17 +11,24 @@ import CVulkan
 
 public typealias VkDeviceSize = CVulkan.VkDeviceSize
 
-public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
-    public let size: VkDeviceSize
-    public let usage: VkBufferUsageFlagBits
-    public let sharingMode: VkSharingMode
-    public let memoryChunk: MemoryChunk
+public final class BufferDescriptor {
+    public var size: VkDeviceSize = .zero
+    public var usage: VkBufferUsageFlagBits = []
+    public var flags: VkBufferCreateFlagBits = []
+    public var requiredMemoryProperties: VkMemoryPropertyFlagBits = []
+    public var preferredMemoryProperties: VkMemoryPropertyFlagBits = []
 
-    public init(device: Device, size: VkDeviceSize, usage: VkBufferUsageFlagBits, flags: VkBufferCreateFlagBits = [], memoryProperties: VkMemoryPropertyFlagBits, accessQueues: [Queue] = []) throws {
-        let queueFamilyIndices = accessQueues.familyIndices
-        let sharingMode: VkSharingMode = queueFamilyIndices.count > 1 ? .concurrent : .exclusive
+    public var accessQueueFamiliesIndices: [CUnsignedInt] = []
+    public func setAccessQueues(_ accessQueues: [Queue]) {
+        accessQueueFamiliesIndices = accessQueues.familyIndices
+    }
 
-        let handlePointer: SmartPointer<VkBuffer_T> = try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
+    public var sharingMode: VkSharingMode {
+        return accessQueueFamiliesIndices.count > 1 ? .concurrent : .exclusive
+    }
+
+    public func withUnsafeBufferCreateInfoPointer<T>(_ body: (UnsafePointer<VkBufferCreateInfo>) throws -> (T)) rethrows -> T {
+        return try accessQueueFamiliesIndices.withUnsafeBufferPointer { accessQueueFamiliesIndices in
             var info = VkBufferCreateInfo()
             info.sType = .bufferCreateInfo
             info.pNext = nil
@@ -29,36 +36,57 @@ public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
             info.size = size
             info.usage = usage.rawValue
             info.sharingMode = sharingMode
-            info.queueFamilyIndexCount = CUnsignedInt(queueFamilyIndices.count)
-            info.pQueueFamilyIndices = queueFamilyIndices.baseAddress!
+            info.queueFamilyIndexCount = CUnsignedInt(accessQueueFamiliesIndices.count)
+            info.pQueueFamilyIndices = accessQueueFamiliesIndices.baseAddress!
 
-            return try device.create(with: &info)
+            return try body(&info)
         }
+    }
 
-        let memoryTypes = device.physicalDevice.memoryTypes
+    public init() {}
 
-        let memoryRequirements = try device.memoryRequirements(for: handlePointer)
+    public init(stagingWithSize stagingSize: VkDeviceSize, accessQueues: [Queue]) {
+        size = stagingSize
+        usage = [.transferSource]
+        requiredMemoryProperties = [.hostVisible, .hostCoherent]
+        
+        setAccessQueues(accessQueues)
+    }
+}
 
-        let memoryTypeAndIndexOptional = memoryTypes.enumerated().first { offset, element -> Bool in
-            let flags = VkMemoryPropertyFlagBits(rawValue: element.propertyFlags)
+public class Buffer: VulkanDeviceEntity<SmartPointer<VkBuffer_T>> {
+    public let size: VkDeviceSize
+    public let usage: VkBufferUsageFlagBits
+    public let sharingMode: VkSharingMode
+    public let memoryChunk: MemoryChunk
 
-            return (memoryRequirements.memoryTypeBits & (1 << offset)) != 0 && flags.contains(memoryProperties)
-        }
-
-        guard let (memoryIndex, memoryType) = memoryTypeAndIndexOptional else {
-            throw VulkanError.noSuitableMemoryTypeAvailable
-        }
-
-        let memoryChunk = try MemoryChunk(device: device, size: memoryRequirements.size, memoryIndex: CUnsignedInt(memoryIndex), properties: VkMemoryPropertyFlagBits(rawValue: memoryType.propertyFlags))
-
-        self.memoryChunk = memoryChunk
-
+    public init(device: Device, handlePointer: SmartPointer<VkBuffer_T>, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode, memoryChunk: MemoryChunk, shouldBind: Bool = true) throws {
         self.size = size
         self.usage = usage
         self.sharingMode = sharingMode
+        self.memoryChunk = memoryChunk
 
         try super.init(device: device, handlePointer: handlePointer)
 
-        try memoryChunk.bind(to: self)
+        if shouldBind {
+            try memoryChunk.bind(to: self)
+        }
+    }
+
+    public init(device: Device, descriptor: BufferDescriptor, shouldBind: Bool = true) throws {
+        let handlePointer: SmartPointer<VkBuffer_T> = try descriptor.withUnsafeBufferCreateInfoPointer { info in
+            return try device.create(with: info)
+        }
+
+        self.size = descriptor.size
+        self.usage = descriptor.usage
+        self.sharingMode = descriptor.sharingMode
+        self.memoryChunk = try device.memoryAllocator.allocate(for: handlePointer, descriptor: descriptor)
+
+        try super.init(device: device, handlePointer: handlePointer)
+
+        if shouldBind {
+            try memoryChunk.bind(to: self)
+        }
     }
 }

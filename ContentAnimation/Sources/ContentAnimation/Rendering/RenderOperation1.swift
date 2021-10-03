@@ -91,11 +91,13 @@ import LayerRenderingData
     private func createVertexBuffer() throws -> Buffer {
         let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * descriptors.count)
 
-        let vertexBuffer = try Buffer(device: renderStack.device,
-                                      size: bufferSize,
-                                      usage: [.vertexBuffer, .transferDestination],
-                                      memoryProperties: .deviceLocal,
-                                      accessQueues: [graphicsQueue, transferQueue])
+        let vertexBufferDescriptor = BufferDescriptor()
+        vertexBufferDescriptor.size = bufferSize
+        vertexBufferDescriptor.usage = [.vertexBuffer, .transferDestination]
+        vertexBufferDescriptor.requiredMemoryProperties = .deviceLocal
+        vertexBufferDescriptor.setAccessQueues([graphicsQueue, transferQueue])
+
+        let vertexBuffer = try renderStack.device.memoryAllocator.create(with: vertexBufferDescriptor).result
 
         disposalBag.append(vertexBuffer)
 
@@ -106,11 +108,9 @@ import LayerRenderingData
         let vertexBuffer = try self.vertexBuffer
         let bufferSize = vertexBuffer.size
 
-        let stagingBuffer = try Buffer(device: renderStack.device,
-                                       size: bufferSize,
-                                       usage: [.transferSource],
-                                       memoryProperties: [.hostVisible, .hostCoherent],
-                                       accessQueues: [graphicsQueue, transferQueue])
+        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: bufferSize, accessQueues: [graphicsQueue, transferQueue])
+
+        let stagingBuffer = try renderStack.device.memoryAllocator.create(with: stagingBufferDescriptor).result
 
         try descriptors.withUnsafeBufferPointer { renderDescriptors in
             try stagingBuffer.memoryChunk.withMappedData { data, size in
@@ -174,11 +174,13 @@ import LayerRenderingData
         self.transferCommandPool = try renderStack.queues.transfer.createCommandPool(flags: .transient)
         self.imageFormat = imageFormat
 
-        modelViewProjectionBuffer = try Buffer(device: device,
-                                               size: VkDeviceSize(MemoryLayout<ModelViewProjection>.size),
-                                               usage: [.uniformBuffer],
-                                               memoryProperties: [.hostVisible, .hostCoherent],
-                                               accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
+        let modelViewProjectionBufferDescriptor = BufferDescriptor()
+        modelViewProjectionBufferDescriptor.size = VkDeviceSize(MemoryLayout<ModelViewProjection>.size)
+        modelViewProjectionBufferDescriptor.usage = [.uniformBuffer]
+        modelViewProjectionBufferDescriptor.requiredMemoryProperties = [.hostVisible, .hostCoherent]
+        modelViewProjectionBufferDescriptor.setAccessQueues([renderStack.queues.graphics, renderStack.queues.transfer])
+
+        modelViewProjectionBuffer = try renderStack.device.memoryAllocator.create(with: modelViewProjectionBufferDescriptor).result
 
         let sizes = [VkDescriptorPoolSize(type: .uniformBuffer, descriptorCount: 1)]
         modelViewProjectionDescriptorPool = try DescriptorPool(device: device, sizes: sizes, maxSets: 1)

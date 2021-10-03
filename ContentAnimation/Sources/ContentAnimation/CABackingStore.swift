@@ -93,16 +93,13 @@ import Volcano
         let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8UNorm, width: width, height: height, mipmapped: false)
         textureDescriptor.usage = [.renderTarget, .shaderRead]
         textureDescriptor.tiling = .optimal
-        textureDescriptor.memoryProperties = .deviceLocal
+        textureDescriptor.requiredMemoryProperties = .deviceLocal
 
         let result = try device.createTexture(with: textureDescriptor)
 
-        let stagingBufferSize = VkDeviceSize(bytesPerRow * height)
-        let stagingBuffer = try Buffer(device: device,
-                                       size: stagingBufferSize,
-                                       usage: [.transferSource],
-                                       memoryProperties: [.hostVisible, .hostCoherent],
-                                       accessQueues: [graphicsQueue])
+        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: VkDeviceSize(bytesPerRow * height), accessQueues: [graphicsQueue])
+
+        let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
 
         try stagingBuffer.memoryChunk.withMappedData { data, size in
             data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))

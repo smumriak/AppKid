@@ -9,6 +9,7 @@ import Foundation
 import Volcano
 import TinyFoundation
 import CVulkan
+import SwiftVMA
 
 @_spi(AppKid) public final class VolcanoRenderStack {
     @_spi(AppKid) public enum Error: Swift.Error {
@@ -67,7 +68,7 @@ import CVulkan
 
         let vulkanExtensions: Set<VulkanExtensionName> = [.swapchain]
 
-        let device = try Device(physicalDevice: physicalDevice, queueRequests: queueRequests, extensions: vulkanExtensions)
+        let device = try Device(physicalDevice: physicalDevice, queueRequests: queueRequests, extensions: vulkanExtensions, memoryAllocatorClass: VulkanMemoryAllocator.self)
 
         guard let graphicsQueue = device.allQueues.first(where: { $0.type.contains(.graphics) }) else {
             throw Error.noGraphicsQueueFound

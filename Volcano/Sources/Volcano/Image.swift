@@ -11,20 +11,21 @@ import CVulkan
 public final class Image: VulkanDeviceEntity<SmartPointer<VkImage_T>> {
     public let format: VkFormat
 
-    public init(device: Device, swapchainImageHandle handle: VkImage, format: VkFormat) throws {
+    public init(device: Device, handlePointer: SmartPointer<VkImage_T>, format: VkFormat) throws {
         self.format = format
+        try super.init(device: device, handlePointer: handlePointer)
+    }
 
-        try super.init(device: device, handlePointer: SmartPointer(with: handle))
+    public convenience init(device: Device, swapchainImageHandle handle: VkImage, format: VkFormat) throws {
+        try self.init(device: device, handlePointer: SmartPointer(with: handle), format: format)
     }
     
-    public init(device: Device, descriptor: ImageDescriptor) throws {
-        format = descriptor.format
-
+    public convenience init(device: Device, descriptor: ImageDescriptor) throws {
         let handlePointer = try descriptor.withUnsafeImageCreateInfoPointer { info in
             try device.create(with: info)
         }
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try self.init(device: device, handlePointer: handlePointer, format: descriptor.format)
     }
 }
 
@@ -41,12 +42,14 @@ public class ImageDescriptor {
     public var sharingMode: VkSharingMode = .exclusive
     public var queueFamilyIndices: [CUnsignedInt] = []
     public var initialLayout: VkImageLayout = .undefined
+    public var requiredMemoryProperties: VkMemoryPropertyFlagBits = []
+    public var preferredMemoryProperties: VkMemoryPropertyFlagBits = []
 
     public func setAccessQueues(_ accessQueues: [Queue]) {
         queueFamilyIndices = accessQueues.familyIndices
     }
 
-    internal func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
+    public func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
         return try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
             var info = VkImageCreateInfo()
 

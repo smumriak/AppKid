@@ -13,7 +13,12 @@ public protocol HandleStorageProtocol: Hashable {
     var handle: Handle_t { get }
 }
 
-open class HandleStorage<Handle>: NSObject, HandleStorageProtocol where Handle: SmartPointerProtocol {
+public protocol SmartPointerHandleStorageProtocol: HandleStorageProtocol {
+    associatedtype SmartPointerHandle_t: SmartPointerProtocol
+    var handlePointer: SmartPointerHandle_t { get }
+}
+
+open class HandleStorage<Handle>: NSObject, HandleStorageProtocol, SmartPointerHandleStorageProtocol where Handle: SmartPointerProtocol {
     public var handle: Handle.Pointer_t {
         handlePointer.pointer
     }

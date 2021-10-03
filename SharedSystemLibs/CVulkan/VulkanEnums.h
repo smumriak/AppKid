@@ -45,5 +45,6 @@ AK_EXISTING_ENUM(VkFilter);
 AK_EXISTING_ENUM(VkSamplerMipmapMode);
 AK_EXISTING_ENUM(VkBorderColor);
 AK_EXISTING_ENUM(VkSemaphoreType);
+AK_EXISTING_ENUM(VkPhysicalDeviceType);
 
 #endif /* VulkanEnums_h */

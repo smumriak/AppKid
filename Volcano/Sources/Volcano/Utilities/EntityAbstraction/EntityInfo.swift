@@ -8,8 +8,8 @@
 import CVulkan
 
 public protocol EntityInfo: VulkanChainableStructure {
-    associatedtype Parent: EntityFactory
-    associatedtype Result
+    associatedtype Parent: EntityFactory & VkEntity
+    associatedtype Result: VkEntity
 
     typealias CreateFunction = (UnsafeMutablePointer<Parent>?, UnsafePointer<Self>?, UnsafePointer<VkAllocationCallbacks>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
     static var createFunction: CreateFunction { get }

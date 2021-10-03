@@ -182,23 +182,13 @@ internal class GenericTexture: Texture, Hashable {
     init(device: Device, descriptor: TextureDescriptor) throws {
         self.device = device
 
-        let image = try Image(device: device, descriptor: descriptor.imageDescriptor)
+        let imageDescriptor = descriptor.imageDescriptor
 
-        let memoryTypes = device.physicalDevice.memoryTypes
+        let (image, memoryChunk) = try device.memoryAllocator.create(with: imageDescriptor)
 
-        let memoryRequirements = try device.memoryRequirements(for: image.handlePointer)
-
-        let memoryTypeAndIndexOptional = memoryTypes.enumerated().first { offset, element -> Bool in
-            let flags = VkMemoryPropertyFlagBits(rawValue: element.propertyFlags)
-
-            return (memoryRequirements.memoryTypeBits & (1 << offset)) != 0 && flags.contains(descriptor.memoryProperties)
-        }
-
-        guard let (memoryIndex, memoryType) = memoryTypeAndIndexOptional else {
-            throw VulkanError.noSuitableMemoryTypeAvailable
-        }
-
-        let memoryChunk = try MemoryChunk(device: device, size: memoryRequirements.size, memoryIndex: CUnsignedInt(memoryIndex), properties: VkMemoryPropertyFlagBits(rawValue: memoryType.propertyFlags))
+        // let image = try Image(device: device, descriptor: imageDescriptor)
+        
+        // let memoryChunk = try device.memoryAllocator.allocate(for: image.handlePointer, descriptor: imageDescriptor)
 
         try memoryChunk.bind(to: image)
 

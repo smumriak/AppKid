@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 import VulkanMemoryAllocatorAdapted
 
-public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
+open class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     public let parent: MemoryChunk?
     public let offset: VkDeviceSize
     public let size: VkDeviceSize
@@ -22,20 +22,24 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         }
     }
 
-    public init(parent: MemoryChunk, offset: VkDeviceSize, size: VkDeviceSize) throws {
+    public init(device: Device, handlePointer: SmartPointer<VkDeviceMemory_T>, parent: MemoryChunk?, offset: VkDeviceSize, size: VkDeviceSize, properties: VkMemoryPropertyFlagBits) throws {
+        self.parent = parent
+        self.offset = offset
+        self.size = size
+        self.properties = properties
+
+        try super.init(device: device, handlePointer: handlePointer)
+    }
+
+    public convenience init(parent: MemoryChunk, offset: VkDeviceSize, size: VkDeviceSize) throws {
         if offset + size > parent.size {
             throw VulkanError.notEnoughParentMemory
         }
 
-        self.parent = parent
-        self.offset = offset + parent.offset
-        self.size = size
-        self.properties = parent.properties
-
-        try super.init(device: parent.device, handlePointer: parent.handlePointer)
+        try self.init(device: parent.device, handlePointer: parent.handlePointer, parent: parent, offset: offset + parent.offset, size: size, properties: parent.properties)
     }
 
-    public init(device: Device, size: VkDeviceSize, memoryIndex: CUnsignedInt, properties: VkMemoryPropertyFlagBits) throws {
+    public convenience init(device: Device, size: VkDeviceSize, memoryIndex: CUnsignedInt, properties: VkMemoryPropertyFlagBits) throws {
         var memoryAllocationInfo = VkMemoryAllocateInfo()
         memoryAllocationInfo.sType = .memoryAllocateInfo
         memoryAllocationInfo.allocationSize = size
@@ -43,17 +47,12 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
 
         let handlePointer = try device.allocateMemory(info: &memoryAllocationInfo)
 
-        self.offset = 0
-        self.size = size
-        self.parent = nil
-        self.properties = properties
-
-        try super.init(device: device, handlePointer: handlePointer)
+        try self.init(device: device, handlePointer: handlePointer, parent: nil, offset: 0, size: size, properties: properties)
     }
-
-    public func mapData(_ offset: VkDeviceSize = 0) throws -> UnsafeMutableRawPointer {
+    
+    open func mapData(_ offset: VkDeviceSize = 0) throws -> UnsafeMutableRawPointer {
         assert(properties.contains(.hostVisible), "Only host visible memory can be mapped")
-        assert(currentlyMappedPointer == nil, "Memory chunk is already mapped")
+        assert(currentlyMappedPointer == nil && parent?.currentlyMappedPointer == nil, "Memory chunk is already mapped")
 
         // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
         let remainingMemorySize = self.size - offset
@@ -65,7 +64,7 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         return currentlyMappedPointer!
     }
 
-    public func unmapData() throws {
+    open func unmapData() throws {
         assert(currentlyMappedPointer != nil, "Memory chunk is not mapped")
 
         try vulkanInvoke {
@@ -107,21 +106,47 @@ public class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         }
     }
 
-    internal func bind<T: MemoryBindable>(to bindable: T) throws {
+    open func bind(to bindable: Buffer) throws {
+        try bindPrivate(to: bindable)
+    }
+
+    open func bind(to bindable: Image) throws {
+        try bindPrivate(to: bindable)
+    }
+
+    private func bindPrivate<T: MemoryBindable>(to bindable: T) throws {
         try vulkanInvoke {
             T.bindFunction(device.handle, bindable.handle, handle, offset)
         }
     }
 }
 
-public protocol MemoryBindable: HandleStorageProtocol {   
-    static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> VkResult { get }
+public protocol MemoryBacked {
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: SmartPointer<Self>.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: SmartPointer<Self>.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
-extension Buffer: MemoryBindable {
+extension VkBuffer_T: MemoryBacked {
+    public static let requirementsFunction = vkGetBufferMemoryRequirements
     public static let bindFunction = vkBindBufferMemory
 }
 
-extension Image: MemoryBindable {
+extension VkImage_T: MemoryBacked {
+    public static let requirementsFunction = vkGetImageMemoryRequirements
     public static let bindFunction = vkBindImageMemory
+}
+
+public protocol MemoryBindable: SmartPointerHandleStorageProtocol where Handle_t: UnsafeTypedPointerProtocol, Handle_t.Pointee: MemoryBacked {
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+}
+
+extension VulkanDeviceEntity: MemoryBindable where Handle_t.Pointee: MemoryBacked {
+    public static var requirementsFunction: (VkDevice?, Handle_t?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
+        return Handle_t.Pointee.requirementsFunction
+    }
+
+    public static var bindFunction: (VkDevice?, Handle_t?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
+        return Handle_t.Pointee.bindFunction
+    }
 }

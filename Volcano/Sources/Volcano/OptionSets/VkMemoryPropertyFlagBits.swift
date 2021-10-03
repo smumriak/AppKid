@@ -18,4 +18,5 @@ public extension VkMemoryPropertyFlagBits {
     static let protected: Self = .VK_MEMORY_PROPERTY_PROTECTED_BIT
     static let deviceCoherentAmd: Self = .VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD
     static let deviceUncachedAmd: Self = .VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD
+    static let rdmaCapableBitNv: Self = .VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV
 }
