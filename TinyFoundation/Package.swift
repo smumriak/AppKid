@@ -16,10 +16,14 @@ let package = Package(
     products: [
         .library(name: "TinyFoundation", type: .dynamic, targets: ["TinyFoundation"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
+    ],
     targets: [
         .target(name: "TinyFoundation",
-                dependencies: []
+                dependencies: [
+                    .product(name: "Collections", package: "swift-collections"),
+                ]
         ),
     ]
 )
