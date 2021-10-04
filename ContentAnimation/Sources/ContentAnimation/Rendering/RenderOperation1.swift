@@ -237,18 +237,6 @@ import LayerRenderingData
     }
 }
 
-@_spi(AppKid) public class DisposalBag {
-    private var items: Deque<Any> = []
-
-    public func append(_ item: Any) {
-        items.append(item)
-    }
-
-    public func dispose() {
-        items.removeAll()
-    }
-}
-
 extension RenderContext1 {
     struct Pipelines {
         let background: GraphicsPipeline
