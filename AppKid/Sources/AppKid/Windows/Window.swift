@@ -145,10 +145,7 @@ open class Window: View {
     internal var isMapped: Bool = false
 
     internal func updateSurface() {
-        let application = Application.shared
-
-        if isVolcanoRenderingEnabled {
-        } else {
+        if !isVolcanoRenderingEnabled {
             _graphicsContext?.updateSurface()
         }
 
@@ -162,15 +159,6 @@ open class Window: View {
         rootViewController?.view.frame = bounds
         rootViewController?.view.setNeedsLayout()
         rootViewController?.view.layoutIfNeeded()
-
-        // if isVolcanoRenderingEnabled {
-        //     let renderer = application.volcanoRenderers[windowNumber]
-        //     do {
-        //         try renderer?.render()
-        //     } catch {
-        //         fatalError("Failed to render with error: \(error)")
-        //     }
-        // }
     }
 
     internal func createRenderer() -> SoftwareRenderer {
@@ -407,8 +395,6 @@ fileprivate extension Window {
                     updateSurface()
                 }
 
-                nativeWindow.window.sendSyncCounterIfNeeded()
-
                 notificationCenter.post(name: .windowDidExpose, object: self)
 
             case .configurationChanged:
@@ -421,11 +407,11 @@ fileprivate extension Window {
                     }
                 }
 
-                nativeWindow.window.sendSyncCounterIfNeeded()
-
                 if sizeChanged {
                     notificationCenter.post(name: .windowDidResize, object: self)
                 }
+
+                Application.shared.renderScheduler?.windowWasResized(self)
 
             case .windowSyncRequest:
                 nativeWindow.window.syncRequested(with: event.syncCounterValue)

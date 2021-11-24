@@ -89,7 +89,9 @@ import Volcano
         return frontContext.makeImage()
     }
 
-    public func makeTexture(device: Device, graphicsQueue: Queue, commandPool: CommandPool) throws -> Texture {
+    public func makeTexture(renderStack: VolcanoRenderStack, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws -> Texture {
+        let device = renderStack.device
+
         let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8UNorm, width: width, height: height, mipmapped: false)
         textureDescriptor.usage = [.renderTarget, .shaderRead]
         textureDescriptor.tiling = .optimal
@@ -105,7 +107,7 @@ import Volcano
             data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
         }
 
-        try graphicsQueue.oneShot(in: commandPool) {
+        try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
             try $0.transitionLayout(for: result, newLayout: .transferDestinationOptimal)
             try $0.copyBuffer(from: stagingBuffer, to: result, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
             try $0.transitionLayout(for: result, newLayout: .shaderReadOnlyOptimal)

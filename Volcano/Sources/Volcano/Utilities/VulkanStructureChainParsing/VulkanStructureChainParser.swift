@@ -13,8 +13,9 @@ public struct VulkanStructureChainParser {
     let values: [VkStructureType: UnsafeRawPointer]
 
     init(chain: UnsafeRawPointer?) {
-        var nextElement = chain
-        var values: [VkStructureType: UnsafeRawPointer] = [:]
+        fatalError("Not yet materialized")
+        // var nextElement = chain
+        // var values: [VkStructureType: UnsafeRawPointer] = [:]
 
         // while let element = nextElement {
         //     let genericVylkanStructure = GenericVulkanStructureFromChainElement(element)
@@ -24,7 +25,7 @@ public struct VulkanStructureChainParser {
         //     nextElement = genericVylkanStructure.next
         // }
 
-        self.values = values
+        // self.values = values
     }
 
     func value<Result: VulkanStructure>() -> Result? {

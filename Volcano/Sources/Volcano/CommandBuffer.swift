@@ -21,6 +21,12 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         try end()
     }
 
+    public func reset(flags: VkCommandBufferResetFlagBits = []) throws {
+        try vulkanInvoke {
+            vkResetCommandBuffer(handle, flags.rawValue)
+        }
+    }
+
     public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
         var info = VkCommandBufferBeginInfo()
         info.sType = .commandBufferBeginInfo

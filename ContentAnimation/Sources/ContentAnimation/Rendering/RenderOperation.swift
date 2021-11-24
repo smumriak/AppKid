@@ -84,7 +84,7 @@ internal class RenderContext {
 
         let vertexBuffer = try renderStack.device.memoryAllocator.create(with: stagingBufferDescriptor).result
 
-        try transferQueue.oneShot(in: transferCommandPool) {
+        try transferQueue.oneShot(in: transferCommandPool, wait: true) {
             try $0.copyBuffer(from: stagingBuffer, to: vertexBuffer)
         }
 
@@ -355,7 +355,7 @@ internal class SubmitCommandBufferRenderOperation: RenderOperation {
 
         try commandBuffer.end()
 
-        var descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
+        let descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
         try waitSemaphores.enumerated().forEach {
             try descriptor.add(.wait($0.element, stages: waitStages[$0.offset]))
         }

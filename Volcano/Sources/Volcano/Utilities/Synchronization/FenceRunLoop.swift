@@ -15,7 +15,6 @@ internal class FenceSet {
 
     init(device: Device) {
         fatalError("WORK IN PROGRESS, DO NOT USE")
-        self.device = device
     }
 
     func add(fence: Fence) {

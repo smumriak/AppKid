@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import TinyFoundation
 
 // TODO: palkovnik: This code should be moved to Screen class when refactoring will be performed
 internal extension X11DisplayServer {

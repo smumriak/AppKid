@@ -227,7 +227,7 @@ public class Event: NSObject {
     public internal(set) var isDirectionInvertedFromDevice: Bool = false
 
     public internal(set) var isARepeat: Bool = false
-    public internal(set) var keyCode: UInt32 = 0
+    public internal(set) var keyCode: CUnsignedInt = 0
     public internal(set) var characters: String? = nil
     public internal(set) var charactersIgnoringModifiers: String? = nil
 

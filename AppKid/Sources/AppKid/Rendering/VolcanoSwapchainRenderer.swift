@@ -28,6 +28,9 @@ internal class VolcanoSwapchainRenderer {
 
     private(set) weak var window: Window?
     private(set) var windowKeepAlive: Window?
+
+    internal var recreateSwapchainOnNextRun: Bool = false
+
     let renderStack: VolcanoRenderStack
     let presentationQueue: Queue
 
@@ -37,15 +40,15 @@ internal class VolcanoSwapchainRenderer {
 
     internal fileprivate(set) var surface: Surface
 
-    internal let imageAvailableSemaphore: Volcano.Semaphore
-    internal let renderFinishedSemaphore: Volcano.Semaphore
+    internal let textureReadySemaphore: Volcano.Semaphore
+    internal let commandBufferExecutionCompleteSemaphore: Volcano.Semaphore
     internal let fence: Fence
     internal let timelineSemaphore: TimelineSemaphore
 
     internal var device: Device { renderStack.device }
     internal var textures: [Texture] = []
 
-    internal var state: State = .idle
+    @Synchronized internal var state: State = .idle
 
     @Synchronized internal var isRendering: Bool = false
 
@@ -58,32 +61,26 @@ internal class VolcanoSwapchainRenderer {
         windowKeepAlive = nil
     }
 
-    init(window: Window, renderStack: VolcanoRenderStack) throws {
+    init(window: Window, surface: Surface, presentationQueue: Queue, renderStack: VolcanoRenderStack) throws {
         self.window = window
         self.renderStack = renderStack
         let device = renderStack.device
-        let surface = try renderStack.createSurface(for: window)
         self.surface = surface
-
-        guard let presentationQueue = try device.allQueues.first(where: { try surface.supportsPresenting(on: $0) }) else {
-            throw VolcanoSwapchainRendererError.noPresentationQueueFound
-        }
-
         self.presentationQueue = presentationQueue
 
-        imageAvailableSemaphore = try Semaphore(device: device)
-        renderFinishedSemaphore = try Semaphore(device: device)
-
-        fence = try Fence(device: device)
-        try fence.reset()
-
-        timelineSemaphore = try TimelineSemaphore(device: device, initialValue: 0)
+        textureReadySemaphore = try Semaphore(device: device)
+        commandBufferExecutionCompleteSemaphore = try Semaphore(device: device)
 
         commandPool = try renderStack.queues.graphics.createCommandPool(flags: .resetCommandBuffer)
 
         layerRenderer = try VolcanoRenderer(pixelFormat: surface.imageFormat, commandPool: commandPool)
         layerRenderer.layer = window.layer
+
+        fence = try Fence(device: device)
+        try fence.reset()
         
+        timelineSemaphore = try TimelineSemaphore(device: device, initialValue: 0)
+
         try setupSwapchain()
     }
 
@@ -103,6 +100,9 @@ internal class VolcanoSwapchainRenderer {
 
         let width = max(min(desiredSize.width, maxSize.width), minSize.width)
         let height = max(min(desiredSize.height, maxSize.height), minSize.height)
+        // let width = desiredSize.width
+        // let height = desiredSize.height
+        
         let size = VkExtent2D(width: width, height: height)
 
         swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
@@ -111,7 +111,7 @@ internal class VolcanoSwapchainRenderer {
 
         oldSwapchain = nil
     }
-
+    
     func clearSwapchain() throws {
         // try device.waitForIdle()
 
@@ -122,7 +122,7 @@ internal class VolcanoSwapchainRenderer {
     }
 
     func grabNextTexture() throws -> (index: Int, texture: Texture) {
-        let index = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
+        let index = try swapchain.getNextImageIndex(semaphore: textureReadySemaphore)
 
         return (index: index, texture: textures[index])
     }
@@ -132,11 +132,11 @@ internal class VolcanoSwapchainRenderer {
         
         repeat {
             do {
-                let index = try swapchain.getNextImageIndex(semaphore: imageAvailableSemaphore)
+                let index = try swapchain.getNextImageIndex(semaphore: textureReadySemaphore)
 
                 return (index: index, texture: textures[index])
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate {
+                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                     if skipRecreation == true {
                         throw VulkanError.badResult(errorCode)
                     }
@@ -181,11 +181,11 @@ internal class VolcanoSwapchainRenderer {
     }
 
     @MainActor func submit() async throws {
-        try layerRenderer.submitCommandBuffer(waitSemaphores: [imageAvailableSemaphore], signalSemaphores: [renderFinishedSemaphore], signalTimelineSemaphores: [timelineSemaphore], fence: fence)
+        try layerRenderer.submitCommandBuffer(waitSemaphores: [textureReadySemaphore], signalSemaphores: [commandBufferExecutionCompleteSemaphore], signalTimelineSemaphores: [timelineSemaphore], fence: fence)
     }
 
     @MainActor func present(index: Int) async throws {
-        try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [renderFinishedSemaphore], imageIndices: [CUnsignedInt(index)])
+        try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [commandBufferExecutionCompleteSemaphore], imageIndices: [CUnsignedInt(index)])
     }
 
     func wait() async throws {
@@ -201,7 +201,7 @@ internal class VolcanoSwapchainRenderer {
             return
         }
 
-        windowKeepAlive = window
+        // windowKeepAlive = window
 
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
@@ -274,7 +274,7 @@ internal class VolcanoSwapchainRenderer {
 
         isRendering = true
 
-        windowKeepAlive = window
+        // windowKeepAlive = window
 
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
@@ -323,7 +323,7 @@ internal class VolcanoSwapchainRenderer {
 
                 break
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate {
+                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                     if skipRecreation == true {
                         isRendering = false
                         windowKeepAlive = nil
@@ -360,6 +360,13 @@ internal class VolcanoSwapchainRenderer {
         isRendering = true
         defer { isRendering = false }
 
+        if recreateSwapchainOnNextRun {
+            recreateSwapchainOnNextRun = false
+            
+            try clearSwapchain()
+            try setupSwapchain()
+        }
+
         // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
@@ -373,18 +380,18 @@ internal class VolcanoSwapchainRenderer {
 
                 try layerRenderer.beginFrame(atTime: 0)
 
-                try layerRenderer.render(waitSemaphores: [imageAvailableSemaphore], signalSemaphores: [renderFinishedSemaphore], fence: fence)
+                try layerRenderer.render(waitSemaphores: [textureReadySemaphore], signalSemaphores: [commandBufferExecutionCompleteSemaphore], fence: fence)
 
                 try fence.wait()
                 try fence.reset()
 
-                try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [renderFinishedSemaphore], imageIndices: [CUnsignedInt(index)])
+                try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [commandBufferExecutionCompleteSemaphore], imageIndices: [CUnsignedInt(index)])
 
                 try layerRenderer.endFrame()
 
                 break
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate {
+                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                     if skipRecreation == true {
                         break
                     }
@@ -398,5 +405,9 @@ internal class VolcanoSwapchainRenderer {
                 }
             }
         }
+    }
+
+    internal func resetState(to state: State = .idle) {
+        self.state = state
     }
 }

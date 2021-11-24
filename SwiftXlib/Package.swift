@@ -14,7 +14,7 @@ let package = Package(
         .macOS(.v11),
     ],
     products: [
-        .library(name: "SwiftXlib", type: .static, targets: ["SwiftXlib"]),
+        .library(name: "SwiftXlib", type: .dynamic, targets: ["SwiftXlib"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
@@ -26,6 +26,9 @@ let package = Package(
             dependencies: [
                 .product(name: "CXlib", package: "SharedSystemLibs"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]
         ),
         .testTarget(

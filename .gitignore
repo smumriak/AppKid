@@ -6,10 +6,12 @@ xcuserdata/
 Build
 *.xccheckout
 *.xcscmblueprint
-xcuserdata
 *.xcuserstate
 *.lock
 .Trashes
 .swiftpm/
 *.volcano.glsl
 SwiftyFan.executable.link
+.DS_Store
+DerivedData/
+.netrc

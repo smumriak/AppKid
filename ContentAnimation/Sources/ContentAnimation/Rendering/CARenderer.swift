@@ -56,7 +56,7 @@ open class CARenderer: NSObject {
 
     internal var device: Device { renderStack.device }
 
-    internal fileprivate(set) var renderFinishedSemaphore: Volcano.Semaphore
+    internal fileprivate(set) var commandBufferExecutionCompleteSemaphore: Volcano.Semaphore
     @_spi(AppKid) public fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
     internal fileprivate(set) var renderTarget: RenderTarget
@@ -74,7 +74,7 @@ open class CARenderer: NSObject {
 
         self.queues = VolcanoRenderStack.Queues(graphics: renderStack.queues.graphics, transfer: renderStack.queues.transfer)
 
-        renderFinishedSemaphore = try Semaphore(device: device)
+        commandBufferExecutionCompleteSemaphore = try Semaphore(device: device)
         fence = try Fence(device: device)
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
@@ -192,7 +192,7 @@ open class CARenderer: NSObject {
         let anchorPoint = layer.anchorPoint
         let contentsScale = layer.contentsScale
 
-        let needsOffscreenRendering = layer.needsOffscreenRendering
+        // let needsOffscreenRendering = layer.needsOffscreenRendering
         let needsDisplay = layer.needsDisplay
 
         if needsDisplay {
@@ -238,14 +238,14 @@ open class CARenderer: NSObject {
         var contentsTexture: Texture? = nil
 
         switch layer.contents {
-            case .some(let image as CGImage):
+            case .some(_ as CGImage):
                 break
 
             case .some(let backingStore as CABackingStore):
                 contentsTexture = backingStore.currentTexture
 
                 if contentsTexture == nil {
-                    contentsTexture = try backingStore.makeTexture(device: device, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
+                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
 
                     backingStore.currentTexture = contentsTexture
                 }

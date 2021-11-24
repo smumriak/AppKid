@@ -37,25 +37,6 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
         }
     }
 
-    public func submit(commandBuffers: [CommandBuffer],
-                       waitSemaphores: [Volcano.Semaphore] = [],
-                       signalSemaphores: [Volcano.Semaphore] = [],
-                       waitStages: [VkPipelineStageFlagBits] = [],
-                       fence: Fence? = nil) throws {
-        assert(waitSemaphores.count == waitStages.count)
-
-        var descriptor = SubmitDescriptor(commandBuffers: commandBuffers, fence: fence)
-        try zip(waitSemaphores, waitStages).forEach {
-            try descriptor.add(.wait($0.0, stages: $0.1))
-        }
-
-        try signalSemaphores.forEach {
-            try descriptor.add(.signal($0))
-        }
-
-        try submit(with: descriptor)
-    }
-
     public func submit(with descriptor: SubmitDescriptor) throws {
         try descriptor.commandBuffers.optionalPointers().withUnsafeBufferPointer { commandBuffers in
             try descriptor.waitSemaphores.optionalPointers().withUnsafeBufferPointer { waitSemaphores in
@@ -134,10 +115,14 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
         }
     }
 
-    public func oneShot(in commandPool: CommandPool, wait: Bool = true, _ body: (_ commandBuffer: CommandBuffer) throws -> ()) throws {
+    public func oneShot(in commandPool: CommandPool, wait: Bool, semaphores: [TimelineSemaphore] = [], disposalBag: DisposalBag? = nil, _ body: (_ commandBuffer: CommandBuffer) throws -> ()) throws {
         let commandBuffer = try commandPool.createCommandBuffer()
+        disposalBag?.append(commandBuffer)
 
         let fence: Fence? = wait ? try Fence(device: device) : nil
+        if let fence = fence {
+            disposalBag?.append(fence)
+        }
 
         try fence?.reset()
 
@@ -147,7 +132,12 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
 
         try commandBuffer.end()
 
-        try submit(commandBuffers: [commandBuffer], fence: fence)
+        let descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
+        try semaphores.forEach {
+            try descriptor.add(.signal($0))
+        }
+
+        try submit(with: descriptor)
         
         try fence?.wait()
     }
@@ -212,7 +202,7 @@ public struct SignalDescriptor {
     }
 }
 
-public struct SubmitDescriptor {
+public class SubmitDescriptor {
     internal let commandBuffers: [CommandBuffer]
     internal var waitSemaphores: [AbstractSemaphore] = []
     internal var waitSemaphoreValues: [UInt64] = []
@@ -231,7 +221,7 @@ public struct SubmitDescriptor {
         self.fence = fence
     }
 
-    public mutating func add(_ descriptor: WaitDescriptor) {
+    public func add(_ descriptor: WaitDescriptor) {
         waitSemaphores.append(descriptor.semaphore)
         waitSemaphoreValues.append(descriptor.value)
         waitStages.append(descriptor.waitStages.rawValue)
@@ -241,7 +231,7 @@ public struct SubmitDescriptor {
         }
     }
 
-    public mutating func add(_ descriptor: SignalDescriptor) {
+    public func add(_ descriptor: SignalDescriptor) {
         signalSemaphores.append(descriptor.semaphore)
         signalSemaphoreValues.append(descriptor.value)
 

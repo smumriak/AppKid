@@ -9,10 +9,9 @@ import Foundation
 import Volcano
 import TinyFoundation
 import CVulkan
-import SwiftVMA
 
 @_spi(AppKid) public final class VolcanoRenderStack {
-    @_spi(AppKid) public enum Error: Swift.Error {
+    public enum Error: Swift.Error {
         case noDiscreteGPU
         case noPresentationQueueFound
         case noGraphicsQueueFound

@@ -39,7 +39,7 @@ let package = Package(
                 .product(name: "SwiftXlib", package: "SwiftXlib"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]
         ),
     ]

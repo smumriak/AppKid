@@ -36,6 +36,9 @@ let package = Package(
                 .target(name: "STBImageRead"),
                 .target(name: "STBImageWrite"),
                 .target(name: "STBImageResize"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]
         ),
         .target(name: "STBImageRead", path: "./SwiftSTB/Sources/STBImageRead"),

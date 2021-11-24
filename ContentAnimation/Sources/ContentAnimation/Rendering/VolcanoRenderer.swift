@@ -191,6 +191,7 @@ internal class DescriptorSetContainer {
         frameTime = 0.0
 
         try renderContext.clear()
+        try commandBuffer.reset()
     }
 
     public func setDestination(_ texture: Texture) throws {
@@ -218,8 +219,7 @@ internal class DescriptorSetContainer {
         }
     }
 
-    @_spi(AppKid) public func buildRenderOperations() throws {
-        assert(layer != nil, "Layer can not be nil for rendering!")
+    @_spi(AppKid)public func buildRenderOperations() throws {
         guard let layer = layer else {
             throw Error.noLayer
         }
@@ -251,7 +251,7 @@ internal class DescriptorSetContainer {
     }
 
     @_spi(AppKid) public func submitCommandBuffer(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = [], signalTimelineSemaphores: [TimelineSemaphore] = [], fence: Fence? = nil) throws {
-        var descriptor = try SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
+        let descriptor = try SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
         try waitSemaphores.forEach {
             try descriptor.add(.wait($0, stages: .colorAttachmentOutput))
         }
@@ -262,6 +262,10 @@ internal class DescriptorSetContainer {
 
         try signalTimelineSemaphores.forEach {
             try descriptor.add(.signal($0))
+        }
+
+        if renderContext.vertexBufferCopyCount > 0 {
+            try descriptor.add(.wait(renderContext.vertexBufferCopySemaphore, value: renderContext.vertexBufferCopyCount, stages: .vertexInput))
         }
 
         try renderContext.graphicsQueue.submit(with: descriptor)
@@ -300,7 +304,7 @@ internal class DescriptorSetContainer {
         let anchorPoint = layer.anchorPoint
         let contentsScale = layer.contentsScale
 
-        let needsOffscreenRendering = layer.needsOffscreenRendering
+        // let needsOffscreenRendering = layer.needsOffscreenRendering
         let needsDisplay = layer.needsDisplay
 
         if needsDisplay {
@@ -346,14 +350,14 @@ internal class DescriptorSetContainer {
         var contentsTexture: Texture? = nil
 
         switch layer.contents {
-            case .some(let image as CGImage):
+            case .some(_ as CGImage):
                 break
 
             case .some(let backingStore as CABackingStore):
                 contentsTexture = backingStore.currentTexture
 
                 if contentsTexture == nil {
-                    contentsTexture = try backingStore.makeTexture(device: device, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
+                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
 
                     backingStore.currentTexture = contentsTexture
                 }

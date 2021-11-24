@@ -110,7 +110,7 @@ internal extension Event {
                 }
 
             case _ where type.isAnyKeyboard:
-                let keyCode = UInt32(deviceEvent.detail)
+                let keyCode = CUnsignedInt(deviceEvent.detail)
                 var keySymbol: KeySym = KeySym(NoSymbol)
                 var lookupString: String? = nil
 

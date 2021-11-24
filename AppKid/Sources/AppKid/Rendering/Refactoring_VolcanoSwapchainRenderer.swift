@@ -19,6 +19,7 @@ import Glibc
 internal class VolcanoSwapchainRenderer1 {
     internal enum State {
         case idle
+        case requestSent
         case buildingRenderOperations
         case renderOperationsReady
         case recordingCommandBuffer
@@ -44,20 +45,23 @@ internal class VolcanoSwapchainRenderer1 {
         let texture: Texture
         let textureIndex: Int
         let textureReadySemaphore: Volcano.Semaphore
-        let presentationFinishedSemaphore: Volcano.Semaphore
+        let commandBufferExecutionCompleteSemaphore: Volcano.Semaphore
         let swapchain: Swapchain
         let disposalBag: DisposalBag
     }
 
     private(set) weak var window: Window?
-    private(set) var windowKeepAlive: Window?
+    @Synchronized private(set) var windowKeepAlive: Window?
+
+    internal var recreateSwapchainOnNextRun: Bool = false
+
     let renderStack: VolcanoRenderStack
     let presentationQueue: Queue
 
     let layerRenderer: VolcanoRenderer
 
     let textureReadySemaphore: Volcano.Semaphore
-    let presentationFinishedSemaphore: Volcano.Semaphore
+    let commandBufferExecutionCompleteSemaphore: Volcano.Semaphore
 
     let commandPool: CommandPool
 
@@ -74,7 +78,6 @@ internal class VolcanoSwapchainRenderer1 {
     deinit {
         try? clearSwapchain()
         oldSwapchain = nil
-        windowKeepAlive = nil
     }
 
     init(window: Window, surface: Surface, presentationQueue: Queue, renderStack: VolcanoRenderStack) throws {
@@ -85,7 +88,7 @@ internal class VolcanoSwapchainRenderer1 {
         self.presentationQueue = presentationQueue
 
         textureReadySemaphore = try Semaphore(device: device)
-        presentationFinishedSemaphore = try Semaphore(device: device)
+        commandBufferExecutionCompleteSemaphore = try Semaphore(device: device)
 
         commandPool = try renderStack.queues.graphics.createCommandPool(flags: .resetCommandBuffer)
 
@@ -102,15 +105,18 @@ internal class VolcanoSwapchainRenderer1 {
 
         let windowSize = window.bounds.size
         let displayScale = window.nativeWindow.displayScale
-        let desiredSize = VkExtent2D(width: UInt32(windowSize.width * displayScale), height: UInt32(windowSize.height * displayScale))
+        let desiredSize = VkExtent2D(width: CUnsignedInt(windowSize.width * displayScale), height: CUnsignedInt(windowSize.height * displayScale))
         
         try surface.refreshCapabilities()
-        let capabilities = surface.capabilities
-        let minSize = capabilities.minImageExtent
-        let maxSize = capabilities.maxImageExtent
+        // let capabilities = surface.capabilities
+        // let minSize = capabilities.minImageExtent
+        // let maxSize = capabilities.maxImageExtent
 
-        let width = max(min(desiredSize.width, maxSize.width), minSize.width)
-        let height = max(min(desiredSize.height, maxSize.height), minSize.height)
+        // let width = max(min(desiredSize.width, maxSize.width), minSize.width)
+        // let height = max(min(desiredSize.height, maxSize.height), minSize.height)
+        let width = desiredSize.width
+        let height = desiredSize.height
+        
         let size = VkExtent2D(width: width, height: height)
 
         swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
@@ -134,7 +140,7 @@ internal class VolcanoSwapchainRenderer1 {
             do {
                 return try await body()
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate {
+                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                     if skipRecreation == true {
                         throw VulkanError.badResult(errorCode)
                     }
@@ -169,7 +175,7 @@ internal class VolcanoSwapchainRenderer1 {
     }
 
     @MainActor func buildRenderOperations() async throws {
-        guard state == .idle else {
+        guard state == .requestSent else {
             return
         }
 
@@ -189,11 +195,15 @@ internal class VolcanoSwapchainRenderer1 {
     }
 
     @MainActor func recordFrame(steps: RecordFrameSteps = [.operations, .commandBuffer]) async throws -> RecordedFrame? {
-        if state != .idle {
+        if [.requestSent, .swapchainFailed].contains(state) == false {
             return nil
         }
 
         windowKeepAlive = window
+        // palkovnik:TODO: Test how this behaves, is it really called after recordFrameImplementation
+        // defer {
+        //     windowKeepAlive = nil
+        // }
             
         do {
             let result = try await recordFrameImplementation(steps: steps)
@@ -203,6 +213,7 @@ internal class VolcanoSwapchainRenderer1 {
             return result
         } catch {
             windowKeepAlive = nil
+
             throw error
         }
     }
@@ -210,9 +221,14 @@ internal class VolcanoSwapchainRenderer1 {
     @MainActor fileprivate func recordFrameImplementation(steps: RecordFrameSteps) async throws -> RecordedFrame? {
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
-        guard let windowNumber = window?.windowNumber else {
+        guard let window = window else {
             return nil
         }
+
+        let windowNumber = window.windowNumber
+
+        let disposalBag = layerRenderer.renderContext.disposalBag
+        disposalBag.append(window)
 
         let (textureIndex, texture) = try await grabNextTextureAsync(semaphore: textureReadySemaphore)
 
@@ -261,14 +277,18 @@ internal class VolcanoSwapchainRenderer1 {
         //     }
         // }
 
-        let disposalBag = layerRenderer.renderContext.disposalBag
-        disposalBag.append(window!)
-
         if steps.contains(.operations) {
             try layerRenderer.endFrame()
         }
 
-        return try RecordedFrame(windowNumber: windowNumber, commandBuffer: layerRenderer.commandBuffer, texture: texture, textureIndex: textureIndex, textureReadySemaphore: textureReadySemaphore, presentationFinishedSemaphore: presentationFinishedSemaphore, swapchain: swapchain, disposalBag: disposalBag)
+        return try RecordedFrame(windowNumber: windowNumber,
+                                 commandBuffer: layerRenderer.commandBuffer,
+                                 texture: texture,
+                                 textureIndex: textureIndex,
+                                 textureReadySemaphore: textureReadySemaphore,
+                                 commandBufferExecutionCompleteSemaphore: commandBufferExecutionCompleteSemaphore,
+                                 swapchain: swapchain,
+                                 disposalBag: disposalBag)
     }
 
     internal func resetState(to state: State = .idle) {

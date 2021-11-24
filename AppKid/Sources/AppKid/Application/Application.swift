@@ -48,10 +48,9 @@ open class Application: Responder {
     
     open var windows: [Window] { Array(windowsByNumber.values) }
     internal var windowsByNumber: [Int: Window] = [:]
-    // internal let renderScheduler: RenderScheduler?
+    internal var renderScheduler: RenderScheduler? = nil
 
     internal var softwareRenderers: [Int: SoftwareRenderer] = [:]
-    internal var volcanoRenderers: [Int: VolcanoSwapchainRenderer] = [:]
     
     internal var eventQueue = [Event]()
     open fileprivate(set) var currentEvent: Event?
@@ -75,27 +74,6 @@ open class Application: Responder {
             }
 
         self.displayServer.flush()
-    }
-
-    internal lazy var volcanoRenderTimerSync = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-        do {
-            let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
-
-            try windowsByNumber.values
-                .lazy
-                .filter {
-                    $0.nativeWindow.syncRequested == false && $0.isMapped == true
-                }
-                .compactMap {
-                    self.volcanoRenderers[$0.windowNumber]
-                }
-                .forEach { renderer in
-                    try renderer.render()
-                    try renderer.layerRenderer.endFrame()
-                }
-        } catch {
-            fatalError("Failed to render with error: \(error)")
-        }
     }
 
     // internal lazy var volcanoRenderTimerAsync = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
@@ -143,10 +121,9 @@ open class Application: Responder {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
             isVolcanoRenderingEnabled = true
-            // renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetMain())
+            renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetMain(), async: false)
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering. Error: \(error)")
-            // renderScheduler = nil
         }
 
         displayServer.activate()
@@ -219,7 +196,7 @@ open class Application: Responder {
             if isRenderingAsync {
                 // RunLoop.current.add(volcanoRenderTimerAsync, forMode: .common)
             } else {
-                RunLoop.current.add(volcanoRenderTimerSync, forMode: .common)
+                // RunLoop.current.add(volcanoRenderTimerSync, forMode: .common)
             }
         } else {
             RunLoop.current.add(softwareRenderTimer, forMode: .common)
@@ -244,7 +221,7 @@ open class Application: Responder {
             if isRenderingAsync {
                 // volcanoRenderTimerAsync.invalidate()
             } else {
-                volcanoRenderTimerSync.invalidate()
+                // volcanoRenderTimerSync.invalidate()
             }
         } else {
             softwareRenderTimer.invalidate()
@@ -321,11 +298,7 @@ open class Application: Responder {
     @_spi(AppKid) public func add(window: Window) {
         if isVolcanoRenderingEnabled {
             do {
-                let renderer = try VolcanoSwapchainRenderer(window: window, renderStack: VolcanoRenderStack.global)
-                
-                volcanoRenderers[window.windowNumber] = renderer
-
-                // try renderScheduler?.createRenderer(for: window)
+                try renderScheduler?.createRenderer(for: window)
             } catch {
                 fatalError("Failed to create window renderer with error: \(error)")
             }
@@ -341,9 +314,11 @@ open class Application: Responder {
         let windowNumber = window.windowNumber
 
         if isVolcanoRenderingEnabled {
-            // let renderer = volcanoRenderers.remove(at: index)
-            // try? renderer.device.waitForIdle()
-            volcanoRenderers.removeValue(forKey: windowNumber)
+            do {
+                try renderScheduler?.removeRenderer(for: window)
+            } catch {
+                fatalError("Failed to remove renderer for window \(window). Error: \(error)")
+            }
         } else {
             softwareRenderers.removeValue(forKey: windowNumber)
         }

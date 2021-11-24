@@ -13,16 +13,18 @@ import Volcano
 import Glibc
 
 internal class RenderScheduler {
-    private var renderers: [Int: VolcanoSwapchainRenderer1] = [:]
+    private var syncRenderers: [Int: VolcanoSwapchainRenderer] = [:]
+    private var asyncRenderers: [Int: VolcanoSwapchainRenderer1] = [:]
+    // private var lastRenderStartedDates: [Int: Date] = [:]
+    // private var lastRenderFinishedDate: [Int: Date] = [:]
+
     private var presentationQueues: [Int: Queue] = [:]
-    let renderStack: VolcanoRenderStack
-    var observer: CFRunLoopObserver? = nil
+    private let renderStack: VolcanoRenderStack
+    private var observer: CFRunLoopObserver? = nil
+    private let async: Bool
 
     internal let submitSemaphore: Volcano.Semaphore
     internal let submitTimelineSemaphore: TimelineSemaphore
-
-    @Synchronized internal var lastRenderStartedDate = Date(timeIntervalSinceReferenceDate: 0)
-    @Synchronized internal var lastRenderFinishedDate = Date(timeIntervalSinceReferenceDate: 0)
     
     deinit {
         if let observer = observer {
@@ -30,8 +32,9 @@ internal class RenderScheduler {
         }
     }
 
-    init(renderStack: VolcanoRenderStack, runLoop: CFRunLoop) throws {
+    init(renderStack: VolcanoRenderStack, runLoop: CFRunLoop, async: Bool = false) throws {
         self.renderStack = renderStack
+        self.async = async
         submitSemaphore = try Semaphore(device: renderStack.device)
         submitTimelineSemaphore = try TimelineSemaphore(device: renderStack.device, initialValue: 0)
 
@@ -42,9 +45,17 @@ internal class RenderScheduler {
             //     return
             // }
 
-            Task(priority: .userInitiated) { @MainActor in
+            if self.async {
+                Task(priority: .userInitiated) { @MainActor in
+                    do {
+                        try await self.sendAsyncRenderRequests()
+                    } catch {
+                        fatalError("Failed to render with error: \(error)")
+                    }
+                }
+            } else {
                 do {
-                    try await self.sendRenderRequests()
+                    try self.sendSyncRenderRequests()
                 } catch {
                     fatalError("Failed to render with error: \(error)")
                 }
@@ -65,50 +76,97 @@ internal class RenderScheduler {
 
         presentationQueues[window.windowNumber] = presentationQueue
 
-        let renderer = try VolcanoSwapchainRenderer1(window: window, surface: surface, presentationQueue: presentationQueue, renderStack: VolcanoRenderStack.global)
-        renderers[window.windowNumber] = renderer
+        if async {
+            let renderer = try VolcanoSwapchainRenderer1(window: window, surface: surface, presentationQueue: presentationQueue, renderStack: VolcanoRenderStack.global)
+            asyncRenderers[window.windowNumber] = renderer
+        } else {
+            let renderer = try VolcanoSwapchainRenderer(window: window, surface: surface, presentationQueue: presentationQueue, renderStack: VolcanoRenderStack.global)
+            syncRenderers[window.windowNumber] = renderer
+        }
     }
 
     func removeRenderer(for window: Window) throws {
-        renderers.removeValue(forKey: window.windowNumber)
-        presentationQueues.removeValue(forKey: window.windowNumber)
+        let windowNumber = window.windowNumber
+
+        if async {
+            // asyncRenderers[windowNumber]?.resetState(to: .invalidated)
+            asyncRenderers.removeValue(forKey: windowNumber)
+        } else {
+            // syncRenderers[windowNumber]?.resetState(to: .invalidated)
+            syncRenderers.removeValue(forKey: windowNumber)
+        }
+
+        presentationQueues.removeValue(forKey: windowNumber)
     }
 
-    @MainActor func sendRenderRequests() async throws {
-        let renderesToRecord = renderers.values.filter {
-            guard let window = $0.window else {
-                return false
-            }
-
-            return window.nativeWindow.syncRequested == false
-                && window.isMapped == true
-                && [.idle, .swapchainFailed].contains($0.state)
-            // && window.dirtyRect != nil
+    func windowWasResized(_ window: Window) {
+        if async {
+            // let renderer = asyncRenderers[window.windowNumber]
+        } else {
+            let renderer = syncRenderers[window.windowNumber]
+            renderer?.recreateSwapchainOnNextRun = true
         }
+    }
+
+    func sendSyncRenderRequests() throws {
+        let renderesToRecord = syncRenderers.values
+            .filter {
+                guard let window = $0.window else {
+                    return false
+                }
+
+                return window.nativeWindow.syncRequested == false
+                    && window.isMapped == true
+                    && [.idle].contains($0.state)
+            }
 
         if renderesToRecord.isEmpty {
             return
         }
 
-        lastRenderStartedDate = Date()
+        try renderesToRecord.forEach { renderer in
+            try renderer.render()
+            renderer.window?.nativeWindow.window.sendSyncCounterIfNeeded()
+        }
+    }
+
+    @MainActor func sendAsyncRenderRequests() async throws {
+        let renderesToRecord = asyncRenderers.values
+            .filter {
+                guard let window = $0.window else {
+                    return false
+                }
+
+                return window.nativeWindow.syncRequested == false
+                    && window.isMapped == true
+                    && [.idle, .swapchainFailed].contains($0.state)
+                // && window.dirtyRect != nil
+            }
+
+        if renderesToRecord.isEmpty {
+            return
+        }
+
+        // lastRenderStartedDate = Date()
 
         do {
             let recordedFrames: [VolcanoSwapchainRenderer1.RecordedFrame] = try await withThrowingTaskGroup(of: VolcanoSwapchainRenderer1.RecordedFrame?.self) { @MainActor taskGroup in
                 renderesToRecord.forEach { renderer in
+                    let recordFrameSteps: VolcanoSwapchainRenderer1.RecordFrameSteps
+
+                    if renderer.state == .idle {
+                        debugPrint("Renderer: \(ObjectIdentifier(renderer)), State \(renderer.state)")
+                        recordFrameSteps = [.operations, .commandBuffer]
+                    } else {
+                        recordFrameSteps = .commandBuffer
+                    }
+
+                    renderer.state = .requestSent
+
                     taskGroup.addTask {
-                        var recordFrameSteps: VolcanoSwapchainRenderer1.RecordFrameSteps = [.commandBuffer]
-
-                        if renderer.state == .idle {
-                            recordFrameSteps.insert(.operations)
-                        }
-
-                        let result = try await renderer.recordFrame(steps: recordFrameSteps)
-
-                        return result
+                        return try await renderer.recordFrame(steps: recordFrameSteps)
                     }
                 }
-
-                // try await taskGroup.waitForAll()
 
                 return try await taskGroup
                     .compactMap { $0 }
@@ -118,7 +176,8 @@ internal class RenderScheduler {
             }
 
             if recordedFrames.isEmpty {
-                // lastRenderFinishedDate = Date()
+                // lastRenderFinishedDate = Date()\
+                debugPrint("No frames. Renderers count: \(renderesToRecord.count)")
                 return
             }
 
@@ -130,19 +189,22 @@ internal class RenderScheduler {
       
             let _: Void = try await withUnsafeThrowingContinuation { continuation in
                 do {
-                    try renderStack.semaphoreWatcher.add(semaphore: submitTimelineSemaphore, waitValue: waitValue, continuation: continuation)
+                    // try renderStack.semaphoreWatcher.add(semaphore: submitTimelineSemaphore, waitValue: waitValue, continuation: continuation)
+                    try renderStack.semaphoreWatcher.add(semaphore: submitTimelineSemaphore, waitValue: waitValue) {
+                        continuation.resume()
+                    }
                 } catch {
                     continuation.resume(throwing: error)
                 }
             }
 
-            lastRenderFinishedDate = Date()
+            // lastRenderFinishedDate = Date()
 
             renderesToRecord.forEach {
                 $0.resetState()
             }
         } catch VulkanError.badResult(let errorCode) {
-            if errorCode == .errorOutOfDate {
+            if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                 renderesToRecord.forEach {
                     $0.resetState(to: .swapchainFailed)
                 }
@@ -157,9 +219,9 @@ internal class RenderScheduler {
     @MainActor func submit(recordedFrames: [VolcanoSwapchainRenderer1.RecordedFrame]) async throws {
         let commandBuffers = recordedFrames.map { $0.commandBuffer }
         let waitSemaphores = recordedFrames.map { $0.textureReadySemaphore }
-        let signalSemaphores = recordedFrames.map { $0.presentationFinishedSemaphore }
+        let signalSemaphores = recordedFrames.map { $0.commandBufferExecutionCompleteSemaphore }
 
-        var descriptor = SubmitDescriptor(commandBuffers: commandBuffers)
+        let descriptor = SubmitDescriptor(commandBuffers: commandBuffers)
         try waitSemaphores.forEach {
             try descriptor.add(.wait($0, stages: .colorAttachmentOutput))
         }
@@ -187,7 +249,7 @@ internal class RenderScheduler {
         try submitBatchDictionary.forEach { queue, frames in
             let swapchains = frames.map { $0.swapchain }
             let textureIndices = frames.map { CUnsignedInt($0.textureIndex) }
-            let waitSemaphores = frames.map { $0.presentationFinishedSemaphore }
+            let waitSemaphores = frames.map { $0.commandBufferExecutionCompleteSemaphore }
 
             try queue.present(swapchains: swapchains, waitSemaphores: waitSemaphores, imageIndices: textureIndices)
         }

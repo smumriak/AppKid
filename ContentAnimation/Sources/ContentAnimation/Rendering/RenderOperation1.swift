@@ -36,6 +36,9 @@ import LayerRenderingData
     var descriptors: [LayerRenderDescriptor] = []
     var operations: [RenderOperation1] = []
 
+    internal var vertexBufferCopyCount: UInt64 = 0
+    internal var vertexBufferCopySemaphore: TimelineSemaphore
+
     public private(set) var disposalBag = DisposalBag()
 
     @usableFromInline internal var sceneRenderTarget: RenderTarget! {
@@ -118,9 +121,10 @@ import LayerRenderingData
             }
         }
 
-        try transferQueue.oneShot(in: transferCommandPool) {
+        try transferQueue.oneShot(in: transferCommandPool, wait: true, semaphores: [vertexBufferCopySemaphore]) {
             try $0.copyBuffer(from: stagingBuffer, to: vertexBuffer)
         }
+        vertexBufferCopyCount += 1
     }
 
     internal func contentsDescriptorSet(for texture: Texture, layerIndex: UInt) throws -> DescriptorSet {
@@ -214,12 +218,16 @@ import LayerRenderingData
         contentsTextureSampler = try Sampler(device: device)
 
         contentsDescriptorsSetCache = try DescriptorsSetCache(device: device, layout: descriptorSetsLayouts.contentsSampler, sizes: [(type: .combinedImageSampler, count: 500)], maxSets: 500)
+
+        vertexBufferCopySemaphore = try TimelineSemaphore(device: device)
     }
 
     func clear() throws {
         disposalBag = DisposalBag()
         descriptors.removeAll()
         operations.removeAll()
+        vertexBufferCopyCount = 0
+        vertexBufferCopySemaphore = try TimelineSemaphore(device: renderStack.device)
         // _vertexBuffer = nil
     }
 

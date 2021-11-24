@@ -14,7 +14,7 @@ let package = Package(
         .macOS(.v11),
     ],
     products: [
-        .library(name: "SimpleGLM", targets: ["SimpleGLM"]),
+        .library(name: "SimpleGLM", type: .dynamic, targets: ["SimpleGLM"]),
     ],
     dependencies: [
         .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
@@ -24,6 +24,9 @@ let package = Package(
             name: "SimpleGLM",
             dependencies: [
                 .product(name: "cglm", package: "cglm"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]),
         .testTarget(
             name: "SimpleGLMTests",

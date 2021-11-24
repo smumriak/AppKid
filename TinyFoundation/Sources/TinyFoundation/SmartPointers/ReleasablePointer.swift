@@ -20,7 +20,11 @@ public extension UnsafeMutablePointer where Pointee: ReleasableCType {
 }
 
 public class ReleasablePointer<Pointee>: SmartPointer<Pointee> where Pointee: ReleasableCType {
+    deinit {
+        pointer.release()
+    }
+    
     public init(with pointer: Pointer_t) {
-        super.init(with: pointer, deleter: .custom { $0.release() })
+        super.init(with: pointer, deleter: .none)
     }
 }

@@ -54,6 +54,8 @@ open class CALayer: CAMediaTiming {
         needsDisplay = true
     }
 
+    @_spi(AppKid) public var identifier = UUID()
+
     @CALayerProperty(name: "bounds")
     open var bounds: CGRect = .zero
 
@@ -157,7 +159,7 @@ open class CALayer: CAMediaTiming {
             return
         }
 
-        guard let index = sublayers?.firstIndex(of: sibling) else {
+        guard let _ = sublayers?.firstIndex(of: sibling) else {
             // palkovnik:TODO:Throw an exception here
             return
         }
@@ -169,7 +171,7 @@ open class CALayer: CAMediaTiming {
             return
         }
 
-        guard let index = sublayers?.firstIndex(of: sibling) else {
+        guard let _ = sublayers?.firstIndex(of: sibling) else {
             // palkovnik:TODO:Throw an exception here
             return
         }
@@ -237,6 +239,8 @@ open class CALayer: CAMediaTiming {
         needsDisplay = false
     }
 }
+
+@_spi(AppKid)  extension CALayer: Identifiable {}
 
 public extension CALayer {
     internal func rebuildPropertiesList() {

@@ -23,10 +23,10 @@ public extension UnsafeMutablePointer where Pointee: RetainableCType {
 public class RetainablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: RetainableCType {
     public override var pointer: UnsafeMutablePointer<Pointee> {
         willSet {
-            pointer.release()
+            newValue.retain()
         }
         didSet {
-            pointer.retain()
+            oldValue.release()
         }
     }
 
