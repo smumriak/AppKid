@@ -1,13 +1,11 @@
 //
 //  VMAMemoryChunk.swift
-//  SwiftVMA
+//  Volcano
 //
 //  Created by Serhii Mumriak on 03.10.2021.
 //
 
 import TinyFoundation
-import CVulkan
-import Volcano
 import VulkanMemoryAllocatorAdapted
 
 public class VMAMemoryChunk: MemoryChunk {

@@ -16,7 +16,6 @@ let package = Package(
     products: [
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
         .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
-        .library(name: "SwiftVMA", targets: ["SwiftVMA"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
@@ -34,7 +33,7 @@ let package = Package(
                 .target(name: "VulkanMemoryAllocatorAdapted"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"]),
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]
         ),
         .target(
@@ -44,14 +43,6 @@ let package = Package(
             ],
             cSettings: [
                 .unsafeFlags(["-Wno-nullability-completeness"]),
-            ]
-        ),
-        .target(
-            name: "SwiftVMA",
-            dependencies: [
-                .product(name: "CVulkan", package: "SharedSystemLibs"),
-                .target(name: "VulkanMemoryAllocatorAdapted"),
-                .target(name: "Volcano"),
             ]
         ),
     ]

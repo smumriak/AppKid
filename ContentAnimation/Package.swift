@@ -32,7 +32,6 @@ let package = Package(
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "Volcano", package: "Volcano"),
-                .product(name: "SwiftVMA", package: "Volcano"),
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "LayerRenderingData"),
@@ -43,6 +42,9 @@ let package = Package(
             ],
             resources: [
                 .copy("Resources/ShaderBinaries"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-emit-module", "-emit-library"]),
             ]
         ),
         .target(
