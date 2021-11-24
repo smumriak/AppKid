@@ -70,22 +70,26 @@ public final class Instance: HandleStorage<ReleasablePointer<VkInstance_T>> {
             let handlePointer: ReleasablePointer<VkInstance_T> = try layers.withUnsafeNullableCStringsBufferPointer { layers in
                 try extensions.map { $0.rawValue }
                     .withUnsafeNullableCStringsBufferPointer { extensions in
-                        var instanceCreationInfo = VkInstanceCreateInfo()
-                        instanceCreationInfo.sType = .instanceCreateInfo
-                        instanceCreationInfo.enabledLayerCount = CUnsignedInt(layers.count)
-                        instanceCreationInfo.ppEnabledLayerNames = layers.baseAddress!
+                        var info = VkInstanceCreateInfo()
+                        info.sType = .instanceCreateInfo
+                        info.enabledLayerCount = CUnsignedInt(layers.count)
+                        info.ppEnabledLayerNames = layers.baseAddress!
 
                         withUnsafePointer(to: &applicationInfo) {
-                            instanceCreationInfo.pApplicationInfo = $0
+                            info.pApplicationInfo = $0
                         }
 
-                        instanceCreationInfo.enabledExtensionCount = CUnsignedInt(extensions.count)
-                        instanceCreationInfo.ppEnabledExtensionNames = extensions.baseAddress!
+                        info.enabledExtensionCount = CUnsignedInt(extensions.count)
+                        info.ppEnabledExtensionNames = extensions.baseAddress!
 
                         var instanceOptional: VkInstance?
 
-                        try vulkanInvoke {
-                            vkCreateInstance(&instanceCreationInfo, nil, &instanceOptional)
+                        let chain = VulkanStructureChain(root: info)
+
+                        try chain.withUnsafeChainPointer { info in
+                            try vulkanInvoke {
+                                vkCreateInstance(info, nil, &instanceOptional)
+                            }
                         }
 
                         return ReleasablePointer(with: instanceOptional!)
