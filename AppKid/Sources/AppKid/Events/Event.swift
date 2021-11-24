@@ -189,14 +189,14 @@ public extension Event {
 
         public var debugDescription: String {
             switch self {
-            case .eventIgnored(let description):
-                return "Event ignored. " + description
-            case .nativeEventIgnored(let description):
-                return "Native event ignored. " + description
-            case .noWindow(let description):
-                return "No window for event. " + description
-            case .incompatibleEventType:
-                return "Incompatible event type"
+                case .eventIgnored(let description):
+                    return "Event ignored. " + description
+                case .nativeEventIgnored(let description):
+                    return "Native event ignored. " + description
+                case .noWindow(let description):
+                    return "No window for event. " + description
+                case .incompatibleEventType:
+                    return "Incompatible event type"
             }
         }
     }

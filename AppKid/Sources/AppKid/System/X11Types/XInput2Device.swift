@@ -22,11 +22,11 @@ internal struct XInput2Device {
 extension XInput2Device.DeviceType {
     var mask: XInput2EventTypeMask {
         switch self {
-        case .pointer:
-            return [.mouse, .motion, .enterLeave, .focus]
+            case .pointer:
+                return [.mouse, .motion, .enterLeave, .focus]
 
-        case .keyboard:
-            return [.keyboard]
+            case .keyboard:
+                return [.keyboard]
         }
     }
 }

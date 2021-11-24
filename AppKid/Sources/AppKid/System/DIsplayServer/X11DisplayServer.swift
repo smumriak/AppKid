@@ -180,15 +180,15 @@ extension X11DisplayServer {
         attributes.colormap = colorMap
 
         let windowIdentifier = XCreateWindow(display.handle,
-                                     rootWindow.windowIdentifier,
-                                     intRect.x, intRect.y,
-                                     CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
-                                     2,
-                                     depth,
-                                     CUnsignedInt(InputOutput),
-                                     visual,
-                                     attributesMask,
-                                     &attributes)
+                                             rootWindow.windowIdentifier,
+                                             intRect.x, intRect.y,
+                                             CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
+                                             2,
+                                             depth,
+                                             CUnsignedInt(InputOutput),
+                                             visual,
+                                             attributesMask,
+                                             &attributes)
 
         let result = X11NativeWindow(display: display, screen: screen, windowIdentifier: windowIdentifier, title: title)
         result.displayScale = context.scale

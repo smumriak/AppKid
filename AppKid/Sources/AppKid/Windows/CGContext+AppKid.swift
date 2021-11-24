@@ -9,8 +9,8 @@ import Foundation
 import CairoGraphics
 
 #if os(macOS)
-import class CairoGraphics.CGContext
-import class CairoGraphics.CGColorSpace
+    import class CairoGraphics.CGContext
+    import class CairoGraphics.CGColorSpace
 #endif
 
 public extension CGContext {

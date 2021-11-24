@@ -14,32 +14,32 @@ import CairoGraphics
 fileprivate extension XEvent {
     var eventTypeFromXEvent: Event.EventType {
         switch x11EventType {
-        case .keyPress, .keyRelease:
-            return keyboardEventType
+            case .keyPress, .keyRelease:
+                return keyboardEventType
 
-        case .buttonPress:
-            return mouseDownEvent
+            case .buttonPress:
+                return mouseDownEvent
 
-        case .buttonRelease:
-            return mouseUpEvent
+            case .buttonRelease:
+                return mouseUpEvent
 
-        case .motionNotify:
-            return mouseDraggedEvent
+            case .motionNotify:
+                return mouseDraggedEvent
 
-        case .enterNotify:
-            return .mouseEntered
+            case .enterNotify:
+                return .mouseEntered
 
-        case .leaveNotify:
-            return .mouseExited
+            case .leaveNotify:
+                return .mouseExited
 
-        case .expose, .graphicsExpose, .noExpose, .mapNotify, .reparentNotify, .configureNotify, .clientMessage:
-            return .appKidDefined
+            case .expose, .graphicsExpose, .noExpose, .mapNotify, .reparentNotify, .configureNotify, .clientMessage:
+                return .appKidDefined
 
-        case .mappingNotify:
-            return .systemDefined
+            case .mappingNotify:
+                return .systemDefined
 
-        default:
-            return .none
+            default:
+                return .none
         }
     }
 }
@@ -53,40 +53,40 @@ fileprivate extension XEvent {
             return .flagsChanged
         } else {
             switch x11EventType {
-            case .keyPress: return .keyDown
-            case .keyRelease: return .keyUp
-            default: return .none
+                case .keyPress: return .keyDown
+                case .keyRelease: return .keyUp
+                default: return .none
             }
         }
     }
 
     var mouseDownEvent: Event.EventType {
         switch xbutton.buttonName {
-        case .one: return .leftMouseDown
-        case .two: return .otherMouseDown
-        case .three: return .rightMouseDown
-        case .four, .five: return .scrollWheel
-        default: return .otherMouseDown
+            case .one: return .leftMouseDown
+            case .two: return .otherMouseDown
+            case .three: return .rightMouseDown
+            case .four, .five: return .scrollWheel
+            default: return .otherMouseDown
         }
     }
 
     var mouseDraggedEvent: Event.EventType {
         switch xmotion.buttonMask {
-        case .one: return .leftMouseDragged
-        case .two: return .otherMouseDragged
-        case .three: return .rightMouseDragged
-        case .four, .five: return .otherMouseDragged
-        default: return .mouseMoved
+            case .one: return .leftMouseDragged
+            case .two: return .otherMouseDragged
+            case .three: return .rightMouseDragged
+            case .four, .five: return .otherMouseDragged
+            default: return .mouseMoved
         }
     }
 
     var mouseUpEvent: Event.EventType {
         switch xbutton.buttonName {
-        case .one: return .leftMouseUp
-        case .two: return .otherMouseUp
-        case .three: return .rightMouseUp
-        case .four, .five: return .scrollWheel
-        default: return .otherMouseUp
+            case .one: return .leftMouseUp
+            case .two: return .otherMouseUp
+            case .three: return .rightMouseUp
+            case .four, .five: return .scrollWheel
+            default: return .otherMouseUp
         }
     }
 }
@@ -123,58 +123,58 @@ internal extension Event {
         }
 
         switch type {
-        case _ where type.isAnyMouse:
-            let buttonEvent = x11Event.xbutton
+            case _ where type.isAnyMouse:
+                let buttonEvent = x11Event.xbutton
 
-            let location = CGPoint(x: CGFloat(buttonEvent.x), y: CGFloat(buttonEvent.y)) / displayServer.context.scale
-            try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
+                let location = CGPoint(x: CGFloat(buttonEvent.x), y: CGFloat(buttonEvent.y)) / displayServer.context.scale
+                try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
 
-            buttonNumber = Int(buttonEvent.button)
+                buttonNumber = Int(buttonEvent.button)
             
-        case .appKidDefined:
-            switch x11Event.xany.type {
-            case MapNotify:
-                self.init(withAppKidEventSubType: .windowMapped, windowNumber: windowNumber)
+            case .appKidDefined:
+                switch x11Event.xany.type {
+                    case MapNotify:
+                        self.init(withAppKidEventSubType: .windowMapped, windowNumber: windowNumber)
 
-            case UnmapNotify:
-                self.init(withAppKidEventSubType: .windowUnmapped, windowNumber: windowNumber)
+                    case UnmapNotify:
+                        self.init(withAppKidEventSubType: .windowUnmapped, windowNumber: windowNumber)
                 
-            case Expose:
-                self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
+                    case Expose:
+                        self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 
-            case ClientMessage:
-                let atom = Atom(x11Event.xclient.data.l.0)
+                    case ClientMessage:
+                        let atom = Atom(x11Event.xclient.data.l.0)
 
-                guard atom != Atom(None) else {
-                    self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
-                    return
+                        guard atom != Atom(None) else {
+                            self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                            return
+                        }
+
+                        switch atom {
+                            case displayServer.display.deleteWindowAtom:
+                                self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
+
+                            case displayServer.display.syncRequestAtom:
+                                self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
+                                syncCounterValue = XSyncValue(hi: CInt(x11Event.xclient.data.l.3), lo: CUnsignedInt(x11Event.xclient.data.l.2))
+
+                            default:
+                                self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                        }
+
+                    case ConfigureNotify:
+                        let configureEvent = x11Event.xconfigure
+
+                        self.init(withAppKidEventSubType: .configurationChanged, windowNumber: windowNumber)
+                        deltaX = CGFloat(configureEvent.width) / displayServer.context.scale
+                        deltaY = CGFloat(configureEvent.height) / displayServer.context.scale
+                
+                    default:
+                        self.init(withAppKidEventSubType: .none, windowNumber: windowNumber)
                 }
-
-                switch atom {
-                case displayServer.display.deleteWindowAtom:
-                    self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
-
-                case displayServer.display.syncRequestAtom:
-                    self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
-                    syncCounterValue = XSyncValue(hi: CInt(x11Event.xclient.data.l.3), lo: CUnsignedInt(x11Event.xclient.data.l.2))
-
-                default:
-                    self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
-                }
-
-            case ConfigureNotify:
-                let configureEvent = x11Event.xconfigure
-
-                self.init(withAppKidEventSubType: .configurationChanged, windowNumber: windowNumber)
-                deltaX = CGFloat(configureEvent.width) / displayServer.context.scale
-                deltaY = CGFloat(configureEvent.height) / displayServer.context.scale
-                
-            default:
-                self.init(withAppKidEventSubType: .none, windowNumber: windowNumber)
-            }
         
-        default:
-            throw Error.eventIgnored(description: "Event type: \(type)")
+            default:
+                throw Error.eventIgnored(description: "Event type: \(type)")
         }
     }
 }

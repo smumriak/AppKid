@@ -37,23 +37,23 @@ extension X11ModifierKeySymbol: CaseIterable {
 
     var modifierFlag: Event.ModifierFlags {
         switch self {
-        case .leftShift: return .shift
-        case .rightShift: return .shift
-        case .leftControl: return .control
-        case .rightControl: return .control
-        case .caps: return .capsLock
-        case .shift: return .shift
-        case .leftMeta: return .none
-        case .rightMeta: return .none
-        case .leftAlt: return .option
-        case .rightAlt: return .option
-        case .leftSuper: return .command
-        case .rightSuper: return .command
-        case .leftHyper: return .none
-        case .rightHyper: return .none
-        case .modeSwitch: return .option
-        case .level3Shift: return .option
-        @unknown default: return .none
+            case .leftShift: return .shift
+            case .rightShift: return .shift
+            case .leftControl: return .control
+            case .rightControl: return .control
+            case .caps: return .capsLock
+            case .shift: return .shift
+            case .leftMeta: return .none
+            case .rightMeta: return .none
+            case .leftAlt: return .option
+            case .rightAlt: return .option
+            case .leftSuper: return .command
+            case .rightSuper: return .command
+            case .leftHyper: return .none
+            case .rightHyper: return .none
+            case .modeSwitch: return .option
+            case .level3Shift: return .option
+            @unknown default: return .none
         }
     }
 }

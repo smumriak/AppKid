@@ -10,7 +10,7 @@ import TinyFoundation
 import CairoGraphics
 
 #if os(macOS)
-import class CairoGraphics.CGImage
+    import class CairoGraphics.CGImage
 #endif
 
 public final class Image: NSObject {

@@ -10,10 +10,10 @@ import CoreFoundation
 import CairoGraphics
 
 #if os(macOS)
-import struct CairoGraphics.CGAffineTransform
-import struct CairoGraphics.CGColor
-import class CairoGraphics.CGPath
-import class CairoGraphics.CGContext
+    import struct CairoGraphics.CGAffineTransform
+    import struct CairoGraphics.CGColor
+    import class CairoGraphics.CGPath
+    import class CairoGraphics.CGContext
 #endif
 
 public protocol CALayerDelegate: AnyObject {
@@ -240,7 +240,7 @@ open class CALayer: CAMediaTiming {
     }
 }
 
-@_spi(AppKid)  extension CALayer: Identifiable {}
+@_spi(AppKid) extension CALayer: Identifiable {}
 
 public extension CALayer {
     internal func rebuildPropertiesList() {

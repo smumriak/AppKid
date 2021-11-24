@@ -13,7 +13,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "archive",
-            dependencies: [.product(name: "SwiftPM", package: "SwiftPM"),]),
+            dependencies: [.product(name: "SwiftPM", package: "SwiftPM")]),
         .testTarget(
             name: "archiveTests",
             dependencies: ["archive"]),

@@ -38,4 +38,3 @@ public extension Set where Element == String {
         }
     }
 }
-

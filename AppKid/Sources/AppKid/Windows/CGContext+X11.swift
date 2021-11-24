@@ -12,7 +12,7 @@ import CCairo
 import TinyFoundation
 
 #if os(macOS)
-import class CairoGraphics.CGContext
+    import class CairoGraphics.CGContext
 #endif
 
 internal class X11RenderContext: CGContext {
@@ -34,7 +34,7 @@ internal class X11RenderContext: CGContext {
     func updateSurface() {
         #if os(Linux)
             let currentRect = nativeWindow.currentIntRect
-        cairo_xlib_surface_set_size(surface.pointer, currentRect.width, currentRect.height)
+            cairo_xlib_surface_set_size(surface.pointer, currentRect.width, currentRect.height)
         #endif
     }
 }

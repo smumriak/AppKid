@@ -20,6 +20,6 @@ extension cairo_surface_t: RetainableCType {
 }
 
 extension cairo_pattern_t: RetainableCType {
-    public static let retainFunc = cairo_pattern_reference    
+    public static let retainFunc = cairo_pattern_reference
     public static let releaseFunc = cairo_pattern_destroy
 }

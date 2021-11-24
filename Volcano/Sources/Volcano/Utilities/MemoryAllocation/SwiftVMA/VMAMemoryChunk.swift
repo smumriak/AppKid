@@ -149,4 +149,3 @@ public extension MemoryAllocateDescriptor {
         return try body(&info)
     }
 }
-

@@ -13,7 +13,6 @@ import CCairo
     static var mask: CGContext.CGBitmapInfo { get }
 }
 
-
 @_spi(AppKid) extension CGContext.CGImageAlphaInfo: CGBitmapInfoConvertible {}
 
 @_spi(AppKid) extension CGContext.CGImagePixelFormatInfo: CGBitmapInfoConvertible {}
@@ -39,24 +38,24 @@ public extension CGContext {
     }
 
     enum CGImageAlphaInfo: UInt {
-        case none = 0 //RBG
-        case premultipliedLast = 1 //RGBA
-        case premultipliedFirst = 2 //ARGB
-        case last = 3 //RGBA non-premultiplied
-        case first = 4 //ARGB non-premultiplied
-        case noneSkipLast = 5 //RGBx
-        case noneSkipFirst = 6 //xRGB
+        case none = 0 // RBG
+        case premultipliedLast = 1 // RGBA
+        case premultipliedFirst = 2 // ARGB
+        case last = 3 // RGBA non-premultiplied
+        case first = 4 // ARGB non-premultiplied
+        case noneSkipLast = 5 // RGBx
+        case noneSkipFirst = 6 // xRGB
         case alphaOnly = 7 // alpha
 
         public static let mask = CGBitmapInfo(rawValue: 0x1F)
     }
 
     enum CGImagePixelFormatInfo: UInt {
-        case packed = 0x00000 //0 << 16
-        case rgb555 = 0x10000 //1 << 16
-        case rgb565 = 0x20000 //2 << 16
-        case rgb101010 = 0x30000 //3 << 16
-        case rgbcif10 = 0x40000 //4 << 16
+        case packed = 0x00000 // 0 << 16
+        case rgb555 = 0x10000 // 1 << 16
+        case rgb565 = 0x20000 // 2 << 16
+        case rgb101010 = 0x30000 // 3 << 16
+        case rgbcif10 = 0x40000 // 4 << 16
 
         public static let mask = CGBitmapInfo(rawValue: 0xF0000)
     }

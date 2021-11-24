@@ -9,8 +9,8 @@ import Foundation
 import CairoGraphics
 
 #if os(macOS)
-import struct CairoGraphics.CGAffineTransform
-import class CairoGraphics.CGContext
+    import struct CairoGraphics.CGAffineTransform
+    import class CairoGraphics.CGContext
 #endif
 
 internal final class SoftwareRenderer: NSObject {

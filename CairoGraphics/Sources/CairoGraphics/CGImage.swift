@@ -91,7 +91,7 @@ public final class CGImage {
         dataStore.increaseUseCount()
         self.dataStore = dataStore
 
-        self.bitmap  = UnsafeMutableRawBufferPointer(start: dataStore.data, count: context.bytesPerRow * context.height)
+        self.bitmap = UnsafeMutableRawBufferPointer(start: dataStore.data, count: context.bytesPerRow * context.height)
 
         self.isMask = false
         self.width = context.width

@@ -22,33 +22,33 @@ final class glslImporterTests: XCTestCase {
         // Mac Catalyst won't have `Process`, but it is supported for executables.
         #if !targetEnvironment(macCatalyst)
 
-        let fooBinary = productsDirectory.appendingPathComponent("glslImporter")
+            let fooBinary = productsDirectory.appendingPathComponent("glslImporter")
 
-        let process = Process()
-        process.executableURL = fooBinary
+            let process = Process()
+            process.executableURL = fooBinary
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
+            let pipe = Pipe()
+            process.standardOutput = pipe
 
-        try process.run()
-        process.waitUntilExit()
+            try process.run()
+            process.waitUntilExit()
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            let output = String(data: data, encoding: .utf8)
 
-        XCTAssertEqual(output, "Hello, world!\n")
+            XCTAssertEqual(output, "Hello, world!\n")
         #endif
     }
 
     /// Returns path to the built products directory.
     var productsDirectory: URL {
-      #if os(macOS)
-        for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
-            return bundle.bundleURL.deletingLastPathComponent()
-        }
-        fatalError("couldn't find the products directory")
-      #else
-        return Bundle.main.bundleURL
-      #endif
+        #if os(macOS)
+            for bundle in Bundle.allBundles where bundle.bundlePath.hasSuffix(".xctest") {
+                return bundle.bundleURL.deletingLastPathComponent()
+            }
+            fatalError("couldn't find the products directory")
+        #else
+            return Bundle.main.bundleURL
+        #endif
     }
 }

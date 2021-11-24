@@ -278,7 +278,6 @@ struct GLSLImporter: ParsableCommand {
                         return [importGenerationContext.results.joined(separator: " ")]
                     }
                     
-
                 case line where line.starts(with: "#pragma"):
                     let pragmaArguments = line.components(separatedBy: .whitespaces)
                     

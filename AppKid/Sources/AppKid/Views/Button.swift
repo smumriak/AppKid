@@ -9,8 +9,8 @@ import Foundation
 import CairoGraphics
 
 #if os(macOS)
-import struct CairoGraphics.CGColor
-import class CairoGraphics.CGContext
+    import struct CairoGraphics.CGColor
+    import class CairoGraphics.CGContext
 #endif
 
 open class Button: Control {

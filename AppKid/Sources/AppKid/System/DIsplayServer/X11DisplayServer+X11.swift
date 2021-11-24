@@ -29,24 +29,24 @@ internal extension X11DisplayServer {
             if let errorEvent = errorEvent {
                 let errorCode: String = {
                     switch Int32(errorEvent.pointee.error_code) {
-                    case BadAccess: return "BadAccess"
-                    case BadAlloc: return "BadAlloc"
-                    case BadAtom: return "BadAtom"
-                    case BadColor: return "BadColor"
-                    case BadCursor: return "BadCursor"
-                    case BadDrawable: return "BadDrawable"
-                    case BadFont: return "BadFont"
-                    case BadGC: return "BadGC"
-                    case BadIDChoice: return "BadIDChoice"
-                    case BadImplementation: return "BadImplementation"
-                    case BadLength: return "BadLength"
-                    case BadMatch: return "BadMatch"
-                    case BadName: return "BadName"
-                    case BadPixmap: return "BadPixmap"
-                    case BadRequest: return "BadRequest"
-                    case BadValue: return "BadValue"
-                    case BadWindow: return "BadWindow"
-                    default: return "Unknown"
+                        case BadAccess: return "BadAccess"
+                        case BadAlloc: return "BadAlloc"
+                        case BadAtom: return "BadAtom"
+                        case BadColor: return "BadColor"
+                        case BadCursor: return "BadCursor"
+                        case BadDrawable: return "BadDrawable"
+                        case BadFont: return "BadFont"
+                        case BadGC: return "BadGC"
+                        case BadIDChoice: return "BadIDChoice"
+                        case BadImplementation: return "BadImplementation"
+                        case BadLength: return "BadLength"
+                        case BadMatch: return "BadMatch"
+                        case BadName: return "BadName"
+                        case BadPixmap: return "BadPixmap"
+                        case BadRequest: return "BadRequest"
+                        case BadValue: return "BadValue"
+                        case BadWindow: return "BadWindow"
+                        default: return "Unknown"
                     }
                 }()
                 debugPrint("X11 error. Type: \(errorEvent.pointee.type), code: \(errorCode), code number: \(errorEvent.pointee.error_code)")
@@ -121,14 +121,14 @@ internal extension X11DisplayServer {
             }
 
             switch event.type {
-            case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
-                context.currentPressedMouseButton = event.xInput2Button
+                case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
+                    context.currentPressedMouseButton = event.xInput2Button
 
-            case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
-                context.currentPressedMouseButton = .none
+                case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
+                    context.currentPressedMouseButton = .none
 
-            default:
-                break
+                default:
+                    break
             }
 
             application.post(event: event, atStart: false)

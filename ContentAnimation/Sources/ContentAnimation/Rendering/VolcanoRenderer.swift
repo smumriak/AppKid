@@ -219,7 +219,7 @@ internal class DescriptorSetContainer {
         }
     }
 
-    @_spi(AppKid)public func buildRenderOperations() throws {
+    @_spi(AppKid) public func buildRenderOperations() throws {
         guard let layer = layer else {
             throw Error.noLayer
         }

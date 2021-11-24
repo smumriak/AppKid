@@ -15,7 +15,7 @@ public extension CGFloat {
             return nil
         }
     }
-}   
+}
 
 public extension BinaryFloatingPoint {
     var cgFloat: CGFloat { CGFloat(self) }

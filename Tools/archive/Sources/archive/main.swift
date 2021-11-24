@@ -26,8 +26,8 @@ enum Version: CustomStringConvertible {
 
     var description: String {
         switch self {
-        case .literal(let value): return value
-        case .numeric(let major, let minor, let patch): return "\(major).\(minor).\(patch)"
+            case .literal(let value): return value
+            case .numeric(let major, let minor, let patch): return "\(major).\(minor).\(patch)"
         }
     }
 }
@@ -78,26 +78,26 @@ class DebianPackageURLs {
         self.rootURL = rootURL
     }
 
-    lazy private(set) var basePackageURL = rootURL.appendingPathComponent("\(package.name)_\(package.version)_\(package.architecture)", isDirectory: true)
+    private(set) lazy var basePackageURL = rootURL.appendingPathComponent("\(package.name)_\(package.version)_\(package.architecture)", isDirectory: true)
 
-    lazy private(set) var binaryDestinationDirectoryURL = URL(fileURLWithPathComponents: package.binaryInstallationPathComponents, relativeTo: basePackageURL)
-    lazy private(set) var binaryDestinationURL = binaryDestinationDirectoryURL
+    private(set) lazy var binaryDestinationDirectoryURL = URL(fileURLWithPathComponents: package.binaryInstallationPathComponents, relativeTo: basePackageURL)
+    private(set) lazy var binaryDestinationURL = binaryDestinationDirectoryURL
         .appendingPathComponent(package.name, isDirectory: false)
         .appendingPathExtension(package.fileExtension)
 
-    lazy private(set) var binaryOriginURL = package.originURL.appendingPathComponent(package.name, isDirectory: false).appendingPathExtension(package.fileExtension)
-    lazy private(set) var bundleOriginURL = package.originURL.appendingPathComponent(package.bundleName, isDirectory: true)
-    lazy private(set) var bundleDestinationDirectoryURL = URL(fileURLWithPathComponents: package.bundleInstallationPathComponents, isDirectory: true, relativeTo: basePackageURL)
-    lazy private(set) var bundleDestinationURL = bundleDestinationDirectoryURL.appendingPathComponent(package.bundleName, isDirectory: true)
-    lazy private(set) var debianDirectoryURL = URL(fileURLWithPathComponents: ["DEBIAN"], isDirectory: true, relativeTo: basePackageURL)
-    lazy private(set) var debianControlFileURL = debianDirectoryURL.appendingPathComponent("control")
-    lazy private(set) var symlinkURLs: [URL] = package.symlinksExtensions.map { fileExtension in
+    private(set) lazy var binaryOriginURL = package.originURL.appendingPathComponent(package.name, isDirectory: false).appendingPathExtension(package.fileExtension)
+    private(set) lazy var bundleOriginURL = package.originURL.appendingPathComponent(package.bundleName, isDirectory: true)
+    private(set) lazy var bundleDestinationDirectoryURL = URL(fileURLWithPathComponents: package.bundleInstallationPathComponents, isDirectory: true, relativeTo: basePackageURL)
+    private(set) lazy var bundleDestinationURL = bundleDestinationDirectoryURL.appendingPathComponent(package.bundleName, isDirectory: true)
+    private(set) lazy var debianDirectoryURL = URL(fileURLWithPathComponents: ["DEBIAN"], isDirectory: true, relativeTo: basePackageURL)
+    private(set) lazy var debianControlFileURL = debianDirectoryURL.appendingPathComponent("control")
+    private(set) lazy var symlinkURLs: [URL] = package.symlinksExtensions.map { fileExtension in
         return binaryDestinationDirectoryURL
             .appendingPathComponent(package.name, isDirectory: false)
             .appendingPathExtension(fileExtension)
     }
 
-    lazy private(set) var desktopFileURL: URL? = {
+    private(set) lazy var desktopFileURL: URL? = {
         if package.desktopFilePathComponents.isEmpty {
             return nil
         }
@@ -131,6 +131,7 @@ struct Library: DebianPackage {
     var binaryInstallationPathComponents: [String] {
         return ["usr", "lib", "\(architecture)"]
     }
+
     let bundleInstallationPathComponents: [String] = ["usr", "share"]
     let desktopFilePathComponents: [String] = []
 }
@@ -162,7 +163,7 @@ let swiftRuntime = [
     "libswiftDispatch",
     "libswiftGlibc",
     "libswiftRemoteMirror",
-    "libswiftSwiftOnoneSupport"
+    "libswiftSwiftOnoneSupport",
 ].map {
     return Library(name: $0, version: swiftRuntimeVersion, originURL: swiftRuntimeURL)
 }
@@ -170,7 +171,7 @@ let swiftRuntime = [
 let swiftICULibs: [Library] = [
     "libicudataswift",
     "libicui18nswift",
-    "libicuucswift"
+    "libicuucswift",
 ].map {
     var result = Library(name: $0, version: swiftRuntimeVersion, originURL: swiftRuntimeURL)
     result.fileExtension = "so.65.1"
@@ -183,7 +184,7 @@ let appKidLibs = [
     "libCairoGraphics",
     "libContentAnimation",
     "libTinyFoundation",
-    "libVolcano"
+    "libVolcano",
 ].map {
     return Library(name: $0, version: appKidLibsVersion, originURL: appKidLibsURL)
 }

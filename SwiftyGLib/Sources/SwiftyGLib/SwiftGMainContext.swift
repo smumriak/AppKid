@@ -10,7 +10,6 @@ import CGlib
 import TinyFoundation
 // Thread.current.threadDictionary
 public class SwiftGMainContext: HandleStorage<SmartPointer<_GMainContext>> {
-
     internal func acquireOwnership() {
         if g_main_context_acquire(handle) == 0 {
             fatalError("SwiftGMainContext failed to acquire ownership over underlying GMainContext. This means something nasty is going own and the given context is owned by another thread")
