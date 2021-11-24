@@ -26,7 +26,7 @@ let package = Package(
                 .product(name: "cglm", package: "cglm"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-emit-module", "-emit-library"]),
+                .unsafeFlags(["-emit-module"]),
             ]),
         .testTarget(
             name: "SimpleGLMTests",

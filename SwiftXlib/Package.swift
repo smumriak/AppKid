@@ -28,7 +28,7 @@ let package = Package(
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-emit-module", "-emit-library"]),
+                .unsafeFlags(["-emit-module"]),
             ]
         ),
         .testTarget(

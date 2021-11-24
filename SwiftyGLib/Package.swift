@@ -25,7 +25,7 @@ let package = Package(
                 "CGLib",
             ],
             swiftSettings: [
-                .unsafeFlags(["-emit-module", "-emit-library"]),
+                .unsafeFlags(["-emit-module"]),
             ]),
         .testTarget(
             name: "SwiftyGLibTests",

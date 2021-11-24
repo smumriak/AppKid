@@ -44,7 +44,7 @@ let package = Package(
                 .copy("Resources/ShaderBinaries"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-emit-module", "-emit-library"]),
+                .unsafeFlags(["-emit-module"]),
             ]
         ),
         .target(

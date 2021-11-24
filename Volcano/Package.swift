@@ -33,7 +33,7 @@ let package = Package(
                 .target(name: "VulkanMemoryAllocatorAdapted"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-emit-module", "-emit-library"]),
+                .unsafeFlags(["-emit-module"]),
             ]
         ),
         .target(
