@@ -155,7 +155,6 @@ internal class RenderScheduler {
                     let recordFrameSteps: VolcanoSwapchainRenderer1.RecordFrameSteps
 
                     if renderer.state == .idle {
-                        debugPrint("Renderer: \(ObjectIdentifier(renderer)), State \(renderer.state)")
                         recordFrameSteps = [.operations, .commandBuffer]
                     } else {
                         recordFrameSteps = .commandBuffer
@@ -177,7 +176,6 @@ internal class RenderScheduler {
 
             if recordedFrames.isEmpty {
                 // lastRenderFinishedDate = Date()\
-                debugPrint("No frames. Renderers count: \(renderesToRecord.count)")
                 return
             }
 

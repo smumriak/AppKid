@@ -14,7 +14,7 @@ final class SwiftGMainLoopRunLoopSourceTests: XCTestCase {
     var timerTickCount = 0
 
     func testGMainContextRunLoopSorceTimer() throws {
-        let mainContext = SwiftGMainContext(handlePointer: RetainablePointer(withRetained: g_main_context_default()))
+        let mainContext = SwiftGMainContext(handlePointer: RetainablePointer(with: g_main_context_default()))
         let source = try XCTUnwrap(SwiftGMainLoopRunLoopSource(context: mainContext))
         defer {
             source.invalidate()

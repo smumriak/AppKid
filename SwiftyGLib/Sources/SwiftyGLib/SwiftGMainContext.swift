@@ -10,6 +10,62 @@ import CGlib
 import TinyFoundation
 // Thread.current.threadDictionary
 public class SwiftGMainContext: HandleStorage<SmartPointer<_GMainContext>> {
+    internal static let mainContextThreadStoreKey = UUID()
+    internal class ThreadStore {
+        public let context: SwiftGMainContext
+        public let source: SwiftGMainLoopRunLoopSource
+
+        public init(context: SwiftGMainContext, source: SwiftGMainLoopRunLoopSource) {
+            self.context = context
+            self.source = source
+        }
+    }
+
+    public static var defaultContext: SwiftGMainContext {
+        assert(Thread.isMainThread)
+
+        let threadDictionary = Thread.current.threadDictionary
+
+        if let threadStore = threadDictionary[mainContextThreadStoreKey] as? ThreadStore {
+            return threadStore.context
+        } else {
+            let context = SwiftGMainContext(handlePointer: RetainablePointer(with: g_main_context_default()))
+            let source = SwiftGMainLoopRunLoopSource(context: context)
+
+            source.schedule(in: .current, forMode: .common)
+
+            let threadStore = ThreadStore(context: context, source: source)
+
+            threadDictionary[mainContextThreadStoreKey] = threadStore
+
+            return context
+        }
+    }
+
+    // this is not really safe because it can not deal with nesting of contexts right now. on the other side, swift code that deals with glib should be smart enough to not push more than one context on baground thread. tho the fact that some code in glib can push nested context is still on the table. be careful
+    public static var threadDefaulContext: SwiftGMainContext? {
+        let threadDictionary = Thread.current.threadDictionary
+
+        if let threadStore = threadDictionary[mainContextThreadStoreKey] as? ThreadStore {
+            return threadStore.context
+        } else {
+            guard let contextReference = g_main_context_get_thread_default() else {
+                return nil
+            }
+
+            let context = SwiftGMainContext(handlePointer: RetainablePointer(with: contextReference))
+            let source = SwiftGMainLoopRunLoopSource(context: context)
+
+            source.schedule(in: .current, forMode: .common)
+
+            let threadStore = ThreadStore(context: context, source: source)
+
+            threadDictionary[mainContextThreadStoreKey] = threadStore
+
+            return context
+        }
+    }
+
     internal func acquireOwnership() {
         if g_main_context_acquire(handle) == 0 {
             fatalError("SwiftGMainContext failed to acquire ownership over underlying GMainContext. This means something nasty is going own and the given context is owned by another thread")
