@@ -1,0 +1,12 @@
+//
+//  module.modulemap
+//  SwiftyGLib
+//
+//  Created by Serhii Mumriak on 20.11.2021.
+//
+
+module CGlib [system] {
+    header "CGLib_umbrella.h"
+    link "glib-2.0"
+    export *
+}
