@@ -40,8 +40,4 @@ final class archiveTests: XCTestCase {
             return Bundle.main.bundleURL
         #endif
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }

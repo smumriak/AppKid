@@ -8,8 +8,4 @@ final class SimpleGLMTests: XCTestCase {
         // results.
         XCTAssertEqual(SimpleGLM().text, "Hello, World!")
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }

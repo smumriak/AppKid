@@ -8,8 +8,4 @@ final class SwiftXlibTests: XCTestCase {
         // results.
         XCTAssertEqual(SwiftXlib().text, "Hello, World!")
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
 }

@@ -128,13 +128,4 @@ final class CGAffineTransformTests: XCTestCase {
 
         try equalityCheck(test, control)
     }
-
-    static var allTests = [
-        ("testIdentity", testIdentity),
-        ("testRotation", testRotation),
-        ("testScale", testScale),
-        ("testTranslate", testTranslate),
-        ("testAll", testAll),
-        ("testConversions", testConversions),
-    ]
 }
