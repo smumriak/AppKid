@@ -19,7 +19,7 @@ public protocol CAMediaTiming {
     var fillMode: CAMediaTimingFillMode { get set }
 }
 
-extension CAMediaTiming {
+public extension CAMediaTiming {
     var beginTime: CFTimeInterval {
         get { return 0.0 }
         set {}

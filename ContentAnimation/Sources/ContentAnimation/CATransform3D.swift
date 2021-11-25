@@ -8,6 +8,7 @@
 import Foundation
 import CairoGraphics
 import SimpleGLM
+import TinyFoundation
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -157,3 +158,5 @@ public extension CATransform3D {
               m30: m41, m31: m42, m32: m43, m33: m44)
     }
 }
+
+extension CATransform3D: PublicInitializable {}

@@ -35,6 +35,10 @@ public struct CGColor {
         }
     }
 
+    public init() {
+        self = .clear
+    }
+
     public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
         self.red = red
         self.green = green
@@ -95,3 +99,5 @@ internal extension CGColor {
         return RetainablePointer(withRetained: cairoPattern)
     }
 }
+
+extension CGColor: PublicInitializable {}

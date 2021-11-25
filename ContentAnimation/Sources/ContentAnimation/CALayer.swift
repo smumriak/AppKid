@@ -8,6 +8,7 @@
 import Foundation
 import CoreFoundation
 import CairoGraphics
+import TinyFoundation
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -42,7 +43,9 @@ extension NSNull: CAAction {
     public func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?) {}
 }
 
-open class CALayer: CAMediaTiming {
+open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
+    @_spi(AppKid) open var values: [String: Any] = [:]
+
     open weak var delegate: CALayerDelegate? = nil
 
     open var contentsScale: CGFloat = 1.0
@@ -57,22 +60,22 @@ open class CALayer: CAMediaTiming {
     @_spi(AppKid) public var identifier = UUID()
 
     @CALayerProperty(name: "bounds")
-    open var bounds: CGRect = .zero
+    open var bounds: CGRect
 
     @CALayerProperty(name: "position")
-    open var position: CGPoint = .zero
+    open var position: CGPoint
 
     @CALayerProperty(name: "zPosition")
-    open var zPosition: CGFloat = 0.0
+    open var zPosition: CGFloat
 
     @CALayerProperty(name: "anchorPoint")
-    open var anchorPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)
+    open var anchorPoint: CGPoint
 
     @CALayerProperty(name: "anchorPointZ")
-    open var anchorPointZ: CGFloat = 0.0
+    open var anchorPointZ: CGFloat
 
     @CALayerProperty(name: "transform")
-    open var transform: CATransform3D = .identity
+    open var transform: CATransform3D
 
     open var affineTransform: CGAffineTransform {
         get { transform.affineTransform }
@@ -80,46 +83,46 @@ open class CALayer: CAMediaTiming {
     }
 
     @CALayerProperty(name: "isHidden")
-    open var isHidden: Bool = false
+    open var isHidden: Bool
 
     @CALayerProperty(name: "mask")
-    open var mask: CALayer? = nil
+    open var mask: CALayer?
 
     @CALayerProperty(name: "masksToBounds")
-    open var masksToBounds: Bool = false
+    open var masksToBounds: Bool
 
     @CALayerProperty(name: "backgroundColor")
-    open var backgroundColor: CGColor? = nil
+    open var backgroundColor: CGColor?
 
     @CALayerProperty(name: "cornerRadius")
-    open var cornerRadius: CGFloat = 0.0
+    open var cornerRadius: CGFloat
 
     @CALayerProperty(name: "maskedCorners")
-    open var maskedCorners: CACornerMask = .allCorners
+    open var maskedCorners: CACornerMask
 
     @CALayerProperty(name: "borderWidth")
-    open var borderWidth: CGFloat = 0.0
+    open var borderWidth: CGFloat
 
     @CALayerProperty(name: "borderColor")
-    open var borderColor: CGColor? = nil
+    open var borderColor: CGColor?
 
     @CALayerProperty(name: "opacity")
-    open var opacity: Float = 1.0
+    open var opacity: CGFloat
 
     @CALayerProperty(name: "shadowColor")
-    open var shadowColor: CGColor? = .black
+    open var shadowColor: CGColor?
 
     @CALayerProperty(name: "shadowOpacity")
-    open var shadowOpacity: Float = 0.0
+    open var shadowOpacity: CGFloat
 
     @CALayerProperty(name: "shadowOffset")
-    open var shadowOffset: CGSize = CGSize(width: 0.0, height: -3.0)
+    open var shadowOffset: CGSize
 
     @CALayerProperty(name: "shadowRadius")
-    open var shadowRadius: CGFloat = 3
+    open var shadowRadius: CGFloat
 
     @CALayerProperty(name: "shadowPath")
-    open var shadowPath: CGPath? = nil
+    open var shadowPath: CGPath?
 
     open var contents: Any?
 
@@ -128,14 +131,12 @@ open class CALayer: CAMediaTiming {
 
     public var beginTime: CFTimeInterval = 0.0
     public var duration: CFTimeInterval = 0.0
-    public var speed: Float = 0.0
+    public var speed: CGFloat = 0.0
     public var timeOffset: CFTimeInterval = 0.0
-    public var repeatCount: Float = 0.0
+    public var repeatCount: CGFloat = 0.0
     public var repeatDuration: CFTimeInterval = 0.0
     public var autoreverses: Bool = false
     public var fillMode: CAMediaTimingFillMode = .removed
-
-    internal var properties: [String: CALayerPropertyProtocol] = [:]
 
     public func addSublayer(_ layer: CALayer) {
         insertSublayer(layer, at: UInt32(sublayers?.count ?? 0))
@@ -190,17 +191,15 @@ open class CALayer: CAMediaTiming {
         }
     }
 
-    public init() {
-        rebuildPropertiesList()
+    public override init() {
+        super.init()
     }
 
     public convenience init(layer: Any) {
         self.init()
 
         if let layer = layer as? CALayer {
-            layer.properties.forEach {
-                properties[$0] = $1
-            }
+            values = layer.values
         }
     }
 
@@ -238,37 +237,85 @@ open class CALayer: CAMediaTiming {
 
         needsDisplay = false
     }
+
+    open class func defaultValue(forKey key: String) -> Any? {
+        switch key {
+            case "anchorPoint": return CGPoint(x: 0.5, y: 0.5)
+            case "maskedCorners": return CACornerMask.allCorners
+            case "opacity": return CGFloat(1.0)
+            case "shadowColor": return CGColor.black
+            case "shadowOffset": return CGSize(width: 0.0, height: -3.0)
+            case "shadowRadius": return CGFloat(3.0)
+
+            default: return nil
+        }
+    }
+
+    open func value(forKey key: String) -> Any? {
+        if key.isEmpty {
+            return nil
+        }
+
+        return values[key]
+    }
+
+    open func value(forKeyPath keyPath: String) -> Any? {
+        if keyPath.isEmpty {
+            return nil
+        }
+
+        let keys = keyPath.split(separator: ".")
+
+        var object: KeyValueCodable? = self
+
+        for key in keys[0..<(keys.count - 1)] {
+            object = object?.value(forKey: String(key)) as? KeyValueCodable
+            if object == nil {
+                return nil
+            }
+        }
+        return object?.value(forKey:)
+    }
+
+    open func setValue(_ value: Any?, forKey key: String) {
+        if key.isEmpty {
+            return
+        }
+
+        values[key] = value
+    }
+
+    open func setValue(_ value: Any?, forKeyPath keyPath: String) {
+        if keyPath.isEmpty {
+            return
+        }
+
+        let keys = keyPath.split(separator: ".")
+
+        var object: KeyValueCodable? = self
+
+        for key in keys[0..<(keys.count - 1)] {
+            object = object?.value(forKey: String(key)) as? KeyValueCodable
+            if object == nil {
+                return
+            }
+        }
+
+        if let key = keys.last {
+            object?.setValue(value, forKey: String(key))
+        }
+    }
 }
 
 @_spi(AppKid) extension CALayer: Identifiable {}
 
-public extension CALayer {
-    internal func rebuildPropertiesList() {
-        properties = Mirror(reflecting: self).children
-            .compactMap { $0.value as? CALayerPropertyProtocol }
-            .reduce(into: [:]) { $0[$1.name] = $1 }
-    }
-
-    func getValue<Type>(for key: String) -> Type {
-        if let property = properties[key] as? CALayerProperty<Type> {
-            return property.wrappedValue
-        } else {
-            fatalError("No property for \"\(key)\" key")
-        }
-    }
-
-    func setValue<Type>(_ value: Type, for key: String) {
-        if let property = properties[key] as? CALayerProperty<Type> {
-            property.wrappedValue = value
-        } else {
-            fatalError("No property for \"\(key)\" key")
-        }
-    }
-}
-
 public struct CACornerMask: OptionSet {
     public typealias RawValue = UInt
     public var rawValue: RawValue
+
+    public init() {
+        self = []
+    }
 
     public init(rawValue: RawValue) {
         self.rawValue = rawValue
@@ -285,9 +332,11 @@ public struct CACornerMask: OptionSet {
     public static var allCorners: CACornerMask = [layerMinXMinYCorner, layerMaxXMinYCorner, layerMinXMaxYCorner, layerMaxXMaxYCorner]
 }
 
-extension CALayer: Equatable {
-    public static func == (lhs: CALayer, rhs: CALayer) -> Bool {
-        // palkovnik:TODO:this is wrong, but will do for now. Change to checking the variables OR the dictionary of variables
-        return lhs === rhs
-    }
-}
+extension CACornerMask: PublicInitializable {}
+
+// extension CALayer: Equatable {
+//     public static func == (lhs: CALayer, rhs: CALayer) -> Bool {
+//         // palkovnik:TODO:this is wrong, but will do for now. Change to checking the variables OR the dictionary of variables
+//         return lhs === rhs
+//     }
+// }

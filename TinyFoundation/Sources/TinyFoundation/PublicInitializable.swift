@@ -16,3 +16,9 @@ extension Optional: PublicInitializable {
         self = .none
     }
 }
+
+extension CGRect: PublicInitializable {}
+extension CGSize: PublicInitializable {}
+extension CGPoint: PublicInitializable {}
+extension CGFloat: PublicInitializable {}
+extension Bool: PublicInitializable {}
