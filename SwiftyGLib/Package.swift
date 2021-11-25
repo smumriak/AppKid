@@ -29,7 +29,8 @@ let package = Package(
             ]),
         .testTarget(
             name: "SwiftyGLibTests",
-            dependencies: ["SwiftyGLib"]),
+            dependencies: ["SwiftyGLib"]
+        ),
         .systemLibrary(
             name: "CGLib",
             pkgConfig: "glib-2.0",

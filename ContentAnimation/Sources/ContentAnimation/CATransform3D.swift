@@ -95,6 +95,13 @@ public extension CATransform3D {
                   m31: 0.0, m32: 0.0, m33: sz, m34: 0.0,
                   m41: 0.0, m42: 0.0, m43: 0.0, m44: 1.0)
     }
+
+    // init(rotationAngle angle: CGFloat, x sx: CGFloat, y sy: CGFloat, z sz: CGFloat) {
+    //     self.init(m11: sx, m12: 0.0, m13: 0.0, m14: 0.0,
+    //               m21: 0.0, m22: sy, m23: 0.0, m24: 0.0,
+    //               m31: 0.0, m32: 0.0, m33: sz, m34: 0.0,
+    //               m41: 0.0, m42: 0.0, m43: 0.0, m44: 1.0)
+    // }
 }
 
 extension CATransform3D: Equatable {
@@ -160,3 +167,49 @@ public extension CATransform3D {
 }
 
 extension CATransform3D: PublicInitializable {}
+
+extension CATransform3D: KeyValueCodable {
+    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+        switch key {
+            case "rotation.x": return nil
+            case "rotation.y": return nil
+            case "rotation.z": return nil
+            case "rotation": return nil
+            case "scale.x": return m11
+            case "scale.y": return m22
+            case "scale.z": return m33
+            case "scale": return (m11 + m22 + m33) / 3.0
+            case "translation.x": return m41
+            case "translation.y": return m42
+            case "translation.z": return m43
+            case "translation": return CGSize(width: m41, height: m42)
+            default: return nil
+        }
+    }
+
+    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+        return value(forKey: keyPath)
+    }
+
+    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+        switch key {
+            case "rotation.x": break
+            case "rotation.y": break
+            case "rotation.z": break
+            case "rotation": break
+            case "scale.x": break
+            case "scale.y": break
+            case "scale.z": break
+            case "scale": break
+            case "translation.x": break
+            case "translation.y": break
+            case "translation.z": break
+            case "translation": break
+            default: break
+        }
+    }
+
+    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+        self.setValue(value, forKey: keyPath)
+    }
+}

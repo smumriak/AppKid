@@ -7,6 +7,7 @@
 
 import Foundation
 import CCairo
+import TinyFoundation
 
 public struct CGAffineTransform {
     public var a: CGFloat
@@ -182,5 +183,21 @@ extension CGAffineTransform: CustomDebugStringConvertible {
         c: \(c), d: \(d)
         tx: \(tx), ty: \(ty)
         """
+    }
+}
+
+extension CGAffineTransform: KeyValueCodable {
+    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+        return nil
+    }
+
+    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+        return nil
+    }
+
+    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    }
+
+    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
     }
 }

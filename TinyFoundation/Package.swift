@@ -25,5 +25,9 @@ let package = Package(
                     .product(name: "Collections", package: "swift-collections"),
                 ]
         ),
+        .testTarget(
+            name: "TinyFoundationTests",
+            dependencies: ["TinyFoundation"]
+        ),
     ]
 )

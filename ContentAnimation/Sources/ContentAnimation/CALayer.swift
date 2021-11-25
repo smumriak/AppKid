@@ -44,7 +44,7 @@ extension NSNull: CAAction {
 }
 
 open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
-    @_spi(AppKid) open var values: [String: Any] = [:]
+    @_spi(AppKid) open var valuesContainer = CAValuesContainer()
 
     open weak var delegate: CALayerDelegate? = nil
 
@@ -191,7 +191,7 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         }
     }
 
-    public override init() {
+    public override required init() {
         super.init()
     }
 
@@ -199,7 +199,7 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         self.init()
 
         if let layer = layer as? CALayer {
-            values = layer.values
+            valuesContainer.values = layer.valuesContainer.values
         }
     }
 
@@ -238,72 +238,35 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         needsDisplay = false
     }
 
-    open class func defaultValue(forKey key: String) -> Any? {
+    // MARK: Key Value Coding
+
+    open class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
         switch key {
-            case "anchorPoint": return CGPoint(x: 0.5, y: 0.5)
-            case "maskedCorners": return CACornerMask.allCorners
-            case "opacity": return CGFloat(1.0)
+            case "anchorPoint": return Value(CGPoint(x: 0.5, y: 0.5))
+            case "maskedCorners": return Value(CACornerMask.allCorners)
+            case "opacity": return Value(CGFloat(1.0))
             case "shadowColor": return CGColor.black
-            case "shadowOffset": return CGSize(width: 0.0, height: -3.0)
-            case "shadowRadius": return CGFloat(3.0)
+            case "shadowOffset": return Value(CGSize(width: 0.0, height: -3.0))
+            case "shadowRadius": return Value(CGFloat(3.0))
 
             default: return nil
         }
     }
 
-    open func value(forKey key: String) -> Any? {
-        if key.isEmpty {
-            return nil
-        }
-
-        return values[key]
+    open func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+        valuesContainer.value(forKey: key)
     }
 
-    open func value(forKeyPath keyPath: String) -> Any? {
-        if keyPath.isEmpty {
-            return nil
-        }
-
-        let keys = keyPath.split(separator: ".")
-
-        var object: KeyValueCodable? = self
-
-        for key in keys[0..<(keys.count - 1)] {
-            object = object?.value(forKey: String(key)) as? KeyValueCodable
-            if object == nil {
-                return nil
-            }
-        }
-        return object?.value(forKey:)
+    open func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+        valuesContainer.value(forKeyPath: keyPath)
     }
 
-    open func setValue(_ value: Any?, forKey key: String) {
-        if key.isEmpty {
-            return
-        }
-
-        values[key] = value
+    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+        valuesContainer.setValue(value, forKey: key)
     }
 
-    open func setValue(_ value: Any?, forKeyPath keyPath: String) {
-        if keyPath.isEmpty {
-            return
-        }
-
-        let keys = keyPath.split(separator: ".")
-
-        var object: KeyValueCodable? = self
-
-        for key in keys[0..<(keys.count - 1)] {
-            object = object?.value(forKey: String(key)) as? KeyValueCodable
-            if object == nil {
-                return
-            }
-        }
-
-        if let key = keys.last {
-            object?.setValue(value, forKey: String(key))
-        }
+    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+        valuesContainer.setValue(value, forKeyPath: keyPath)
     }
 }
 
