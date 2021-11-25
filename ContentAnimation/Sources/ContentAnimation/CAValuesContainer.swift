@@ -10,8 +10,16 @@ import CoreFoundation
 import CairoGraphics
 import TinyFoundation
 
-@_spi(AppKid) open class CAValuesContainer: NSObject, KeyValueCodable {
-    open var values: [String: Any] = [:]
+open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
+    @_spi(AppKid) open var values: [String: Any] = [:]
+
+    public override required init() {
+        super.init()
+    }
+
+    open class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+        return nil
+    }
     
     open func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
         if key.isEmpty {
@@ -55,8 +63,16 @@ import TinyFoundation
         let keys = keyPath.split(separator: ".", maxSplits: 1)
 
         if keys.count == 2 {
-            if var object = self.value(forKey: String(keys[0])) as? KeyValueCodable {
-                object.setValue(value, forKeyPath: keys[1])
+            let key = keys[0]
+            let tailKeyPath = keys[1]
+            if var object = self.value(forKey: key) as? KeyValueCodable {
+                object.setValue(value, forKeyPath: tailKeyPath)
+            } else if var object = Self.defaultValue(forKey: key) as? KeyValueCodable {
+                object.setValue(value, forKeyPath: tailKeyPath)
+                setValue(object, forKey: key)
+            } else {
+                // supporting this case requires some tricky logic to determine the type of object for this particular key. either some reflection or mainatining default values for all known properties
+                fatalError("Empty values are not yet supported.")
             }
         } else {
             setValue(value, forKey: keys[0])

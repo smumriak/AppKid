@@ -12,8 +12,6 @@ import TinyFoundation
 import CVulkan
 import SimpleGLM
 import CairoGraphics
-import CXlib
-import SwiftXlib
 import LayerRenderingData
 
 #if os(macOS)

@@ -1,6 +1,6 @@
 //
-//  CALayerProperty.swift
-//  CairoGraphics
+//  CAProperty.swift
+//  ContentAnimation
 //
 //  Created by Serhii Mumriak on 12.05.2020.
 //
@@ -9,18 +9,23 @@ import Foundation
 import TinyFoundation
 import CairoGraphics
 
+internal protocol CAPropertyProtocol {
+    var name: String { get }
+    func createInstance() -> Any
+}
+
 @propertyWrapper
-public struct CALayerProperty<Type: PublicInitializable> {
+public struct CAProperty<Type: PublicInitializable> {
     internal let name: String
 
     public init(name: String) {
         self.name = name
     }
 
-    @available(*, unavailable, message: "Only for CALayer")
+    @available(*, unavailable, message: "Only for DefaultKeyValueCodable classes")
     public var wrappedValue: Type {
-        get { fatalError("Only for CALayer") }
-        set { fatalError("Only for CALayer") }
+        get { fatalError("Only for DefaultKeyValueCodable classes") }
+        set { fatalError("Only for DefaultKeyValueCodable classes") }
     }
 
     public static subscript<InstanceType: DefaultKeyValueCodable>(
@@ -52,22 +57,8 @@ public struct CALayerProperty<Type: PublicInitializable> {
     }
 }
 
-public protocol CALayerValuePropertyType: PublicInitializable {}
-
-public extension CALayerValuePropertyType {
-    static func constructValue() -> Value<Self> {
-        return Value(self.init())
-    }
-
-    func constructValue() -> Value<Self> {
-        return Value(self)
+extension CAProperty: CAPropertyProtocol {
+    func createInstance() -> Any {
+        return Type()
     }
 }
-
-extension CGRect: CALayerValuePropertyType {}
-extension CGSize: CALayerValuePropertyType {}
-extension CGPoint: CALayerValuePropertyType {}
-extension CGFloat: CALayerValuePropertyType {}
-extension CGAffineTransform: CALayerValuePropertyType {}
-extension CATransform3D: CALayerValuePropertyType {}
-extension CACornerMask: CALayerValuePropertyType {}

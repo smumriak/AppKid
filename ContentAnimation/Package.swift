@@ -53,5 +53,9 @@ let package = Package(
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
             ]
         ),
+        .testTarget(
+            name: "ContentAnimationTests",
+            dependencies: ["ContentAnimation"]
+        ),
     ]
 )

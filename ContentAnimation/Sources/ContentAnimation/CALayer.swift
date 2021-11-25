@@ -43,9 +43,7 @@ extension NSNull: CAAction {
     public func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?) {}
 }
 
-open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
-    @_spi(AppKid) open var valuesContainer = CAValuesContainer()
-
+open class CALayer: CAValuesContainer, CAMediaTiming {
     open weak var delegate: CALayerDelegate? = nil
 
     open var contentsScale: CGFloat = 1.0
@@ -59,22 +57,22 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
 
     @_spi(AppKid) public var identifier = UUID()
 
-    @CALayerProperty(name: "bounds")
+    @CAProperty(name: "bounds")
     open var bounds: CGRect
 
-    @CALayerProperty(name: "position")
+    @CAProperty(name: "position")
     open var position: CGPoint
 
-    @CALayerProperty(name: "zPosition")
+    @CAProperty(name: "zPosition")
     open var zPosition: CGFloat
 
-    @CALayerProperty(name: "anchorPoint")
+    @CAProperty(name: "anchorPoint")
     open var anchorPoint: CGPoint
 
-    @CALayerProperty(name: "anchorPointZ")
+    @CAProperty(name: "anchorPointZ")
     open var anchorPointZ: CGFloat
 
-    @CALayerProperty(name: "transform")
+    @CAProperty(name: "transform")
     open var transform: CATransform3D
 
     open var affineTransform: CGAffineTransform {
@@ -82,46 +80,46 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         set { transform = newValue.transform3D }
     }
 
-    @CALayerProperty(name: "isHidden")
+    @CAProperty(name: "isHidden")
     open var isHidden: Bool
 
-    @CALayerProperty(name: "mask")
+    @CAProperty(name: "mask")
     open var mask: CALayer?
 
-    @CALayerProperty(name: "masksToBounds")
+    @CAProperty(name: "masksToBounds")
     open var masksToBounds: Bool
 
-    @CALayerProperty(name: "backgroundColor")
+    @CAProperty(name: "backgroundColor")
     open var backgroundColor: CGColor?
 
-    @CALayerProperty(name: "cornerRadius")
+    @CAProperty(name: "cornerRadius")
     open var cornerRadius: CGFloat
 
-    @CALayerProperty(name: "maskedCorners")
+    @CAProperty(name: "maskedCorners")
     open var maskedCorners: CACornerMask
 
-    @CALayerProperty(name: "borderWidth")
+    @CAProperty(name: "borderWidth")
     open var borderWidth: CGFloat
 
-    @CALayerProperty(name: "borderColor")
+    @CAProperty(name: "borderColor")
     open var borderColor: CGColor?
 
-    @CALayerProperty(name: "opacity")
+    @CAProperty(name: "opacity")
     open var opacity: CGFloat
 
-    @CALayerProperty(name: "shadowColor")
+    @CAProperty(name: "shadowColor")
     open var shadowColor: CGColor?
 
-    @CALayerProperty(name: "shadowOpacity")
+    @CAProperty(name: "shadowOpacity")
     open var shadowOpacity: CGFloat
 
-    @CALayerProperty(name: "shadowOffset")
+    @CAProperty(name: "shadowOffset")
     open var shadowOffset: CGSize
 
-    @CALayerProperty(name: "shadowRadius")
+    @CAProperty(name: "shadowRadius")
     open var shadowRadius: CGFloat
 
-    @CALayerProperty(name: "shadowPath")
+    @CAProperty(name: "shadowPath")
     open var shadowPath: CGPath?
 
     open var contents: Any?
@@ -191,7 +189,7 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         }
     }
 
-    public override required init() {
+    public required init() {
         super.init()
     }
 
@@ -199,7 +197,7 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
         self.init()
 
         if let layer = layer as? CALayer {
-            valuesContainer.values = layer.valuesContainer.values
+            values = layer.values
         }
     }
 
@@ -240,33 +238,31 @@ open class CALayer: NSObject, CAMediaTiming, DefaultKeyValueCodable {
 
     // MARK: Key Value Coding
 
-    open class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    open override class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
         switch key {
+            case "bounds": return Value(CGRect.zero)
+            case "position": return Value(CGPoint.zero)
+            case "zPosition": return Value(CGFloat.zero)
             case "anchorPoint": return Value(CGPoint(x: 0.5, y: 0.5))
+            case "anchorPointZ": return Value(CGFloat.zero)
+            case "transform": return Value(CATransform3D.identity)
+            case "isHidden": return Value(false)
+            case "mask": return nil
+            case "masksToBounds": return Value(false)
+            case "backgroundColor": return nil
+            case "cornerRadius": return Value(CGFloat.zero)
             case "maskedCorners": return Value(CACornerMask.allCorners)
+            case "borderWidth": return Value(CGFloat.zero)
+            case "borderColor": return nil
             case "opacity": return Value(CGFloat(1.0))
             case "shadowColor": return CGColor.black
+            case "shadowOpacity": return Value(CGFloat.zero)
             case "shadowOffset": return Value(CGSize(width: 0.0, height: -3.0))
             case "shadowRadius": return Value(CGFloat(3.0))
+            case "shadowPath": return nil
 
-            default: return nil
+            default: return super.defaultValue(forKey: key)
         }
-    }
-
-    open func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
-        valuesContainer.value(forKey: key)
-    }
-
-    open func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
-        valuesContainer.value(forKeyPath: keyPath)
-    }
-
-    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
-        valuesContainer.setValue(value, forKey: key)
-    }
-
-    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
-        valuesContainer.setValue(value, forKeyPath: keyPath)
     }
 }
 
