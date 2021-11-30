@@ -197,8 +197,6 @@ internal class DescriptorSetContainer {
             return
         }
 
-        renderTarget = try renderTargetsCache.createRenderTarget(for: texture)
-
         if pixelFormat != texture.pixelFormat {
             renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
             let descriptorSetsLayouts = renderContext.descriptorSetsLayouts
@@ -215,6 +213,8 @@ internal class DescriptorSetContainer {
 
             renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         }
+
+        renderTarget = try renderTargetsCache.createRenderTarget(for: texture)
     }
 
     @_spi(AppKid) public func buildRenderOperations() throws {

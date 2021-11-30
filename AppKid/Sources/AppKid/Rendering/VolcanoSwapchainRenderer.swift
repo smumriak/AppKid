@@ -113,8 +113,6 @@ internal class VolcanoSwapchainRenderer {
     }
     
     func clearSwapchain() throws {
-        // try device.waitForIdle()
-
         textures.removeAll()
         layerRenderer.renderTargetsCache.clear()
         oldSwapchain = swapchain
@@ -372,28 +370,18 @@ internal class VolcanoSwapchainRenderer {
 
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
-        while true {
+        var index: Int?
+        var texture: Texture?
+
+        while skipRecreation == false {
             do {
-                let (index, texture) = try grabNextTexture()
-
-                try layerRenderer.setDestination(texture)
-
-                try layerRenderer.beginFrame(atTime: 0)
-
-                try layerRenderer.render(waitSemaphores: [textureReadySemaphore], signalSemaphores: [commandBufferExecutionCompleteSemaphore], fence: fence)
-
-                try fence.wait()
-                try fence.reset()
-
-                try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [commandBufferExecutionCompleteSemaphore], imageIndices: [CUnsignedInt(index)])
-
-                try layerRenderer.endFrame()
-
+                (index, texture) = try grabNextTexture()
                 break
             } catch VulkanError.badResult(let errorCode) {
                 if errorCode == .errorOutOfDate || errorCode == .suboptimal {
                     if skipRecreation == true {
-                        break
+                        recreateSwapchainOnNextRun = true
+                        return
                     }
 
                     try clearSwapchain()
@@ -403,6 +391,31 @@ internal class VolcanoSwapchainRenderer {
                 } else {
                     throw VulkanError.badResult(errorCode)
                 }
+            }
+        }
+
+        guard let index = index, let texture = texture else {
+            return
+        }
+
+        do {
+            try layerRenderer.setDestination(texture)
+
+            try layerRenderer.beginFrame(atTime: 0)
+
+            try layerRenderer.render(waitSemaphores: [textureReadySemaphore], signalSemaphores: [commandBufferExecutionCompleteSemaphore], fence: fence)
+
+            try fence.wait()
+            try fence.reset()
+
+            try presentationQueue.present(swapchains: [swapchain], waitSemaphores: [commandBufferExecutionCompleteSemaphore], imageIndices: [CUnsignedInt(index)])
+
+            try layerRenderer.endFrame()
+        } catch VulkanError.badResult(let errorCode) {
+            if errorCode == .errorOutOfDate || errorCode == .suboptimal {
+                recreateSwapchainOnNextRun = true
+            } else {
+                throw VulkanError.badResult(errorCode)
             }
         }
     }
