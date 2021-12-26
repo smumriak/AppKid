@@ -8,7 +8,8 @@
 import Foundation
 import AppKid
 
-class AppDelegate: ApplicationDelegate {
+@main
+final class AppDelegate: NSObject, ApplicationDelegate {
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
         window.rootViewController = RootViewController()

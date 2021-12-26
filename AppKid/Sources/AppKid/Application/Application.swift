@@ -355,3 +355,26 @@ public extension Application {
 
     static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
 }
+
+public extension ApplicationDelegate {
+    static func main() {
+        // palkovnik:This is the reason why RunLoop is used and not dispatchMain()
+        // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+        //     debugPrint("ON main queue async")
+        //     debugPrint("Main thread: \(Thread.mainThread)")
+        //     debugPrint("Current thread: \(Thread.current)")
+        // }
+
+        // debugPrint("Before dispatchMain()")
+        // debugPrint("Main thread: \(Thread.mainThread)")
+        // debugPrint("Current thread: \(Thread.current)")
+
+        // dispatchMain()
+
+        let appDelegate = Self()
+        let application = Application.shared
+        application.delegate = appDelegate
+
+        application.run()
+    }
+}
