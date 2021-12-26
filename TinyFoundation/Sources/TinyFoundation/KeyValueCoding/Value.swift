@@ -20,19 +20,19 @@ public class Value<Type: PublicInitializable>: PublicInitializable {
 }
 
 extension Value: KeyValueCodable where Type: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         return storedValue.value(forKey: key)
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return storedValue.value(forKeyPath: keyPath)
     }
 
-    public func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public func setValue(_ value: Any?, forKey key: String) {
         storedValue.setValue(value, forKey: key)
     }
 
-    public func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public func setValue(_ value: Any?, forKeyPath keyPath: String) {
         storedValue.setValue(value, forKeyPath: keyPath)
     }
 }

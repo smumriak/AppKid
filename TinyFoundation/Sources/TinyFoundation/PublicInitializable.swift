@@ -22,3 +22,4 @@ extension CGSize: PublicInitializable {}
 extension CGPoint: PublicInitializable {}
 extension CGFloat: PublicInitializable {}
 extension Bool: PublicInitializable {}
+extension UUID: PublicInitializable {}

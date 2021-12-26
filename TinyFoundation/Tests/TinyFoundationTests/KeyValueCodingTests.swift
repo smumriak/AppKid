@@ -13,7 +13,6 @@ final class KeyValueCodingTests: XCTestCase {
         let value = Value(CGRect())
         value.setValue(CGFloat(12), forKeyPath: "origin.x")
         value.setValue(CGFloat(42), forKeyPath: "size.height")
-        debugPrint(value.storedValue)
-        XCTAssert(true)
+        XCTAssertEqual(value.storedValue, CGRect(x: 12.0, y: 0.0, width: 0.0, height: 42.0))
     }
 }

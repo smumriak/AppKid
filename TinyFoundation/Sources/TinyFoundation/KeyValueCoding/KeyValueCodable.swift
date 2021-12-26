@@ -9,19 +9,31 @@ import Foundation
 
 // palkovnik:ExpressibleByStringLiteral maybe?
 public protocol KeyValueCodable {
-    func value<T: StringProtocol & Hashable>(forKey key: T) -> Any?
-    func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any?
-        
-    mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T)
-    mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T)
+    func value(forKey key: String) -> Any?
+    func value(forKeyPath keyPath: String) -> Any?
+
+    mutating func setValue(_ value: Any?, forKey key: String)
+    mutating func setValue(_ value: Any?, forKeyPath keyPath: String)
+
+    func willChangeValue(forKey key: String)
+    func didChangeValue(forKey key: String)
+
+    // Needed?
+    // func value(forUndefinedKey key: T) -> Any?
+    // mutating func setValue(_ value: Any?, forUndefinedKey key: T)
+}
+
+public extension KeyValueCodable {
+    func willChangeValue(forKey key: String) {}
+    func didChangeValue(forKey key: String) {}
 }
 
 public protocol DefaultKeyValueCodable: KeyValueCodable {
-    static func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any?
+    static func defaultValue(forKey key: String) -> Any?
 }
 
 extension CGRect: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         switch key {
             case "origin": return origin
             case "size": return size
@@ -42,11 +54,11 @@ extension CGRect: KeyValueCodable {
         }
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return value(forKey: keyPath)
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public mutating func setValue(_ value: Any?, forKey key: String) {
         switch key {
             case "origin": return origin = value as! CGPoint
             case "size": return size = value as! CGSize
@@ -67,7 +79,7 @@ extension CGRect: KeyValueCodable {
         }
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public mutating func setValue(_ value: Any?, forKeyPath keyPath: String) {
         self.setValue(value, forKey: keyPath)
     }
 }
@@ -94,7 +106,7 @@ public extension CGFloat {
 }
 
 extension CGSize: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         switch key {
             case "width": return width
             case "height": return height
@@ -102,11 +114,11 @@ extension CGSize: KeyValueCodable {
         }
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return value(forKey: keyPath)
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public mutating func setValue(_ value: Any?, forKey key: String) {
         switch key {
             case "width": return width = CGFloat(any: value)!
             case "height": return height = CGFloat(any: value)!
@@ -114,13 +126,13 @@ extension CGSize: KeyValueCodable {
         }
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public mutating func setValue(_ value: Any?, forKeyPath keyPath: String) {
         self.setValue(value, forKey: keyPath)
     }
 }
 
 extension CGPoint: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         switch key {
             case "x": return x
             case "y": return y
@@ -128,11 +140,11 @@ extension CGPoint: KeyValueCodable {
         }
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return value(forKey: keyPath)
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public mutating func setValue(_ value: Any?, forKey key: String) {
         switch key {
             case "x": x = CGFloat(any: value)!
             case "y": y = CGFloat(any: value)!
@@ -140,7 +152,7 @@ extension CGPoint: KeyValueCodable {
         }
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public mutating func setValue(_ value: Any?, forKeyPath keyPath: String) {
         self.setValue(value, forKey: keyPath)
     }
 }
