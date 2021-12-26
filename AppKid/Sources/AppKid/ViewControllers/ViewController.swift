@@ -8,12 +8,12 @@
 import Foundation
 
 open class ViewController: Responder {
-    // MARK: Initialization
+    // MARK: - Initialization
 
     public override init() {
     }
 
-    // MARK: View Loading
+    // MARK: - View Loading
 
     open fileprivate(set) var viewIfLoaded: View? = nil
     open var view: View {
@@ -46,7 +46,7 @@ open class ViewController: Responder {
 
     open func viewDidLoad() {}
 
-    // MARK: View Presentation
+    // MARK: - View Presentation
 
     open func viewWillAppear(_ animated: Bool) {}
     open func viewDidAppear(_ animated: Bool) {}
@@ -58,7 +58,7 @@ open class ViewController: Responder {
     open var isMovingFromParent: Bool = false
     open var isMovingToParent: Bool = false
 
-    // MARK: Appearance Transition
+    // MARK: - Appearance Transition
 
     internal var isAppearing: Bool? = nil
     internal var isAppearingAnimated: Bool = false
@@ -86,12 +86,12 @@ open class ViewController: Responder {
         }
     }
 
-    // MARK: View Layout
+    // MARK: - View Layout
 
     open func viewWillLayoutSubviews() {}
     open func viewDidLayoutSubviews() {}
 
-    // MARK: View Controller Hierarchy
+    // MARK: - View Controller Hierarchy
 
     open var children: [ViewController] = []
     open fileprivate(set) weak var parent: ViewController? = nil
@@ -123,7 +123,7 @@ open class ViewController: Responder {
     open func willMove(to parent: ViewController?) {}
     open func didMove(to parent: ViewController?) {}
 
-    // MARK: Responder
+    // MARK: - Responder
 
     override func responderWindow() -> Window? {
         return view.window

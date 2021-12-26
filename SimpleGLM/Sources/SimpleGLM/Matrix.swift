@@ -45,60 +45,60 @@ public protocol AffineTransformableMatrix: Matrix {
 }
 
 public extension Matrix {
-    @inlinable @inline(__always)
+    @_transparent
     var isIdentity: Bool { self == Self.identity }
 
-    @inlinable @inline(__always)
+    @_transparent
     var inversed: Self { isIdentity ? self : Self.inverse_f(self) }
 
-    @inlinable @inline(__always)
+    @_transparent
     mutating func inverse() { self = inversed }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func * (_ lhs: Self, _ rhs: Self) -> Self { mul_f(lhs, rhs) }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func * (_ lhs: Self, _ rhs: ColumnType) -> ColumnType { mulv_f(lhs, rhs) }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func * <T: BinaryFloatingPoint>(_ lhs: Self, _ rhs: T) -> Self { scale_f(lhs, Float(rhs)) }
 
-    @inlinable @inline(__always)
+    @_transparent
     var determinant: Float { Self.determinant_f(self) }
 }
 
 public extension AffineTransformableMatrix {
-    @inlinable @inline(__always)
+    @_transparent
     init(translationVector: TranslationVector) { self = Self.initUsingTranslationVector_f(translationVector) }
 
-    @inlinable @inline(__always)
+    @_transparent
     func translated(by vector: TranslationVector) -> Self { Self.affineTranslateByVector_f(self, vector) }
 
-    @inlinable @inline(__always)
+    @_transparent
     mutating func translate(by vector: TranslationVector) { self = Self.affineTranslateByVector_f(self, vector) }
 
-    @inlinable @inline(__always)
+    @_transparent
     init(scaleVector: ScaleVector) { self = Self.initUsingScaleVector_f(scaleVector) }
 
-    @inlinable @inline(__always)
+    @_transparent
     func scaled(by vector: ScaleVector) -> Self { Self.affineScaleByVector_f(self, vector) }
 
-    @inlinable @inline(__always)
+    @_transparent
     mutating func scale(by vector: ScaleVector) { self = Self.affineScaleByVector_f(self, vector) }
 }
 
 public extension Matrix where ColumnsValue == (vec2s, vec2s) {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.col == rhs.col }
 }
 
 public extension Matrix where ColumnsValue == (vec3s, vec3s, vec3s) {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.col == rhs.col }
 }
 
 public extension Matrix where ColumnsValue == (vec4s, vec4s, vec4s, vec4s) {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.col == rhs.col }
 }
 
@@ -150,13 +150,13 @@ extension mat3s: AffineTransformableMatrix {
         hasher.combine(m22)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(rotationAngle angle: T) { self = glms_rotate2d_make(Float(angle)) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public func rotated<T: BinaryFloatingPoint>(by angle: T) -> Self { glms_rotate2d(self, Float(angle)) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public mutating func rotate<T: BinaryFloatingPoint>(by angle: T) { self = glms_rotate2d(self, Float(angle)) }
 }
 
@@ -195,7 +195,7 @@ extension mat4s: AffineTransformableMatrix {
         hasher.combine(m33)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(m00: T, m01: T, m02: T, m03: T,
                                         m10: T, m11: T, m12: T, m13: T,
                                         m20: T, m21: T, m22: T, m23: T,
@@ -223,28 +223,28 @@ extension mat4s: AffineTransformableMatrix {
         self.m33 = Float(m33)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(rotationAngle angle: T, axis: vec3s) { self = glms_rotate_make(Float(angle), axis) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public static func perspective<T: BinaryFloatingPoint>(fieldOfViewY: T, aspectRatio: T, near: T, far: T) -> Self {
         glms_perspective(Float(fieldOfViewY), Float(aspectRatio), Float(near), Float(far))
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public static func orthographic<T: BinaryFloatingPoint>(left: T, right: T, bottom: T, top: T, near: T, far: T) -> Self {
         glms_ortho(Float(left), Float(right), Float(bottom), Float(top), Float(near), Float(far))
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public static func lootAt(eye: vec3s, center: vec3s, up: vec3s) -> Self {
         glms_lookat(eye, center, up)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     public func rotated<T: BinaryFloatingPoint>(by angle: T, axis: vec3s) -> Self { glms_rotate(self, Float(angle), axis) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public mutating func rotate<T: BinaryFloatingPoint>(by angle: T, axis: vec3s) { self = glms_rotate(self, Float(angle), axis) }
 }
 

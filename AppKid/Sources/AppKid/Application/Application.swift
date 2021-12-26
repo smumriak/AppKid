@@ -107,7 +107,7 @@ open class Application: Responder {
     //     }
     // }
 
-    // MARK: Initialization
+    // MARK: - Initialization
 
     deinit {
         displayServer.deactivate()
@@ -138,13 +138,13 @@ open class Application: Responder {
     open fileprivate(set) var mainWindow: Window? = nil
     open fileprivate(set) var keyWindow: Window? = nil
 
-    // MARK: Run Loop
+    // MARK: - Run Loop
 
     open func stop() {
         CFRunLoopStop(CFRunLoopGetCurrent())
     }
 
-    // MARK: Termination
+    // MARK: - Termination
     
     open func terminate() {
         let terminate: TerminateReply = delegate?.applicationShouldTerminate(self) ?? .now
@@ -228,7 +228,7 @@ open class Application: Responder {
         }
     }
 
-    // MARK: Events
+    // MARK: - Events
 
     open func post(event: Event, atStart: Bool) {
         eventQueue.insert(event, at: atStart ? 0 : eventQueue.count)
@@ -293,7 +293,7 @@ open class Application: Responder {
         eventQueue.removeSubrange(0..<index)
     }
 
-    // MARK: Windows
+    // MARK: - Windows
 
     @_spi(AppKid) public func add(window: Window) {
         if isVolcanoRenderingEnabled {
@@ -351,7 +351,7 @@ public extension Application {
 }
 
 public extension Application {
-    // MARK: Notifications
+    // MARK: - Notifications
 
     static let willTerminateNotification = Notification.Name(rawValue: "willTerminateNotification")
 }

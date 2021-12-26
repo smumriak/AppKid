@@ -10,12 +10,12 @@ import CVulkan
 public typealias VkClearColorValue = CVulkan.VkClearColorValue
 
 public extension VkClearColorValue {
-    @inlinable @inline(__always)
+    @_transparent
     init<T: BinaryFloatingPoint>(red: T, green: T, blue: T, alpha: T = 1.0) {
         self.init(float32: (Float(red), Float(green), Float(blue), Float(alpha)))
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     init<T: BinaryFloatingPoint>(white: T, alpha: T = 1.0) {
         self.init(red: white, green: white, blue: white, alpha: alpha)
     }

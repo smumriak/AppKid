@@ -12,34 +12,34 @@ public extension CGPoint {
 }
 
 public extension CGPoint {
-    @inlinable @inline(__always)
+    @_transparent
     static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
         return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
         return CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func * (lhs: CGPoint, rhs: CGFloat) -> CGPoint {
         return CGPoint(x: lhs.x * rhs, y: lhs.y * rhs)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func / (lhs: CGPoint, rhs: CGFloat) -> CGPoint {
         return CGPoint(x: lhs.x / rhs, y: lhs.y / rhs)
     }
 }
 
 public extension CGPoint {
-    @inlinable @inline(__always)
+    @_transparent
     static func + (lhs: CGPoint, rhs: CGSize) -> CGPoint {
         return CGPoint(x: lhs.x + rhs.width, y: lhs.y + rhs.height)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func - (lhs: CGPoint, rhs: CGSize) -> CGPoint {
         return CGPoint(x: lhs.x - rhs.width, y: lhs.y - rhs.height)
     }

@@ -51,7 +51,7 @@ open class Control: View, ControlProtocol {
 
     open internal(set) var state: State = .normal
 
-    // MARK: Mouse Events
+    // MARK: - Mouse Events
 
     open override func mouseDown(with event: Event) {
         isHighlighted = true
@@ -177,7 +177,7 @@ open class Control: View, ControlProtocol {
         lastLocationsForMouseButton.removeValue(forKey: event.buttonNumber)
     }
 
-    // MARK: Mouse Tracking
+    // MARK: - Mouse Tracking
 
     open func startTrackingMouse(with event: Event) -> Bool {
         return false
@@ -190,7 +190,7 @@ open class Control: View, ControlProtocol {
     open func stopTrackingMouse(with event: Event) {
     }
 
-    // MARK: Actions
+    // MARK: - Actions
 
     public var actions: Set<ActionIdentifier> = []
 }

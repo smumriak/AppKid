@@ -33,11 +33,12 @@ public protocol SmartPointerProtocol {
 }
 
 public extension SmartPointerProtocol {
-    @inlinable @inline(__always)
+    @_transparent
     var optionalPointer: Pointer_t? { return pointer }
 }
 
 public extension SmartPointerProtocol {
+    @_transparent
     var pointee: Pointee {
         get { return pointer.pointee }
         set { pointer.pointee = newValue }

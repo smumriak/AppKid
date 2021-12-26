@@ -39,7 +39,7 @@ open class Label: View {
 
     internal var layout = TextLayout()
 
-    // MARK: Initialization
+    // MARK: - Initialization
 
     public override init(with frame: CGRect) {
         super.init(with: frame)
@@ -53,7 +53,7 @@ open class Label: View {
         layer.setNeedsDisplay()
     }
 
-    // MARK: Rendering
+    // MARK: - Rendering
 
     open override func render(in context: CGContext) {
         super.render(in: context)

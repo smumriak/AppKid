@@ -61,7 +61,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
 
     internal var hasEvents = false
 
-    // MARK: Deinitialization
+    // MARK: - Deinitialization
 
     deinit {
         inputMethod.map {
@@ -69,7 +69,7 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
         }
     }
 
-    // MARK: Initialization
+    // MARK: - Initialization
 
     init(applicationName appName: String) {
         XInitThreads()

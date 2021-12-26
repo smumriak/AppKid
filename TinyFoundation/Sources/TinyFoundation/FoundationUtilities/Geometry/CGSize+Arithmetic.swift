@@ -12,34 +12,34 @@ public extension CGSize {
 }
 
 public extension CGSize {
-    @inlinable @inline(__always)
+    @_transparent
     static func + (lhs: CGSize, rhs: CGSize) -> CGSize {
         return CGSize(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func - (lhs: CGSize, rhs: CGSize) -> CGSize {
         return CGSize(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func * (lhs: CGSize, rhs: CGFloat) -> CGSize {
         return CGSize(width: lhs.width * rhs, height: lhs.height * rhs)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func / (lhs: CGSize, rhs: CGFloat) -> CGSize {
         return CGSize(width: lhs.width / rhs, height: lhs.height / rhs)
     }
 }
 
 public extension CGSize {
-    @inlinable @inline(__always)
+    @_transparent
     static func + (lhs: CGSize, rhs: CGPoint) -> CGSize {
         return CGSize(width: lhs.width + rhs.x, height: lhs.height + rhs.y)
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     static func - (lhs: CGSize, rhs: CGPoint) -> CGSize {
         return CGSize(width: lhs.width - rhs.x, height: lhs.height - rhs.y)
     }

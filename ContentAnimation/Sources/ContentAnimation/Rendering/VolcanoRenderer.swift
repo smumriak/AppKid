@@ -175,7 +175,7 @@ internal class DescriptorSetContainer {
         super.init()
     }
 
-    // MARK: Public interface
+    // MARK: - Public interface
 
     open func beginFrame(atTime time: TimeInterval) throws {
         frameTime = time

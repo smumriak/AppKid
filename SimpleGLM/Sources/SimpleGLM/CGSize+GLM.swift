@@ -9,6 +9,6 @@ import Foundation
 import cglm
 
 public extension CGSize {
-    @inlinable @inline(__always)
+    @_transparent
     var vec2: vec2s { vec2s(width, height) }
 }

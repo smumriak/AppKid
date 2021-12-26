@@ -109,6 +109,7 @@ fileprivate extension XButtonEvent {
 }
 
 internal extension Event {
+    @_transparent
     convenience init(x11Event: XEvent, timestamp: TimeInterval, displayServer: X11DisplayServer) throws {
         let type = x11Event.eventTypeFromXEvent
         

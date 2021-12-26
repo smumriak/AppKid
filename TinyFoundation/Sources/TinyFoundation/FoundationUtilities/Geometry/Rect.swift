@@ -11,21 +11,25 @@ public struct Rect<StorageType> where StorageType: BinaryInteger {
     public var origin: Point<StorageType>
     public var size: Size<StorageType>
 
+    @_transparent
     public var x: StorageType {
         get { origin.x }
         set { origin.x = newValue }
     }
 
+    @_transparent
     public var y: StorageType {
         get { origin.y }
         set { origin.y = newValue }
     }
 
+    @_transparent
     public var width: StorageType {
         get { size.width }
         set { size.width = newValue }
     }
 
+    @_transparent
     public var height: StorageType {
         get { size.height }
         set { size.height = newValue }
@@ -43,13 +47,14 @@ public struct Rect<StorageType> where StorageType: BinaryInteger {
 }
 
 public extension Rect {
+    @_transparent
     var cgRect: CGRect {
         return CGRect(origin: origin.cgPoint, size: size.cgSize)
     }
 }
 
 public extension CGRect {
-    @inlinable @inline(__always)
+    @_transparent
     func rect<StorageType>() -> Rect<StorageType> where StorageType: BinaryInteger {
         let standardized = self.standardized
         return Rect(origin: standardized.origin.point(), size: standardized.size.size())

@@ -21,7 +21,7 @@ open class View: Responder, CALayerDelegate {
 
     public var layer: CALayer
 
-    // MARK: Geometry
+    // MARK: - Geometry
     
     open var frame: CGRect {
         get {
@@ -100,7 +100,7 @@ open class View: Responder, CALayerDelegate {
     open var cornerRaidus: CGFloat = 0.0
     open var anchorPoint = CGPoint(x: 0.5, y: 0.5)
 
-    // MARK: View Hierarchy
+    // MARK: - View Hierarchy
     
     open internal(set) weak var superview: View? = nil
     open internal(set) var subviews = [View]()
@@ -121,7 +121,7 @@ open class View: Responder, CALayerDelegate {
         }
     }
 
-    // MARK: Layout
+    // MARK: - Layout
 
     open var needsLayout = false
     open var autoresizingMaks: AutoresizingMask = .none
@@ -163,7 +163,7 @@ open class View: Responder, CALayerDelegate {
         }
     }
     
-    // MARK: Init
+    // MARK: - Init
     
     public init(with frame: CGRect) {
         layer = CALayer()
@@ -177,7 +177,7 @@ open class View: Responder, CALayerDelegate {
         layer.delegate = self
     }
 
-    // MARK: View Hierarchy Manipulation
+    // MARK: - View Hierarchy Manipulation
 
     open func add(subview: View) {
         insert(subview: subview, at: subviews.count)
@@ -274,7 +274,7 @@ open class View: Responder, CALayerDelegate {
         }
     }
 
-    // MARK: Geometry conversion
+    // MARK: - Geometry conversion
     
     open func convert(_ point: CGPoint, to view: View?) -> CGPoint {
         let toView = view ?? window
@@ -308,7 +308,7 @@ open class View: Responder, CALayerDelegate {
         return rect.applying(transformToWindow).applying(transformFromWindow)
     }
 
-    // MARK: Rendering
+    // MARK: - Rendering
 
     open func render(in context: CGContext) {
         context.fillColor = backgroundColor
@@ -325,7 +325,7 @@ open class View: Responder, CALayerDelegate {
         layer.setNeedsDisplay()
     }
 
-    // MARK: Hit Test
+    // MARK: - Hit Test
     
     open func hitTest(_ point: CGPoint) -> View? {
         var interestPoint = point
@@ -379,7 +379,7 @@ open class View: Responder, CALayerDelegate {
         }
     }
 
-    // MARK: Responder
+    // MARK: - Responder
 
     internal override func responderWindow() -> Window? {
         return window
@@ -389,7 +389,7 @@ open class View: Responder, CALayerDelegate {
         return viewDelegate ?? superview ?? super.nextResponder
     }
 
-    // MARK: CALayerDelegate
+    // MARK: - CALayerDelegate
 
     public func draw(_ layer: CALayer, in context: CGContext) {
     }
@@ -400,12 +400,14 @@ open class View: Responder, CALayerDelegate {
     public func layoutSublayers(of layer: CALayer) {
     }
 
+    // MARK: - CALayerActionDelegate
+
     public func action(for layer: CALayer, forKey event: String) -> CAAction? {
-        return nil
+        return NSNull()
     }
 }
 
-// MARK: Equatable
+// MARK: - Equatable
 
 public extension View {
     static func == (lhs: View, rhs: View) -> Bool {

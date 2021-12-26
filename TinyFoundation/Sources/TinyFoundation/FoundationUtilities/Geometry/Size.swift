@@ -18,13 +18,14 @@ public struct Size<StorageType> where StorageType: BinaryInteger {
 }
 
 public extension Size {
+    @_transparent
     var cgSize: CGSize {
         return CGSize(width: CGFloat(width), height: CGFloat(height))
     }
 }
 
 public extension CGSize {
-    @inlinable @inline(__always)
+    @_transparent
     func size<StorageType>() -> Size<StorageType> where StorageType: BinaryInteger {
         return Size(width: StorageType(width), height: StorageType(height))
     }

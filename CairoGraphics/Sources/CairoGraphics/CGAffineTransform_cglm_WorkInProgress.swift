@@ -12,9 +12,9 @@ import SimpleGLM
 // public typealias CGAffineTransform = CGAffineTransform_cglm_WorkInProgress;
 
 public struct CGAffineTransform_cglm_WorkInProgress {
-    internal fileprivate(set) var matrix: mat3s = .identity
+    public var matrix: mat3s = .identity
     
-    internal fileprivate(set) var _matrix: cairo_matrix_t {
+    public var _matrix: cairo_matrix_t {
         get {
             cairo_matrix_t(xx: Double(a), yx: Double(b),
                            xy: Double(c), yy: Double(d),
@@ -34,40 +34,46 @@ public struct CGAffineTransform_cglm_WorkInProgress {
         self = .identity
     }
 
-    internal init(matrix: mat3s) {
+    public init(matrix: mat3s) {
         self.matrix = matrix
     }
 
-    internal init(matrix: cairo_matrix_t) {
+    public init(matrix: cairo_matrix_t) {
         self.matrix = .identity
         _matrix = matrix
     }
 
+    @_transparent
     public var a: CGFloat {
         get { CGFloat(matrix.m00) }
         set { matrix.m00 = Float(newValue) }
     }
 
+    @_transparent
     public var b: CGFloat {
         get { CGFloat(matrix.m01) }
         set { matrix.m01 = Float(newValue) }
     }
 
+    @_transparent
     public var c: CGFloat {
         get { CGFloat(matrix.m10) }
         set { matrix.m10 = Float(newValue) }
     }
 
+    @_transparent
     public var d: CGFloat {
         get { CGFloat(matrix.m11) }
         set { matrix.m11 = Float(newValue) }
     }
 
+    @_transparent
     public var tx: CGFloat {
         get { CGFloat(matrix.m20) }
         set { matrix.m20 = Float(newValue) }
     }
 
+    @_transparent
     public var ty: CGFloat {
         get { CGFloat(matrix.m21) }
         set { matrix.m21 = Float(newValue) }
@@ -75,9 +81,13 @@ public struct CGAffineTransform_cglm_WorkInProgress {
 }
 
 extension CGAffineTransform_cglm_WorkInProgress: Hashable {
-    public static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.matrix == rhs.matrix }
+    public static func == (_ lhs: Self, _ rhs: Self) -> Bool {
+        lhs.matrix == rhs.matrix
+    }
 
-    public func hash(into hasher: inout Hasher) { hasher.combine(matrix) }
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(matrix)
+    }
 }
 
 public extension CGAffineTransform_cglm_WorkInProgress {
@@ -86,8 +96,15 @@ public extension CGAffineTransform_cglm_WorkInProgress {
 
     var isIdentity: Bool { matrix.isIdentity }
 
-    var inversed: Self { CGAffineTransform_cglm_WorkInProgress(matrix: matrix.inversed) }
-    mutating func inverse() { matrix.inverse() }
+    @_transparent
+    var inversed: Self {
+        CGAffineTransform_cglm_WorkInProgress(matrix: matrix.inversed)
+    }
+
+    @_transparent
+    mutating func inverse() {
+        matrix.inverse()
+    }
 }
 
 public extension CGAffineTransform_cglm_WorkInProgress {
@@ -103,14 +120,17 @@ public extension CGAffineTransform_cglm_WorkInProgress {
         matrix = mat3s(rotationAngle: angle)
     }
     
+    @_transparent
     func translatedBy(x tx: CGFloat, y ty: CGFloat) -> CGAffineTransform_cglm_WorkInProgress {
         return CGAffineTransform_cglm_WorkInProgress(matrix: matrix.translated(by: vec2s(tx, ty)))
     }
     
+    @_transparent
     func scaledBy(x sx: CGFloat, y sy: CGFloat) -> CGAffineTransform_cglm_WorkInProgress {
         return CGAffineTransform_cglm_WorkInProgress(matrix: matrix.scaled(by: vec2s(sx, sy)))
     }
     
+    @_transparent
     func rotated(by angle: CGFloat) -> CGAffineTransform_cglm_WorkInProgress {
         return CGAffineTransform_cglm_WorkInProgress(matrix: matrix.rotated(by: angle))
     }
@@ -133,7 +153,7 @@ public extension CGAffineTransform_cglm_WorkInProgress {
 }
 
 public extension CGPoint {
-    @inlinable @inline(__always)
+    @_transparent
     func applying(_ t: CGAffineTransform_cglm_WorkInProgress) -> CGPoint {
         CGPoint(x: (t.a * x) + (t.c * y) + t.tx,
                 y: (t.b * x) + (t.d * y) + t.ty)
@@ -141,7 +161,7 @@ public extension CGPoint {
 }
 
 public extension CGSize {
-    @inlinable @inline(__always)
+    @_transparent
     func applying(_ t: CGAffineTransform_cglm_WorkInProgress) -> CGSize {
         CGSize(width: (t.a * width) + (t.c * height),
                height: (t.b * width) + (t.d * height))

@@ -21,38 +21,38 @@ public protocol Vector: Equatable {
 }
 
 public extension Vector {
-    @inlinable @inline(__always)
+    @_transparent
     static func * (_ lhs: Self, rhs: Self) -> Float { dot_f(lhs, rhs) }
 
-    @inlinable @inline(__always)
+    @_transparent
     func dotProduct(_ other: Self) -> Float { self * other }
 }
 
 public extension Vector where RawValue == vec2 {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.raw == rhs.raw }
 }
 
 public extension Vector where RawValue == vec3 {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.raw == rhs.raw }
 }
 
 public extension Vector where RawValue == vec4 {
-    @inlinable @inline(__always)
+    @_transparent
     static func == (_ lhs: Self, _ rhs: Self) -> Bool { lhs.raw == rhs.raw }
 }
 
 extension vec2s: Vector {
     public static let zero = vec2s(x: 0.0, y: 0.0)
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T) { self.init(raw: vec2(Float(x), Float(y))) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(x: T, y: T) { self.init(raw: vec2(Float(x), Float(y))) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(white: T, opacity: T) { self.init(raw: vec2(Float(white), Float(opacity))) }
 
     public static let dot_f = glms_vec2_dot
@@ -61,24 +61,27 @@ extension vec2s: Vector {
 extension vec3s: Vector {
     public static let zero = vec3s(x: 0.0, y: 0.0, z: 0.0)
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(x: T, y: T, z: T) { self.init(raw: vec3(Float(x), Float(y), Float(z))) }
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(r: T, g: T, b: T) { self.init(raw: vec3(Float(r), Float(g), Float(b))) }
 
+    @_transparent
     public var r: Float {
         get { x }
         set { x = newValue }
     }
 
+    @_transparent
     public var g: Float {
         get { y }
         set { y = newValue }
     }
 
+    @_transparent
     public var b: Float {
         get { z }
         set { z = newValue }
@@ -90,35 +93,40 @@ extension vec3s: Vector {
 extension vec4s: Vector {
     public static let zero = vec4s(x: 0.0, y: 0.0, z: 0.0, w: 0.0)
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(_ x: T, _ y: T, _ z: T, _ w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(x: T, y: T, z: T, w: T) { self.init(raw: vec4(Float(x), Float(y), Float(z), Float(w))) }
 
-    @inlinable @inline(__always)
+    @_transparent
     public init<T: BinaryFloatingPoint>(r: T, g: T, b: T, a: T) { self.init(raw: vec4(Float(r), Float(g), Float(b), Float(a))) }
 
+    @_transparent
     public var r: Float {
         get { x }
         set { x = newValue }
     }
 
+    @_transparent
     public var g: Float {
         get { y }
         set { y = newValue }
     }
 
+    @_transparent
     public var b: Float {
         get { z }
         set { z = newValue }
     }
 
+    @_transparent
     public var a: Float {
         get { w }
         set { w = newValue }
     }
     
+    @_transparent
     public var rgb: vec3s {
         get { vec3s(r: r, g: g, b: b) }
         set {

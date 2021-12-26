@@ -9,6 +9,6 @@ import Foundation
 import cglm
 
 public extension CGRect {
-    @inlinable @inline(__always)
+    @_transparent
     var vec4: vec4s { vec4s(origin.x, origin.y, size.width, size.height) }
 }

@@ -15,12 +15,12 @@ public struct VkRect3D {
 public extension VkRect3D {
     static let zero: VkRect3D = VkRect3D(offset: .zero, extent: .zero)
 
-    @inlinable @inline(__always)
+    @_transparent
     var width: CUnsignedInt { extent.width }
 
-    @inlinable @inline(__always)
+    @_transparent
     var height: CUnsignedInt { extent.height }
 
-    @inlinable @inline(__always)
+    @_transparent
     var depth: CUnsignedInt { extent.depth }
 }

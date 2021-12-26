@@ -18,13 +18,14 @@ public struct Point<StorageType> where StorageType: BinaryInteger {
 }
 
 public extension Point {
+    @_transparent
     var cgPoint: CGPoint {
         return CGPoint(x: CGFloat(x), y: CGFloat(y))
     }
 }
 
 public extension CGPoint {
-    @inlinable @inline(__always)
+    @_transparent
     func point<StorageType>() -> Point<StorageType> where StorageType: BinaryInteger {
         return Point(x: StorageType(x), y: StorageType(y))
     }
