@@ -10,6 +10,7 @@ import CoreFoundation
 import CXlib
 import CairoGraphics
 @_spi(AppKid) import ContentAnimation
+import TinyFoundation
 
 // apple failed a little bit :) rdar://problem/14497260
 // starting from swift 5.3 this constant is not accessible via importing Foundation and/or CoreFoundation
@@ -20,9 +21,10 @@ internal var isRenderingAsync = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
+    static let modal: RunLoop.Mode = RunLoop.Mode("kAppKidModalRunLoopMode")
 }
 
-public protocol ApplicationDelegate: AnyObject {
+public protocol ApplicationDelegate: NSObjectProtocol, PublicInitializable {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool
@@ -39,7 +41,15 @@ public extension ApplicationDelegate {
 }
 
 open class Application: Responder {
-    public static let shared = Application()
+    internal static var _shared: Application?
+    public static var shared: Application {
+        if _shared == nil {
+            _shared = Application()
+        }
+
+        return _shared!
+    }
+
     open unowned(unsafe) var delegate: ApplicationDelegate?
 
     internal var displayServer: X11DisplayServer
@@ -59,6 +69,8 @@ open class Application: Responder {
     
     internal var lastClickTimestamp: TimeInterval = .zero
     internal var clickCount: Int = .zero
+
+    internal var stopRequested = false
 
     internal lazy var softwareRenderTimer: Timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
         windowsByNumber.values
@@ -121,7 +133,7 @@ open class Application: Responder {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
             isVolcanoRenderingEnabled = true
-            renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetMain(), async: false)
+            renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetCurrent(), async: false)
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering. Error: \(error)")
         }
@@ -140,8 +152,8 @@ open class Application: Responder {
 
     // MARK: - Run Loop
 
-    open func stop() {
-        CFRunLoopStop(CFRunLoopGetCurrent())
+    open func stop(_ sender: Any?) {
+        stopRequested = true
     }
 
     // MARK: - Termination
@@ -185,20 +197,12 @@ open class Application: Responder {
         isRunning = true
         startTime = CFAbsoluteTimeGetCurrent()
 
-        #if os(Linux)
-            let trackingCFRunLoopMode = CFStringCreateWithCString(nil, RunLoop.Mode.tracking.rawValue, CFStringEncoding(kCFStringEncodingASCII))
-        #else
-            let trackingCFRunLoopMode = CFRunLoopMode(rawValue: RunLoop.Mode.tracking.rawValue as CFString)
-        #endif
-        CFRunLoopAddCommonMode(CFRunLoopGetCurrent(), trackingCFRunLoopMode)
+        let cfRunLoop = CFRunLoopGetCurrent()
+        
+        CFRunLoopAddCommonMode(cfRunLoop, RunLoop.Mode.tracking.cfRunLoopMode)
+        CFRunLoopAddCommonMode(cfRunLoop, RunLoop.Mode.modal.cfRunLoopMode)
 
-        if isVolcanoRenderingEnabled {
-            if isRenderingAsync {
-                // RunLoop.current.add(volcanoRenderTimerAsync, forMode: .common)
-            } else {
-                // RunLoop.current.add(volcanoRenderTimerSync, forMode: .common)
-            }
-        } else {
+        if isVolcanoRenderingEnabled == false {
             RunLoop.current.add(softwareRenderTimer, forMode: .common)
         }
 
@@ -206,7 +210,7 @@ open class Application: Responder {
         let _ = delegate?.application(self, didFinishLaunchingWithOptions: nil)
 
         while isRunning {
-            guard let event = nextEvent(matching: .any, until: Date.distantFuture, in: .default, dequeue: true) else {
+            guard let event = nextEvent(matching: .any, until: .distantFuture, in: .default, dequeue: true) else {
                 break
             }
 
@@ -215,15 +219,14 @@ open class Application: Responder {
             }
 
             send(event: event)
+
+            if stopRequested {
+                stopRequested = false
+                break
+            }
         }
 
-        if isVolcanoRenderingEnabled {
-            if isRenderingAsync {
-                // volcanoRenderTimerAsync.invalidate()
-            } else {
-                // volcanoRenderTimerSync.invalidate()
-            }
-        } else {
+        if isVolcanoRenderingEnabled == false {
             softwareRenderTimer.invalidate()
         }
     }
