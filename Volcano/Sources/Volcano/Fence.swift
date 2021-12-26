@@ -7,7 +7,6 @@
 
 import TinyFoundation
 import CVulkan
-import Glibc
 
 public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
