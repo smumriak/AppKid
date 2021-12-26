@@ -12,33 +12,33 @@ public class GraphicsPipelineDescriptor {
     public var vertexShader: Shader?
     public var fragmentShader: Shader?
 
-    // MARK: Pipelie Layout
+    // MARK: - Pipelie Layout
 
     public var descriptorSetLayouts: [DescriptorSetLayout] = []
     public var pushConstants: [VkPushConstantRange] = []
 
-    // MARK: Viewport State
+    // MARK: - Viewport State
 
-    internal var _viewportState: ViewportState!
-    public var viewportState: ViewportState {
-        get { _viewportState }
-        set { _viewportState = newValue }
+    internal var _viewportStateDefinition: ViewportStateDefinition!
+    public var viewportStateDefinition: ViewportStateDefinition {
+        get { _viewportStateDefinition }
+        set { _viewportStateDefinition = newValue }
     }
 
     public var depthAttachmentPixelFormat: VkFormat = .undefined
     public var stencilAttachmentPixelFormat: VkFormat = .undefined
 
-    // MARK: Vertex Input
+    // MARK: - Vertex Input
 
     public var vertexInputBindingDescriptions: [VkVertexInputBindingDescription] = []
     public var inputAttributeDescrioptions: [VkVertexInputAttributeDescription] = []
 
-    // MARK: Input Aseembly
+    // MARK: - Input Aseembly
 
     public var inputPrimitiveTopology: VkPrimitiveTopology = .pointList
     public var primitiveRestartEnabled: Bool = false
     
-    // MARK: Rasterizer
+    // MARK: - Rasterizer
 
     public var depthClampEnabled: Bool = false
     public var discardEnabled: Bool = false
@@ -51,7 +51,7 @@ public class GraphicsPipelineDescriptor {
     public var depthBiasSlopeFactor: Float = 0.0
     public var lineWidth: Float = 0.0
 
-    // MARK: Multisampling
+    // MARK: - Multisampling
 
     public var rasterizationSamples: VkSampleCountFlagBits = .one
     public var sampleShadingEnabled: Bool = false
@@ -60,14 +60,14 @@ public class GraphicsPipelineDescriptor {
     public var alphaToCoverageEnabled: Bool = false
     public var alphaToOneEnabled: Bool = false
 
-    // MARK: Color Blend
+    // MARK: - Color Blend
 
     public var logicOperationEnabled: Bool = false
     public var logicOperation: VkLogicOp = .clear
     public var colorBlendAttachments: [VkPipelineColorBlendAttachmentState] = []
     public var blendConstants: (Float, Float, Float, Float) = (0.0, 0.0, 0.0, 0.0)
 
-    // MARK: Dynamic state
+    // MARK: - Dynamic state
 
     public var dynamicStates: [VkDynamicState] = []
     
@@ -75,12 +75,12 @@ public class GraphicsPipelineDescriptor {
 }
 
 internal extension GraphicsPipelineDescriptor {
-    @inlinable @inline(__always)
+    @_transparent
     func withVertexStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineViewportStateCreateInfo>) throws -> (T)) rethrows -> T {
         var info = VkPipelineViewportStateCreateInfo()
         info.sType = .pipelineViewportStateCreateInfo
 
-        switch viewportState {
+        switch viewportStateDefinition {
             case .static(let viewports, let scissors):
                 return try viewports.withUnsafeBufferPointer { viewports in
                     return try scissors.withUnsafeBufferPointer { scissors in
@@ -107,12 +107,11 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withVertexInputCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineVertexInputStateCreateInfo>) throws -> (T)) rethrows -> T {
         return try vertexInputBindingDescriptions.withUnsafeBufferPointer { vertexInputBindingDescriptions in
             return try inputAttributeDescrioptions.withUnsafeBufferPointer { inputAttributeDescrioptions in
-                var info = VkPipelineVertexInputStateCreateInfo()
-                info.sType = .pipelineVertexInputStateCreateInfo
+                var info = VkPipelineVertexInputStateCreateInfo.new()
 
                 info.vertexBindingDescriptionCount = CUnsignedInt(vertexInputBindingDescriptions.count)
                 info.pVertexBindingDescriptions = vertexInputBindingDescriptions.baseAddress!
@@ -127,10 +126,9 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withInputAssemblyCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineInputAssemblyStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineInputAssemblyStateCreateInfo()
-        info.sType = .pipelineInputAssemblyStateCreateInfo
+        var info = VkPipelineInputAssemblyStateCreateInfo.new()
         info.topology = inputPrimitiveTopology
         info.primitiveRestartEnabled = primitiveRestartEnabled
 
@@ -139,10 +137,9 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withRasterizationStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineRasterizationStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineRasterizationStateCreateInfo()
-        info.sType = .pipelineRasterizationStateCreateInfo
+        var info = VkPipelineRasterizationStateCreateInfo.new()
         info.depthClampEnabled = false
         info.discardEnabled = false
         info.polygonMode = .fill
@@ -158,8 +155,8 @@ internal extension GraphicsPipelineDescriptor {
             return try body(info)
         }
     }
-
-    @inlinable @inline(__always)
+    
+    @_transparent
     func withMultisampleStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineMultisampleStateCreateInfo>) throws -> (T)) rethrows -> T {
         return try sampleMasks.withUnsafeBufferPointer { sampleMasks in
             var info = VkPipelineMultisampleStateCreateInfo()
@@ -177,7 +174,7 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withColorBlendStateCreateInfo<T>(_ body: (UnsafePointer<VkPipelineColorBlendStateCreateInfo>) throws -> (T)) rethrows -> T {
         return try colorBlendAttachments.withUnsafeBufferPointer { colorBlendAttachments in
             var info = VkPipelineColorBlendStateCreateInfo()
@@ -194,11 +191,11 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withDynamicStateCreateInfo<T>(_ body: (UnsafePointer<VkPipelineDynamicStateCreateInfo>) throws -> (T)) rethrows -> T {
         var dynamicStates = self.dynamicStates
 
-        dynamicStates += viewportState.dynamicStates
+        dynamicStates += viewportStateDefinition.dynamicStates
 
         let filteredDynamicStates = Array(Set(dynamicStates))
         
@@ -214,7 +211,7 @@ internal extension GraphicsPipelineDescriptor {
         }
     }
 
-    @inlinable @inline(__always)
+    @_transparent
     func withStageCreateInfosBufferPointer<T>(_ body: (UnsafeBufferPointer<VkPipelineShaderStageCreateInfo>) throws -> (T)) rethrows -> T {
         var infos: [VkPipelineShaderStageCreateInfo] = []
                                 
@@ -232,11 +229,85 @@ internal extension GraphicsPipelineDescriptor {
     }
 }
 
+// #if EXPERIMENTAL_VOLCANO_DSL
+    extension GraphicsPipelineDescriptor {
+        @_transparent
+        @VkBuilder<VkPipelineViewportStateCreateInfo>
+        var viewportState: VkBuilder<VkPipelineViewportStateCreateInfo> {
+            switch viewportStateDefinition {
+                case .static(let viewports, let scissors):
+                    (\.viewportCount, \.pViewports) <- viewports
+                    (\.scissorCount, \.pScissors) <- scissors
+
+                case .dynamic(let viewportsCount, let scissorsCount):
+                    (\.viewportCount, \.pViewports) <- viewportsCount
+                    (\.scissorCount, \.pScissors) <- scissorsCount
+            }
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineVertexInputStateCreateInfo>
+        var vertexInputState: VkBuilder<VkPipelineVertexInputStateCreateInfo> {
+            (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
+            (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineInputAssemblyStateCreateInfo>
+        var inputAssemblyState: VkBuilder<VkPipelineInputAssemblyStateCreateInfo> {
+            \.topology <- inputPrimitiveTopology
+            \.primitiveRestartEnabled <- primitiveRestartEnabled
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineRasterizationStateCreateInfo>
+        var rasterizationState: VkBuilder<VkPipelineRasterizationStateCreateInfo> {
+            \.depthClampEnabled <- false
+            \.discardEnabled <- false
+            \.polygonMode <- .fill
+            \.cullModeFlags <- []
+            \.frontFace <- .counterClockwise
+            \.depthBiasEnabled <- false
+            \.depthBiasConstantFactor <- 0.0
+            \.depthBiasClamp <- 0.0
+            \.depthBiasSlopeFactor <- 0.0
+            \.lineWidth <- 1.0
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineMultisampleStateCreateInfo>
+        var multisampleState: VkBuilder<VkPipelineMultisampleStateCreateInfo> {
+            \.sampleShadingEnabled <- sampleShadingEnabled
+            \.rasterizationSamples <- rasterizationSamples
+            \.minSampleShading <- minSampleShading
+            if sampleMasks.isEmpty == false {
+                \.pSampleMask <- sampleMasks
+            }
+            \.alphaToCoverageEnabled <- alphaToCoverageEnabled
+            \.alphaToOneEnabled <- alphaToOneEnabled
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineColorBlendStateCreateInfo>
+        var colorBlendState: VkBuilder<VkPipelineColorBlendStateCreateInfo> {
+            \.logicOperationEnabled <- logicOperationEnabled
+            \.logicOperation <- logicOperation
+            (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
+            \.blendConstants <- blendConstants
+        }
+
+        @_transparent
+        @VkBuilder<VkPipelineDynamicStateCreateInfo>
+        var dynamicState: VkBuilder<VkPipelineDynamicStateCreateInfo> {
+            (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
+        }
+    }
+// #endif
 internal protocol PipelineStatePiece {
     var dynamicStates: [VkDynamicState] { get }
 }
 
-public enum ViewportState: PipelineStatePiece {
+public enum ViewportStateDefinition: PipelineStatePiece {
     case `static`(viewports: [VkViewport], scissors: [VkRect2D])
     case dynamic(viewportsCount: Int, scissorsCount: Int)
 

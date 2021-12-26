@@ -34,6 +34,7 @@ let package = Package(
             ],
             swiftSettings: [
                 .unsafeFlags(["-emit-module"]),
+                .define("EXPERIMENTAL_VOLCANO_DSL")
             ]
         ),
         .target(
