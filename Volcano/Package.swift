@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "Volcano",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
@@ -42,7 +42,7 @@ let package = Package(
                 .product(name: "CVulkan", package: "SharedSystemLibs"),
             ],
             cSettings: [
-                .unsafeFlags(["-Wno-nullability-completeness"]),
+                .unsafeFlags(["-Wno-nullability-completeness", "-std=gnu++17"]),
             ]
         ),
     ]

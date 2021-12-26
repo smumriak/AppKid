@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "SharedSystemLibs",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "CCore", targets: ["CCore"]),
@@ -38,16 +38,16 @@ let package = Package(
         .systemLibrary(
             name: "CCairo",
             path: "CCairo",
-            pkgConfig: "cairo",
+            pkgConfig: "cairo gobject-2.0",
             providers: [
                 .apt(["libcairo2-dev"]),
-                .brew(["cairo"]),
+                .brew(["cairo glib"]),
             ]
         ),
         .systemLibrary(
             name: "CPango",
             path: "CPango",
-            pkgConfig: "pango",
+            pkgConfig: "pango gobject-2.0",
             providers: [
                 .apt(["libpango1.0-dev"]),
                 .brew(["pango glib"]),

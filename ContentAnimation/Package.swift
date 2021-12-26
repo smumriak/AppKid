@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "ContentAnimation",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"]),
@@ -36,6 +36,7 @@ let package = Package(
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "LayerRenderingData"),
                 .product(name: "Collections", package: "swift-collections"),
+                .product(name: "OrderedCollections", package: "swift-collections"),
             ],
             exclude: [
                 "Resources/ShaderSources",

@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "SwiftXlib",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "SwiftXlib", type: .dynamic, targets: ["SwiftXlib"]),

@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "glslImporter",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .executable(name: "glslImporter", targets: ["glslImporter"]),

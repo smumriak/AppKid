@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "CairoGraphics",
     platforms: [
-        .macOS(.v11),
+        .macOS(.v12),
     ],
     products: [
         .library(name: "CairoGraphics", type: .dynamic, targets: ["CairoGraphics"]),
