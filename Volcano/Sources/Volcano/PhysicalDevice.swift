@@ -101,7 +101,20 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         }
 
         extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
-        supportedExtensionsVersions = Dictionary(uniqueKeysWithValues: extensionProperties.compactMap { $0.nameVersionKeyValue })
+
+        // palkovnik: when running under renderdoc this thing contains duplicate values. not sure if it's because i have validation layers enabled in code or not
+        supportedExtensionsVersions = extensionProperties
+            .compactMap {
+                $0.nameVersionKeyValue
+            }
+            .reduce([:]) { accumulator, element in
+                if let existing = accumulator[element.name], existing >= element.version {
+                    return accumulator
+                }
+                var mutableAccumulator = accumulator
+                mutableAccumulator[element.name] = element.version
+                return mutableAccumulator
+            }
 
         deviceType = properties.deviceType
 
