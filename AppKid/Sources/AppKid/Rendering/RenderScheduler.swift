@@ -10,7 +10,6 @@ import CoreFoundation
 import TinyFoundation
 @_spi(AppKid) import ContentAnimation
 import Volcano
-import Glibc
 
 internal class RenderScheduler {
     private var syncRenderers: [Int: VolcanoSwapchainRenderer] = [:]
