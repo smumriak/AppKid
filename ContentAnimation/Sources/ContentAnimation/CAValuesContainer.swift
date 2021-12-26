@@ -11,60 +11,72 @@ import CairoGraphics
 import TinyFoundation
 
 open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
-    @_spi(AppKid) open var values: [String: Any] = [:]
+    @_spi(AppKid) open var values: [AnyHashable: Any] = [:]
 
-    public override required init() {
+    public override init() {
         super.init()
     }
 
-    open class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    open class func defaultValue(forKey key: String) -> Any? {
         return nil
     }
-    
-    open func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+
+//    override
+    open func value(forKey key: String) -> Any? {
+
         if key.isEmpty {
             return nil
         }
 
-        return values[String(key)]
+        return values[key]
     }
 
-    open func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+//    override
+    open func value(forKeyPath keyPath: String) -> Any? {
         if keyPath.isEmpty {
             return nil
         }
 
         let keys = keyPath.split(separator: ".", maxSplits: 1)
+        let key = String(keys[0])
 
         if keys.count == 2 {
-            if let object = self.value(forKey: keys[0]) as? KeyValueCodable {
-                return object.value(forKeyPath: keys[1])
+            let tailKeyPath = String(keys[1])
+            if let object = self.value(forKey: key) as? KeyValueCodable {
+                return object.value(forKeyPath: tailKeyPath)
             } else {
                 return nil
+                
             }
         } else {
-            return value(forKey: keys[0])
+            return value(forKey: key)
         }
     }
 
-    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+//    override
+    open func setValue(_ value: Any?, forKey key: String) {
         if key.isEmpty {
             return
         }
 
-        values[String(key)] = value
+        willChangeValue(forKey: key)
+        
+        values[key] = value
+
+        didChangeValue(forKey: key)
     }
 
-    open func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+//    override
+    open func setValue(_ value: Any?, forKeyPath keyPath: String) {
         if keyPath.isEmpty {
             return
         }
 
         let keys = keyPath.split(separator: ".", maxSplits: 1)
+        let key = String(keys[0])
 
         if keys.count == 2 {
-            let key = keys[0]
-            let tailKeyPath = keys[1]
+            let tailKeyPath = String(keys[1])
             if var object = self.value(forKey: key) as? KeyValueCodable {
                 object.setValue(value, forKeyPath: tailKeyPath)
             } else if var object = Self.defaultValue(forKey: key) as? KeyValueCodable {
@@ -75,7 +87,13 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
                 fatalError("Empty values are not yet supported.")
             }
         } else {
-            setValue(value, forKey: keys[0])
+            setValue(value, forKey: key)
         }
     }
+
+//    override
+    open func willChangeValue(forKey key: String) { }
+
+//    override
+    open func didChangeValue(forKey key: String) {}
 }

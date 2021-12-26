@@ -169,7 +169,7 @@ public extension CATransform3D {
 extension CATransform3D: PublicInitializable {}
 
 extension CATransform3D: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         switch key {
             case "rotation.x": return nil
             case "rotation.y": return nil
@@ -187,11 +187,11 @@ extension CATransform3D: KeyValueCodable {
         }
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return value(forKey: keyPath)
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public mutating func setValue(_ value: Any?, forKey key: String) {
         switch key {
             case "rotation.x": break
             case "rotation.y": break
@@ -209,7 +209,7 @@ extension CATransform3D: KeyValueCodable {
         }
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public mutating func setValue(_ value: Any?, forKeyPath keyPath: String) {
         self.setValue(value, forKey: keyPath)
     }
 }

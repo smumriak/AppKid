@@ -187,17 +187,17 @@ extension CGAffineTransform: CustomDebugStringConvertible {
 }
 
 extension CGAffineTransform: KeyValueCodable {
-    public func value<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    public func value(forKey key: String) -> Any? {
         return nil
     }
 
-    public func value<T: StringProtocol & Hashable>(forKeyPath keyPath: T) -> Any? {
+    public func value(forKeyPath keyPath: String) -> Any? {
         return nil
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKey key: T) {
+    public mutating func setValue(_ value: Any?, forKey key: String) {
     }
 
-    public mutating func setValue<T: StringProtocol & Hashable>(_ value: Any?, forKeyPath keyPath: T) {
+    public mutating func setValue(_ value: Any?, forKeyPath keyPath: String) {
     }
 }

@@ -9,6 +9,7 @@ import Foundation
 import CoreFoundation
 import CairoGraphics
 import TinyFoundation
+import OrderedCollections
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -21,26 +22,24 @@ public protocol CALayerDelegate: AnyObject {
     func draw(_ layer: CALayer, in context: CGContext)
     func layerWillDraw(_ layer: CALayer)
     func layoutSublayers(of layer: CALayer)
-    func action(for layer: CALayer, forKey event: String) -> CAAction?
 }
 
-extension CALayerDelegate {
+public extension CALayerDelegate {
     func draw(_ layer: CALayer, in context: CGContext) {}
     func layerWillDraw(_ layer: CALayer) {}
     func layoutSublayers(of layer: CALayer) {}
-    func action(for layer: CALayer, forKey event: String) -> CAAction? { nil }
 }
 
 public protocol CALayerDisplayDelegate: CALayerDelegate {
     func display(_ layer: CALayer)
 }
 
-public protocol CAAction {
-    func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?)
+public protocol CALayerActionDelegate: CALayerDelegate {
+    func action(for layer: CALayer, forKey event: String) -> CAAction?
 }
 
-extension NSNull: CAAction {
-    public func run(forKey event: String, object anObject: Any, arguments dict: [AnyHashable: Any]?) {}
+public extension CALayerActionDelegate {
+    func action(for layer: CALayer, forKey event: String) -> CAAction? { nil }
 }
 
 open class CALayer: CAValuesContainer, CAMediaTiming {
@@ -48,14 +47,20 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
 
     open var contentsScale: CGFloat = 1.0
     
-    public var renderID: UInt? = 0
     public var needsDisplay = false
 
     public func setNeedsDisplay() {
         needsDisplay = true
     }
 
-    @_spi(AppKid) public var identifier = UUID()
+    @CAProperty(name: "identifier")
+    @_spi(AppKid) public var identifier: UUID
+
+    @_spi(AppKid) public fileprivate(set) var isPresentation = false
+    @_spi(AppKid) public fileprivate(set) var animations: OrderedDictionary<AnyHashable, CAAnimation> = [:]
+    open var actions: [AnyHashable: CAAction]? = nil
+    // palkovnik:TODO: Also style property!
+    // open var style: [AnyHashable: Any]? = nil
 
     @CAProperty(name: "bounds")
     open var bounds: CGRect
@@ -83,8 +88,8 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     @CAProperty(name: "isHidden")
     open var isHidden: Bool
 
-    @CAProperty(name: "mask")
-    open var mask: CALayer?
+    // @CAProperty(name: "mask")
+    open var mask: CALayer? = nil
 
     @CAProperty(name: "masksToBounds")
     open var masksToBounds: Bool
@@ -135,6 +140,22 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     public var repeatDuration: CFTimeInterval = 0.0
     public var autoreverses: Bool = false
     public var fillMode: CAMediaTimingFillMode = .removed
+
+    public func presentation() -> Self? {
+        if isPresentation {
+            return self
+        } else {
+            return CATransaction.presentationLayer(for: self) as! Self?
+        }
+    }
+
+    public func model() -> Self {
+        if isPresentation {
+            return CATransaction.modelLayer(for: self) as! Self
+        } else {
+            return self
+        }
+    }
 
     public func addSublayer(_ layer: CALayer) {
         insertSublayer(layer, at: UInt32(sublayers?.count ?? 0))
@@ -189,8 +210,10 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
         }
     }
 
-    public required init() {
+    public override init() {
         super.init()
+
+        identifier = UUID()
     }
 
     public convenience init(layer: Any) {
@@ -198,6 +221,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
 
         if let layer = layer as? CALayer {
             values = layer.values
+            isPresentation = true
         }
     }
 
@@ -236,9 +260,9 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
         needsDisplay = false
     }
 
-    // MARK: Key Value Coding
+    // MARK: - Key Value Coding
 
-    open override class func defaultValue<T: StringProtocol & Hashable>(forKey key: T) -> Any? {
+    open override class func defaultValue(forKey key: String) -> Any? {
         switch key {
             case "bounds": return Value(CGRect.zero)
             case "position": return Value(CGPoint.zero)
@@ -263,6 +287,82 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
 
             default: return super.defaultValue(forKey: key)
         }
+    }
+
+    open override func setValue(_ value: Any?, forKey key: String) {
+        let action: CAAction?
+
+        if isPresentation {
+            action = nil
+        } else {
+            action = self.action(forKey: key)
+        }
+
+        super.setValue(value, forKey: key)
+
+        action?.run(forKey: key, object: self, arguments: [:])
+    }
+
+    open override func setValue(_ value: Any?, forKeyPath keyPath: String) {
+        
+
+        super.setValue(value, forKeyPath: keyPath)
+    }
+
+    open override func willChangeValue(forKey key: String) {
+        super.willChangeValue(forKey: key)
+    }
+
+    open override func didChangeValue(forKey key: String) {
+        super.didChangeValue(forKey: key)
+    }
+
+    // MARK: - Actions
+
+    open class func defaultAction(forKey event: String) -> CAAction? {
+        return nil
+    }
+
+    open func action(forKey key: String) -> CAAction? {
+        if let delegate = delegate as? CALayerActionDelegate, let action = delegate.action(for: self, forKey: key) {
+            return dropNSNull(action)
+        } else if let action = actions?[key] {
+            return dropNSNull(action)
+        } else if let action = type(of: self).defaultAction(forKey: key) {
+            return dropNSNull(action)
+        } else {
+            return nil
+        }
+    }
+
+    // MARK: - Animations
+
+    open func add(_ animation: CAAnimation, forKey key: String?) {
+        if isPresentation {
+            return
+        }
+
+        let adjustedKey = key as AnyHashable? ?? animation.fallbackAnimationKey as AnyHashable
+        animations[adjustedKey] = animation
+    }
+
+    open func removeAnimation(forKey key: String) {
+        if isPresentation {
+            return
+        }
+
+        animations[key] = nil
+    }
+
+    open func animation(forKey key: String) -> CAAnimation? {
+        return animations[key]
+    }
+
+    open func removeAllAnimations() {
+    }
+
+    open func animationKeys() -> [AnyHashable]? {
+        return Array(animations.keys)
     }
 }
 
@@ -292,6 +392,12 @@ public struct CACornerMask: OptionSet {
 }
 
 extension CACornerMask: PublicInitializable {}
+
+
+@_transparent
+internal func dropNSNull(_ action: CAAction) -> CAAction? {
+    action is NSNull ? nil : action
+}
 
 // extension CALayer: Equatable {
 //     public static func == (lhs: CALayer, rhs: CALayer) -> Bool {

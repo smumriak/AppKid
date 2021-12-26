@@ -22,6 +22,10 @@ public struct CAProperty<Type: PublicInitializable> {
         self.name = name
     }
 
+    public init(wrappedValue: Type, name: String) {
+        self.name = name
+    }
+
     @available(*, unavailable, message: "Only for DefaultKeyValueCodable classes")
     public var wrappedValue: Type {
         get { fatalError("Only for DefaultKeyValueCodable classes") }

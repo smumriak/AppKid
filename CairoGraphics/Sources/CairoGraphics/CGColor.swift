@@ -102,18 +102,3 @@ internal extension CGColor {
 
 extension CGColor: PublicInitializable {}
 
-extension CGColor: KeyValueCodable {
-    public func value<T>(forKey key: T) -> Any? where T: StringProtocol {
-        return nil
-    }
-
-    public func value<T>(forKeyPath keyPath: T) -> Any? where T: StringProtocol {
-        return nil
-    }
-
-    public mutating func setValue<T>(_ value: Any?, forKey key: T) where T: StringProtocol {
-    }
-
-    public mutating func setValue<T>(_ value: Any?, forKeyPath keyPath: T) where T: StringProtocol {
-    }
-}
