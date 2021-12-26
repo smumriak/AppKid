@@ -15,7 +15,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
     public let presentMode: VkPresentModeKHR
     internal let rawImages: [VkImage]
 
-    public init(device: Device, surface: Surface, desiredPresentMode: VkPresentModeKHR = .immediate, size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
+    public init(device: Device, surface: Surface, desiredPresentModes: [VkPresentModeKHR] = [.immediate], size: VkExtent2D, graphicsQueue: Queue, presentationQueue: Queue, usage: VkImageUsageFlagBits, compositeAlpha: VkCompositeAlphaFlagBitsKHR = [], oldSwapchain: Swapchain? = nil) throws {
         self.surface = surface
         self.size = size
         self.imageFormat = surface.imageFormat
@@ -23,7 +23,8 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         let capabilities = surface.capabilities
 
         let presentMode: VkPresentModeKHR
-        if surface.presetModes.contains(desiredPresentMode) {
+
+        if let desiredPresentMode = desiredPresentModes.first(where: { surface.presetModes.contains($0) }) {
             presentMode = desiredPresentMode
         } else {
             presentMode = .fifo

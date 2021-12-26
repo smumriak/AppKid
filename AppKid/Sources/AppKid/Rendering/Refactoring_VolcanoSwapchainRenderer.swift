@@ -119,7 +119,7 @@ internal class VolcanoSwapchainRenderer1 {
         
         let size = VkExtent2D(width: width, height: height)
 
-        swapchain = try Swapchain(device: device, surface: surface, desiredPresentMode: .fifo, size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
+        swapchain = try Swapchain(device: device, surface: surface, desiredPresentModes: [.mailbox, .fifo], size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
 
         textures = try swapchain.creteTextures()
 
