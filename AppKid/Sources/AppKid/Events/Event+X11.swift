@@ -144,24 +144,7 @@ internal extension Event {
                         self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 
                     case ClientMessage:
-                        let atom = Atom(x11Event.xclient.data.l.0)
-
-                        guard atom != Atom(None) else {
-                            self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
-                            return
-                        }
-
-                        switch atom {
-                            case displayServer.display.deleteWindowAtom:
-                                self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
-
-                            case displayServer.display.syncRequestAtom:
-                                self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
-                                syncCounterValue = XSyncValue(hi: CInt(x11Event.xclient.data.l.3), lo: CUnsignedInt(x11Event.xclient.data.l.2))
-
-                            default:
-                                self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
-                        }
+                        self.init(clientMessageEvent: x11Event.xclient, timestamp: timestamp, displayServer: displayServer, windowNumber: windowNumber)
 
                     case ConfigureNotify:
                         let configureEvent = x11Event.xconfigure
@@ -176,6 +159,37 @@ internal extension Event {
         
             default:
                 throw Error.eventIgnored(description: "Event type: \(type)")
+        }
+    }
+
+    @_transparent
+    convenience init(clientMessageEvent: XClientMessageEvent, timestamp: TimeInterval, displayServer: X11DisplayServer, windowNumber: Int) {
+        switch clientMessageEvent.message_type {
+            case displayServer.display.protocolsAtom:
+                let atom = Atom(clientMessageEvent.data.l.0)
+
+                guard atom != Atom(None) else {
+                    self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                    return
+                }
+
+                switch atom {
+                    case displayServer.display.deleteWindowAtom:
+                        self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
+
+                    case displayServer.display.syncRequestAtom:
+                        self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
+                        syncCounterValue = XSyncValue(hi: CInt(clientMessageEvent.data.l.3), lo: CUnsignedInt(clientMessageEvent.data.l.2))
+
+                    case displayServer.display.frameDrawnAtom:
+                        self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+
+                    default:
+                        self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
+                }
+
+            default:
+                self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
         }
     }
 }
