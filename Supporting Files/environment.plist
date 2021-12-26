@@ -9,7 +9,7 @@
     <string>sh</string>
     <string>-c</string>
     <string>
-	launchctl setenv PKG_CONFIG_PATH /opt/X11/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib:
+	launchctl setenv PKG_CONFIG_PATH /opt/X11/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib/pkgconfig:
     </string>
   </array>
   <key>RunAtLoad</key>

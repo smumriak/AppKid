@@ -12,7 +12,7 @@
 #include "VulkanEnums.h"
 #include "VulkanStructs.h"
 
-#if defined(__linux__)
+#if __linux__
 
 #define VK_USE_PLATFORM_XLIB_KHR
 #define VK_USE_PLATFORM_XCB_KHR
@@ -23,10 +23,19 @@
 #include <vulkan/vulkan_xcb.h>
 #include <vulkan/vulkan_wayland.h>
 
-#else
+#elif __APPLE__
 
+#include <TargetConditionals.h>
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_MACCATALYST || TARGET_OS_IPHONE
+#define VK_USE_PLATFORM_IOS_MVK
+#elif TARGET_OS_MAC
 #define VK_USE_PLATFORM_MACOS_MVK
+#endif
+
+#define VK_USE_PLATFORM_METAL_EXT
+
 #include <vulkan/vulkan.h>
+
 #endif
 
 #ifndef __cplusplus
