@@ -35,7 +35,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
     #elseif os(macOS)
         internal convenience init(physicalDevice: PhysicalDevice, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkMacOSSurfaceCreateInfoMVK()
-            info.sType = .macosSurfaceCreateInfoMVK
+            info.sType = .macosSurfaceCreateInfoMvk
 
             let handlePointer = try physicalDevice.instance.create(with: &info)
 

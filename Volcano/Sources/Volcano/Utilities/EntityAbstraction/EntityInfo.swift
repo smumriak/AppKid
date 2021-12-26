@@ -28,15 +28,36 @@ public protocol EntityInfo: VulkanChainableStructure {
         public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
     }
 
-#elseif os(macOS)
-    public typealias VkMacOSSurfaceCreateInfoMVK = CVulkan.VkMacOSSurfaceCreateInfoMVK
+#elseif os(macOS) || os(iOS)
+    // public typealias VkMetalSurfaceCreateInfoEXT = CVulkan.VkMetalSurfaceCreateInfoEXT
+//
+    // extension VkMetalSurfaceCreateInfoEXT: EntityInfo {
+//    public typealias Parent = VkInstance.Pointee
+//    public typealias Result = VkSurfaceKHR.Pointee
+//    public static let createFunction: CreateFunction = vkCreateMetalSurfaceEXT
+//    public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+    // }
 
-    extension VkMacOSSurfaceCreateInfoMVK: EntityInfo {
-        public typealias Parent = VkInstance.Pointee
-        public typealias Result = VkSurfaceKHR.Pointee
-        public static let createFunction: CreateFunction = vkCreateMacOSSurfaceMVK
-        public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
-    }
+    #if os(macOS)
+        public typealias VkMacOSSurfaceCreateInfoMVK = CVulkan.VkMacOSSurfaceCreateInfoMVK
+
+        extension VkMacOSSurfaceCreateInfoMVK: EntityInfo {
+            public typealias Parent = VkInstance.Pointee
+            public typealias Result = VkSurfaceKHR.Pointee
+            public static let createFunction: CreateFunction = vkCreateMacOSSurfaceMVK
+            public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+        }
+
+    #elseif os(iOS)
+        public typealias VkIOSSurfaceCreateInfoMVK = CVulkan.VkIOSSurfaceCreateInfoMVK
+
+        extension VkIOSSurfaceCreateInfoMVK: EntityInfo {
+            public typealias Parent = VkInstance.Pointee
+            public typealias Result = VkSurfaceKHR.Pointee
+            public static let createFunction: CreateFunction = vkCreateIOSSurfaceMVK
+            public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+        }
+    #endif
 #endif
 
 public typealias VkDeviceCreateInfo = CVulkan.VkDeviceCreateInfo

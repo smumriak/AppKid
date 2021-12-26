@@ -762,17 +762,19 @@ extension VkDisplayPresentInfoKHR: VulkanInStructure {
     public static let type: VkStructureType = .displayPresentInfoKhr
 }
 
+#if canImport(CXlib) && os(Linux)
 extension VkXlibSurfaceCreateInfoKHR: VulkanInStructure {
     public static let type: VkStructureType = .xlibSurfaceCreateInfoKhr
 }
+#endif
 
-#if canImport(CXcb)
+#if canImport(CXcb) && os(Linux)
     extension VkXcbSurfaceCreateInfoKHR: VulkanInStructure {
         public static let type: VkStructureType = .xcbSurfaceCreateInfoKhr
     }
 #endif
 
-#if canImport(CWayland)
+#if canImport(CWayland) && os(Linux)
     extension VkWaylandSurfaceCreateInfoKHR: VulkanInStructure {
         public static let type: VkStructureType = .waylandSurfaceCreateInfoKhr
     }
@@ -1133,13 +1135,13 @@ extension VkDisplayPlaneCapabilities2KHR: VulkanOutStructure {
 }
 
 #if os(iOS)
-    extension VkIosSurfaceCreateInfoMvk: VulkanInStructure {
+    extension VkIOSSurfaceCreateInfoMVK: VulkanInStructure {
         public static let type: VkStructureType = .iosSurfaceCreateInfoMvk
     }
 #endif
 
 #if os(macOS)
-    extension VkMacosSurfaceCreateInfoMvk: VulkanInStructure {
+    extension VkMacOSSurfaceCreateInfoMVK: VulkanInStructure {
         public static let type: VkStructureType = .macosSurfaceCreateInfoMvk
     }
 #endif
@@ -1575,9 +1577,9 @@ extension VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR: VulkanOutStructu
 }
 
 #if os(iOS) || os(macOS)
-    extension VkMetalSurfaceCreateInfoEXT: VulkanInStructure {
-        public static let type: VkStructureType = .metalSurfaceCreateInfoExt
-    }
+//    extension VkMetalSurfaceCreateInfoEXT: VulkanInStructure {
+//        public static let type: VkStructureType = .metalSurfaceCreateInfoExt
+//    }
 #endif
 
 extension VkPhysicalDeviceFragmentDensityMapFeaturesEXT: VulkanOutStructure {
