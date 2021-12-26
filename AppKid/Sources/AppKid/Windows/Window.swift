@@ -88,7 +88,7 @@ open class Window: View {
         set {}
     }
 
-    // MARK: Initialization
+    // MARK: - Initialization
 
     deinit {
         let application = Application.shared
@@ -140,7 +140,7 @@ open class Window: View {
         displayServer.nativeIdentifierToWindowNumber[nativeWindow.windowIdentifier] = windowNumber
     }
 
-    // MARK: Rendering
+    // MARK: - Rendering
 
     internal var isMapped: Bool = false
 
@@ -168,7 +168,7 @@ open class Window: View {
         return SoftwareRenderer(context: _graphicsContext!)
     }
 
-    // MARK: Events
+    // MARK: - Events
 
     open func post(event: Event, atStart: Bool) {
         Application.shared.post(event: event, atStart: atStart)
@@ -193,7 +193,7 @@ open class Window: View {
     override func invalidateTransforms() {}
     override func rebuildTransformsIfNeeded() {}
 
-    // MARK: Responder
+    // MARK: - Responder
 
     override func responderWindow() -> Window? {
         return self
@@ -203,7 +203,7 @@ open class Window: View {
         return Application.shared
     }
 
-    // MARK: Main Content
+    // MARK: - Main Content
 
     fileprivate var shouldPerformRootViewControllerSetup: Bool = true
 
@@ -265,7 +265,7 @@ public extension Window {
 }
 
 fileprivate extension Window {
-    // MARK: Send Mouse Event
+    // MARK: - Send Mouse Event
 
     func sendMouseEvent(_ event: Event) {
         let application = Application.shared
@@ -354,7 +354,7 @@ fileprivate extension Window {
         }
     }
 
-    // MARK: Send Keyboard Event
+    // MARK: - Send Keyboard Event
 
     func sendKeyboardEvent(_ event: Event) {
         switch event.type {
@@ -369,7 +369,7 @@ fileprivate extension Window {
         }
     }
 
-    // MARK: Handle AppKid Event
+    // MARK: - Handle AppKid Event
 
     func handleAppKidEvent(_ event: Event) {
         let notificationCenter = NotificationCenter.default
