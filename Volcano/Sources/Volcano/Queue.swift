@@ -66,7 +66,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
                                     timelineInfo.signalSemaphoreValueCount = CUnsignedInt(signalSemaphoreValues.count)
                                     timelineInfo.pSignalSemaphoreValues = signalSemaphoreValues.baseAddress!
 
-                                    chain.add(chainElement: timelineInfo)
+                                    chain.append(timelineInfo)
                                 }
 
                                 try lock.synchronized {

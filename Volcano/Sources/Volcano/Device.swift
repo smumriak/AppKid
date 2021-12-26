@@ -69,10 +69,10 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
                     info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
 
                     let chain = VulkanStructureChain(root: info)
-                    // chain.add(chainElement: features12)
-                    // chain.add(chainElement: features11)
-                    chain.add(chainElement: timelineSemaphoreFeatures)
-                    chain.add(chainElement: features2)
+                    // chain.append(features12)
+                    // chain.append(features11)
+                    chain.append(timelineSemaphoreFeatures)
+                    chain.append(features2)
         
                     return try physicalDevice.create(with: chain)
                 }

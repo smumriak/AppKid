@@ -12,15 +12,31 @@ public final class VulkanStructureChain<Root: VulkanChainableStructure> {
     var root: Root
     var chainedElements: [VulkanChainableStructure] = []
 
-    init(root: Root) {
+    public init(root: Root) {
         self.root = root
     }
 
-    func add(chainElement: VulkanChainableStructure) {
-        chainedElements.append(chainElement)
+    public func append(_ content: @autoclosure () -> (VulkanChainableStructure)) {
+        chainedElements.append(content())
     }
 
-    func withUnsafeChainPointer<R>(_ body: (UnsafePointer<Root>) throws -> (R)) rethrows -> R {
+    public func append(contentsOf content: @autoclosure () -> ([VulkanChainableStructure])) {
+        chainedElements.append(contentsOf: content())
+    }
+
+    @discardableResult
+    public func appending(_ content: @autoclosure () -> (VulkanChainableStructure)) -> Self {
+        append(content())
+        return self
+    }
+
+    @discardableResult
+    public func appending(contentsOf content: @autoclosure () -> ([VulkanChainableStructure])) -> Self {
+        append(contentsOf: content())
+        return self
+    }
+
+    public func withUnsafeChainPointer<R>(_ body: (UnsafePointer<Root>) throws -> (R)) rethrows -> R {
         var rootCopy = root
         return try chainedElements.withUnsafeChainedElements { last in
             rootCopy.pNext = last
