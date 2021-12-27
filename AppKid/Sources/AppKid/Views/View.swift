@@ -15,7 +15,7 @@ import ContentAnimation
     import class CairoGraphics.CGContext
 #endif
 
-open class View: Responder, CALayerDelegate {
+open class View: Responder, CALayerActionDelegate {
     open var tag: UInt = 0
     internal weak var viewDelegate: ViewController? = nil
 
