@@ -20,10 +20,10 @@ internal extension X11DisplayServer {
         eventQueueNotificationObserver = NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: fileHandle, queue: nil) { [unowned self] in
             self.hasEvents = true
             let fileHandle = $0.object as! FileHandle
-            fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
+            fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking, .modal])
         }
 
-        fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking])
+        fileHandle.waitForDataInBackgroundAndNotify(forModes: [.default, .common, .tracking, .modal])
 
         XSetErrorHandler { display, errorEvent -> CInt in
             if let errorEvent = errorEvent {
@@ -49,7 +49,7 @@ internal extension X11DisplayServer {
                         default: return "Unknown"
                     }
                 }()
-                debugPrint("X11 error. Type: \(errorEvent.pointee.type), code: \(errorCode), code number: \(errorEvent.pointee.error_code)")
+                fatalError("X11 error. Type: \(errorEvent.pointee.type), code: \(errorCode), code number: \(errorEvent.pointee.error_code)")
             }
             Application.shared.terminate()
             return 0
