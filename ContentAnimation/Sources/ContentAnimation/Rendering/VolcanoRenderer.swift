@@ -461,7 +461,7 @@ internal extension RenderPass {
         descriptor.fragmentShader = fragmentShader
 
         descriptor.descriptorSetLayouts = descriptorSetLayouts
-        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
+        descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
         descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
         descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
@@ -517,7 +517,7 @@ internal extension RenderPass {
 
         descriptor.descriptorSetLayouts = descriptorSetLayouts
 
-        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
+        descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
         descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
         descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
@@ -573,7 +573,7 @@ internal extension RenderPass {
 
         descriptor.descriptorSetLayouts = descriptorSetLayouts
 
-        descriptor.viewportState = .dynamic(viewportsCount: 1, scissorsCount: 1)
+        descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
         descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
         descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
