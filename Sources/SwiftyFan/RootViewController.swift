@@ -32,7 +32,7 @@ class RootViewController: ViewController {
         let result = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
 
         result.tag = 2
-        result.backgroundColor = .red
+        result.backgroundColor = CGColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.85)
         result.masksToBounds = false
         result.layer.cornerRadius = 12.0
         result.layer.borderColor = .black
