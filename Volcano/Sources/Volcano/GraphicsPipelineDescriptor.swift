@@ -229,7 +229,7 @@ internal extension GraphicsPipelineDescriptor {
     }
 }
 
-// #if EXPERIMENTAL_VOLCANO_DSL
+#if EXPERIMENTAL_VOLCANO_DSL
     extension GraphicsPipelineDescriptor {
         @_transparent
         @VkBuilder<VkPipelineViewportStateCreateInfo>
@@ -302,7 +302,9 @@ internal extension GraphicsPipelineDescriptor {
             (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
         }
     }
-// #endif
+
+#endif
+
 internal protocol PipelineStatePiece {
     var dynamicStates: [VkDynamicState] { get }
 }

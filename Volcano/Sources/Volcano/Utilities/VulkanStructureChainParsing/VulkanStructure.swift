@@ -763,9 +763,9 @@ extension VkDisplayPresentInfoKHR: VulkanInStructure {
 }
 
 #if canImport(CXlib) && os(Linux)
-extension VkXlibSurfaceCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .xlibSurfaceCreateInfoKhr
-}
+    extension VkXlibSurfaceCreateInfoKHR: VulkanInStructure {
+        public static let type: VkStructureType = .xlibSurfaceCreateInfoKhr
+    }
 #endif
 
 #if canImport(CXcb) && os(Linux)

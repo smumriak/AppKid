@@ -25,8 +25,8 @@ public class DylibWrapper {
         public static let lazy = LoadingFlags(rawValue: RTLD_LAZY)
         public static let now = LoadingFlags(rawValue: RTLD_NOW)
         #if os(Linux)
-        public static let bindingMask = LoadingFlags(rawValue: RTLD_BINDING_MASK)
-        public static let deepBind = LoadingFlags(rawValue: RTLD_DEEPBIND)
+            public static let bindingMask = LoadingFlags(rawValue: RTLD_BINDING_MASK)
+            public static let deepBind = LoadingFlags(rawValue: RTLD_DEEPBIND)
         #endif
         public static let noLoad = LoadingFlags(rawValue: RTLD_NOLOAD)
         public static let global = LoadingFlags(rawValue: RTLD_GLOBAL)

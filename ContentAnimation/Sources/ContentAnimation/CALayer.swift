@@ -304,8 +304,6 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     }
 
     open override func setValue(_ value: Any?, forKeyPath keyPath: String) {
-        
-
         super.setValue(value, forKeyPath: keyPath)
     }
 
@@ -392,7 +390,6 @@ public struct CACornerMask: OptionSet {
 }
 
 extension CACornerMask: PublicInitializable {}
-
 
 @_transparent
 internal func dropNSNull(_ action: CAAction) -> CAAction? {

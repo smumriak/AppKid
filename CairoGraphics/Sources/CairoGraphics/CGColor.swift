@@ -101,4 +101,3 @@ internal extension CGColor {
 }
 
 extension CGColor: PublicInitializable {}
-
