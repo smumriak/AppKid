@@ -23,7 +23,6 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
 
 //    override
     open func value(forKey key: String) -> Any? {
-
         if key.isEmpty {
             return nil
         }
@@ -46,7 +45,6 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
                 return object.value(forKeyPath: tailKeyPath)
             } else {
                 return nil
-                
             }
         } else {
             return value(forKey: key)
@@ -92,7 +90,7 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
     }
 
 //    override
-    open func willChangeValue(forKey key: String) { }
+    open func willChangeValue(forKey key: String) {}
 
 //    override
     open func didChangeValue(forKey key: String) {}
