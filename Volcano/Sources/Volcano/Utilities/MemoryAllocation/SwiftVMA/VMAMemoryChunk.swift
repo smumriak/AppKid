@@ -74,7 +74,7 @@ public extension MemoryBacked {
                 return SpecializedInfo.vmaAllocFunctionPrivate as! VMAAllocFunction
 
             default:
-                fatalError("\(Swift.type(of: self))  is not supported by Vulkan Memory Allocator")
+                fatalError("\(Swift.type(of: self as Any))  is not supported by Vulkan Memory Allocator")
         }
     }
 
@@ -88,7 +88,7 @@ public extension MemoryBacked {
                 return SpecializedInfo.vmaBindFunctionPrivate as! VMABindFunction
 
             default:
-                fatalError("\(Swift.type(of: self))  is not supported by Vulkan Memory Allocator")
+                fatalError("\(Swift.type(of: self as Any))  is not supported by Vulkan Memory Allocator")
         }
     }
 }
@@ -114,7 +114,7 @@ public extension EntityInfo {
                 return SpecializedInfo.vmaCreateFunctionPrivate as! VMACreateFunction
 
             default:
-                fatalError("\(Swift.type(of: self))  is not supported by Vulkan Memory Allocator")
+                fatalError("\(Swift.type(of: self as Any))  is not supported by Vulkan Memory Allocator")
         }
     }
 }
