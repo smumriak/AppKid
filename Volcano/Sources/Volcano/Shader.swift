@@ -78,9 +78,8 @@ public extension Shader {
     fileprivate static let defaultShaderEntryPointName = strdup("main")
 
     func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
-        var result = VkPipelineShaderStageCreateInfo()
+        var result = VkPipelineShaderStageCreateInfo.new()
         
-        result.sType = .pipelineShaderStageCreateInfo
         result.pNext = nil
         result.flags = flags.rawValue
         result.stage = stage

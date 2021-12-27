@@ -51,7 +51,7 @@ public final class GraphicsPipeline: Pipeline {
                     },
                 ].compactMap { $0 }
                 
-                \.layout <- layout.pointer
+                \.layout <- layout
                 \.renderPass <- renderPass.handle
                 \.subpass <- CUnsignedInt(subpassIndex)
 
