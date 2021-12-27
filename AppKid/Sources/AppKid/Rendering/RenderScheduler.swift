@@ -124,8 +124,11 @@ internal class RenderScheduler {
         }
 
         try renderesToRecord.forEach { renderer in
+            renderer.window?.beforeFrameRender()
+            
             try renderer.render()
-            renderer.window?.nativeWindow.window.sendSyncCounterIfNeeded()
+
+            renderer.window?.afterFrameRender()
         }
     }
 

@@ -256,6 +256,15 @@ open class Window: View {
 
         // palkovnik:TODO:Send destroy request to windowing system asynchronously
     }
+
+    internal func beforeFrameRender() {
+        // palkovnik:TODO: Investigate why this floods the X11 events queue
+        // nativeWindow.window.sendSyncCounterForRenderingStart()
+    }
+
+    internal func afterFrameRender() {
+        nativeWindow.window.sendSyncCounterIfNeeded()
+    }
 }
 
 public extension Window {

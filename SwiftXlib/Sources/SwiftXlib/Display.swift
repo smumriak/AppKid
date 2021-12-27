@@ -22,6 +22,8 @@ public typealias Atom = CXlib.Atom
 
 public enum AtomName: String {
     case supportedHints = "_NET_SUPPORTED"
+    case protocols = "WM_PROTOCOLS"
+    case processIdentifier = "_NET_WM_PID"
 
     case deleteWindow = "WM_DELETE_WINDOW"
     case takeFocus = "WM_TAKE_FOCUS"
@@ -34,6 +36,7 @@ public enum AtomName: String {
     case frameDrawn = "_NET_WM_FRAME_DRAWN"
     case frameTimings = "_NET_WM_FRAME_TIMINGS"
 
+    case bypassCompositor = "_NET_WM_BYPASS_COMPOSITOR"
     case state = "_NET_WM_STATE"
     case stayAbove = "_NET_WM_STATE_ABOVE"
     case stayBelow = "_NET_WM_STATE_BELOW"
@@ -83,6 +86,9 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
     public let xInput2ExtensionOpcode: CInt
 
     public let supportedHintsAtom: CXlib.Atom
+    public let protocolsAtom: CXlib.Atom
+
+    public let processIdentifierAtom: CXlib.Atom
 
     public let deleteWindowAtom: CXlib.Atom
     public let takeFocusAtom: CXlib.Atom
@@ -93,9 +99,9 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
     public let syncFencesAtom: CXlib.Atom
     public let syncDrawnAtom: CXlib.Atom
     public let frameDrawnAtom: CXlib.Atom
-
     public let frameTimingsAtom: CXlib.Atom
 
+    public let bypassCompositorAtom: CXlib.Atom
     public let stateAtom: CXlib.Atom
     public let stayAboveAtom: CXlib.Atom
     public let stayBelowAtom: CXlib.Atom
@@ -136,18 +142,8 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
 
     public let connectionFileDescriptor: CInt
     
-    internal weak var _rootWindow: RootWindow?
-    public unowned var rootWindow: RootWindow {
-        if let rootWindow = _rootWindow {
-            return rootWindow
-        } else {
-            let rootWindow = RootWindow(display: self, screen: Screen())
-            _rootWindow = rootWindow
-            return rootWindow
-        }
-    }
-
-    public internal(set) var screens: [Screen] = []
+    public private(set) lazy var rootWindow = RootWindow(display: self, screen: screens[0])
+    public private(set) var screens: [Screen] = [Screen()]
 
     public init(_ display: String? = nil) throws {
         guard let handle = XOpenDisplay(display) ?? XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
@@ -157,6 +153,9 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         let handlePointer = ReleasablePointer(with: handle)
 
         supportedHintsAtom = handlePointer.query(atom: .supportedHints)
+        protocolsAtom = handlePointer.query(atom: .protocols)
+
+        processIdentifierAtom = handlePointer.query(atom: .processIdentifier)
 
         deleteWindowAtom = handlePointer.query(atom: .deleteWindow)
         takeFocusAtom = handlePointer.query(atom: .takeFocus)
@@ -169,6 +168,7 @@ public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
         frameDrawnAtom = handlePointer.query(atom: .frameDrawn)
         frameTimingsAtom = handlePointer.query(atom: .frameTimings)
 
+        bypassCompositorAtom = handlePointer.query(atom: .bypassCompositor)
         stateAtom = handlePointer.query(atom: .state)
         stayAboveAtom = handlePointer.query(atom: .stayAbove)
         stayBelowAtom = handlePointer.query(atom: .stayBelow)
