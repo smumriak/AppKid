@@ -51,7 +51,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         }()
 
         try [value].withUnsafeBufferPointer { values in
-            try [self].optionalPointers().withUnsafeBufferPointer { semaphores in
+            try [self].optionalHandles().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = []
 
                 var info = VkSemaphoreWaitInfo()
@@ -88,7 +88,7 @@ extension Device {
     func wait(for semaphores: [TimelineSemaphore], values: [UInt64], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
         assert(semaphores.count == values.count)
         try values.withUnsafeBufferPointer { values in
-            try semaphores.optionalPointers().withUnsafeBufferPointer { semaphores in
+            try semaphores.optionalHandles().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = waitForAll ? [] : .any
 
                 var info = VkSemaphoreWaitInfo()

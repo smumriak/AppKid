@@ -8,7 +8,7 @@
 import Foundation
 
 public extension Array where Element == String {
-    var cStrings: [SmartPointer<Int8>] {
+    var cStrings: [SmartPointer<CChar>] {
         let deleter = SmartPointer<Int8>.Deleter.custom { free($0) }
 
         return map {
@@ -16,16 +16,16 @@ public extension Array where Element == String {
         }
     }
 
-    func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>?>) throws -> (R)) rethrows -> R {
+    func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<CChar>?>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
-        return try cStrings.map { UnsafePointer($0.pointer) as UnsafePointer<Int8>? }.withUnsafeBufferPointer(body)
+        return try cStrings.optionalPointers().withUnsafeBufferPointer(body)
     }
 
-    func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<Int8>>) throws -> (R)) rethrows -> R {
+    func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<CChar>>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
-        return try cStrings.map { UnsafePointer($0.pointer) }.withUnsafeBufferPointer(body)
+        return try cStrings.pointers().withUnsafeBufferPointer(body)
     }
 }
 

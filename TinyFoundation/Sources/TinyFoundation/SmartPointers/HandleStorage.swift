@@ -33,11 +33,33 @@ open class HandleStorage<Handle>: NSObject, HandleStorageProtocol, SmartPointerH
 }
 
 public extension Array where Element: HandleStorageProtocol {
-    func pointers() -> [Element.Handle_t] {
+    func handles() -> [Element.Handle_t] {
         return map { $0.handle }
     }
 
-    func optionalPointers() -> [Element.Handle_t?] {
+    func optionalHandles() -> [Element.Handle_t?] {
         return map { $0.handle }
+    }
+}
+
+public extension Array where Element: SmartPointerHandleStorageProtocol, Element.Handle_t == Element.SmartPointerHandle_t.Pointer_t {
+    func pointers() -> [UnsafePointer<Element.SmartPointerHandle_t.Pointer_t.Pointee>] {
+        return map { UnsafePointer($0.handle) }
+    }
+
+    func optionalPointers() -> [UnsafePointer<Element.SmartPointerHandle_t.Pointer_t.Pointee>?] {
+        return map { UnsafePointer($0.handle) }
+    }
+
+    func mutablePointers() -> [Element.SmartPointerHandle_t.Pointer_t] {
+        return map { $0.handle }
+    }
+
+    func optionalMutablePointers() -> [Element.SmartPointerHandle_t.Pointer_t?] {
+        return map { $0.handle }
+    }
+
+    func smartPointers() -> [Element.SmartPointerHandle_t] {
+        return map { $0.handlePointer }
     }
 }

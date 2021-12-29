@@ -29,7 +29,7 @@ public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorP
     }
 
     public func allocate(with layout: DescriptorSetLayout) throws -> DescriptorSet {
-        let result: VkDescriptorSet = try [layout].optionalPointers()
+        let result: VkDescriptorSet = try [layout].optionalHandles()
             .withUnsafeBufferPointer { layouts in
                 var info = VkDescriptorSetAllocateInfo()
                 info.sType = .descriptorSetAllocateInfo

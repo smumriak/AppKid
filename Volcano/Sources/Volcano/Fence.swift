@@ -48,7 +48,7 @@ public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
 
 public extension Device {
     func wait(for fences: [Fence], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
-        try fences.optionalPointers().withUnsafeBufferPointer { fences in
+        try fences.optionalHandles().withUnsafeBufferPointer { fences in
             try vulkanInvoke {
                 vkWaitForFences(handle, CUnsignedInt(fences.count), fences.baseAddress!, waitForAll.vkBool, timeout)
             }
@@ -56,7 +56,7 @@ public extension Device {
     }
     
     func reset(fences: [Fence]) throws {
-        try fences.optionalPointers().withUnsafeBufferPointer { fences in
+        try fences.optionalHandles().withUnsafeBufferPointer { fences in
             try vulkanInvoke {
                 vkResetFences(handle, CUnsignedInt(fences.count), fences.baseAddress!)
             }

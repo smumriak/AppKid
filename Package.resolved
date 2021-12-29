@@ -1,34 +1,31 @@
 {
-  "object": {
-    "pins": [
+  "object" : {
+    "pins" : [
       {
-        "package": "cglm",
-        "repositoryURL": "https://github.com/recp/cglm",
-        "state": {
-          "branch": "master",
-          "revision": "d0d1e4653399a5d7b3a72c01903275590adf935e",
-          "version": null
+        "package" : "cglm",
+        "repositoryURL" : "https://github.com/recp/cglm",
+        "state" : {
+          "branch" : "master",
+          "revision" : "d0d1e4653399a5d7b3a72c01903275590adf935e"
         }
       },
       {
-        "package": "swift-argument-parser",
-        "repositoryURL": "https://github.com/apple/swift-argument-parser",
-        "state": {
-          "branch": null,
-          "revision": "986d191f94cec88f6350056da59c2e59e83d1229",
-          "version": "0.4.3"
+        "package" : "swift-argument-parser",
+        "repositoryURL" : "https://github.com/apple/swift-argument-parser",
+        "state" : {
+          "revision" : "986d191f94cec88f6350056da59c2e59e83d1229",
+          "version" : "0.4.3"
         }
       },
       {
-        "package": "swift-collections",
-        "repositoryURL": "https://github.com/apple/swift-collections",
-        "state": {
-          "branch": null,
-          "revision": "2d33a0ea89c961dcb2b3da2157963d9c0370347e",
-          "version": "1.0.1"
+        "package" : "swift-collections",
+        "repositoryURL" : "https://github.com/apple/swift-collections",
+        "state" : {
+          "revision" : "2d33a0ea89c961dcb2b3da2157963d9c0370347e",
+          "version" : "1.0.1"
         }
       }
     ]
   },
-  "version": 1
+  "version" : 1
 }

@@ -117,6 +117,31 @@ public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Un
 }
 
 @inlinable @inline(__always)
+public func <- <Struct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [String]) -> SmartPtrArray<Struct, CChar> {
+    SmartPtrArray(paths.0, paths.1, value.cStrings)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [SmartPointer<CChar>]) -> SmartPtrArray<Struct, CChar> {
+    SmartPtrArray(paths.0, paths.1, value)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartPtrArray<Struct, Value> {
+    SmartPtrArray(paths.0, paths.1, value)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartMPtrArray<Struct, Value> {
+    SmartMPtrArray(paths.0, paths.1, value)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [HandleStorage<SmartPointer<Value>>]) -> SmartMPtrArray<Struct, Value> {
+    SmartMPtrArray(paths.0, paths.1, value.smartPointers())
+}
+
+@inlinable @inline(__always)
 public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: Value) -> PtrTo<Struct, Value> {
     PtrTo(path, value)
 }
@@ -402,6 +427,64 @@ public class SmartMPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
+public class SmartPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
+    public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
+    public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>
+
+    @usableFromInline
+    internal let countKeyPath: CountKeyPath
+
+    @usableFromInline
+    internal let valueKeyPath: ValueKeyPath
+
+    @usableFromInline
+    internal let value: Array<SmartPointer<Value>>
+        
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: Array<SmartPointer<Value>>) {
+        self.countKeyPath = countKeyPath
+        self.valueKeyPath = valueKeyPath
+        self.value = value
+    }
+    
+    @inlinable @inline(__always)
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+        return try value.optionalPointers().withUnsafeBufferPointer { value in
+            result[keyPath: countKeyPath] = CUnsignedInt(value.count)
+            result[keyPath: valueKeyPath] = value.baseAddress!
+            return try super.withApplied(to: &result, tail: tail, body)
+        }
+    }
+}
+
+public class SmartMPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
+    public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
+    public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>
+
+    @usableFromInline
+    internal let countKeyPath: CountKeyPath
+
+    @usableFromInline
+    internal let valueKeyPath: ValueKeyPath
+
+    @usableFromInline
+    internal let value: Array<SmartPointer<Value>>
+        
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: Array<SmartPointer<Value>>) {
+        self.countKeyPath = countKeyPath
+        self.valueKeyPath = valueKeyPath
+        self.value = value
+    }
+    
+    @inlinable @inline(__always)
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+        return try value.optionalMutablePointers().withUnsafeBufferPointer { value in
+            result[keyPath: countKeyPath] = CUnsignedInt(value.count)
+            result[keyPath: valueKeyPath] = value.baseAddress!
+            return try super.withApplied(to: &result, tail: tail, body)
+        }
+    }
+}
+
 public class PtrTo<Struct: VulkanStructure, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -437,6 +520,7 @@ public class Next<Struct: VulkanChainableStructure, Next: VulkanChainableStructu
 
     @inlinable @inline(__always)
     public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+        assert(result[keyPath: \.pNext] == nil)
         return try builder.withUnsafeResultPointer {
             result[keyPath: \.pNext] = UnsafeRawPointer($0)
             return try super.withApplied(to: &result, tail: tail, body)

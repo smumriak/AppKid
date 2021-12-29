@@ -96,11 +96,23 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
 }
 
 public extension Array where Element: SmartPointerProtocol {
-    func pointers() -> [Element.Pointer_t] {
+    @_transparent
+    func mutablePointers() -> [Element.Pointer_t] {
         return map { $0.pointer }
     }
 
-    func optionalPointers() -> [Element.Pointer_t?] {
+    @_transparent
+    func optionalMutablePointers() -> [Element.Pointer_t?] {
         return map { $0.pointer }
+    }
+
+    @_transparent
+    func pointers() -> [UnsafePointer<Element.Pointee>] {
+        return map { UnsafePointer($0.pointer) }
+    }
+
+    @_transparent
+    func optionalPointers() -> [UnsafePointer<Element.Pointee>?] {
+        return map { UnsafePointer($0.pointer) }
     }
 }

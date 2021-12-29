@@ -27,13 +27,12 @@ public final class GraphicsPipeline: Pipeline {
         #if EXPERIMENTAL_VOLCANO_DSL
 
             let layout: SmartPointer<VkPipelineLayout_T> = try VkBuilder<VkPipelineLayoutCreateInfo> {
-                (\.setLayoutCount, \.pSetLayouts) <- pipelineDescriptor.descriptorSetLayouts.optionalPointers()
+                (\.setLayoutCount, \.pSetLayouts) <- pipelineDescriptor.descriptorSetLayouts.optionalHandles()
                 (\.pushConstantRangeCount, \.pPushConstantRanges) <- pipelineDescriptor.pushConstants
             }
             .createEntity(using: device)
 
-            @VkBuilder<VkGraphicsPipelineCreateInfo>
-            var builder: VkBuilder<VkGraphicsPipelineCreateInfo> {
+            let builder = VkBuilder<VkGraphicsPipelineCreateInfo> {
                 \.pViewportState <- pipelineDescriptor.viewportState
                 \.pVertexInputState <- pipelineDescriptor.vertexInputState
                 \.pInputAssemblyState <- pipelineDescriptor.inputAssemblyState
@@ -65,7 +64,7 @@ public final class GraphicsPipeline: Pipeline {
 
         #else
 
-            let layout: SmartPointer<VkPipelineLayout_T> = try pipelineDescriptor.descriptorSetLayouts.optionalPointers()
+            let layout: SmartPointer<VkPipelineLayout_T> = try pipelineDescriptor.descriptorSetLayouts.optionalHandles()
                 .withUnsafeBufferPointer { descriptorSetLayouts in
                     return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
                         var info = VkPipelineLayoutCreateInfo()
