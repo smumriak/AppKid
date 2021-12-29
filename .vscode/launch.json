@@ -19,6 +19,22 @@
             },
         },
         {
+            "name": "RunWithoutBuilding",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "env": {
+                "DEBUG": "1",
+                "APPKID_FORCE_SCALE_FACTOR": "2.0",
+            },
+            "linux": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
+            },
+            "osx": {
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
+            },
+        },
+        {
             "name": "Test",
             "type": "lldb",
             "request": "launch",

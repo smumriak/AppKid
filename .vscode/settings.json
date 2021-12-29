@@ -56,9 +56,12 @@
     "debug.console.wordWrap": true,
     "debug.console.historySuggestions": true,
     "launches": {
-        "Test": "Test",
+        "Run": "Run",
+        "RunWithoutBuilding": "RunWithoutBuilding",
+        "Test": "Test"
     },
     "terminal.integrated.scrollback": 20000,
     "editor.wordWrap": "on",
     "diffEditor.wordWrap": "on",
+    "launch-config.ifDebugSessionRunning": "stop/start",
 }
