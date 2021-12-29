@@ -17,6 +17,36 @@ public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Va
 }
 
 @inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, CInt>, value: Value) -> Val<Struct, CInt> {
+    Val(path, CInt(value))
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, CUnsignedInt>, value: Value) -> Val<Struct, CUnsignedInt> {
+    Val(path, CUnsignedInt(value))
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, Int64>, value: Value) -> Val<Struct, Int64> {
+    Val(path, Int64(value))
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, UInt64>, value: Value) -> Val<Struct, UInt64> {
+    Val(path, UInt64(value))
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Float>, value: Value) -> Val<Struct, Float> {
+    Val(path, Float(value))
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Double>, value: Value) -> Val<Struct, Double> {
+    Val(path, Double(value))
+}
+
+@inlinable @inline(__always)
 public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: Array<Value>) -> Arr<Struct, Value> {
     Arr(paths.0, paths.1, value)
 }
@@ -72,8 +102,18 @@ public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Un
 }
 
 @inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartPtr<Struct, Value> {
+    SmartPtr(path, value.handlePointer)
+}
+
+@inlinable @inline(__always)
 public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: SmartPointer<Value>) -> SmartMPtr<Struct, Value> {
     SmartMPtr(path, value)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartMPtr<Struct, Value> {
+    SmartMPtr(path, value.handlePointer)
 }
 
 @inlinable @inline(__always)
@@ -84,6 +124,11 @@ public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Un
 @inlinable @inline(__always)
 public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(builder: VkBuilder<NextStruct>) -> Next<Struct, NextStruct> {
     Next(builder)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure, Value: StringProtocol>(path: WritableKeyPath<Struct, UnsafePointer<CChar>?>, value: Value) -> Str<Struct> {
+    Str(path, String(value))
 }
 
 public class Path<Struct: VulkanStructure> {
@@ -268,43 +313,6 @@ public class Sub<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<Stru
     }
 }
 
-// palkovnik:TODO:Some time in future it would be nice to have ability to "build" the array of subinfos, for example to have ability to construct VkGraphicsPipelineCreateInfo that contains array of VkPipelineShaderStageCreateInfo. The only way to do that is to have accumulator reserving capacity for number of builders and recursivelly roing the build of SubStruct
-// public class SubArr<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<Struct> {
-//     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
-//     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<SubStruct>?>
-
-//     @usableFromInline
-//     internal let countKeyPath: CountKeyPath
-
-//     @usableFromInline
-//     internal let valueKeyPath: ValueKeyPath
-
-//     @usableFromInline
-//     internal let builders: [VkBuilder<SubStruct>]
-
-//     public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ builders: Array<VkBuilder<SubStruct>>) {
-//         self.countKeyPath = countKeyPath
-//         self.valueKeyPath = valueKeyPath
-//         self.builders = builders
-//     }
-
-//     @inlinable @inline(__always)
-//     public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
-//         if builders.isEmpty {
-//             return try withUnsafePointer(to: &result) {
-//                 return try body($0)
-//             }
-//         }
-
-//         let indices = builders.indices
-
-//         let head = builders[indices.lowerBound]
-//         let tail = builders[indices.dropFirst()]
-
-//         return try head.withApplied(to: &result, tail: tail, body)
-//     }
-// }
-
 public class Ptr<Struct: VulkanStructure, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -436,49 +444,95 @@ public class Next<Struct: VulkanChainableStructure, Next: VulkanChainableStructu
     }
 }
 
-@resultBuilder
-public struct VkBuilder<Struct: VulkanStructure> {
-    static func buildExpression(_ path: Path<Struct>) -> [Path<Struct>] {
-        return [path]
+public class Str<Struct: VulkanStructure>: Path<Struct> {
+    public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<CChar>?>
+
+    @usableFromInline
+    internal let valueKeyPath: ValueKeyPath
+
+    @usableFromInline
+    internal let value: String
+
+    public init(_ valueKeyPath: ValueKeyPath, _ value: String) {
+        self.valueKeyPath = valueKeyPath
+        self.value = value
     }
 
-    static func buildBlock(_ paths: [Path<Struct>]...) -> [Path<Struct>] {
+    @inlinable @inline(__always)
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+        return try value.withCString {
+            result[keyPath: valueKeyPath] = $0
+            return try super.withApplied(to: &result, tail: tail, body)
+        }
+    }
+}
+
+@resultBuilder
+public struct VkBuilder<Struct: VulkanStructure> {
+    public typealias Expression = Path<Struct>
+    public typealias Component = [Path<Struct>]
+
+    static func buildExpression(_ expression: Expression) -> Component {
+        return [expression]
+    }
+
+    static func buildExpression(_ expression: Expression?) -> Component {
+        if let expression = expression {
+            return [expression]
+        } else {
+            return []
+        }
+    }
+
+    static func buildBlock(_ paths: Component...) -> Component {
         return paths.flatMap { $0 }
     }
 
-    static func buildOptional(_ component: [Path<Struct>]?) -> [Path<Struct>] {
+    static func buildBlock(_ paths: [Expression?]) -> Component {
+        return paths.compactMap { $0 }
+    }
+
+    static func buildOptional(_ component: Component?) -> Component {
         return component ?? []
     }
 
-    static func buildEither(first component: [Path<Struct>]) -> [Path<Struct>] {
+    static func buildEither(first component: Component) -> Component {
         return component
     }
 
-    static func buildEither(second component: [Path<Struct>]) -> [Path<Struct>] {
+    static func buildEither(second component: Component) -> Component {
         return component
     }
 
-    static func buildArray(_ paths: [[Path<Struct>]]) -> [Path<Struct>] {
+    static func buildArray(_ paths: [Component]) -> Component {
         return paths.flatMap { $0 }
     }
 
-    static func buildFinalResult(_ paths: [Path<Struct>]) -> [Path<Struct>] {
+    static func buildFinalResult(_ paths: Component) -> Component {
         return paths
     }
 
-    static func buildFinalResult(_ paths: [Path<Struct>]) -> VkBuilder<Struct> {
+    static func buildFinalResult(_ paths: Component) -> VkBuilder<Struct> {
         return VkBuilder(paths)
     }
 
-    @usableFromInline
-    internal var paths: [Path<Struct>]
+    static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (Component)) -> Component {
+        return content()
+    }
 
-    public init(@VkBuilder<Struct> _ content: () -> ([Path<Struct>])) {
+    static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (VkBuilder<Struct>)) -> VkBuilder<Struct> {
+        return content()
+    }
+
+    @usableFromInline
+    internal var paths: Component
+
+    public init(@VkBuilder<Struct> _ content: () -> (Component)) {
         self.init(content())
     }
 
     @usableFromInline
-    internal init(_ paths: [Path<Struct>]) {
+    internal init(_ paths: Component) {
         self.paths = paths
     }
 
@@ -487,9 +541,7 @@ public struct VkBuilder<Struct: VulkanStructure> {
         var result = Struct.new()
 
         if paths.isEmpty {
-            return try withUnsafePointer(to: &result) {
-                return try body($0)
-            }
+            return try withUnsafePointer(to: &result, body)
         }
 
         let indices = paths.indices
@@ -499,22 +551,6 @@ public struct VkBuilder<Struct: VulkanStructure> {
 
         return try head.withApplied(to: &result, tail: tail, body)
     }
-
-    // palkovnik:TODO:Some time in future it would be nice to have ability to "build" the array of subinfos, for example to have ability to construct VkGraphicsPipelineCreateInfo that contains array of VkPipelineShaderStageCreateInfo
-    // @inlinable @inline(__always)
-    // internal func withApplied<SubStruct: VulkanStructure, R>(to result: inout SubStruct, tail: ArraySlice<VkBuilder<SubStruct>>, _ body: (UnsafePointer<SubStruct>) throws -> (R)) rethrows -> R {
-    //     let indices = tail.indices
-    //     if indices.lowerBound == indices.upperBound {
-    //         return try withUnsafePointer(to: &result) {
-    //             return try body($0)
-    //         }
-    //     } else {
-    //         let nextHead = tail[indices.lowerBound]
-    //         let nextTail = tail[indices.dropFirst()]
-
-    //         return try nextHead.withApplied(to: &result, tail: nextTail, body)
-    //     }
-    // }
 }
 
 public extension VkBuilder where Struct: EntityInfo {

@@ -10,6 +10,8 @@ import TinyFoundation
 import CVulkan
 
 public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
+    public static let defaultShaderEntryPointName = "main"
+
     public enum Error: Swift.Error {
         case noData
         case noSuchFile
@@ -36,7 +38,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
         try self.init(data: data, entryPoint: entryPoint, device: device)
     }
 
-    public init(data: Data, entryPoint: String = "main", device: Device) throws {
+    public init(data: Data, entryPoint: String = Shader.defaultShaderEntryPointName, device: Device) throws {
         if data.isEmpty {
             throw Error.noData
         }
@@ -54,28 +56,10 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
 
         try super.init(device: device, handlePointer: handlePointer)
     }
-
-    internal func withStageInfoUnsafePointer<R>(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = [], body: (UnsafePointer<VkPipelineShaderStageCreateInfo>) throws -> (R)) throws -> R {
-        return try entryPoint.withCString { entryPoint in
-            var info = VkPipelineShaderStageCreateInfo()
-        
-            info.sType = .pipelineShaderStageCreateInfo
-            info.pNext = nil
-            info.flags = flags.rawValue
-            info.stage = stage
-            info.module = handle
-            info.pName = entryPoint
-            info.pSpecializationInfo = nil
-
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
-        }
-    }
 }
 
 public extension Shader {
-    fileprivate static let defaultShaderEntryPointName = strdup("main")
+    fileprivate static let defaultShaderEntryPointNamePointer = strdup(defaultShaderEntryPointName)
 
     func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
         var result = VkPipelineShaderStageCreateInfo.new()
@@ -84,9 +68,19 @@ public extension Shader {
         result.flags = flags.rawValue
         result.stage = stage
         result.module = handle
-        result.pName = UnsafePointer(Shader.defaultShaderEntryPointName)
+        result.pName = UnsafePointer(Shader.defaultShaderEntryPointNamePointer)
         result.pSpecializationInfo = nil
 
         return result
+    }
+
+    func builder(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkBuilder<VkPipelineShaderStageCreateInfo> {
+        return VkBuilder<VkPipelineShaderStageCreateInfo> {
+            \.flags <- flags
+            \.stage <- stage
+            \.module <- self
+            \.pName <- entryPoint
+            \.pSpecializationInfo <- nil
+        }
     }
 }

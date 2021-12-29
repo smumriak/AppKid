@@ -42,18 +42,11 @@ public final class GraphicsPipeline: Pipeline {
                 \.pColorBlendState <- pipelineDescriptor.colorBlendState
                 \.pDynamicState <- pipelineDescriptor.dynamicState
 
-                (\.stageCount, \.pStages) <- [
-                    pipelineDescriptor.vertexShader.map {
-                        $0.createStageInfo(for: .vertex)
-                    },
-                    pipelineDescriptor.fragmentShader.map {
-                        $0.createStageInfo(for: .fragment)
-                    },
-                ].compactMap { $0 }
+                (\.stageCount, \.pStages) <- pipelineDescriptor.shaders
                 
                 \.layout <- layout
-                \.renderPass <- renderPass.handle
-                \.subpass <- CUnsignedInt(subpassIndex)
+                \.renderPass <- renderPass
+                \.subpass <- subpassIndex
 
                 \.basePipelineHandle <- nil
                 \.basePipelineIndex <- -1

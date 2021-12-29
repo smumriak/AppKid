@@ -301,6 +301,13 @@ internal extension GraphicsPipelineDescriptor {
         var dynamicState: VkBuilder<VkPipelineDynamicStateCreateInfo> {
             (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
         }
+
+        @_transparent
+        @VkArrayBuilder<VkPipelineShaderStageCreateInfo>
+        var shaders: VkArrayBuilder<VkPipelineShaderStageCreateInfo> {
+            vertexShader?.builder(for: .vertex)
+            fragmentShader?.builder(for: .fragment)
+        }
     }
 
 #endif
