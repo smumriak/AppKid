@@ -143,7 +143,10 @@ open class CGContext {
         self.surface = RetainablePointer(with: cairo_get_target(context.pointer))
         self.width = width
         self.height = height
-        _state.defaultPattern = cairo_get_source(context.pointer)
+
+        let pattern = cairo_get_source(context.pointer)!
+        _state.strokePattern = pattern
+        _state.fillPattern = pattern
     }
 
     public init(_ context: CGContext) {
@@ -151,7 +154,10 @@ open class CGContext {
         self.surface = context.surface
         self.width = context.width
         self.height = context.height
-        _state.defaultPattern = cairo_get_source(self.context.pointer)
+
+        let pattern = cairo_get_source(self.context.pointer)!
+        _state.strokePattern = pattern
+        _state.fillPattern = pattern
     }
     
     public init(surface: RetainablePointer<cairo_surface_t>, width: Int, height: Int) {
@@ -159,7 +165,10 @@ open class CGContext {
         self.surface = surface
         self.width = width
         self.height = height
-        _state.defaultPattern = cairo_get_source(context.pointer)
+
+        let pattern = cairo_get_source(context.pointer)!
+        _state.strokePattern = pattern
+        _state.fillPattern = pattern
     }
 }
 

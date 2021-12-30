@@ -44,12 +44,22 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
                 (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
                 \.pWaitDstStageMask <- descriptor.waitStages
                 (\.commandBufferCount, \.pCommandBuffers) <- descriptor.commandBuffers
+
                 if descriptor.hasTimeline {
                     <-VkBuilder<VkTimelineSemaphoreSubmitInfo> {
                         (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
                         (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
                     }
                 }
+
+                // <-Chain {
+                //     if descriptor.hasTimeline {
+                //         VkBuilder<VkTimelineSemaphoreSubmitInfo> {
+                //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
+                //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
+                //         }
+                //     }
+                // }
             }
             .withUnsafeResultPointer { info in
                 try lock.synchronized {

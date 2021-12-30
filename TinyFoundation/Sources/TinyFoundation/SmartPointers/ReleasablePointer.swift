@@ -28,3 +28,27 @@ public class ReleasablePointer<Pointee>: SmartPointer<Pointee> where Pointee: Re
         super.init(with: pointer, deleter: .none)
     }
 }
+
+@propertyWrapper
+public struct Releasable<Pointee: ReleasableCType> {
+    public typealias StoragePointer = ReleasablePointer<Pointee>
+
+    public var pointer: StoragePointer
+
+    public var wrappedValue: StoragePointer.Pointer_t {
+        get {
+            pointer.pointer
+        }
+        set {
+            pointer = StoragePointer(with: newValue)
+        }
+    }
+
+    public init(wrappedValue: StoragePointer.Pointer_t) {
+        self.pointer = StoragePointer(with: wrappedValue)
+    }
+
+    public init(wrappedValue: StoragePointer) {
+        self.pointer = wrappedValue
+    }
+}

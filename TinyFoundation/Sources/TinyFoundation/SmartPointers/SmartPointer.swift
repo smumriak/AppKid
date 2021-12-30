@@ -29,7 +29,7 @@ public protocol SmartPointerProtocol {
     associatedtype Pointee
     typealias Pointer_t = UnsafeMutablePointer<Pointee>
     
-    var pointer: Pointer_t { get set }
+    var pointer: Pointer_t { get }
 }
 
 public extension SmartPointerProtocol {
@@ -66,7 +66,7 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
         }
     }
 
-    public var pointer: Pointer_t
+    public let pointer: Pointer_t
     internal let deleter: Deleter
 
     deinit {

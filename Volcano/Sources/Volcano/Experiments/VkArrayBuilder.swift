@@ -16,7 +16,7 @@ public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (Wri
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: Array<VkBuilder<Value>?>) -> SubArr<Struct, Value> {
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [VkBuilder<Value>?]) -> SubArr<Struct, Value> {
     SubArr(paths.0, paths.1, VkArrayBuilder(value.compactMap { $0 }))
 }
 
@@ -40,7 +40,7 @@ public class SubArr<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<S
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try builder.withUnsafeResultPointer {
             result[keyPath: countKeyPath] = CUnsignedInt($0.count)
             result[keyPath: valueKeyPath] = $0.baseAddress!

@@ -47,12 +47,12 @@ public func <- <Struct: VulkanStructure, Value: BinaryFloatingPoint>(path: Writa
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: Array<Value>) -> Arr<Struct, Value> {
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [Value]) -> Arr<Struct, Value> {
     Arr(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: Array<Value>) -> NoCountArr<Struct, Value> {
+public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: [Value]) -> NoCountArr<Struct, Value> {
     NoCountArr(path, value)
 }
 
@@ -158,10 +158,10 @@ public func <- <Struct: VulkanStructure, Value: StringProtocol>(path: WritableKe
 
 public class Path<Struct: VulkanStructure> {
     @inlinable @inline(__always)
-    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         let indices = tail.indices
         if indices.lowerBound == indices.upperBound {
-            return try withUnsafePointer(to: &result) {
+            return try withUnsafeMutablePointer(to: &result) {
                 return try body($0)
             }
         } else {
@@ -188,7 +188,7 @@ public class Val<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -205,16 +205,16 @@ public class Arr<Struct: VulkanStructure, Value>: Path<Struct> {
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: Array<Value>
+    internal let value: [Value]
         
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: Array<Value>) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [Value]) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.value = value
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.withUnsafeBufferPointer { value in
             result[keyPath: countKeyPath] = CUnsignedInt(value.count)
             result[keyPath: valueKeyPath] = value.baseAddress!
@@ -230,15 +230,15 @@ public class NoCountArr<Struct: VulkanStructure, Value>: Path<Struct> {
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: Array<Value>
+    internal let value: [Value]
         
-    public init(_ valueKeyPath: ValueKeyPath, _ value: Array<Value>) {
+    public init(_ valueKeyPath: ValueKeyPath, _ value: [Value]) {
         self.valueKeyPath = valueKeyPath
         self.value = value
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.withUnsafeBufferPointer { value in
             result[keyPath: valueKeyPath] = value.baseAddress!
             return try super.withApplied(to: &result, tail: tail, body)
@@ -266,7 +266,7 @@ public class NilArr<Struct: VulkanStructure, Value, Count: BinaryInteger>: Path<
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: countKeyPath] = CUnsignedInt(count)
         result[keyPath: valueKeyPath] = nil
         return try super.withApplied(to: &result, tail: tail, body)
@@ -288,7 +288,7 @@ public class Flags<Struct: VulkanStructure, Value: RawRepresentable>: Path<Struc
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value.rawValue
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -309,7 +309,7 @@ public class Flags64<Struct: VulkanStructure, Value: RawRepresentable>: Path<Str
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value.rawValue
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -330,9 +330,9 @@ public class Sub<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<Stru
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try builder.withUnsafeResultPointer {
-            result[keyPath: valueKeyPath] = $0
+            result[keyPath: valueKeyPath] = UnsafePointer($0)
             return try super.withApplied(to: &result, tail: tail, body)
         }
     }
@@ -358,7 +358,7 @@ public class Ptr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -379,7 +379,7 @@ public class MPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -400,7 +400,7 @@ public class SmartPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer.map { UnsafePointer($0.pointer) }
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -421,7 +421,7 @@ public class SmartMPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer?.pointer
         return try super.withApplied(to: &result, tail: tail, body)
     }
@@ -438,16 +438,16 @@ public class SmartPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: Array<SmartPointer<Value>>
+    internal let value: [SmartPointer<Value>]
         
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: Array<SmartPointer<Value>>) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SmartPointer<Value>]) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.value = value
     }
     
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.optionalPointers().withUnsafeBufferPointer { value in
             result[keyPath: countKeyPath] = CUnsignedInt(value.count)
             result[keyPath: valueKeyPath] = value.baseAddress!
@@ -467,16 +467,16 @@ public class SmartMPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: Array<SmartPointer<Value>>
+    internal let value: [SmartPointer<Value>]
         
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: Array<SmartPointer<Value>>) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SmartPointer<Value>]) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.value = value
     }
     
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.optionalMutablePointers().withUnsafeBufferPointer { value in
             result[keyPath: countKeyPath] = CUnsignedInt(value.count)
             result[keyPath: valueKeyPath] = value.baseAddress!
@@ -500,7 +500,7 @@ public class PtrTo<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try withUnsafePointer(to: value) {
             result[keyPath: valueKeyPath] = $0
             return try super.withApplied(to: &result, tail: tail, body)
@@ -509,8 +509,6 @@ public class PtrTo<Struct: VulkanStructure, Value>: Path<Struct> {
 }
 
 public class Next<Struct: VulkanChainableStructure, Next: VulkanChainableStructure>: Path<Struct> {
-    public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafeRawPointer?>
-
     @usableFromInline
     internal let builder: VkBuilder<Next>
 
@@ -518,8 +516,12 @@ public class Next<Struct: VulkanChainableStructure, Next: VulkanChainableStructu
         self.builder = builder
     }
 
+    public init(@VkBuilder<Next> _ content: () -> (VkBuilder<Next>)) {
+        self.builder = content()
+    }
+
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         assert(result[keyPath: \.pNext] == nil)
         return try builder.withUnsafeResultPointer {
             result[keyPath: \.pNext] = UnsafeRawPointer($0)
@@ -543,7 +545,7 @@ public class Str<Struct: VulkanStructure>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.withCString {
             result[keyPath: valueKeyPath] = $0
             return try super.withApplied(to: &result, tail: tail, body)
@@ -621,11 +623,11 @@ public struct VkBuilder<Struct: VulkanStructure> {
     }
 
     @inlinable @inline(__always)
-    public func withUnsafeResultPointer<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    internal func withUnsafeMutableResultPointer<R>(_ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         var result = Struct.new()
 
         if paths.isEmpty {
-            return try withUnsafePointer(to: &result, body)
+            return try withUnsafeMutablePointer(to: &result, body)
         }
 
         let indices = paths.indices
@@ -634,6 +636,13 @@ public struct VkBuilder<Struct: VulkanStructure> {
         let tail = paths[indices.dropFirst()]
 
         return try head.withApplied(to: &result, tail: tail, body)
+    }
+
+    @inlinable @inline(__always)
+    public func withUnsafeResultPointer<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+        try withUnsafeMutableResultPointer {
+            try body(UnsafePointer($0))
+        }
     }
 }
 

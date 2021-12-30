@@ -11,52 +11,24 @@ import TinyFoundation
 
 internal class CGContextState {
     var alpha: CGFloat = .zero
-    
-    fileprivate var defaultPatternPointer: RetainablePointer<cairo_pattern_t> = {
-        let cairoPattern = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0)!
-        return RetainablePointer(withRetained: cairoPattern)
-    }()
-
-    var defaultPattern: UnsafeMutablePointer<cairo_pattern_t> {
-        get {
-            return defaultPatternPointer.pointer
-        }
-        set {
-            defaultPatternPointer.pointer = newValue
-        }
-    }
 
     var fillColor: CGColor = .clear {
         didSet {
-            fillPatternPointer = fillColor.cairoPattern
+            fillPattern = fillColor.cairoPattern.pointer
         }
     }
 
-    fileprivate lazy var fillPatternPointer: RetainablePointer<cairo_pattern_t> = defaultPatternPointer
-    fileprivate(set) var fillPattern: UnsafeMutablePointer<cairo_pattern_t> {
-        get {
-            return fillPatternPointer.pointer
-        }
-        set {
-            fillPatternPointer.pointer = newValue
-        }
-    }
-    
+    @Retainable
+    internal var fillPattern: UnsafeMutablePointer<cairo_pattern_t> = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0)!
+
     var strokeColor: CGColor = .clear {
         didSet {
-            strokePatternPointer = strokeColor.cairoPattern
+            strokePattern = strokeColor.cairoPattern.pointer
         }
     }
 
-    fileprivate lazy var strokePatternPointer: RetainablePointer<cairo_pattern_t> = defaultPatternPointer
-    fileprivate(set) var strokePattern: UnsafeMutablePointer<cairo_pattern_t> {
-        get {
-            return strokePatternPointer.pointer
-        }
-        set {
-            strokePatternPointer.pointer = newValue
-        }
-    }
+    @Retainable
+    internal var strokePattern: UnsafeMutablePointer<cairo_pattern_t> = cairo_pattern_create_rgba(0.0, 0.0, 0.0, 1.0)!
     
     var shadowColor: CGColor = .clear
     var shadowOffset: CGSize = .zero
