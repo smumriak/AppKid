@@ -8,35 +8,36 @@
 #ifndef CVulkan_umbrella_h
 #define CVulkan_umbrella_h 1
 
-#include "VulkanOptionSets.h"
-#include "VulkanEnums.h"
-#include "VulkanStructs.h"
-
 #if __linux__
 
 #define VK_USE_PLATFORM_XLIB_KHR
 #define VK_USE_PLATFORM_XCB_KHR
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #include <X11/Xlib.h>
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_xlib.h>
-#include <vulkan/vulkan_xcb.h>
-#include <vulkan/vulkan_wayland.h>
 
 #elif __APPLE__
 
 #include <TargetConditionals.h>
+
 #if TARGET_IPHONE_SIMULATOR || TARGET_OS_MACCATALYST || TARGET_OS_IPHONE
+
 #define VK_USE_PLATFORM_IOS_MVK
+
 #elif TARGET_OS_MAC
+
 #define VK_USE_PLATFORM_MACOS_MVK
+
 #endif
 
 #define VK_USE_PLATFORM_METAL_EXT
 
-#include <vulkan/vulkan.h>
-
 #endif
+
+#include "VulkanOptionSets.h"
+#include "VulkanEnums.h"
+#include "VulkanStructs.h"
+
+#include <vulkan/vulkan.h>
 
 #ifndef __cplusplus
 static inline void * cVulkanGetInstanceProcAddr(VkInstance instance, const char* pName)

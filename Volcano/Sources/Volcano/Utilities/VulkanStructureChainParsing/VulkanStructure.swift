@@ -51,6 +51,7 @@ public extension VulkanOutStructure {
 }
 
 public extension VulkanStructure {
+    @_transparent
     static func new() -> Self {
         var result = Self()
         result.sType = Self.type
@@ -74,2046 +75,2212 @@ internal extension UnsafeMutablePointer where Pointee: VulkanOutStructure {
     }
 }
 
-extension VkApplicationInfo: VulkanInStructure {
-    public static let type: VkStructureType = .applicationInfo
-}
-
-extension VkInstanceCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .instanceCreateInfo
-}
-
-extension VkDeviceQueueCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceQueueCreateInfo
-}
-
-extension VkDeviceCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceCreateInfo
-}
-
-extension VkSubmitInfo: VulkanInStructure {
-    public static let type: VkStructureType = .submitInfo
-}
-
-extension VkMemoryAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .memoryAllocateInfo
-}
-
-extension VkMappedMemoryRange: VulkanInStructure {
-    public static let type: VkStructureType = .mappedMemoryRange
-}
-
-extension VkBindSparseInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindSparseInfo
-}
-
-extension VkFenceCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .fenceCreateInfo
-}
-
-extension VkSemaphoreCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .semaphoreCreateInfo
-}
-
-extension VkEventCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .eventCreateInfo
-}
-
-extension VkQueryPoolCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .queryPoolCreateInfo
-}
-
-extension VkBufferCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bufferCreateInfo
-}
-
-extension VkBufferViewCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bufferViewCreateInfo
-}
-
-extension VkImageCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imageCreateInfo
-}
-
-extension VkImageViewCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imageViewCreateInfo
-}
-
-extension VkShaderModuleCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .shaderModuleCreateInfo
-}
-
-extension VkPipelineCacheCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCacheCreateInfo
-}
-
-extension VkPipelineShaderStageCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineShaderStageCreateInfo
-}
-
-extension VkPipelineVertexInputStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineVertexInputStateCreateInfo
-}
-
-extension VkPipelineInputAssemblyStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineInputAssemblyStateCreateInfo
-}
-
-extension VkPipelineTessellationStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineTessellationStateCreateInfo
-}
-
-extension VkPipelineViewportStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportStateCreateInfo
-}
-
-extension VkPipelineRasterizationStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationStateCreateInfo
-}
-
-extension VkPipelineMultisampleStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineMultisampleStateCreateInfo
-}
-
-extension VkPipelineDepthStencilStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineDepthStencilStateCreateInfo
-}
-
-extension VkPipelineColorBlendStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineColorBlendStateCreateInfo
-}
-
-extension VkPipelineDynamicStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineDynamicStateCreateInfo
-}
-
-extension VkGraphicsPipelineCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .graphicsPipelineCreateInfo
-}
-
-extension VkComputePipelineCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .computePipelineCreateInfo
-}
-
-extension VkPipelineLayoutCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineLayoutCreateInfo
-}
-
-extension VkSamplerCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .samplerCreateInfo
-}
-
-extension VkDescriptorSetLayoutCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorSetLayoutCreateInfo
-}
-
-extension VkDescriptorPoolCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorPoolCreateInfo
-}
-
-extension VkDescriptorSetAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorSetAllocateInfo
-}
-
-extension VkWriteDescriptorSet: VulkanInStructure {
-    public static let type: VkStructureType = .writeDescriptorSet
-}
-
-extension VkCopyDescriptorSet: VulkanInStructure {
-    public static let type: VkStructureType = .copyDescriptorSet
-}
-
-extension VkFramebufferCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .framebufferCreateInfo
-}
-
-extension VkRenderPassCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassCreateInfo
-}
-
-extension VkCommandPoolCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .commandPoolCreateInfo
-}
-
-extension VkCommandBufferAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferAllocateInfo
-}
-
-extension VkCommandBufferInheritanceInfo: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferInheritanceInfo
-}
-
-extension VkCommandBufferBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferBeginInfo
-}
-
-extension VkRenderPassBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassBeginInfo
-}
-
-extension VkBufferMemoryBarrier: VulkanInStructure {
-    public static let type: VkStructureType = .bufferMemoryBarrier
-}
-
-extension VkImageMemoryBarrier: VulkanInStructure {
-    public static let type: VkStructureType = .imageMemoryBarrier
-}
-
-extension VkMemoryBarrier: VulkanInStructure {
-    public static let type: VkStructureType = .memoryBarrier
-}
-
-extension VkPhysicalDeviceSubgroupProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSubgroupProperties
-}
-
-extension VkBindBufferMemoryInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindBufferMemoryInfo
-}
-
-extension VkBindImageMemoryInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindImageMemoryInfo
-}
-
-extension VkPhysicalDevice16BitStorageFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevice16BitStorageFeatures
-}
-
-extension VkMemoryDedicatedRequirements: VulkanOutStructure {
-    public static let type: VkStructureType = .memoryDedicatedRequirements
-}
-
-extension VkMemoryDedicatedAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .memoryDedicatedAllocateInfo
-}
-
-extension VkMemoryAllocateFlagsInfo: VulkanInStructure {
-    public static let type: VkStructureType = .memoryAllocateFlagsInfo
-}
-
-extension VkDeviceGroupRenderPassBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupRenderPassBeginInfo
-}
-
-extension VkDeviceGroupCommandBufferBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupCommandBufferBeginInfo
-}
-
-extension VkDeviceGroupSubmitInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupSubmitInfo
-}
-
-extension VkDeviceGroupBindSparseInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupBindSparseInfo
-}
-
-extension VkBindBufferMemoryDeviceGroupInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindBufferMemoryDeviceGroupInfo
-}
-
-extension VkBindImageMemoryDeviceGroupInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindImageMemoryDeviceGroupInfo
-}
-
-extension VkPhysicalDeviceGroupProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceGroupProperties
-}
-
-extension VkDeviceGroupDeviceCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupDeviceCreateInfo
-}
-
-extension VkBufferMemoryRequirementsInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .bufferMemoryRequirementsInfo2
-}
-
-extension VkImageMemoryRequirementsInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .imageMemoryRequirementsInfo2
-}
-
-extension VkImageSparseMemoryRequirementsInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .imageSparseMemoryRequirementsInfo2
-}
-
-extension VkMemoryRequirements2: VulkanOutStructure {
-    public static let type: VkStructureType = .memoryRequirements2
-}
-
-extension VkSparseImageMemoryRequirements2: VulkanOutStructure {
-    public static let type: VkStructureType = .sparseImageMemoryRequirements2
-}
-
-extension VkPhysicalDeviceFeatures2: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFeatures2
-}
-
-extension VkPhysicalDeviceProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceProperties2
-}
-
-extension VkFormatProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .formatProperties2
-}
-
-extension VkImageFormatProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .imageFormatProperties2
-}
-
-extension VkPhysicalDeviceImageFormatInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceImageFormatInfo2
-}
-
-extension VkQueueFamilyProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .queueFamilyProperties2
-}
-
-extension VkPhysicalDeviceMemoryProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMemoryProperties2
-}
-
-extension VkSparseImageFormatProperties2: VulkanOutStructure {
-    public static let type: VkStructureType = .sparseImageFormatProperties2
-}
-
-extension VkPhysicalDeviceSparseImageFormatInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceSparseImageFormatInfo2
-}
-
-extension VkPhysicalDevicePointClippingProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePointClippingProperties
-}
-
-extension VkRenderPassInputAttachmentAspectCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassInputAttachmentAspectCreateInfo
-}
-
-extension VkImageViewUsageCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imageViewUsageCreateInfo
-}
-
-extension VkPipelineTessellationDomainOriginStateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineTessellationDomainOriginStateCreateInfo
-}
-
-extension VkRenderPassMultiviewCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassMultiviewCreateInfo
-}
-
-extension VkPhysicalDeviceMultiviewFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMultiviewFeatures
-}
-
-extension VkPhysicalDeviceMultiviewProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMultiviewProperties
-}
-
-extension VkPhysicalDeviceVariablePointersFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVariablePointersFeatures
-}
-
-extension VkProtectedSubmitInfo: VulkanInStructure {
-    public static let type: VkStructureType = .protectedSubmitInfo
-}
-
-extension VkPhysicalDeviceProtectedMemoryFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceProtectedMemoryFeatures
-}
-
-extension VkPhysicalDeviceProtectedMemoryProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceProtectedMemoryProperties
-}
-
-extension VkDeviceQueueInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .deviceQueueInfo2
-}
-
-extension VkSamplerYcbcrConversionCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .samplerYcbcrConversionCreateInfo
-}
-
-extension VkSamplerYcbcrConversionInfo: VulkanInStructure {
-    public static let type: VkStructureType = .samplerYcbcrConversionInfo
-}
-
-extension VkBindImagePlaneMemoryInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bindImagePlaneMemoryInfo
-}
-
-extension VkImagePlaneMemoryRequirementsInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imagePlaneMemoryRequirementsInfo
-}
-
-extension VkPhysicalDeviceSamplerYcbcrConversionFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSamplerYcbcrConversionFeatures
-}
-
-extension VkSamplerYcbcrConversionImageFormatProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .samplerYcbcrConversionImageFormatProperties
-}
-
-extension VkDescriptorUpdateTemplateCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorUpdateTemplateCreateInfo
-}
-
-extension VkPhysicalDeviceExternalImageFormatInfo: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceExternalImageFormatInfo
-}
-
-extension VkExternalImageFormatProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .externalImageFormatProperties
-}
-
-extension VkPhysicalDeviceExternalBufferInfo: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceExternalBufferInfo
-}
-
-extension VkExternalBufferProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .externalBufferProperties
-}
-
-extension VkExternalMemoryBufferCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .externalMemoryBufferCreateInfo
-}
-
-extension VkExternalMemoryImageCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .externalMemoryImageCreateInfo
-}
-
-extension VkExportMemoryAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .exportMemoryAllocateInfo
-}
-
-extension VkPhysicalDeviceExternalFenceInfo: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceExternalFenceInfo
-}
-
-extension VkExternalFenceProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .externalFenceProperties
-}
-
-extension VkExportFenceCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .exportFenceCreateInfo
-}
-
-extension VkExportSemaphoreCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .exportSemaphoreCreateInfo
-}
-
-extension VkPhysicalDeviceExternalSemaphoreInfo: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceExternalSemaphoreInfo
-}
-
-extension VkExternalSemaphoreProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .externalSemaphoreProperties
-}
-
-extension VkPhysicalDeviceMaintenance3Properties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMaintenance3Properties
-}
-
-extension VkDescriptorSetLayoutSupport: VulkanOutStructure {
-    public static let type: VkStructureType = .descriptorSetLayoutSupport
-}
-
-extension VkPhysicalDeviceShaderDrawParametersFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderDrawParametersFeatures
-}
-
-extension VkPhysicalDeviceVulkan11Features: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVulkan11Features
-}
-
-extension VkPhysicalDeviceVulkan11Properties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVulkan11Properties
-}
-
-extension VkPhysicalDeviceVulkan12Features: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVulkan12Features
-}
-
-extension VkPhysicalDeviceVulkan12Properties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVulkan12Properties
-}
-
-extension VkImageFormatListCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imageFormatListCreateInfo
-}
-
-extension VkAttachmentDescription2: VulkanInStructure {
-    public static let type: VkStructureType = .attachmentDescription2
-}
-
-extension VkAttachmentReference2: VulkanInStructure {
-    public static let type: VkStructureType = .attachmentReference2
-}
-
-extension VkSubpassDescription2: VulkanInStructure {
-    public static let type: VkStructureType = .subpassDescription2
-}
-
-extension VkSubpassDependency2: VulkanInStructure {
-    public static let type: VkStructureType = .subpassDependency2
-}
-
-extension VkRenderPassCreateInfo2: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassCreateInfo2
-}
-
-extension VkSubpassBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .subpassBeginInfo
-}
-
-extension VkSubpassEndInfo: VulkanInStructure {
-    public static let type: VkStructureType = .subpassEndInfo
-}
-
-extension VkPhysicalDevice8BitStorageFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevice8BitStorageFeatures
-}
-
-extension VkPhysicalDeviceDriverProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDriverProperties
-}
-
-extension VkPhysicalDeviceShaderAtomicInt64Features: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderAtomicInt64Features
-}
-
-extension VkPhysicalDeviceShaderFloat16Int8Features: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderFloat16Int8Features
-}
-
-extension VkPhysicalDeviceFloatControlsProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFloatControlsProperties
-}
-
-extension VkDescriptorSetLayoutBindingFlagsCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorSetLayoutBindingFlagsCreateInfo
-}
-
-extension VkPhysicalDeviceDescriptorIndexingFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDescriptorIndexingFeatures
-}
-
-extension VkPhysicalDeviceDescriptorIndexingProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDescriptorIndexingProperties
-}
-
-extension VkDescriptorSetVariableDescriptorCountAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorSetVariableDescriptorCountAllocateInfo
-}
-
-extension VkDescriptorSetVariableDescriptorCountLayoutSupport: VulkanOutStructure {
-    public static let type: VkStructureType = .descriptorSetVariableDescriptorCountLayoutSupport
-}
-
-extension VkPhysicalDeviceDepthStencilResolveProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDepthStencilResolveProperties
-}
-
-extension VkSubpassDescriptionDepthStencilResolve: VulkanInStructure {
-    public static let type: VkStructureType = .subpassDescriptionDepthStencilResolve
-}
-
-extension VkPhysicalDeviceScalarBlockLayoutFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceScalarBlockLayoutFeatures
-}
-
-extension VkImageStencilUsageCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .imageStencilUsageCreateInfo
-}
-
-extension VkPhysicalDeviceSamplerFilterMinmaxProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSamplerFilterMinmaxProperties
-}
-
-extension VkSamplerReductionModeCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .samplerReductionModeCreateInfo
-}
-
-extension VkPhysicalDeviceVulkanMemoryModelFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVulkanMemoryModelFeatures
-}
-
-extension VkPhysicalDeviceImagelessFramebufferFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceImagelessFramebufferFeatures
-}
-
-extension VkFramebufferAttachmentsCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .framebufferAttachmentsCreateInfo
-}
-
-extension VkFramebufferAttachmentImageInfo: VulkanInStructure {
-    public static let type: VkStructureType = .framebufferAttachmentImageInfo
-}
-
-extension VkRenderPassAttachmentBeginInfo: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassAttachmentBeginInfo
-}
-
-extension VkPhysicalDeviceUniformBufferStandardLayoutFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceUniformBufferStandardLayoutFeatures
-}
-
-extension VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderSubgroupExtendedTypesFeatures
-}
-
-extension VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSeparateDepthStencilLayoutsFeatures
-}
-
-extension VkAttachmentReferenceStencilLayout: VulkanOutStructure {
-    public static let type: VkStructureType = .attachmentReferenceStencilLayout
-}
-
-extension VkAttachmentDescriptionStencilLayout: VulkanOutStructure {
-    public static let type: VkStructureType = .attachmentDescriptionStencilLayout
-}
-
-extension VkPhysicalDeviceHostQueryResetFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceHostQueryResetFeatures
-}
-
-extension VkPhysicalDeviceTimelineSemaphoreFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTimelineSemaphoreFeatures
-}
-
-extension VkPhysicalDeviceTimelineSemaphoreProperties: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTimelineSemaphoreProperties
-}
-
-extension VkSemaphoreTypeCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .semaphoreTypeCreateInfo
-}
-
-extension VkTimelineSemaphoreSubmitInfo: VulkanInStructure {
-    public static let type: VkStructureType = .timelineSemaphoreSubmitInfo
-}
-
-extension VkSemaphoreWaitInfo: VulkanInStructure {
-    public static let type: VkStructureType = .semaphoreWaitInfo
-}
-
-extension VkSemaphoreSignalInfo: VulkanInStructure {
-    public static let type: VkStructureType = .semaphoreSignalInfo
-}
-
-extension VkPhysicalDeviceBufferDeviceAddressFeatures: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceBufferDeviceAddressFeatures
-}
-
-extension VkBufferDeviceAddressInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bufferDeviceAddressInfo
-}
-
-extension VkBufferOpaqueCaptureAddressCreateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .bufferOpaqueCaptureAddressCreateInfo
-}
-
-extension VkMemoryOpaqueCaptureAddressAllocateInfo: VulkanInStructure {
-    public static let type: VkStructureType = .memoryOpaqueCaptureAddressAllocateInfo
-}
-
-extension VkDeviceMemoryOpaqueCaptureAddressInfo: VulkanInStructure {
-    public static let type: VkStructureType = .deviceMemoryOpaqueCaptureAddressInfo
-}
-
-extension VkSwapchainCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .swapchainCreateInfoKhr
-}
-
-extension VkPresentInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .presentInfoKhr
-}
-
-extension VkDeviceGroupPresentCapabilitiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .deviceGroupPresentCapabilitiesKhr
-}
-
-extension VkImageSwapchainCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .imageSwapchainCreateInfoKhr
-}
-
-extension VkBindImageMemorySwapchainInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .bindImageMemorySwapchainInfoKhr
-}
-
-extension VkAcquireNextImageInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .acquireNextImageInfoKhr
-}
-
-extension VkDeviceGroupPresentInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupPresentInfoKhr
-}
-
-extension VkDeviceGroupSwapchainCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .deviceGroupSwapchainCreateInfoKhr
-}
-
-extension VkDisplayModeCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .displayModeCreateInfoKhr
-}
-
-extension VkDisplaySurfaceCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .displaySurfaceCreateInfoKhr
-}
-
-extension VkDisplayPresentInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .displayPresentInfoKhr
-}
-
-#if canImport(CXlib) && os(Linux)
-    extension VkXlibSurfaceCreateInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .xlibSurfaceCreateInfoKhr
-    }
-#endif
-
-#if canImport(CXcb) && os(Linux)
-    extension VkXcbSurfaceCreateInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .xcbSurfaceCreateInfoKhr
-    }
-#endif
-
-#if canImport(CWayland) && os(Linux)
-    extension VkWaylandSurfaceCreateInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .waylandSurfaceCreateInfoKhr
-    }
-#endif
-
-#if os(Android)
-    extension VkAndroidSurfaceCreateInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .androidSurfaceCreateInfoKhr
-    }
-#endif
-
-#if os(Windows)
-    extension VkWin32SurfaceCreateInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .win32SurfaceCreateInfoKhr
-    }
-#endif
-
-extension VkDebugReportCallbackCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugReportCallbackCreateInfoExt
-}
-
-extension VkPipelineRasterizationStateRasterizationOrderAMD: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationStateRasterizationOrderAmd
-}
-
-extension VkDebugMarkerObjectNameInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugMarkerObjectNameInfoExt
-}
-
-extension VkDebugMarkerObjectTagInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugMarkerObjectTagInfoExt
-}
-
-extension VkDebugMarkerMarkerInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugMarkerMarkerInfoExt
-}
-
-extension VkDedicatedAllocationImageCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .dedicatedAllocationImageCreateInfoNv
-}
-
-extension VkDedicatedAllocationBufferCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .dedicatedAllocationBufferCreateInfoNv
-}
-
-extension VkDedicatedAllocationMemoryAllocateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .dedicatedAllocationMemoryAllocateInfoNv
-}
-
-extension VkPhysicalDeviceTransformFeedbackFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTransformFeedbackFeaturesExt
-}
-
-extension VkPhysicalDeviceTransformFeedbackPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTransformFeedbackPropertiesExt
-}
-
-extension VkPipelineRasterizationStateStreamCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationStateStreamCreateInfoExt
-}
-
-extension VkCuModuleCreateInfoNVX: VulkanInStructure {
-    public static let type: VkStructureType = .cuModuleCreateInfoNvx
-}
-
-extension VkCuFunctionCreateInfoNVX: VulkanInStructure {
-    public static let type: VkStructureType = .cuFunctionCreateInfoNvx
-}
-
-extension VkCuLaunchInfoNVX: VulkanInStructure {
-    public static let type: VkStructureType = .cuLaunchInfoNvx
-}
-
-extension VkImageViewHandleInfoNVX: VulkanInStructure {
-    public static let type: VkStructureType = .imageViewHandleInfoNvx
-}
-
-extension VkImageViewAddressPropertiesNVX: VulkanOutStructure {
-    public static let type: VkStructureType = .imageViewAddressPropertiesNvx
-}
-
-extension VkTextureLODGatherFormatPropertiesAMD: VulkanOutStructure {
-    public static let type: VkStructureType = .textureLodGatherFormatPropertiesAmd
-}
-
-extension VkPhysicalDeviceCornerSampledImageFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCornerSampledImageFeaturesNv
-}
-
-extension VkExternalMemoryImageCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .externalMemoryImageCreateInfoNv
-}
-
-extension VkExportMemoryAllocateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .exportMemoryAllocateInfoNv
-}
-
-#if os(Windows)
-    extension VkImportMemoryWin32HandleInfoNV: VulkanOutStructure {
-        public static let type: VkStructureType = .importMemoryWin32HandleInfoNv
-    }
-
-    extension VkExportMemoryWin32HandleInfoNV: VulkanOutStructure {
-        public static let type: VkStructureType = .exportMemoryWin32HandleInfoNv
-    }
-
-    extension VkWin32KeyedMutexAcquireReleaseInfoNV: VulkanOutStructure {
-        public static let type: VkStructureType = .win32KeyedMutexAcquireReleaseInfoNv
-    }
-#endif
-
-extension VkValidationFlagsEXT: VulkanInStructure {
-    public static let type: VkStructureType = .validationFlagsExt
-}
-
-extension VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTextureCompressionAstcHdrFeaturesExt
-}
-
-extension VkPhysicalDeviceASTCDecodeFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceAstcDecodeFeaturesExt
-}
-
-#if os(Windows)
-    extension VkImportMemoryWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importMemoryWin32HandleInfoKhr
-    }
-
-    extension VkExportMemoryWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .exportMemoryWin32HandleInfoKhr
-    }
-
-    extension VkMemoryWin32HandlePropertiesKHR: VulkanOutStructure {
-        public static let type: VkStructureType = .memoryWin32HandlePropertiesKhr
-    }
-
-    extension VkMemoryGetWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .memoryGetWin32HandleInfoKhr
-    }
-#endif
-
-#if os(Linux)
-    extension VkImportMemoryFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importMemoryFdInfoKhr
-    }
-
-    extension VkMemoryFdPropertiesKHR: VulkanOutStructure {
-        public static let type: VkStructureType = .memoryFdPropertiesKhr
-    }
-
-    extension VkMemoryGetFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .memoryGetFdInfoKhr
-    }
-#endif
-
-#if os(Windows)
-    extension VkWin32KeyedMutexAcquireReleaseInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .win32KeyedMutexAcquireReleaseInfoKhr
-    }
-
-    extension VkImportSemaphoreWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importSemaphoreWin32HandleInfoKhr
-    }
-
-    extension VkExportSemaphoreWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .exportSemaphoreWin32HandleInfoKhr
-    }
-
-    extension VkD3D12FenceSubmitInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .d3D12FenceSubmitInfoKhr
-    }
-
-    extension VkSemaphoreGetWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .semaphoreGetWin32HandleInfoKhr
-    }
-#endif
-
-#if os(Linux)
-    extension VkImportSemaphoreFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importSemaphoreFdInfoKhr
-    }
-
-    extension VkSemaphoreGetFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .semaphoreGetFdInfoKhr
-    }
-#endif
-
-extension VkPhysicalDevicePushDescriptorPropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePushDescriptorPropertiesKhr
-}
-
-extension VkCommandBufferInheritanceConditionalRenderingInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferInheritanceConditionalRenderingInfoExt
-}
-
-extension VkPhysicalDeviceConditionalRenderingFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceConditionalRenderingFeaturesExt
-}
-
-extension VkConditionalRenderingBeginInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .conditionalRenderingBeginInfoExt
-}
-
-extension VkPresentRegionsKHR: VulkanInStructure {
-    public static let type: VkStructureType = .presentRegionsKhr
-}
-
-extension VkPipelineViewportWScalingStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportWScalingStateCreateInfoNv
-}
-
-extension VkSurfaceCapabilities2EXT: VulkanOutStructure {
-    public static let type: VkStructureType = .surfaceCapabilities2Ext
-}
-
-extension VkDisplayPowerInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .displayPowerInfoExt
-}
-
-extension VkDeviceEventInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .deviceEventInfoExt
-}
-
-extension VkDisplayEventInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .displayEventInfoExt
-}
-
-extension VkSwapchainCounterCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .swapchainCounterCreateInfoExt
-}
-
-extension VkPresentTimesInfoGOOGLE: VulkanInStructure {
-    public static let type: VkStructureType = .presentTimesInfoGoogle
-}
-
-extension VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMultiviewPerViewAttributesPropertiesNvx
-}
-
-extension VkPipelineViewportSwizzleStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportSwizzleStateCreateInfoNv
-}
-
-extension VkPhysicalDeviceDiscardRectanglePropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDiscardRectanglePropertiesExt
-}
-
-extension VkPipelineDiscardRectangleStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineDiscardRectangleStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceConservativeRasterizationPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceConservativeRasterizationPropertiesExt
-}
-
-extension VkPipelineRasterizationConservativeStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationConservativeStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceDepthClipEnableFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDepthClipEnableFeaturesExt
-}
-
-extension VkPipelineRasterizationDepthClipStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationDepthClipStateCreateInfoExt
-}
-
-extension VkHdrMetadataEXT: VulkanInStructure {
-    public static let type: VkStructureType = .hdrMetadataExt
-}
-
-extension VkSharedPresentSurfaceCapabilitiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .sharedPresentSurfaceCapabilitiesKhr
-}
-
-#if os(Windows)
-    extension VkImportFenceWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importFenceWin32HandleInfoKhr
-    }
-
-    extension VkExportFenceWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .exportFenceWin32HandleInfoKhr
-    }
-
-    extension VkFenceGetWin32HandleInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .fenceGetWin32HandleInfoKhr
-    }
-#endif
-
-#if os(Linux)
-    extension VkImportFenceFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .importFenceFdInfoKhr
-    }
-
-    extension VkFenceGetFdInfoKHR: VulkanInStructure {
-        public static let type: VkStructureType = .fenceGetFdInfoKhr
-    }
-#endif
-
-extension VkPhysicalDevicePerformanceQueryFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePerformanceQueryFeaturesKhr
-}
-
-extension VkPhysicalDevicePerformanceQueryPropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePerformanceQueryPropertiesKhr
-}
-
-extension VkQueryPoolPerformanceCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .queryPoolPerformanceCreateInfoKhr
-}
-
-extension VkPerformanceQuerySubmitInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .performanceQuerySubmitInfoKhr
-}
-
-extension VkAcquireProfilingLockInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .acquireProfilingLockInfoKhr
-}
-
-extension VkPerformanceCounterKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .performanceCounterKhr
-}
-
-extension VkPerformanceCounterDescriptionKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .performanceCounterDescriptionKhr
-}
-
-extension VkPhysicalDeviceSurfaceInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceSurfaceInfo2Khr
-}
-
-extension VkSurfaceCapabilities2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .surfaceCapabilities2Khr
-}
-
-extension VkSurfaceFormat2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .surfaceFormat2Khr
-}
-
-extension VkDisplayProperties2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .displayProperties2Khr
-}
-
-extension VkDisplayPlaneProperties2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .displayPlaneProperties2Khr
-}
-
-extension VkDisplayModeProperties2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .displayModeProperties2Khr
-}
-
-extension VkDisplayPlaneInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .displayPlaneInfo2Khr
-}
-
-extension VkDisplayPlaneCapabilities2KHR: VulkanOutStructure {
-    public static let type: VkStructureType = .displayPlaneCapabilities2Khr
-}
-
-#if os(iOS)
-    extension VkIOSSurfaceCreateInfoMVK: VulkanInStructure {
-        public static let type: VkStructureType = .iosSurfaceCreateInfoMvk
-    }
-#endif
-
-#if os(macOS)
-    extension VkMacOSSurfaceCreateInfoMVK: VulkanInStructure {
-        public static let type: VkStructureType = .macosSurfaceCreateInfoMvk
-    }
-#endif
-
-extension VkDebugUtilsObjectNameInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugUtilsObjectNameInfoExt
-}
-
-extension VkDebugUtilsObjectTagInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugUtilsObjectTagInfoExt
-}
-
-extension VkDebugUtilsLabelEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugUtilsLabelExt
-}
-
-extension VkDebugUtilsMessengerCallbackDataEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugUtilsMessengerCallbackDataExt
-}
-
-extension VkDebugUtilsMessengerCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .debugUtilsMessengerCreateInfoExt
-}
-
-#if os(Android)
-    extension VkAndroidHardwareBufferUsageAndroid: VulkanOutStructure {
-        public static let type: VkStructureType = .androidHardwareBufferUsageAndroid
-    }
-
-    extension VkAndroidHardwareBufferPropertiesAndroid: VulkanOutStructure {
-        public static let type: VkStructureType = .androidHardwareBufferPropertiesAndroid
-    }
-
-    extension VkAndroidHardwareBufferFormatPropertiesAndroid: VulkanOutStructure {
-        public static let type: VkStructureType = .androidHardwareBufferFormatPropertiesAndroid
-    }
-
-    extension VkImportAndroidHardwareBufferInfoAndroid: VulkanInStructure {
-        public static let type: VkStructureType = .importAndroidHardwareBufferInfoAndroid
-    }
-
-    extension VkMemoryGetAndroidHardwareBufferInfoAndroid: VulkanInStructure {
-        public static let type: VkStructureType = .memoryGetAndroidHardwareBufferInfoAndroid
-    }
-
-    extension VkExternalFormatAndroid: VulkanOutStructure {
-        public static let type: VkStructureType = .externalFormatAndroid
-    }
-#endif
-
-extension VkPhysicalDeviceInlineUniformBlockFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceInlineUniformBlockFeaturesExt
-}
-
-extension VkPhysicalDeviceInlineUniformBlockPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceInlineUniformBlockPropertiesExt
-}
-
-extension VkWriteDescriptorSetInlineUniformBlockEXT: VulkanInStructure {
-    public static let type: VkStructureType = .writeDescriptorSetInlineUniformBlockExt
-}
-
-extension VkDescriptorPoolInlineUniformBlockCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .descriptorPoolInlineUniformBlockCreateInfoExt
-}
-
-extension VkSampleLocationsInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .sampleLocationsInfoExt
-}
-
-extension VkRenderPassSampleLocationsBeginInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassSampleLocationsBeginInfoExt
-}
-
-extension VkPipelineSampleLocationsStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineSampleLocationsStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceSampleLocationsPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSampleLocationsPropertiesExt
-}
-
-extension VkMultisamplePropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .multisamplePropertiesExt
-}
-
-extension VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceBlendOperationAdvancedFeaturesExt
-}
-
-extension VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceBlendOperationAdvancedPropertiesExt
-}
-
-extension VkPipelineColorBlendAdvancedStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineColorBlendAdvancedStateCreateInfoExt
-}
-
-extension VkPipelineCoverageToColorStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCoverageToColorStateCreateInfoNv
-}
-
-extension VkWriteDescriptorSetAccelerationStructureKHR: VulkanInStructure {
-    public static let type: VkStructureType = .writeDescriptorSetAccelerationStructureKhr
-}
-
 extension VkAccelerationStructureBuildGeometryInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureBuildGeometryInfoKhr
-}
-
-extension VkAccelerationStructureDeviceAddressInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureDeviceAddressInfoKhr
-}
-
-extension VkAccelerationStructureGeometryAabbsDataKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureGeometryAabbsDataKhr
-}
-
-extension VkAccelerationStructureGeometryInstancesDataKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureGeometryInstancesDataKhr
-}
-
-extension VkAccelerationStructureGeometryTrianglesDataKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureGeometryTrianglesDataKhr
-}
-
-extension VkAccelerationStructureGeometryKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureGeometryKhr
-}
-
-extension VkAccelerationStructureVersionInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureVersionInfoKhr
-}
-
-extension VkCopyAccelerationStructureInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyAccelerationStructureInfoKhr
-}
-
-extension VkCopyAccelerationStructureToMemoryInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyAccelerationStructureToMemoryInfoKhr
-}
-
-extension VkCopyMemoryToAccelerationStructureInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyMemoryToAccelerationStructureInfoKhr
-}
-
-extension VkPhysicalDeviceAccelerationStructureFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceAccelerationStructureFeaturesKhr
-}
-
-extension VkPhysicalDeviceAccelerationStructurePropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceAccelerationStructurePropertiesKhr
-}
-
-extension VkAccelerationStructureCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureCreateInfoKhr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR
 }
 
 extension VkAccelerationStructureBuildSizesInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureBuildSizesInfoKhr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR
 }
 
-extension VkPhysicalDeviceRayTracingPipelineFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRayTracingPipelineFeaturesKhr
-}
-
-extension VkPhysicalDeviceRayTracingPipelinePropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRayTracingPipelinePropertiesKhr
-}
-
-extension VkRayTracingPipelineCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .rayTracingPipelineCreateInfoKhr
-}
-
-extension VkRayTracingShaderGroupCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .rayTracingShaderGroupCreateInfoKhr
-}
-
-extension VkRayTracingPipelineInterfaceCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .rayTracingPipelineInterfaceCreateInfoKhr
-}
-
-extension VkPhysicalDeviceRayQueryFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRayQueryFeaturesKhr
-}
-
-extension VkPipelineCoverageModulationStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCoverageModulationStateCreateInfoNv
-}
-
-extension VkPhysicalDeviceShaderSMBuiltinsFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderSmBuiltinsFeaturesNv
-}
-
-extension VkPhysicalDeviceShaderSMBuiltinsPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderSmBuiltinsPropertiesNv
-}
-
-extension VkDrmFormatModifierPropertiesListEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .drmFormatModifierPropertiesListExt
-}
-
-extension VkPhysicalDeviceImageDrmFormatModifierInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .physicalDeviceImageDrmFormatModifierInfoExt
-}
-
-extension VkImageDrmFormatModifierListCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .imageDrmFormatModifierListCreateInfoExt
-}
-
-extension VkImageDrmFormatModifierExplicitCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .imageDrmFormatModifierExplicitCreateInfoExt
-}
-
-extension VkImageDrmFormatModifierPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .imageDrmFormatModifierPropertiesExt
-}
-
-extension VkValidationCacheCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .validationCacheCreateInfoExt
-}
-
-extension VkShaderModuleValidationCacheCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .shaderModuleValidationCacheCreateInfoExt
-}
-
-extension VkPipelineViewportShadingRateImageStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportShadingRateImageStateCreateInfoNv
-}
-
-extension VkPhysicalDeviceShadingRateImageFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShadingRateImageFeaturesNv
-}
-
-extension VkPhysicalDeviceShadingRateImagePropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShadingRateImagePropertiesNv
-}
-
-extension VkPipelineViewportCoarseSampleOrderStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportCoarseSampleOrderStateCreateInfoNv
-}
-
-extension VkRayTracingPipelineCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .rayTracingPipelineCreateInfoNv
+extension VkAccelerationStructureCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR
 }
 
 extension VkAccelerationStructureCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureCreateInfoNv
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_NV
 }
 
-extension VkGeometryNV: VulkanInStructure {
-    public static let type: VkStructureType = .geometryNv
+extension VkAccelerationStructureDeviceAddressInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR
 }
 
-extension VkGeometryTrianglesNV: VulkanInStructure {
-    public static let type: VkStructureType = .geometryTrianglesNv
+extension VkAccelerationStructureGeometryAabbsDataKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR
 }
 
-extension VkGeometryAABBNV: VulkanInStructure {
-    public static let type: VkStructureType = .geometryAabbNv
+extension VkAccelerationStructureGeometryInstancesDataKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR
 }
 
-extension VkBindAccelerationStructureMemoryInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .bindAccelerationStructureMemoryInfoNv
-}
-
-extension VkWriteDescriptorSetAccelerationStructureNV: VulkanInStructure {
-    public static let type: VkStructureType = .writeDescriptorSetAccelerationStructureNv
-}
-
-extension VkAccelerationStructureMemoryRequirementsInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureMemoryRequirementsInfoNv
-}
-
-extension VkPhysicalDeviceRayTracingPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRayTracingPropertiesNv
-}
-
-extension VkRayTracingShaderGroupCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .rayTracingShaderGroupCreateInfoNv
-}
-
-extension VkAccelerationStructureInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureInfoNv
-}
-
-extension VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRepresentativeFragmentTestFeaturesNv
-}
-
-extension VkPipelineRepresentativeFragmentTestStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRepresentativeFragmentTestStateCreateInfoNv
-}
-
-extension VkPhysicalDeviceImageViewImageFormatInfoEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceImageViewImageFormatInfoExt
-}
-
-extension VkFilterCubicImageViewImageFormatPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .filterCubicImageViewImageFormatPropertiesExt
-}
-
-extension VkDeviceQueueGlobalPriorityCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .deviceQueueGlobalPriorityCreateInfoExt
-}
-
-extension VkImportMemoryHostPointerInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .importMemoryHostPointerInfoExt
-}
-
-extension VkMemoryHostPointerPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .memoryHostPointerPropertiesExt
-}
-
-extension VkPhysicalDeviceExternalMemoryHostPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceExternalMemoryHostPropertiesExt
-}
-
-extension VkPhysicalDeviceShaderClockFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderClockFeaturesKhr
-}
-
-extension VkPipelineCompilerControlCreateInfoAMD: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCompilerControlCreateInfoAmd
-}
-
-extension VkCalibratedTimestampInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .calibratedTimestampInfoExt
-}
-
-extension VkPhysicalDeviceShaderCorePropertiesAMD: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderCorePropertiesAmd
-}
-
-extension VkDeviceMemoryOverallocationCreateInfoAMD: VulkanInStructure {
-    public static let type: VkStructureType = .deviceMemoryOverallocationCreateInfoAmd
-}
-
-extension VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVertexAttributeDivisorPropertiesExt
-}
-
-extension VkPipelineVertexInputDivisorStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineVertexInputDivisorStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVertexAttributeDivisorFeaturesExt
-}
-
-extension VkPipelineCreationFeedbackCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCreationFeedbackCreateInfoExt
-}
-
-extension VkPhysicalDeviceComputeShaderDerivativesFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceComputeShaderDerivativesFeaturesNv
-}
-
-extension VkPhysicalDeviceMeshShaderFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMeshShaderFeaturesNv
-}
-
-extension VkPhysicalDeviceMeshShaderPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMeshShaderPropertiesNv
-}
-
-extension VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShaderBarycentricFeaturesNv
-}
-
-extension VkPhysicalDeviceShaderImageFootprintFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderImageFootprintFeaturesNv
-}
-
-extension VkPipelineViewportExclusiveScissorStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineViewportExclusiveScissorStateCreateInfoNv
-}
-
-extension VkPhysicalDeviceExclusiveScissorFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceExclusiveScissorFeaturesNv
-}
-
-extension VkCheckpointDataNV: VulkanOutStructure {
-    public static let type: VkStructureType = .checkpointDataNv
-}
-
-extension VkQueueFamilyCheckpointPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .queueFamilyCheckpointPropertiesNv
-}
-
-extension VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderIntegerFunctions2FeaturesIntel
-}
-
-extension VkQueryPoolPerformanceQueryCreateInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .queryPoolPerformanceQueryCreateInfoIntel
-}
-
-extension VkInitializePerformanceApiInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .initializePerformanceApiInfoIntel
-}
-
-extension VkPerformanceMarkerInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .performanceMarkerInfoIntel
-}
-
-extension VkPerformanceStreamMarkerInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .performanceStreamMarkerInfoIntel
-}
-
-extension VkPerformanceOverrideInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .performanceOverrideInfoIntel
-}
-
-extension VkPerformanceConfigurationAcquireInfoINTEL: VulkanInStructure {
-    public static let type: VkStructureType = .performanceConfigurationAcquireInfoIntel
-}
-
-extension VkPhysicalDevicePCIBusInfoPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePciBusInfoPropertiesExt
-}
-
-extension VkDisplayNativeHdrSurfaceCapabilitiesAMD: VulkanOutStructure {
-    public static let type: VkStructureType = .displayNativeHdrSurfaceCapabilitiesAmd
-}
-
-extension VkSwapchainDisplayNativeHdrCreateInfoAMD: VulkanInStructure {
-    public static let type: VkStructureType = .swapchainDisplayNativeHdrCreateInfoAmd
-}
-
-extension VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderTerminateInvocationFeaturesKhr
-}
-
-#if os(iOS) || os(macOS)
-//    extension VkMetalSurfaceCreateInfoEXT: VulkanInStructure {
-//        public static let type: VkStructureType = .metalSurfaceCreateInfoExt
-//    }
-#endif
-
-extension VkPhysicalDeviceFragmentDensityMapFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentDensityMapFeaturesExt
-}
-
-extension VkPhysicalDeviceFragmentDensityMapPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentDensityMapPropertiesExt
-}
-
-extension VkRenderPassFragmentDensityMapCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .renderPassFragmentDensityMapCreateInfoExt
-}
-
-extension VkPhysicalDeviceSubgroupSizeControlPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSubgroupSizeControlPropertiesExt
-}
-
-extension VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .pipelineShaderStageRequiredSubgroupSizeCreateInfoExt
-}
-
-extension VkPhysicalDeviceSubgroupSizeControlFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSubgroupSizeControlFeaturesExt
-}
-
-extension VkFragmentShadingRateAttachmentInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .fragmentShadingRateAttachmentInfoKhr
-}
-
-extension VkPipelineFragmentShadingRateStateCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineFragmentShadingRateStateCreateInfoKhr
-}
-
-extension VkPhysicalDeviceFragmentShadingRatePropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShadingRatePropertiesKhr
-}
-
-extension VkPhysicalDeviceFragmentShadingRateFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShadingRateFeaturesKhr
-}
-
-extension VkPhysicalDeviceFragmentShadingRateKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShadingRateKhr
-}
-
-extension VkPhysicalDeviceShaderCoreProperties2AMD: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderCoreProperties2Amd
-}
-
-extension VkPhysicalDeviceCoherentMemoryFeaturesAMD: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCoherentMemoryFeaturesAmd
-}
-
-extension VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderImageAtomicInt64FeaturesExt
-}
-
-extension VkPhysicalDeviceMemoryBudgetPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMemoryBudgetPropertiesExt
-}
-
-extension VkPhysicalDeviceMemoryPriorityFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMemoryPriorityFeaturesExt
-}
-
-extension VkMemoryPriorityAllocateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .memoryPriorityAllocateInfoExt
-}
-
-extension VkSurfaceProtectedCapabilitiesKHR: VulkanInStructure {
-    public static let type: VkStructureType = .surfaceProtectedCapabilitiesKhr
-}
-
-extension VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDedicatedAllocationImageAliasingFeaturesNv
-}
-
-extension VkPhysicalDeviceBufferDeviceAddressFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceBufferDeviceAddressFeaturesExt
-}
-
-extension VkBufferDeviceAddressCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .bufferDeviceAddressCreateInfoExt
-}
-
-extension VkPhysicalDeviceToolPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceToolPropertiesExt
-}
-
-extension VkValidationFeaturesEXT: VulkanInStructure {
-    public static let type: VkStructureType = .validationFeaturesExt
-}
-
-extension VkPhysicalDeviceCooperativeMatrixFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCooperativeMatrixFeaturesNv
-}
-
-extension VkCooperativeMatrixPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .cooperativeMatrixPropertiesNv
-}
-
-extension VkPhysicalDeviceCooperativeMatrixPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCooperativeMatrixPropertiesNv
-}
-
-extension VkPhysicalDeviceCoverageReductionModeFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCoverageReductionModeFeaturesNv
-}
-
-extension VkPipelineCoverageReductionStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineCoverageReductionStateCreateInfoNv
-}
-
-extension VkFramebufferMixedSamplesCombinationNV: VulkanOutStructure {
-    public static let type: VkStructureType = .framebufferMixedSamplesCombinationNv
-}
-
-extension VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShaderInterlockFeaturesExt
-}
-
-extension VkPhysicalDeviceYcbcrImageArraysFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceYcbcrImageArraysFeaturesExt
-}
-
-extension VkPhysicalDeviceProvokingVertexFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceProvokingVertexFeaturesExt
-}
-
-extension VkPipelineRasterizationProvokingVertexStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationProvokingVertexStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceProvokingVertexPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceProvokingVertexPropertiesExt
-}
-
-#if os(Windows)
-    extension VkSurfaceFullScreenExclusiveInfoEXT: VulkanInStructure {
-        public static let type: VkStructureType = .surfaceFullScreenExclusiveInfoExt
-    }
-
-    extension VkSurfaceCapabilitiesFullScreenExclusiveEXT: VulkanOutStructure {
-        public static let type: VkStructureType = .surfaceCapabilitiesFullScreenExclusiveExt
-    }
-
-    extension VkSurfaceFullScreenExclusiveWin32InfoEXT: VulkanInStructure {
-        public static let type: VkStructureType = .surfaceFullScreenExclusiveWin32InfoExt
-    }
-#endif
-
-extension VkHeadlessSurfaceCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .headlessSurfaceCreateInfoExt
-}
-
-extension VkPhysicalDeviceLineRasterizationFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceLineRasterizationFeaturesExt
-}
-
-extension VkPipelineRasterizationLineStateCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineRasterizationLineStateCreateInfoExt
-}
-
-extension VkPhysicalDeviceLineRasterizationPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceLineRasterizationPropertiesExt
-}
-
-extension VkPhysicalDeviceShaderAtomicFloatFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderAtomicFloatFeaturesExt
-}
-
-extension VkPhysicalDeviceIndexTypeUint8FeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceIndexTypeUint8FeaturesExt
-}
-
-extension VkPhysicalDeviceExtendedDynamicStateFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceExtendedDynamicStateFeaturesExt
-}
-
-extension VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePipelineExecutablePropertiesFeaturesKhr
-}
-
-extension VkPipelineInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineInfoKhr
-}
-
-extension VkPipelineExecutablePropertiesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .pipelineExecutablePropertiesKhr
-}
-
-extension VkPipelineExecutableInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineExecutableInfoKhr
-}
-
-extension VkPipelineExecutableStatisticKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .pipelineExecutableStatisticKhr
-}
-
-extension VkPipelineExecutableInternalRepresentationKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .pipelineExecutableInternalRepresentationKhr
-}
-
-extension VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderDemoteToHelperInvocationFeaturesExt
-}
-
-extension VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDeviceGeneratedCommandsPropertiesNv
-}
-
-extension VkGraphicsShaderGroupCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .graphicsShaderGroupCreateInfoNv
-}
-
-extension VkGraphicsPipelineShaderGroupsCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .graphicsPipelineShaderGroupsCreateInfoNv
-}
-
-extension VkIndirectCommandsLayoutTokenNV: VulkanInStructure {
-    public static let type: VkStructureType = .indirectCommandsLayoutTokenNv
-}
-
-extension VkIndirectCommandsLayoutCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .indirectCommandsLayoutCreateInfoNv
-}
-
-extension VkGeneratedCommandsInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .generatedCommandsInfoNv
-}
-
-extension VkGeneratedCommandsMemoryRequirementsInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .generatedCommandsMemoryRequirementsInfoNv
-}
-
-extension VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDeviceGeneratedCommandsFeaturesNv
-}
-
-extension VkPhysicalDeviceInheritedViewportScissorFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceInheritedViewportScissorFeaturesNv
-}
-
-extension VkCommandBufferInheritanceViewportScissorInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferInheritanceViewportScissorInfoNv
-}
-
-extension VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTexelBufferAlignmentFeaturesExt
-}
-
-extension VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceTexelBufferAlignmentPropertiesExt
-}
-
-extension VkCommandBufferInheritanceRenderPassTransformInfoQCOM: VulkanOutStructure {
-    public static let type: VkStructureType = .commandBufferInheritanceRenderPassTransformInfoQcom
-}
-
-extension VkRenderPassTransformBeginInfoQCOM: VulkanOutStructure {
-    public static let type: VkStructureType = .renderPassTransformBeginInfoQcom
-}
-
-extension VkPhysicalDeviceDeviceMemoryReportFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDeviceMemoryReportFeaturesExt
-}
-
-extension VkDeviceDeviceMemoryReportCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .deviceDeviceMemoryReportCreateInfoExt
-}
-
-extension VkDeviceMemoryReportCallbackDataEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .deviceMemoryReportCallbackDataExt
-}
-
-extension VkPhysicalDeviceRobustness2FeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRobustness2FeaturesExt
-}
-
-extension VkPhysicalDeviceRobustness2PropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRobustness2PropertiesExt
-}
-
-extension VkSamplerCustomBorderColorCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .samplerCustomBorderColorCreateInfoExt
-}
-
-extension VkPhysicalDeviceCustomBorderColorPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCustomBorderColorPropertiesExt
-}
-
-extension VkPhysicalDeviceCustomBorderColorFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceCustomBorderColorFeaturesExt
-}
-
-extension VkPipelineLibraryCreateInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineLibraryCreateInfoKhr
-}
-
-extension VkPhysicalDevicePrivateDataFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePrivateDataFeaturesExt
-}
-
-extension VkDevicePrivateDataCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .devicePrivateDataCreateInfoExt
-}
-
-extension VkPrivateDataSlotCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .privateDataSlotCreateInfoExt
-}
-
-extension VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevicePipelineCreationCacheControlFeaturesExt
-}
-
-extension VkPhysicalDeviceDiagnosticsConfigFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDiagnosticsConfigFeaturesNv
-}
-
-extension VkDeviceDiagnosticsConfigCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .deviceDiagnosticsConfigCreateInfoNv
-}
-
-extension VkMemoryBarrier2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .memoryBarrier2Khr
-}
-
-extension VkBufferMemoryBarrier2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .bufferMemoryBarrier2Khr
-}
-
-extension VkImageMemoryBarrier2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .imageMemoryBarrier2Khr
-}
-
-extension VkDependencyInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .dependencyInfoKhr
-}
-
-extension VkSubmitInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .submitInfo2Khr
-}
-
-extension VkSemaphoreSubmitInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .semaphoreSubmitInfoKhr
-}
-
-extension VkCommandBufferSubmitInfoKHR: VulkanInStructure {
-    public static let type: VkStructureType = .commandBufferSubmitInfoKhr
-}
-
-extension VkPhysicalDeviceSynchronization2FeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSynchronization2FeaturesKhr
-}
-
-extension VkQueueFamilyCheckpointProperties2NV: VulkanOutStructure {
-    public static let type: VkStructureType = .queueFamilyCheckpointProperties2Nv
-}
-
-extension VkCheckpointData2NV: VulkanOutStructure {
-    public static let type: VkStructureType = .checkpointData2Nv
-}
-
-extension VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceShaderSubgroupUniformControlFlowFeaturesKhr
-}
-
-extension VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceZeroInitializeWorkgroupMemoryFeaturesKhr
-}
-
-extension VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShadingRateEnumsPropertiesNv
-}
-
-extension VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentShadingRateEnumsFeaturesNv
-}
-
-extension VkPipelineFragmentShadingRateEnumStateCreateInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineFragmentShadingRateEnumStateCreateInfoNv
+extension VkAccelerationStructureGeometryKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR
 }
 
 extension VkAccelerationStructureGeometryMotionTrianglesDataNV: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureGeometryMotionTrianglesDataNv
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_MOTION_TRIANGLES_DATA_NV
 }
 
-extension VkPhysicalDeviceRayTracingMotionBlurFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceRayTracingMotionBlurFeaturesNv
+extension VkAccelerationStructureGeometryTrianglesDataKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR
+}
+
+extension VkAccelerationStructureInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_INFO_NV
+}
+
+extension VkAccelerationStructureMemoryRequirementsInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_NV
 }
 
 extension VkAccelerationStructureMotionInfoNV: VulkanInStructure {
-    public static let type: VkStructureType = .accelerationStructureMotionInfoNv
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MOTION_INFO_NV
 }
 
-extension VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceYcbcr2Plane444FormatsFeaturesExt
+extension VkAccelerationStructureVersionInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_VERSION_INFO_KHR
 }
 
-extension VkPhysicalDeviceFragmentDensityMap2FeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentDensityMap2FeaturesExt
+extension VkAcquireNextImageInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACQUIRE_NEXT_IMAGE_INFO_KHR
 }
 
-extension VkPhysicalDeviceFragmentDensityMap2PropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceFragmentDensityMap2PropertiesExt
+extension VkAcquireProfilingLockInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ACQUIRE_PROFILING_LOCK_INFO_KHR
 }
 
-extension VkCopyCommandTransformInfoQCOM: VulkanInStructure {
-    public static let type: VkStructureType = .copyCommandTransformInfoQcom
+#if VOLCANO_PLATFORM_ANDROID
+extension VkAndroidHardwareBufferFormatProperties2ANDROID: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_2_ANDROID
+}
+#endif
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkAndroidHardwareBufferFormatPropertiesANDROID: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID
+}
+#endif
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkAndroidHardwareBufferPropertiesANDROID: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+}
+#endif
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkAndroidHardwareBufferUsageANDROID: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_USAGE_ANDROID
+}
+#endif
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkAndroidSurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR
+}
+#endif
+
+extension VkApplicationInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_APPLICATION_INFO
 }
 
-extension VkPhysicalDeviceImageRobustnessFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceImageRobustnessFeaturesExt
+extension VkAttachmentDescription2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2
 }
 
-extension VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKhr
+extension VkAttachmentDescriptionStencilLayout: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_STENCIL_LAYOUT
 }
 
-extension VkCopyBufferInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyBufferInfo2Khr
+extension VkAttachmentReference2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2
 }
 
-extension VkCopyImageInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyImageInfo2Khr
+extension VkAttachmentReferenceStencilLayout: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_STENCIL_LAYOUT
 }
 
-extension VkCopyBufferToImageInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyBufferToImageInfo2Khr
+extension VkAttachmentSampleCountInfoAMD: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_ATTACHMENT_SAMPLE_COUNT_INFO_AMD
 }
 
-extension VkCopyImageToBufferInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .copyImageToBufferInfo2Khr
+extension VkBindAccelerationStructureMemoryInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_NV
+}
+
+extension VkBindBufferMemoryDeviceGroupInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_DEVICE_GROUP_INFO
+}
+
+extension VkBindBufferMemoryInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO
+}
+
+extension VkBindImageMemoryDeviceGroupInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_DEVICE_GROUP_INFO
+}
+
+extension VkBindImageMemoryInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO
+}
+
+extension VkBindImageMemorySwapchainInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_SWAPCHAIN_INFO_KHR
+}
+
+extension VkBindImagePlaneMemoryInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_IMAGE_PLANE_MEMORY_INFO
+}
+
+extension VkBindSparseInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_SPARSE_INFO
 }
 
 extension VkBlitImageInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .blitImageInfo2Khr
-}
-
-extension VkResolveImageInfo2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .resolveImageInfo2Khr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2_KHR
 }
 
 extension VkBufferCopy2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .bufferCopy2Khr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR
 }
 
-extension VkImageCopy2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .imageCopy2Khr
+extension VkBufferCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
 }
 
-extension VkImageBlit2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .imageBlit2Khr
+extension VkBufferDeviceAddressCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT
+}
+
+extension VkBufferDeviceAddressInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO
 }
 
 extension VkBufferImageCopy2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .bufferImageCopy2Khr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR
+}
+
+extension VkBufferMemoryBarrier: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER
+}
+
+extension VkBufferMemoryBarrier2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2_KHR
+}
+
+extension VkBufferMemoryRequirementsInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_REQUIREMENTS_INFO_2
+}
+
+extension VkBufferOpaqueCaptureAddressCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
+}
+
+extension VkBufferViewCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_VIEW_CREATE_INFO
+}
+
+extension VkCalibratedTimestampInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT
+}
+
+extension VkCheckpointData2NV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV
+}
+
+extension VkCheckpointDataNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV
+}
+
+extension VkCommandBufferAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO
+}
+
+extension VkCommandBufferBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
+}
+
+extension VkCommandBufferInheritanceConditionalRenderingInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_CONDITIONAL_RENDERING_INFO_EXT
+}
+
+extension VkCommandBufferInheritanceInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO
+}
+
+extension VkCommandBufferInheritanceRenderPassTransformInfoQCOM: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDER_PASS_TRANSFORM_INFO_QCOM
+}
+
+extension VkCommandBufferInheritanceRenderingInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO_KHR
+}
+
+extension VkCommandBufferInheritanceViewportScissorInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_VIEWPORT_SCISSOR_INFO_NV
+}
+
+extension VkCommandBufferSubmitInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO_KHR
+}
+
+extension VkCommandPoolCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO
+}
+
+extension VkComputePipelineCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO
+}
+
+extension VkConditionalRenderingBeginInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CONDITIONAL_RENDERING_BEGIN_INFO_EXT
+}
+
+extension VkCooperativeMatrixPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COOPERATIVE_MATRIX_PROPERTIES_NV
+}
+
+extension VkCopyAccelerationStructureInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR
+}
+
+extension VkCopyAccelerationStructureToMemoryInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_TO_MEMORY_INFO_KHR
+}
+
+extension VkCopyBufferInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2_KHR
+}
+
+extension VkCopyBufferToImageInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2_KHR
+}
+
+extension VkCopyCommandTransformInfoQCOM: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_COMMAND_TRANSFORM_INFO_QCOM
+}
+
+extension VkCopyDescriptorSet: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_DESCRIPTOR_SET
+}
+
+extension VkCopyImageInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2_KHR
+}
+
+extension VkCopyImageToBufferInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2_KHR
+}
+
+extension VkCopyMemoryToAccelerationStructureInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_COPY_MEMORY_TO_ACCELERATION_STRUCTURE_INFO_KHR
+}
+
+extension VkCuFunctionCreateInfoNVX: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CU_FUNCTION_CREATE_INFO_NVX
+}
+
+extension VkCuLaunchInfoNVX: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX
+}
+
+extension VkCuModuleCreateInfoNVX: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_CU_MODULE_CREATE_INFO_NVX
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkD3D12FenceSubmitInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_D3D12_FENCE_SUBMIT_INFO_KHR
+}
+#endif
+
+extension VkDebugMarkerMarkerInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT
+}
+
+extension VkDebugMarkerObjectNameInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT
+}
+
+extension VkDebugMarkerObjectTagInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT
+}
+
+extension VkDebugReportCallbackCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
+}
+
+extension VkDebugUtilsLabelEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT
+}
+
+extension VkDebugUtilsMessengerCallbackDataEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT
+}
+
+extension VkDebugUtilsMessengerCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
+}
+
+extension VkDebugUtilsObjectNameInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT
+}
+
+extension VkDebugUtilsObjectTagInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT
+}
+
+extension VkDedicatedAllocationBufferCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV
+}
+
+extension VkDedicatedAllocationImageCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV
+}
+
+extension VkDedicatedAllocationMemoryAllocateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV
+}
+
+extension VkDependencyInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEPENDENCY_INFO_KHR
+}
+
+extension VkDescriptorPoolCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO
+}
+
+extension VkDescriptorPoolInlineUniformBlockCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO_EXT
+}
+
+extension VkDescriptorSetAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO
+}
+
+extension VkDescriptorSetLayoutBindingFlagsCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO
+}
+
+extension VkDescriptorSetLayoutCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
+}
+
+extension VkDescriptorSetLayoutSupport: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT
+}
+
+extension VkDescriptorSetVariableDescriptorCountAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO
+}
+
+extension VkDescriptorSetVariableDescriptorCountLayoutSupport: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT
+}
+
+extension VkDescriptorUpdateTemplateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO
+}
+
+extension VkDeviceBufferMemoryRequirementsKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR
+}
+
+extension VkDeviceCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO
+}
+
+extension VkDeviceDeviceMemoryReportCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_DEVICE_MEMORY_REPORT_CREATE_INFO_EXT
+}
+
+extension VkDeviceDiagnosticsConfigCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV
+}
+
+extension VkDeviceEventInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_EVENT_INFO_EXT
+}
+
+extension VkDeviceGroupBindSparseInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_BIND_SPARSE_INFO
+}
+
+extension VkDeviceGroupCommandBufferBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_COMMAND_BUFFER_BEGIN_INFO
+}
+
+extension VkDeviceGroupDeviceCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO
+}
+
+extension VkDeviceGroupPresentCapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR
+}
+
+extension VkDeviceGroupPresentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_INFO_KHR
+}
+
+extension VkDeviceGroupRenderPassBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO
+}
+
+extension VkDeviceGroupSubmitInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_SUBMIT_INFO
+}
+
+extension VkDeviceGroupSwapchainCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_SWAPCHAIN_CREATE_INFO_KHR
+}
+
+extension VkDeviceImageMemoryRequirementsKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR
+}
+
+extension VkDeviceMemoryOpaqueCaptureAddressInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO
+}
+
+extension VkDeviceMemoryOverallocationCreateInfoAMD: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD
+}
+
+extension VkDeviceMemoryReportCallbackDataEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_MEMORY_REPORT_CALLBACK_DATA_EXT
+}
+
+extension VkDevicePrivateDataCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO_EXT
+}
+
+extension VkDeviceQueueCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
+}
+
+extension VkDeviceQueueGlobalPriorityCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_EXT
+}
+
+extension VkDeviceQueueInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2
+}
+
+extension VkDisplayEventInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_EVENT_INFO_EXT
+}
+
+extension VkDisplayModeCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR
+}
+
+extension VkDisplayModeProperties2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_MODE_PROPERTIES_2_KHR
+}
+
+extension VkDisplayNativeHdrSurfaceCapabilitiesAMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_NATIVE_HDR_SURFACE_CAPABILITIES_AMD
+}
+
+extension VkDisplayPlaneCapabilities2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_PLANE_CAPABILITIES_2_KHR
+}
+
+extension VkDisplayPlaneInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_PLANE_INFO_2_KHR
+}
+
+extension VkDisplayPlaneProperties2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_PLANE_PROPERTIES_2_KHR
+}
+
+extension VkDisplayPowerInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_POWER_INFO_EXT
+}
+
+extension VkDisplayPresentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR
+}
+
+extension VkDisplayProperties2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_PROPERTIES_2_KHR
+}
+
+extension VkDisplaySurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR
+}
+
+extension VkDrmFormatModifierPropertiesList2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_2_EXT
+}
+
+extension VkDrmFormatModifierPropertiesListEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_DRM_FORMAT_MODIFIER_PROPERTIES_LIST_EXT
+}
+
+extension VkEventCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EVENT_CREATE_INFO
+}
+
+extension VkExportFenceCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_FENCE_CREATE_INFO
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkExportFenceWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_FENCE_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkExportMemoryAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO
+}
+
+extension VkExportMemoryAllocateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkExportMemoryWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkExportMemoryWin32HandleInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV
+}
+#endif
+
+extension VkExportSemaphoreCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkExportSemaphoreWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkExternalBufferProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_BUFFER_PROPERTIES
+}
+
+extension VkExternalFenceProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_FENCE_PROPERTIES
+}
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkExternalFormatANDROID: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID
+}
+#endif
+
+extension VkExternalImageFormatProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_IMAGE_FORMAT_PROPERTIES
+}
+
+extension VkExternalMemoryBufferCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO
+}
+
+extension VkExternalMemoryImageCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO
+}
+
+extension VkExternalMemoryImageCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV
+}
+
+extension VkExternalSemaphoreProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_EXTERNAL_SEMAPHORE_PROPERTIES
+}
+
+extension VkFenceCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FENCE_CREATE_INFO
+}
+
+extension VkFenceGetFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FENCE_GET_FD_INFO_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkFenceGetWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FENCE_GET_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkFilterCubicImageViewImageFormatPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FILTER_CUBIC_IMAGE_VIEW_IMAGE_FORMAT_PROPERTIES_EXT
+}
+
+extension VkFormatProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2
+}
+
+extension VkFormatProperties3KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3_KHR
+}
+
+extension VkFragmentShadingRateAttachmentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR
+}
+
+extension VkFramebufferAttachmentImageInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENT_IMAGE_INFO
+}
+
+extension VkFramebufferAttachmentsCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FRAMEBUFFER_ATTACHMENTS_CREATE_INFO
+}
+
+extension VkFramebufferCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO
+}
+
+extension VkFramebufferMixedSamplesCombinationNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_FRAMEBUFFER_MIXED_SAMPLES_COMBINATION_NV
+}
+
+extension VkGeneratedCommandsInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GENERATED_COMMANDS_INFO_NV
+}
+
+extension VkGeneratedCommandsMemoryRequirementsInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GENERATED_COMMANDS_MEMORY_REQUIREMENTS_INFO_NV
+}
+
+extension VkGeometryAABBNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GEOMETRY_AABB_NV
+}
+
+extension VkGeometryNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GEOMETRY_NV
+}
+
+extension VkGeometryTrianglesNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GEOMETRY_TRIANGLES_NV
+}
+
+extension VkGraphicsPipelineCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+}
+
+extension VkGraphicsPipelineShaderGroupsCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_SHADER_GROUPS_CREATE_INFO_NV
+}
+
+extension VkGraphicsShaderGroupCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV
+}
+
+extension VkHdrMetadataEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_HDR_METADATA_EXT
+}
+
+extension VkHeadlessSurfaceCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_HEADLESS_SURFACE_CREATE_INFO_EXT
+}
+
+#if VOLCANO_PLATFORM_IOS
+extension VkIOSSurfaceCreateInfoMVK: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IOS_SURFACE_CREATE_INFO_MVK
+}
+#endif
+
+extension VkImageBlit2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2_KHR
+}
+
+extension VkImageCopy2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COPY_2_KHR
+}
+
+extension VkImageCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO
+}
+
+extension VkImageDrmFormatModifierExplicitCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_EXPLICIT_CREATE_INFO_EXT
+}
+
+extension VkImageDrmFormatModifierListCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_LIST_CREATE_INFO_EXT
+}
+
+extension VkImageDrmFormatModifierPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_DRM_FORMAT_MODIFIER_PROPERTIES_EXT
+}
+
+extension VkImageFormatListCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO
+}
+
+extension VkImageFormatProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_FORMAT_PROPERTIES_2
+}
+
+extension VkImageMemoryBarrier: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER
+}
+
+extension VkImageMemoryBarrier2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2_KHR
+}
+
+extension VkImageMemoryRequirementsInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2
+}
+
+extension VkImagePlaneMemoryRequirementsInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_PLANE_MEMORY_REQUIREMENTS_INFO
 }
 
 extension VkImageResolve2KHR: VulkanInStructure {
-    public static let type: VkStructureType = .imageResolve2Khr
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR
 }
 
-extension VkPhysicalDevice4444FormatsFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDevice4444FormatsFeaturesExt
+extension VkImageSparseMemoryRequirementsInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_SPARSE_MEMORY_REQUIREMENTS_INFO_2
 }
 
-#if canImport(CDirectFB)
-    extension VkDirectfbSurfaceCreateInfoEXT: VulkanInStructure {
-        public static let type: VkStructureType = .directfbSurfaceCreateInfoExt
-    }
+extension VkImageStencilUsageCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO
+}
+
+extension VkImageSwapchainCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_SWAPCHAIN_CREATE_INFO_KHR
+}
+
+extension VkImageViewASTCDecodeModeEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_ASTC_DECODE_MODE_EXT
+}
+
+extension VkImageViewAddressPropertiesNVX: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX
+}
+
+extension VkImageViewCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO
+}
+
+extension VkImageViewHandleInfoNVX: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX
+}
+
+extension VkImageViewUsageCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO
+}
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkImportAndroidHardwareBufferInfoANDROID: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID
+}
 #endif
 
-extension VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMutableDescriptorTypeFeaturesValve
+extension VkImportFenceFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_FENCE_FD_INFO_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkImportFenceWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_FENCE_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkImportMemoryFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_MEMORY_FD_INFO_KHR
+}
+
+extension VkImportMemoryHostPointerInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_MEMORY_HOST_POINTER_INFO_EXT
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkImportMemoryWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkImportMemoryWin32HandleInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV
+}
+#endif
+
+extension VkImportSemaphoreFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_FD_INFO_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkImportSemaphoreWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_SEMAPHORE_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkIndirectCommandsLayoutCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_CREATE_INFO_NV
+}
+
+extension VkIndirectCommandsLayoutTokenNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_INDIRECT_COMMANDS_LAYOUT_TOKEN_NV
+}
+
+extension VkInitializePerformanceApiInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_INITIALIZE_PERFORMANCE_API_INFO_INTEL
+}
+
+extension VkInstanceCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO
+}
+
+#if VOLCANO_PLATFORM_MACOS
+extension VkMacOSSurfaceCreateInfoMVK: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK
+}
+#endif
+
+extension VkMappedMemoryRange: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE
+}
+
+extension VkMemoryAllocateFlagsInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO
+}
+
+extension VkMemoryAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO
+}
+
+extension VkMemoryBarrier: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_BARRIER
+}
+
+extension VkMemoryBarrier2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_BARRIER_2_KHR
+}
+
+extension VkMemoryDedicatedAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO
+}
+
+extension VkMemoryDedicatedRequirements: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS
+}
+
+extension VkMemoryFdPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_FD_PROPERTIES_KHR
+}
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkMemoryGetAndroidHardwareBufferInfoANDROID: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_GET_ANDROID_HARDWARE_BUFFER_INFO_ANDROID
+}
+#endif
+
+extension VkMemoryGetFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_GET_FD_INFO_KHR
+}
+
+extension VkMemoryGetRemoteAddressInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkMemoryGetWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkMemoryHostPointerPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT
+}
+
+extension VkMemoryOpaqueCaptureAddressAllocateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO
+}
+
+extension VkMemoryPriorityAllocateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_PRIORITY_ALLOCATE_INFO_EXT
+}
+
+extension VkMemoryRequirements2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkMemoryWin32HandlePropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_WIN32_HANDLE_PROPERTIES_KHR
+}
+#endif
+
+extension VkMultisamplePropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MULTISAMPLE_PROPERTIES_EXT
+}
+
+extension VkMultiviewPerViewAttributesInfoNVX: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX
 }
 
 extension VkMutableDescriptorTypeCreateInfoVALVE: VulkanInStructure {
-    public static let type: VkStructureType = .mutableDescriptorTypeCreateInfoValve
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_VALVE
 }
 
-extension VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceVertexInputDynamicStateFeaturesExt
+#if VOLCANO_PLATFORM_ANDROID
+extension VkNativeBufferANDROID: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_NATIVE_BUFFER_ANDROID
+}
+#endif
+
+extension VkPerformanceConfigurationAcquireInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_CONFIGURATION_ACQUIRE_INFO_INTEL
 }
 
-extension VkVertexInputBindingDescription2EXT: VulkanOutStructure {
-    public static let type: VkStructureType = .vertexInputBindingDescription2Ext
+extension VkPerformanceCounterDescriptionKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_DESCRIPTION_KHR
 }
 
-extension VkVertexInputAttributeDescription2EXT: VulkanOutStructure {
-    public static let type: VkStructureType = .vertexInputAttributeDescription2Ext
+extension VkPerformanceCounterKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_COUNTER_KHR
 }
 
-extension VkPhysicalDeviceDrmPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceDrmPropertiesExt
+extension VkPerformanceMarkerInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_MARKER_INFO_INTEL
 }
 
-extension VkSubpassShadingPipelineCreateInfoHUAWEI: VulkanOutStructure {
-    public static let type: VkStructureType = .subpassShadingPipelineCreateInfoHuawei
+extension VkPerformanceOverrideInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_OVERRIDE_INFO_INTEL
 }
 
-extension VkPhysicalDeviceSubpassShadingFeaturesHUAWEI: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSubpassShadingFeaturesHuawei
+extension VkPerformanceQuerySubmitInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_SUBMIT_INFO_KHR
 }
 
-extension VkPhysicalDeviceSubpassShadingPropertiesHUAWEI: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceSubpassShadingPropertiesHuawei
+extension VkPerformanceStreamMarkerInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PERFORMANCE_STREAM_MARKER_INFO_INTEL
 }
 
-extension VkPhysicalDeviceExtendedDynamicState2FeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceExtendedDynamicState2FeaturesExt
+extension VkPhysicalDevice16BitStorageFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_16BIT_STORAGE_FEATURES
+}
+
+extension VkPhysicalDevice4444FormatsFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT
+}
+
+extension VkPhysicalDevice8BitStorageFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_8BIT_STORAGE_FEATURES
+}
+
+extension VkPhysicalDeviceASTCDecodeFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ASTC_DECODE_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceAccelerationStructureFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceAccelerationStructurePropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR
+}
+
+extension VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceBorderColorSwizzleFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceBufferDeviceAddressFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES
+}
+
+extension VkPhysicalDeviceBufferDeviceAddressFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceCoherentMemoryFeaturesAMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COHERENT_MEMORY_FEATURES_AMD
 }
 
 extension VkPhysicalDeviceColorWriteEnableFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceColorWriteEnableFeaturesExt
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT
 }
 
-extension VkPipelineColorWriteCreateInfoEXT: VulkanInStructure {
-    public static let type: VkStructureType = .pipelineColorWriteCreateInfoExt
+extension VkPhysicalDeviceComputeShaderDerivativesFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COMPUTE_SHADER_DERIVATIVES_FEATURES_NV
+}
+
+extension VkPhysicalDeviceConditionalRenderingFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONDITIONAL_RENDERING_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceConservativeRasterizationPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceCooperativeMatrixFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_FEATURES_NV
+}
+
+extension VkPhysicalDeviceCooperativeMatrixPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COOPERATIVE_MATRIX_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceCornerSampledImageFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CORNER_SAMPLED_IMAGE_FEATURES_NV
+}
+
+extension VkPhysicalDeviceCoverageReductionModeFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COVERAGE_REDUCTION_MODE_FEATURES_NV
+}
+
+extension VkPhysicalDeviceCustomBorderColorFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceCustomBorderColorPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEDICATED_ALLOCATION_IMAGE_ALIASING_FEATURES_NV
+}
+
+extension VkPhysicalDeviceDepthClipEnableFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_ENABLE_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceDepthStencilResolveProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES
+}
+
+extension VkPhysicalDeviceDescriptorIndexingFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES
+}
+
+extension VkPhysicalDeviceDescriptorIndexingProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES
+}
+
+extension VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_NV
+}
+
+extension VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceDeviceMemoryReportFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_MEMORY_REPORT_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceDiagnosticsConfigFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV
+}
+
+extension VkPhysicalDeviceDiscardRectanglePropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DISCARD_RECTANGLE_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceDriverProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES
+}
+
+extension VkPhysicalDeviceDrmPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceDynamicRenderingFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceExclusiveScissorFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXCLUSIVE_SCISSOR_FEATURES_NV
+}
+
+extension VkPhysicalDeviceExtendedDynamicState2FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceExtendedDynamicStateFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceExternalBufferInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_BUFFER_INFO
+}
+
+extension VkPhysicalDeviceExternalFenceInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_FENCE_INFO
+}
+
+extension VkPhysicalDeviceExternalImageFormatInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_IMAGE_FORMAT_INFO
+}
+
+extension VkPhysicalDeviceExternalMemoryHostPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceExternalMemoryRDMAFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV
+}
+
+extension VkPhysicalDeviceExternalSemaphoreInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_SEMAPHORE_INFO
+}
+
+extension VkPhysicalDeviceFeatures2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2
+}
+
+extension VkPhysicalDeviceFloatControlsProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FLOAT_CONTROLS_PROPERTIES
+}
+
+extension VkPhysicalDeviceFragmentDensityMap2FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceFragmentDensityMap2PropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_2_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceFragmentDensityMapFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceFragmentDensityMapPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV
+}
+
+extension VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_INTERLOCK_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_FEATURES_NV
+}
+
+extension VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceFragmentShadingRateFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceFragmentShadingRateKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_KHR
+}
+
+extension VkPhysicalDeviceFragmentShadingRatePropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR
 }
 
 extension VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceGlobalPriorityQueryFeaturesExt
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT
 }
 
-extension VkQueueFamilyGlobalPriorityPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .queueFamilyGlobalPriorityPropertiesExt
+extension VkPhysicalDeviceGroupProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GROUP_PROPERTIES
+}
+
+extension VkPhysicalDeviceHostQueryResetFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_QUERY_RESET_FEATURES
+}
+
+extension VkPhysicalDeviceIDProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES
+}
+
+extension VkPhysicalDeviceImageDrmFormatModifierInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_DRM_FORMAT_MODIFIER_INFO_EXT
+}
+
+extension VkPhysicalDeviceImageFormatInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2
+}
+
+extension VkPhysicalDeviceImageRobustnessFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceImageViewImageFormatInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_IMAGE_FORMAT_INFO_EXT
+}
+
+extension VkPhysicalDeviceImagelessFramebufferFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGELESS_FRAMEBUFFER_FEATURES
+}
+
+extension VkPhysicalDeviceIndexTypeUint8FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INDEX_TYPE_UINT8_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceInheritedViewportScissorFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INHERITED_VIEWPORT_SCISSOR_FEATURES_NV
+}
+
+extension VkPhysicalDeviceInlineUniformBlockFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceInlineUniformBlockPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceInvocationMaskFeaturesHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI
+}
+
+extension VkPhysicalDeviceLineRasterizationFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceLineRasterizationPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceMaintenance3Properties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_3_PROPERTIES
+}
+
+extension VkPhysicalDeviceMaintenance4FeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceMaintenance4PropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES_KHR
+}
+
+extension VkPhysicalDeviceMemoryBudgetPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_BUDGET_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceMemoryPriorityFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceMemoryProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2
+}
+
+extension VkPhysicalDeviceMeshShaderFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV
+}
+
+extension VkPhysicalDeviceMeshShaderPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_PROPERTIES_NV
 }
 
 extension VkPhysicalDeviceMultiDrawFeaturesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMultiDrawFeaturesExt
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT
 }
 
 extension VkPhysicalDeviceMultiDrawPropertiesEXT: VulkanOutStructure {
-    public static let type: VkStructureType = .physicalDeviceMultiDrawPropertiesExt
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT
 }
+
+extension VkPhysicalDeviceMultiviewFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES
+}
+
+extension VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX
+}
+
+extension VkPhysicalDeviceMultiviewProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PROPERTIES
+}
+
+extension VkPhysicalDeviceMutableDescriptorTypeFeaturesVALVE: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE
+}
+
+extension VkPhysicalDevicePCIBusInfoPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PCI_BUS_INFO_PROPERTIES_EXT
+}
+
+extension VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT
+}
+
+extension VkPhysicalDevicePerformanceQueryFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_FEATURES_KHR
+}
+
+extension VkPhysicalDevicePerformanceQueryPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PERFORMANCE_QUERY_PROPERTIES_KHR
+}
+
+extension VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT
+}
+
+extension VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR
+}
+
+extension VkPhysicalDevicePointClippingProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_POINT_CLIPPING_PROPERTIES
+}
+
+extension VkPhysicalDevicePresentIdFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_ID_FEATURES_KHR
+}
+
+extension VkPhysicalDevicePresentWaitFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR
+}
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkPhysicalDevicePresentationPropertiesANDROID: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENTATION_PROPERTIES_ANDROID
+}
+#endif
+
+extension VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT
+}
+
+extension VkPhysicalDevicePrivateDataFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
+}
+
+extension VkPhysicalDeviceProtectedMemoryFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_FEATURES
+}
+
+extension VkPhysicalDeviceProtectedMemoryProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROTECTED_MEMORY_PROPERTIES
+}
+
+extension VkPhysicalDeviceProvokingVertexFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceProvokingVertexPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROVOKING_VERTEX_PROPERTIES_EXT
+}
+
+extension VkPhysicalDevicePushDescriptorPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES_KHR
+}
+
+extension VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceRayQueryFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceRayTracingMotionBlurFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MOTION_BLUR_FEATURES_NV
+}
+
+extension VkPhysicalDeviceRayTracingPipelineFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceRayTracingPipelinePropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR
+}
+
+extension VkPhysicalDeviceRayTracingPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_REPRESENTATIVE_FRAGMENT_TEST_FEATURES_NV
+}
+
+extension VkPhysicalDeviceRobustness2FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceRobustness2PropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ROBUSTNESS_2_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceSampleLocationsPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLE_LOCATIONS_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceSamplerFilterMinmaxProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_FILTER_MINMAX_PROPERTIES
+}
+
+extension VkPhysicalDeviceSamplerYcbcrConversionFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES
+}
+
+extension VkPhysicalDeviceScalarBlockLayoutFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SCALAR_BLOCK_LAYOUT_FEATURES
+}
+
+extension VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SEPARATE_DEPTH_STENCIL_LAYOUTS_FEATURES
+}
+
+extension VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceShaderAtomicFloatFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceShaderAtomicInt64Features: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_INT64_FEATURES
+}
+
+extension VkPhysicalDeviceShaderClockFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CLOCK_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceShaderCoreProperties2AMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_2_AMD
+}
+
+extension VkPhysicalDeviceShaderCorePropertiesAMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD
+}
+
+extension VkPhysicalDeviceShaderDemoteToHelperInvocationFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceShaderDrawParametersFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES
+}
+
+extension VkPhysicalDeviceShaderFloat16Int8Features: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_FLOAT16_INT8_FEATURES
+}
+
+extension VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_ATOMIC_INT64_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceShaderImageFootprintFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_IMAGE_FOOTPRINT_FEATURES_NV
+}
+
+extension VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES_KHR
+}
+
+extension VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_FUNCTIONS_2_FEATURES_INTEL
+}
+
+extension VkPhysicalDeviceShaderSMBuiltinsFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_FEATURES_NV
+}
+
+extension VkPhysicalDeviceShaderSMBuiltinsPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SM_BUILTINS_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_EXTENDED_TYPES_FEATURES
+}
+
+extension VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceShadingRateImageFeaturesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_FEATURES_NV
+}
+
+extension VkPhysicalDeviceShadingRateImagePropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADING_RATE_IMAGE_PROPERTIES_NV
+}
+
+extension VkPhysicalDeviceSparseImageFormatInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SPARSE_IMAGE_FORMAT_INFO_2
+}
+
+extension VkPhysicalDeviceSubgroupProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES
+}
+
+extension VkPhysicalDeviceSubgroupSizeControlFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceSubgroupSizeControlPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceSubpassShadingFeaturesHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_FEATURES_HUAWEI
+}
+
+extension VkPhysicalDeviceSubpassShadingPropertiesHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_SHADING_PROPERTIES_HUAWEI
+}
+
+extension VkPhysicalDeviceSurfaceInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR
+}
+
+extension VkPhysicalDeviceSynchronization2FeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceTimelineSemaphoreFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_FEATURES
+}
+
+extension VkPhysicalDeviceTimelineSemaphoreProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TIMELINE_SEMAPHORE_PROPERTIES
+}
+
+extension VkPhysicalDeviceToolPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceTransformFeedbackFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceTransformFeedbackPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TRANSFORM_FEEDBACK_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceUniformBufferStandardLayoutFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES
+}
+
+extension VkPhysicalDeviceVariablePointersFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VARIABLE_POINTERS_FEATURES
+}
+
+extension VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT
+}
+
+extension VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceVulkan11Features: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES
+}
+
+extension VkPhysicalDeviceVulkan11Properties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES
+}
+
+extension VkPhysicalDeviceVulkan12Features: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES
+}
+
+extension VkPhysicalDeviceVulkan12Properties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES
+}
+
+extension VkPhysicalDeviceVulkanMemoryModelFeatures: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_MEMORY_MODEL_FEATURES
+}
+
+extension VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_WORKGROUP_MEMORY_EXPLICIT_LAYOUT_FEATURES_KHR
+}
+
+extension VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_2_PLANE_444_FORMATS_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceYcbcrImageArraysFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_YCBCR_IMAGE_ARRAYS_FEATURES_EXT
+}
+
+extension VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES_KHR
+}
+
+extension VkPipelineCacheCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO
+}
+
+extension VkPipelineColorBlendAdvancedStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_ADVANCED_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineColorBlendStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+}
+
+extension VkPipelineColorWriteCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT
+}
+
+extension VkPipelineCompilerControlCreateInfoAMD: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD
+}
+
+extension VkPipelineCoverageModulationStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_MODULATION_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineCoverageReductionStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_REDUCTION_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineCoverageToColorStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COVERAGE_TO_COLOR_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineCreationFeedbackCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO_EXT
+}
+
+extension VkPipelineDepthStencilStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+}
+
+extension VkPipelineDiscardRectangleStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_DISCARD_RECTANGLE_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineDynamicStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
+}
+
+extension VkPipelineExecutableInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR
+}
+
+extension VkPipelineExecutableInternalRepresentationKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR
+}
+
+extension VkPipelineExecutablePropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_PROPERTIES_KHR
+}
+
+extension VkPipelineExecutableStatisticKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR
+}
+
+extension VkPipelineFragmentShadingRateEnumStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_ENUM_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineFragmentShadingRateStateCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_FRAGMENT_SHADING_RATE_STATE_CREATE_INFO_KHR
+}
+
+extension VkPipelineInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_INFO_KHR
+}
+
+extension VkPipelineInputAssemblyStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+}
+
+extension VkPipelineLayoutCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+}
+
+extension VkPipelineLibraryCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR
+}
+
+extension VkPipelineMultisampleStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+}
+
+extension VkPipelineRasterizationConservativeStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineRasterizationDepthClipStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_DEPTH_CLIP_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineRasterizationLineStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_LINE_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineRasterizationProvokingVertexStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_PROVOKING_VERTEX_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineRasterizationStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO
+}
+
+extension VkPipelineRasterizationStateRasterizationOrderAMD: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD
+}
+
+extension VkPipelineRasterizationStateStreamCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_STREAM_CREATE_INFO_EXT
+}
+
+extension VkPipelineRenderingCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR
+}
+
+extension VkPipelineRepresentativeFragmentTestStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_REPRESENTATIVE_FRAGMENT_TEST_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineSampleLocationsStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_SAMPLE_LOCATIONS_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineShaderStageCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO
+}
+
+extension VkPipelineShaderStageRequiredSubgroupSizeCreateInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT
+}
+
+extension VkPipelineTessellationDomainOriginStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO
+}
+
+extension VkPipelineTessellationStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO
+}
+
+extension VkPipelineVertexInputDivisorStateCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT
+}
+
+extension VkPipelineVertexInputStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
+}
+
+extension VkPipelineViewportCoarseSampleOrderStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_COARSE_SAMPLE_ORDER_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineViewportExclusiveScissorStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_EXCLUSIVE_SCISSOR_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineViewportShadingRateImageStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SHADING_RATE_IMAGE_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineViewportStateCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO
+}
+
+extension VkPipelineViewportSwizzleStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_SWIZZLE_STATE_CREATE_INFO_NV
+}
+
+extension VkPipelineViewportWScalingStateCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_W_SCALING_STATE_CREATE_INFO_NV
+}
+
+extension VkPresentIdKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PRESENT_ID_KHR
+}
+
+extension VkPresentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+}
+
+extension VkPresentRegionsKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PRESENT_REGIONS_KHR
+}
+
+extension VkPresentTimesInfoGOOGLE: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE
+}
+
+extension VkPrivateDataSlotCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO_EXT
+}
+
+extension VkProtectedSubmitInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO
+}
+
+extension VkQueryPoolCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO
+}
+
+extension VkQueryPoolPerformanceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_CREATE_INFO_KHR
+}
+
+extension VkQueryPoolPerformanceQueryCreateInfoINTEL: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUERY_POOL_PERFORMANCE_QUERY_CREATE_INFO_INTEL
+}
+
+extension VkQueueFamilyCheckpointProperties2NV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV
+}
+
+extension VkQueueFamilyCheckpointPropertiesNV: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV
+}
+
+extension VkQueueFamilyGlobalPriorityPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT
+}
+
+extension VkQueueFamilyProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2
+}
+
+extension VkRayTracingPipelineCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR
+}
+
+extension VkRayTracingPipelineCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_NV
+}
+
+extension VkRayTracingPipelineInterfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_INTERFACE_CREATE_INFO_KHR
+}
+
+extension VkRayTracingShaderGroupCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR
+}
+
+extension VkRayTracingShaderGroupCreateInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV
+}
+
+extension VkRenderPassAttachmentBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO
+}
+
+extension VkRenderPassBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO
+}
+
+extension VkRenderPassCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO
+}
+
+extension VkRenderPassCreateInfo2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2
+}
+
+extension VkRenderPassFragmentDensityMapCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_FRAGMENT_DENSITY_MAP_CREATE_INFO_EXT
+}
+
+extension VkRenderPassInputAttachmentAspectCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_INPUT_ATTACHMENT_ASPECT_CREATE_INFO
+}
+
+extension VkRenderPassMultiviewCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO
+}
+
+extension VkRenderPassSampleLocationsBeginInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT
+}
+
+extension VkRenderPassTransformBeginInfoQCOM: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM
+}
+
+extension VkRenderingAttachmentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR
+}
+
+extension VkRenderingFragmentDensityMapAttachmentInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT
+}
+
+extension VkRenderingFragmentShadingRateAttachmentInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR
+}
+
+extension VkRenderingInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_INFO_KHR
+}
+
+extension VkResolveImageInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2_KHR
+}
+
+extension VkSampleLocationsInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLE_LOCATIONS_INFO_EXT
+}
+
+extension VkSamplerBorderColorComponentMappingCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT
+}
+
+extension VkSamplerCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO
+}
+
+extension VkSamplerCustomBorderColorCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_CUSTOM_BORDER_COLOR_CREATE_INFO_EXT
+}
+
+extension VkSamplerReductionModeCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO
+}
+
+extension VkSamplerYcbcrConversionCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_CREATE_INFO
+}
+
+extension VkSamplerYcbcrConversionImageFormatProperties: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_IMAGE_FORMAT_PROPERTIES
+}
+
+extension VkSamplerYcbcrConversionInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO
+}
+
+extension VkSemaphoreCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
+}
+
+extension VkSemaphoreGetFdInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_GET_FD_INFO_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkSemaphoreGetWin32HandleInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_GET_WIN32_HANDLE_INFO_KHR
+}
+#endif
+
+extension VkSemaphoreSignalInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_SIGNAL_INFO
+}
+
+extension VkSemaphoreSubmitInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO_KHR
+}
+
+extension VkSemaphoreTypeCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO
+}
+
+extension VkSemaphoreWaitInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO
+}
+
+extension VkShaderModuleCreateInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+}
+
+extension VkShaderModuleValidationCacheCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SHADER_MODULE_VALIDATION_CACHE_CREATE_INFO_EXT
+}
+
+extension VkSharedPresentSurfaceCapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SHARED_PRESENT_SURFACE_CAPABILITIES_KHR
+}
+
+extension VkSparseImageFormatProperties2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SPARSE_IMAGE_FORMAT_PROPERTIES_2
+}
+
+extension VkSparseImageMemoryRequirements2: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SPARSE_IMAGE_MEMORY_REQUIREMENTS_2
+}
+
+extension VkSubmitInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBMIT_INFO
+}
+
+extension VkSubmitInfo2KHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBMIT_INFO_2_KHR
+}
+
+extension VkSubpassBeginInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_BEGIN_INFO
+}
+
+extension VkSubpassDependency2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2
+}
+
+extension VkSubpassDescription2: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2
+}
+
+extension VkSubpassDescriptionDepthStencilResolve: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE
+}
+
+extension VkSubpassEndInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_END_INFO
+}
+
+extension VkSubpassShadingPipelineCreateInfoHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI
+}
+
+extension VkSurfaceCapabilities2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_EXT
+}
+
+extension VkSurfaceCapabilities2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkSurfaceCapabilitiesFullScreenExclusiveEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_FULL_SCREEN_EXCLUSIVE_EXT
+}
+#endif
+
+extension VkSurfaceFormat2KHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR
+}
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkSurfaceFullScreenExclusiveInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_INFO_EXT
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkSurfaceFullScreenExclusiveWin32InfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT
+}
+#endif
+
+extension VkSurfaceProtectedCapabilitiesKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PROTECTED_CAPABILITIES_KHR
+}
+
+extension VkSwapchainCounterCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_COUNTER_CREATE_INFO_EXT
+}
+
+extension VkSwapchainCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+}
+
+extension VkSwapchainDisplayNativeHdrCreateInfoAMD: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD
+}
+
+#if VOLCANO_PLATFORM_ANDROID
+extension VkSwapchainImageCreateInfoANDROID: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_IMAGE_CREATE_INFO_ANDROID
+}
+#endif
+
+extension VkTextureLODGatherFormatPropertiesAMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD
+}
+
+extension VkTimelineSemaphoreSubmitInfo: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO
+}
+
+extension VkValidationCacheCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VALIDATION_CACHE_CREATE_INFO_EXT
+}
+
+extension VkValidationFeaturesEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT
+}
+
+extension VkValidationFlagsEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT
+}
+
+extension VkVertexInputAttributeDescription2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT
+}
+
+extension VkVertexInputBindingDescription2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT
+}
+
+#if VOLCANO_PLATFORM_LINUX
+extension VkWaylandSurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkWin32KeyedMutexAcquireReleaseInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_KHR
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkWin32KeyedMutexAcquireReleaseInfoNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV
+}
+#endif
+
+#if VOLCANO_PLATFORM_WINDOWS
+extension VkWin32SurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
+}
+#endif
+
+extension VkWriteDescriptorSet: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET
+}
+
+extension VkWriteDescriptorSetAccelerationStructureKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR
+}
+
+extension VkWriteDescriptorSetAccelerationStructureNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV
+}
+
+extension VkWriteDescriptorSetInlineUniformBlockEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK_EXT
+}
+
+#if VOLCANO_PLATFORM_LINUX
+extension VkXcbSurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR
+}
+#endif
+
+#if VOLCANO_PLATFORM_LINUX
+extension VkXlibSurfaceCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
+}
+#endif

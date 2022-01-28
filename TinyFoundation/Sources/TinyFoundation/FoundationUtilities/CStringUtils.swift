@@ -38,3 +38,14 @@ public extension Set where Element == String {
         }
     }
 }
+
+public extension String {
+    @_transparent
+    init<T>(cStringTuple: T) {
+        self = withUnsafePointer(to: cStringTuple) { cStringTuple in
+            return cStringTuple.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: cStringTuple)) { cString in
+                return String(cString: cString)
+            }
+        }
+    }
+}
