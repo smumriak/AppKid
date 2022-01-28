@@ -16,8 +16,7 @@ public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorP
         self.maxSets = maxSets
 
         let handlePointer: SmartPointer<VkDescriptorPool_T> = try sizes.withUnsafeBufferPointer { sizes in
-            var info = VkDescriptorPoolCreateInfo()
-            info.sType = .descriptorPoolCreateInfo
+            var info = VkDescriptorPoolCreateInfo.new()
             info.poolSizeCount = CUnsignedInt(sizes.count)
             info.pPoolSizes = sizes.baseAddress!
             info.maxSets = CUnsignedInt(maxSets)
@@ -31,8 +30,7 @@ public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorP
     public func allocate(with layout: DescriptorSetLayout) throws -> DescriptorSet {
         let result: VkDescriptorSet = try [layout].optionalHandles()
             .withUnsafeBufferPointer { layouts in
-                var info = VkDescriptorSetAllocateInfo()
-                info.sType = .descriptorSetAllocateInfo
+                var info = VkDescriptorSetAllocateInfo.new()
                 info.descriptorPool = handle
                 info.descriptorSetCount = CUnsignedInt(layouts.count)
                 info.pSetLayouts = layouts.baseAddress!
@@ -52,8 +50,7 @@ public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorP
 public final class DescriptorSetLayout: VulkanDeviceEntity<SmartPointer<VkDescriptorSetLayout_T>> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
         let handlePointer: SmartPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
-            var info = VkDescriptorSetLayoutCreateInfo()
-            info.sType = .descriptorSetLayoutCreateInfo
+            var info = VkDescriptorSetLayoutCreateInfo.new()
             info.bindingCount = CUnsignedInt(bindings.count)
             info.pBindings = bindings.baseAddress!
 

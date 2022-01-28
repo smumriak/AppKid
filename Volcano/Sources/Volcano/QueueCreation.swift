@@ -183,8 +183,7 @@ internal extension ArraySlice where Element == ProcessedQueueRequest {
             let head = self[indices.lowerBound]
 
             return try head.priorities.withUnsafeBufferPointer {
-                var info = VkDeviceQueueCreateInfo()
-                info.sType = .deviceQueueCreateInfo
+                var info = VkDeviceQueueCreateInfo.new()
                 info.flags = head.flags.rawValue
                 info.queueFamilyIndex = CUnsignedInt(head.index)
                 info.queueCount = CUnsignedInt($0.count)

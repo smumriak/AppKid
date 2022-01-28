@@ -60,8 +60,7 @@ public class ImageViewDescriptor {
     }
 
     internal func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkImageViewCreateInfo()
-        info.sType = .imageViewCreateInfo
+        var info = VkImageViewCreateInfo.new()
         info.flags = flags.rawValue
         info.image = image.handle
         info.viewType = type

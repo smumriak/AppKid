@@ -8,10 +8,12 @@
 import CVulkan
 
 public extension Bool {
+    @_transparent
     var vkBool: VkBool32 { self ? VkBool32(VK_TRUE) : VkBool32(VK_FALSE) }
 }
 
 public extension VkBool32 {
+    @_transparent
     var bool: Bool { self == VkBool32(VK_FALSE) ? false : true }
 }
 

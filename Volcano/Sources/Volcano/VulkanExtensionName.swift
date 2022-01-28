@@ -267,14 +267,10 @@ public enum VulkanExtensionName: String {
 
 internal extension VkExtensionProperties {
     var nameVersionKeyValue: (name: VulkanExtensionName, version: UInt)? {
-        return withUnsafePointer(to: extensionName) {
-            return $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: $0)) {
-                guard let name = VulkanExtensionName(rawValue: String(cString: $0)) else {
-                    return nil
-                }
-                return (name: name, version: UInt(specVersion))
-            }
+        guard let name = VulkanExtensionName(rawValue: String(cStringTuple: extensionName)) else {
+            return nil
         }
+        return (name: name, version: UInt(specVersion))
     }
 }
 

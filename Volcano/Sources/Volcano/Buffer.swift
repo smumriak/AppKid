@@ -29,8 +29,7 @@ public final class BufferDescriptor {
 
     public func withUnsafeBufferCreateInfoPointer<T>(_ body: (UnsafePointer<VkBufferCreateInfo>) throws -> (T)) rethrows -> T {
         return try accessQueueFamiliesIndices.withUnsafeBufferPointer { accessQueueFamiliesIndices in
-            var info = VkBufferCreateInfo()
-            info.sType = .bufferCreateInfo
+            var info = VkBufferCreateInfo.new()
             info.pNext = nil
             info.flags = flags.rawValue
             info.size = size

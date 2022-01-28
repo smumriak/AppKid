@@ -51,15 +51,16 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
     
     public init(extensions: Set<VulkanExtensionName> = []) {
         do {
-            var applicationInfo = VkApplicationInfo()
-            applicationInfo.sType = .applicationInfo
-            applicationInfo.apiVersion = (1 << 22) | (0 << 12) | 0
+            let vulkanVersion: CUnsignedInt = (1 << 22) | (0 << 12) | 0
+
             var layers: [String] = []
             
             layers.append("VK_LAYER_KHRONOS_validation")
 
-            var extensions = extensions
-            extensions.formUnion([.getPhysicalDeviceProperties2, .getSurfaceCapabilities2])
+            var extensions = extensions + [
+                .getPhysicalDeviceProperties2,
+                .getSurfaceCapabilities2,
+            ]
 
             #if os(Linux)
                 extensions.insert(.externalFenceCapabilities)
@@ -67,33 +68,22 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
                 extensions.insert(.externalFenceCapabilities)
             #endif
 
-            let handlePointer: SmartPointer<VkInstance_T> = try layers.withUnsafeNullableCStringsBufferPointer { layers in
-                try extensions.map { $0.rawValue }
-                    .withUnsafeNullableCStringsBufferPointer { extensions in
-                        var info = VkInstanceCreateInfo()
-                        info.sType = .instanceCreateInfo
-                        info.enabledLayerCount = CUnsignedInt(layers.count)
-                        info.ppEnabledLayerNames = layers.baseAddress!
+            let handlePointer: SmartPointer<VkInstance_T> = try VkBuilder<VkInstanceCreateInfo> {
+                (\.enabledLayerCount, \.ppEnabledLayerNames) <- layers
+                \.pApplicationInfo <- {
+                    \.apiVersion <- vulkanVersion
+                }
 
-                        withUnsafePointer(to: &applicationInfo) {
-                            info.pApplicationInfo = $0
-                        }
+                (\.enabledExtensionCount, \.ppEnabledExtensionNames) <- extensions.map { $0.rawValue }
+            }
+            .withUnsafeResultPointer { info in
+                var instanceOptional: VkInstance?
 
-                        info.enabledExtensionCount = CUnsignedInt(extensions.count)
-                        info.ppEnabledExtensionNames = extensions.baseAddress!
+                try vulkanInvoke {
+                    vkCreateInstance(info, nil, &instanceOptional)
+                }
 
-                        var instanceOptional: VkInstance?
-
-                        let chain = VulkanStructureChain(root: info)
-
-                        try chain.withUnsafeChainPointer { info in
-                            try vulkanInvoke {
-                                vkCreateInstance(info, nil, &instanceOptional)
-                            }
-                        }
-
-                        return ReleasablePointer(with: instanceOptional!)
-                    }
+                return ReleasablePointer(with: instanceOptional!)
             }
             
             vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")

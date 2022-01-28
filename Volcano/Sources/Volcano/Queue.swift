@@ -38,7 +38,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     }
 
     public func submit(with descriptor: SubmitDescriptor) throws {
-        #if EXPERIMENTAL_VOLCANO_DSL
+        #if VOLCANO_EXPERIMENTAL_DSL
             try VkBuilder<VkSubmitInfo> {
                 (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
                 (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
@@ -125,8 +125,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
         try imageIndices.withUnsafeBufferPointer { imageIndicesPointer in
             try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
                 try swapchainsHandles.withUnsafeBufferPointer { swapchainsPointer in
-                    var presentInfo = VkPresentInfoKHR()
-                    presentInfo.sType = .presentInfoKhr
+                    var presentInfo = VkPresentInfoKHR.new()
 
                     presentInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
                     presentInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress

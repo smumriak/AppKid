@@ -58,8 +58,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
         let handlePointer: SmartPointer<VkDevice_T> =
             try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
                 return try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
-                    var info = VkDeviceCreateInfo()
-                    info.sType = .deviceCreateInfo
+                    var info = VkDeviceCreateInfo.new()
                     info.flags = 0
 
                     info.enabledExtensionCount = CUnsignedInt(extensions.count)

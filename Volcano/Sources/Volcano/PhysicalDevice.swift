@@ -21,6 +21,9 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
     public let properties: VkPhysicalDeviceProperties
     public let queueFamiliesProperties: [VkQueueFamilyProperties]
     public let deviceType: VkPhysicalDeviceType
+
+    public private(set) lazy var name = String(cStringTuple: properties.deviceName)
+
     public lazy var queueFamiliesDescriptors: [QueueFamilyDescriptor] = queueFamiliesProperties.enumerated()
         .map { QueueFamilyDescriptor(index: $0, properties: $1) }
         .sorted(by: <)

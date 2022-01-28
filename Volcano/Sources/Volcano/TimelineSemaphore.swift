@@ -11,8 +11,7 @@ import CVulkan
 
 public final class TimelineSemaphore: AbstractSemaphore {
     public init(device: Device, initialValue: UInt64 = 0) throws {
-        var typeInfo = VkSemaphoreTypeCreateInfo()
-        typeInfo.sType = .semaphoreTypeCreateInfo
+        var typeInfo = VkSemaphoreTypeCreateInfo.new()
         typeInfo.semaphoreType = .timeline
         typeInfo.initialValue = initialValue
 
@@ -54,8 +53,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
             try [self].optionalHandles().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = []
 
-                var info = VkSemaphoreWaitInfo()
-                info.sType = .semaphoreWaitInfo
+                var info = VkSemaphoreWaitInfo.new()
                 info.flags = flags.rawValue
                 info.semaphoreCount = CUnsignedInt(semaphores.count)
                 info.pSemaphores = semaphores.baseAddress!
@@ -70,8 +68,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
 
     public func signal(increment: UInt64 = 1) throws {
         try valueLock.synchronized {
-            var info = VkSemaphoreSignalInfo()
-            info.sType = .semaphoreSignalInfo
+            var info = VkSemaphoreSignalInfo.new()
             info.semaphore = handle
             info.value = _value + increment
 
@@ -91,8 +88,7 @@ extension Device {
             try semaphores.optionalHandles().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = waitForAll ? [] : .any
 
-                var info = VkSemaphoreWaitInfo()
-                info.sType = .semaphoreWaitInfo
+                var info = VkSemaphoreWaitInfo.new()
                 info.flags = flags.rawValue
                 info.semaphoreCount = CUnsignedInt(semaphores.count)
                 info.pSemaphores = semaphores.baseAddress!

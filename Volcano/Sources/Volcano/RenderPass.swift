@@ -30,8 +30,7 @@ internal final class RenderPassBuilder {
         return try subpasses.withUnsafeSubpassDescriptionBufferPointer(renderPassBuilder: self) { subpasses in
             try attachments.map { $0.description }.withUnsafeBufferPointer { attachments in
                 try dependencies.withUnsafeBufferPointer { dependencies in
-                    var info = VkRenderPassCreateInfo()
-                    info.sType = .renderPassCreateInfo
+                    var info = VkRenderPassCreateInfo.new()
                     info.attachmentCount = CUnsignedInt(attachments.count)
                     info.pAttachments = attachments.baseAddress!
                     info.subpassCount = CUnsignedInt(subpasses.count)

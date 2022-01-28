@@ -22,8 +22,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 
     #if os(Linux)
         internal convenience init(physicalDevice: PhysicalDevice, display: UnsafeMutablePointer<Display>, window: Window, desiredFormat: VkSurfaceFormatKHR) throws {
-            var info = VkXlibSurfaceCreateInfoKHR()
-            info.sType = .xlibSurfaceCreateInfoKhr
+            var info = VkXlibSurfaceCreateInfoKHR.new()
             info.dpy = display
             info.window = window
 
@@ -34,8 +33,7 @@ public final class Surface: VulkanEntity<SmartPointer<VkSurfaceKHR_T>> {
 
     #elseif os(macOS)
         internal convenience init(physicalDevice: PhysicalDevice, desiredFormat: VkSurfaceFormatKHR) throws {
-            var info = VkMacOSSurfaceCreateInfoMVK()
-            info.sType = .macosSurfaceCreateInfoMvk
+            var info = VkMacOSSurfaceCreateInfoMVK.new()
 
             let handlePointer = try physicalDevice.instance.create(with: &info)
 

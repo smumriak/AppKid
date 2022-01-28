@@ -42,8 +42,7 @@ public final class Shader: VulkanDeviceEntity<SmartPointer<VkShaderModule_T>> {
         if data.isEmpty {
             throw Error.noData
         }
-        var info = VkShaderModuleCreateInfo()
-        info.sType = .shaderModuleCreateInfo
+        var info = VkShaderModuleCreateInfo.new()
         info.codeSize = data.count
 
         let handlePointer: SmartPointer<VkShaderModule_T> = try data.withUnsafeBytes {

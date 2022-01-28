@@ -42,8 +42,7 @@ internal class DescriptorSetContainer {
         self.device = device
 
         layout = try bindings.withUnsafeBufferPointer { bindings in
-            var info = VkDescriptorSetLayoutCreateInfo()
-            info.sType = .descriptorSetLayoutCreateInfo
+            var info = VkDescriptorSetLayoutCreateInfo.new()
             info.bindingCount = CUnsignedInt(bindings.count)
             info.pBindings = bindings.baseAddress!
 
@@ -51,8 +50,7 @@ internal class DescriptorSetContainer {
         }
 
         descriptorSet = try withUnsafePointer(to: layout.optionalPointer) { layout in
-            var info = VkDescriptorSetAllocateInfo()
-            info.sType = .descriptorSetAllocateInfo
+            var info = VkDescriptorSetAllocateInfo.new()
             info.descriptorPool = pool.pointer
             info.descriptorSetCount = 1
             info.pSetLayouts = layout

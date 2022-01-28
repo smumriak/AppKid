@@ -52,8 +52,7 @@ public final class Sampler: VulkanDeviceEntity<SmartPointer<VkSampler_T>> {
     }
 
     public init(device: Device, addressModes: AddressModes = .repeat, flags: VkSamplerCreateFlagBits = [], filters: Filters = .linear, mipMapMode: VkSamplerMipmapMode = .linear, levelOfDetails: LevelOfDetails = .none, borderColor: VkBorderColor = .opaqueBlackInt, maxAnisotropy: Float? = nil, compareOperation: VkCompareOp? = nil, unnormalizedCoordinates: Bool = false) throws {
-        var info = VkSamplerCreateInfo()
-        info.sType = .samplerCreateInfo
+        var info = VkSamplerCreateInfo.new()
         info.flags = flags.rawValue
         
         info.magFilter = filters.magnification

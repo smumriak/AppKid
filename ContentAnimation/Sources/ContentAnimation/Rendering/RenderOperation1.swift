@@ -147,8 +147,7 @@ import LayerRenderingData
         imageInfo.sampler = contentsTextureSampler.handle
 
         try withUnsafePointer(to: &imageInfo) { imageInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
+            var writeInfo = VkWriteDescriptorSet.new()
             writeInfo.dstSet = descriptorSet.handle
             writeInfo.dstBinding = 0
             writeInfo.dstArrayElement = 0
@@ -197,8 +196,7 @@ import LayerRenderingData
         bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext1.ModelViewProjection>.stride)
 
         try withUnsafePointer(to: &bufferInfo) { bufferInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
+            var writeInfo = VkWriteDescriptorSet.new()
             writeInfo.dstSet = modelViewProjectionDescriptorSet.handle
             writeInfo.dstBinding = 0
             writeInfo.dstArrayElement = 0

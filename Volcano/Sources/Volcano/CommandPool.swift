@@ -14,8 +14,7 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
     public init(device: Device, queue: Queue, flags: VkCommandPoolCreateFlagBits = .resetCommandBuffer) throws {
         self.queue = queue
 
-        var info = VkCommandPoolCreateInfo()
-        info.sType = .commandPoolCreateInfo
+        var info = VkCommandPoolCreateInfo.new()
         info.flags = flags.rawValue
         info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
 
@@ -29,8 +28,7 @@ public final class CommandPool: VulkanDeviceEntity<SmartPointer<VkCommandPool_T>
     }
 
     public func createCommandBuffers(count: UInt = 1, level: VkCommandBufferLevel = .primary) throws -> [CommandBuffer] {
-        var info = VkCommandBufferAllocateInfo()
-        info.sType = .commandBufferAllocateInfo
+        var info = VkCommandBufferAllocateInfo.new()
         info.level = level
         info.commandPool = handle
         info.commandBufferCount = CUnsignedInt(count)

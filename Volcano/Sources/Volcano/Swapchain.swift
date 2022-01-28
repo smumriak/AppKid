@@ -40,8 +40,7 @@ public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>>
         let queueFamiliesIndices = [graphicsQueue, presentationQueue].familyIndices
 
         let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
-            var info = VkSwapchainCreateInfoKHR()
-            info.sType = .swapchainCreateInfoKhr
+            var info = VkSwapchainCreateInfoKHR.new()
             info.surface = surface.handle
             info.minImageCount = imageCount
             info.imageFormat = surface.imageFormat

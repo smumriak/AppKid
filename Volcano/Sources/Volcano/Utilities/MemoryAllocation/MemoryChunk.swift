@@ -40,8 +40,7 @@ open class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     }
 
     public convenience init(device: Device, size: VkDeviceSize, memoryIndex: CUnsignedInt, properties: VkMemoryPropertyFlagBits) throws {
-        var memoryAllocationInfo = VkMemoryAllocateInfo()
-        memoryAllocationInfo.sType = .memoryAllocateInfo
+        var memoryAllocationInfo = VkMemoryAllocateInfo.new()
         memoryAllocationInfo.allocationSize = size
         memoryAllocationInfo.memoryTypeIndex = memoryIndex
 

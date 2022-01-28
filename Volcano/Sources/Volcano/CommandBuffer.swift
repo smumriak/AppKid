@@ -28,8 +28,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
     }
 
     public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
-        var info = VkCommandBufferBeginInfo()
-        info.sType = .commandBufferBeginInfo
+        var info = VkCommandBufferBeginInfo.new()
         info.pNext = nil
         info.flags = flags.rawValue
         info.pInheritanceInfo = nil
@@ -47,8 +46,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
 
     public func begin(renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
         try clearValues.withUnsafeBufferPointer { clearValues in
-            var renderPassBeginInfo = VkRenderPassBeginInfo()
-            renderPassBeginInfo.sType = .renderPassBeginInfo
+            var renderPassBeginInfo = VkRenderPassBeginInfo.new()
             renderPassBeginInfo.renderPass = renderPass.handle
             renderPassBeginInfo.framebuffer = framebuffer.handle
             renderPassBeginInfo.renderArea = renderArea
@@ -202,8 +200,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
     }
 
     public func transitionLayout(for texture: Texture, newLayout: VkImageLayout) throws {
-        var barrier = VkImageMemoryBarrier()
-        barrier.sType = .imageMemoryBarrier
+        var barrier = VkImageMemoryBarrier.new()
 
         var sourceAccessMask: VkAccessFlagBits = []
         var destinationAccessMask: VkAccessFlagBits = []

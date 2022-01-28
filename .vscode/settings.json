@@ -64,4 +64,5 @@
     "editor.wordWrap": "on",
     "diffEditor.wordWrap": "on",
     "launch-config.ifDebugSessionRunning": "stop/start",
+    "editor.semanticHighlighting.enabled": true,
 }

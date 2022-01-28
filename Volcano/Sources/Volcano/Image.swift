@@ -51,9 +51,8 @@ public class ImageDescriptor {
 
     public func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
         return try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
-            var info = VkImageCreateInfo()
+            var info = VkImageCreateInfo.new()
 
-            info.sType = .imageCreateInfo
             info.flagsBits = flags
             info.imageType = imageType
             info.format = format

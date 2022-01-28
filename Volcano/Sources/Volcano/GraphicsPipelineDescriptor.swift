@@ -77,8 +77,7 @@ public class GraphicsPipelineDescriptor {
 internal extension GraphicsPipelineDescriptor {
     @_transparent
     func withVertexStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineViewportStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineViewportStateCreateInfo()
-        info.sType = .pipelineViewportStateCreateInfo
+        var info = VkPipelineViewportStateCreateInfo.new()
 
         switch viewportStateDefinition {
             case .static(let viewports, let scissors):
@@ -159,8 +158,7 @@ internal extension GraphicsPipelineDescriptor {
     @_transparent
     func withMultisampleStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineMultisampleStateCreateInfo>) throws -> (T)) rethrows -> T {
         return try sampleMasks.withUnsafeBufferPointer { sampleMasks in
-            var info = VkPipelineMultisampleStateCreateInfo()
-            info.sType = .pipelineMultisampleStateCreateInfo
+            var info = VkPipelineMultisampleStateCreateInfo.new()
             info.sampleShadingEnabled = sampleShadingEnabled
             info.rasterizationSamples = rasterizationSamples
             info.minSampleShading = minSampleShading
@@ -177,8 +175,7 @@ internal extension GraphicsPipelineDescriptor {
     @_transparent
     func withColorBlendStateCreateInfo<T>(_ body: (UnsafePointer<VkPipelineColorBlendStateCreateInfo>) throws -> (T)) rethrows -> T {
         return try colorBlendAttachments.withUnsafeBufferPointer { colorBlendAttachments in
-            var info = VkPipelineColorBlendStateCreateInfo()
-            info.sType = .pipelineColorBlendStateCreateInfo
+            var info = VkPipelineColorBlendStateCreateInfo.new()
             info.logicOperationEnabled = logicOperationEnabled
             info.logicOperation = logicOperation
             info.attachmentCount = CUnsignedInt(colorBlendAttachments.count)
@@ -200,8 +197,7 @@ internal extension GraphicsPipelineDescriptor {
         let filteredDynamicStates = Array(Set(dynamicStates))
         
         return try filteredDynamicStates.withUnsafeBufferPointer { dynamicStates in
-            var info = VkPipelineDynamicStateCreateInfo()
-            info.sType = .pipelineDynamicStateCreateInfo
+            var info = VkPipelineDynamicStateCreateInfo.new()
             info.dynamicStateCount = CUnsignedInt(dynamicStates.count)
             info.pDynamicStates = dynamicStates.baseAddress!
 
@@ -229,7 +225,7 @@ internal extension GraphicsPipelineDescriptor {
     }
 }
 
-#if EXPERIMENTAL_VOLCANO_DSL
+#if VOLCANO_EXPERIMENTAL_DSL
     extension GraphicsPipelineDescriptor {
         @_transparent
         @VkBuilder<VkPipelineViewportStateCreateInfo>

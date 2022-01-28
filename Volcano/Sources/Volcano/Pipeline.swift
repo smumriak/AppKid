@@ -24,7 +24,7 @@ public final class GraphicsPipeline: Pipeline {
     public internal(set) var descriptorSetLayouts: [DescriptorSetLayout]
 
     public init(device: Device, descriptor pipelineDescriptor: GraphicsPipelineDescriptor, renderPass: RenderPass, subpassIndex: Int) throws {
-        #if EXPERIMENTAL_VOLCANO_DSL
+        #if VOLCANO_EXPERIMENTAL_DSL
 
             let layout: SmartPointer<VkPipelineLayout_T> = try VkBuilder<VkPipelineLayoutCreateInfo> {
                 (\.setLayoutCount, \.pSetLayouts) <- pipelineDescriptor.descriptorSetLayouts.optionalHandles()
@@ -67,8 +67,7 @@ public final class GraphicsPipeline: Pipeline {
             let layout: SmartPointer<VkPipelineLayout_T> = try pipelineDescriptor.descriptorSetLayouts.optionalHandles()
                 .withUnsafeBufferPointer { descriptorSetLayouts in
                     return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
-                        var info = VkPipelineLayoutCreateInfo()
-                        info.sType = .pipelineLayoutCreateInfo
+                        var info = VkPipelineLayoutCreateInfo.new()
                         info.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
                         info.pSetLayouts = descriptorSetLayouts.baseAddress!
 
@@ -88,8 +87,7 @@ public final class GraphicsPipeline: Pipeline {
                                     return try pipelineDescriptor.withColorBlendStateCreateInfo { colorBlendStateCreateInfo in
                                         return try pipelineDescriptor.withDynamicStateCreateInfo { dynamicStateInfo in
                                             return try pipelineDescriptor.withStageCreateInfosBufferPointer { stageInfos in
-                                                var info = VkGraphicsPipelineCreateInfo()
-                                                info.sType = .graphicsPipelineCreateInfo
+                                                var info = VkGraphicsPipelineCreateInfo.new()
 
                                                 info.pViewportState = viewportStateInfo
                                                 info.pVertexInputState = vertexInputInfo
