@@ -110,22 +110,18 @@ internal class RenderContext {
         imageInfo.imageView = texture.imageView.handle
         imageInfo.sampler = contentsTextureSampler.handle
 
-        try withUnsafePointer(to: &imageInfo) { imageInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
-            writeInfo.dstSet = descriptorSet.handle
-            writeInfo.dstBinding = 0
-            writeInfo.dstArrayElement = 0
-            writeInfo.descriptorCount = 1
-            writeInfo.descriptorType = .combinedImageSampler
-            writeInfo.pBufferInfo = nil
-            writeInfo.pImageInfo = imageInfo
-            writeInfo.pTexelBufferView = nil
-
-            try withUnsafePointer(to: &writeInfo) { writeInfo in
-                try vulkanInvoke {
-                    vkUpdateDescriptorSets(renderStack.device.handle, 1, writeInfo, 0, nil)
-                }
+        try VkBuilder<VkWriteDescriptorSet> {
+            \.dstSet <- descriptorSet.handle
+            \.dstBinding <- 0
+            \.dstArrayElement <- 0
+            \.descriptorCount <- 1
+            \.descriptorType <- .combinedImageSampler
+            \.pBufferInfo <- nil
+            \.pImageInfo <- imageInfo
+            \.pTexelBufferView <- nil as VkBufferView?
+        }.withUnsafeResultPointer { writeInfo in
+            try vulkanInvoke {
+                vkUpdateDescriptorSets(renderStack.device.handle, 1, writeInfo, 0, nil)
             }
         }
 
@@ -161,8 +157,7 @@ internal class RenderContext {
         bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext.ModelViewProjection>.stride)
 
         try withUnsafePointer(to: &bufferInfo) { bufferInfo in
-            var writeInfo = VkWriteDescriptorSet()
-            writeInfo.sType = .writeDescriptorSet
+            var writeInfo = VkWriteDescriptorSet.new()
             writeInfo.dstSet = modelViewProjectionDescriptorSet.handle
             writeInfo.dstBinding = 0
             writeInfo.dstArrayElement = 0
