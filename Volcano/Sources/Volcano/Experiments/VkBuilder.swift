@@ -8,12 +8,17 @@
 import TinyFoundation
 import CVulkan
 
-infix operator <-
+infix operator <-: AssignmentPrecedence
 prefix operator <-
 
 @inlinable @inline(__always)
 public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Value>, value: Value) -> Val<Struct, Value> {
-    Val(path, value)
+    return Val(path, value)
+}
+
+@inlinable @inline(__always)
+public func <- <Struct: VulkanStructure>(path: WritableKeyPath<Struct, VkBool32>, value: Bool) -> Val<Struct, VkBool32> {
+    return Val(path, value.vkBool)
 }
 
 @inlinable @inline(__always)
@@ -558,11 +563,11 @@ public struct VkBuilder<Struct: VulkanStructure> {
     public typealias Expression = Path<Struct>
     public typealias Component = [Path<Struct>]
 
-    static func buildExpression(_ expression: Expression) -> Component {
+    public static func buildExpression(_ expression: Expression) -> Component {
         return [expression]
     }
 
-    static func buildExpression(_ expression: Expression?) -> Component {
+    public static func buildExpression(_ expression: Expression?) -> Component {
         if let expression = expression {
             return [expression]
         } else {
@@ -570,43 +575,47 @@ public struct VkBuilder<Struct: VulkanStructure> {
         }
     }
 
-    static func buildBlock(_ paths: Component...) -> Component {
+    public static func buildBlock() -> Component {
+        return []
+    }
+
+    public static func buildBlock(_ paths: Component...) -> Component {
         return paths.flatMap { $0 }
     }
 
-    static func buildBlock(_ paths: [Expression?]) -> Component {
+    public static func buildBlock(_ paths: [Expression?]) -> Component {
         return paths.compactMap { $0 }
     }
 
-    static func buildOptional(_ component: Component?) -> Component {
+    public static func buildOptional(_ component: Component?) -> Component {
         return component ?? []
     }
 
-    static func buildEither(first component: Component) -> Component {
+    public static func buildEither(first component: Component) -> Component {
         return component
     }
 
-    static func buildEither(second component: Component) -> Component {
+    public static func buildEither(second component: Component) -> Component {
         return component
     }
 
-    static func buildArray(_ paths: [Component]) -> Component {
+    public static func buildArray(_ paths: [Component]) -> Component {
         return paths.flatMap { $0 }
     }
 
-    static func buildFinalResult(_ paths: Component) -> Component {
+    public static func buildFinalResult(_ paths: Component) -> Component {
         return paths
     }
 
-    static func buildFinalResult(_ paths: Component) -> VkBuilder<Struct> {
+    public static func buildFinalResult(_ paths: Component) -> VkBuilder<Struct> {
         return VkBuilder(paths)
     }
 
-    static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (Component)) -> Component {
+    public static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (Component)) -> Component {
         return content()
     }
 
-    static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (VkBuilder<Struct>)) -> VkBuilder<Struct> {
+    public static func buildFinalResult(@VkBuilder<Struct> _ content: () -> (VkBuilder<Struct>)) -> VkBuilder<Struct> {
         return content()
     }
 
