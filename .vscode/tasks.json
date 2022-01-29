@@ -147,10 +147,10 @@
             "label": "build_tests",
             "type": "shell",
             "linux": {
-                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
             },
             "osx": {
-                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
             },
             "group": "test",
             "presentation": {
@@ -185,7 +185,7 @@
             "label": "buildProject_arm64",
             "type": "shell",
             "linux": {
-                "command": "swift build --verbose --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64 --destination ${env:HOME}/Documents/SwiftCrossCompilers/InstallPackagers/SwiftCrossCompiler/Developer/Destinations/arm64-5.3.3-RELEASE.json"
+                "command": "swift build --verbose --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux --destination ${env:HOME}/Documents/SwiftCrossCompilers/InstallPackagers/SwiftCrossCompiler/Developer/Destinations/arm64-5.3.3-RELEASE.json"
             },
             "osx": {
                 "command": "echo NO_OP"
@@ -218,7 +218,7 @@
             "label": "build",
             "dependsOn": [
                 "clearShell",
-                "buildShaders",
+                // "buildShaders",
                 "buildProject"
             ],
             "dependsOrder": "sequence",
@@ -236,7 +236,7 @@
             "label": "build_arm64",
             "dependsOn": [
                 "clearShell",
-                "buildShaders",
+                // "buildShaders",
                 "buildProject_arm64",
                 "upload_jetson"
             ],

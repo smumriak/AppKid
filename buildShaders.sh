@@ -9,8 +9,8 @@ importHeaderSearchPath=./ContentAnimation/Sources/LayerRenderingData/include
 
 mkdir -p $shadersBinariesCodePath
 
-glslImporterBuildPath=~/Library/Developer/Xcode/DerivedData/glslImporter-$arch
-contentAnimationShadersBuildPath=~/Library/Developer/Xcode/DerivedData/ContentAnimationShaders-$arch
+glslImporterBuildPath=~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux
+contentAnimationShadersBuildPath=~/Library/Developer/Xcode/DerivedData/ContentAnimationShaders
 
 mkdir -p $contentAnimationShadersBuildPath
 
