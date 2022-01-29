@@ -88,7 +88,7 @@ internal class SwapchainTexture: Texture, Hashable {
 
     let textureIdentifier: UInt
 
-    let textureType: VkImageViewType = .type2D
+    let textureType: VkImageViewType = .twoDimensions
     let pixelFormat: VkFormat
     let width: Int
     let height: Int
@@ -230,7 +230,7 @@ internal class BufferTexture: Texture, Hashable {
 
     let textureIdentifier: UInt
 
-    let textureType: VkImageViewType = .type2D
+    let textureType: VkImageViewType = .twoDimensions
     let pixelFormat: VkFormat = .b8g8r8a8UInt
     let width: Int = 0
     let height: Int = 0

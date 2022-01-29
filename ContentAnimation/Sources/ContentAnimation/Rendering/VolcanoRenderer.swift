@@ -622,7 +622,7 @@ internal extension Device {
         colorAttachmentDescription.stencilLoadOp = .clear
         colorAttachmentDescription.stencilStoreOp = .store
         colorAttachmentDescription.initialLayout = .undefined
-        colorAttachmentDescription.finalLayout = .presentSource
+        colorAttachmentDescription.finalLayout = .presentSourceKhr
 
         let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
         let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])

@@ -204,7 +204,7 @@ internal class RenderScheduler {
                 $0.resetState()
             }
         } catch VulkanError.badResult(let errorCode) {
-            if errorCode == .errorOutOfDate || errorCode == .suboptimal {
+            if errorCode == .errorOutOfDateKhr || errorCode == .suboptimalKhr {
                 renderesToRecord.forEach {
                     $0.resetState(to: .swapchainFailed)
                 }

@@ -37,7 +37,7 @@ public extension VkComponentMapping {
 
 public class ImageViewDescriptor {
     public var flags: VkImageViewCreateFlagBits = []
-    public var type: VkImageViewType = .type2D
+    public var type: VkImageViewType = .twoDimensions
     public var format: VkFormat = .rgba8UNorm
     public var componentMapping: VkComponentMapping = .identity
 

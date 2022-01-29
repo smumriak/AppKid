@@ -19,8 +19,6 @@ public protocol EntityInfo: VulkanChainableStructure {
 }
 
 #if os(Linux)
-    public typealias VkXlibSurfaceCreateInfoKHR = CVulkan.VkXlibSurfaceCreateInfoKHR
-
     extension VkXlibSurfaceCreateInfoKHR: EntityInfo {
         public typealias Parent = VkInstance.Pointee
         public typealias Result = VkSurfaceKHR.Pointee
@@ -29,18 +27,14 @@ public protocol EntityInfo: VulkanChainableStructure {
     }
 
 #elseif os(macOS) || os(iOS)
-    // public typealias VkMetalSurfaceCreateInfoEXT = CVulkan.VkMetalSurfaceCreateInfoEXT
-//
     // extension VkMetalSurfaceCreateInfoEXT: EntityInfo {
-//    public typealias Parent = VkInstance.Pointee
-//    public typealias Result = VkSurfaceKHR.Pointee
-//    public static let createFunction: CreateFunction = vkCreateMetalSurfaceEXT
-//    public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+    //     public typealias Parent = VkInstance.Pointee
+    //     public typealias Result = VkSurfaceKHR.Pointee
+    //     public static let createFunction: CreateFunction = vkCreateMetalSurfaceEXT
+    //     public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
     // }
 
     #if os(macOS)
-        public typealias VkMacOSSurfaceCreateInfoMVK = CVulkan.VkMacOSSurfaceCreateInfoMVK
-
         extension VkMacOSSurfaceCreateInfoMVK: EntityInfo {
             public typealias Parent = VkInstance.Pointee
             public typealias Result = VkSurfaceKHR.Pointee
@@ -49,8 +43,6 @@ public protocol EntityInfo: VulkanChainableStructure {
         }
 
     #elseif os(iOS)
-        public typealias VkIOSSurfaceCreateInfoMVK = CVulkan.VkIOSSurfaceCreateInfoMVK
-
         extension VkIOSSurfaceCreateInfoMVK: EntityInfo {
             public typealias Parent = VkInstance.Pointee
             public typealias Result = VkSurfaceKHR.Pointee
@@ -59,8 +51,6 @@ public protocol EntityInfo: VulkanChainableStructure {
         }
     #endif
 #endif
-
-public typealias VkDeviceCreateInfo = CVulkan.VkDeviceCreateInfo
 
 extension VkDeviceCreateInfo: EntityInfo {
     public typealias Parent = VkPhysicalDevice.Pointee
@@ -71,16 +61,12 @@ extension VkDeviceCreateInfo: EntityInfo {
     }
 }
 
-public typealias VkShaderModuleCreateInfo = CVulkan.VkShaderModuleCreateInfo
-
 extension VkShaderModuleCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkShaderModule.Pointee
     public static let createFunction: CreateFunction = vkCreateShaderModule
     public static let deleteFunction: DeleteFunction = vkDestroyShaderModule
 }
-
-public typealias VkCommandPoolCreateInfo = CVulkan.VkCommandPoolCreateInfo
 
 extension VkCommandPoolCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -89,16 +75,12 @@ extension VkCommandPoolCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyCommandPool
 }
 
-public typealias VkFenceCreateInfo = CVulkan.VkFenceCreateInfo
-
 extension VkFenceCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkFence.Pointee
     public static let createFunction: CreateFunction = vkCreateFence
     public static let deleteFunction: DeleteFunction = vkDestroyFence
 }
-
-public typealias VkSwapchainCreateInfoKHR = CVulkan.VkSwapchainCreateInfoKHR
 
 extension VkSwapchainCreateInfoKHR: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -107,16 +89,12 @@ extension VkSwapchainCreateInfoKHR: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroySwapchainKHR
 }
 
-public typealias VkImageViewCreateInfo = CVulkan.VkImageViewCreateInfo
-
 extension VkImageViewCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkImageView.Pointee
     public static let createFunction: CreateFunction = vkCreateImageView
     public static let deleteFunction: DeleteFunction = vkDestroyImageView
 }
-
-public typealias VkPipelineLayoutCreateInfo = CVulkan.VkPipelineLayoutCreateInfo
 
 extension VkPipelineLayoutCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -125,16 +103,12 @@ extension VkPipelineLayoutCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyPipelineLayout
 }
 
-public typealias VkRenderPassCreateInfo = CVulkan.VkRenderPassCreateInfo
-
 extension VkRenderPassCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkRenderPass.Pointee
     public static let createFunction: CreateFunction = vkCreateRenderPass
     public static let deleteFunction: DeleteFunction = vkDestroyRenderPass
 }
-
-public typealias VkFramebufferCreateInfo = CVulkan.VkFramebufferCreateInfo
 
 extension VkFramebufferCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -143,16 +117,12 @@ extension VkFramebufferCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyFramebuffer
 }
 
-public typealias VkSemaphoreCreateInfo = CVulkan.VkSemaphoreCreateInfo
-
 extension VkSemaphoreCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkSemaphore.Pointee
     public static let createFunction: CreateFunction = vkCreateSemaphore
     public static let deleteFunction: DeleteFunction = vkDestroySemaphore
 }
-
-public typealias VkSamplerCreateInfo = CVulkan.VkSamplerCreateInfo
 
 extension VkSamplerCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -161,16 +131,12 @@ extension VkSamplerCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroySampler
 }
 
-public typealias VkEventCreateInfo = CVulkan.VkEventCreateInfo
-
 extension VkEventCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkEvent.Pointee
     public static let createFunction: CreateFunction = vkCreateEvent
     public static let deleteFunction: DeleteFunction = vkDestroyEvent
 }
-
-public typealias VkQueryPoolCreateInfo = CVulkan.VkQueryPoolCreateInfo
 
 extension VkQueryPoolCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -179,16 +145,12 @@ extension VkQueryPoolCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyQueryPool
 }
 
-public typealias VkBufferCreateInfo = CVulkan.VkBufferCreateInfo
-
 extension VkBufferCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkBuffer.Pointee
     public static let createFunction: CreateFunction = vkCreateBuffer
     public static let deleteFunction: DeleteFunction = vkDestroyBuffer
 }
-
-public typealias VkBufferViewCreateInfo = CVulkan.VkBufferViewCreateInfo
 
 extension VkBufferViewCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -197,16 +159,12 @@ extension VkBufferViewCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyBufferView
 }
 
-public typealias VkImageCreateInfo = CVulkan.VkImageCreateInfo
-
 extension VkImageCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkImage.Pointee
     public static let createFunction: CreateFunction = vkCreateImage
     public static let deleteFunction: DeleteFunction = vkDestroyImage
 }
-
-public typealias VkDescriptorSetLayoutCreateInfo = CVulkan.VkDescriptorSetLayoutCreateInfo
 
 extension VkDescriptorSetLayoutCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
@@ -215,16 +173,12 @@ extension VkDescriptorSetLayoutCreateInfo: EntityInfo {
     public static let deleteFunction: DeleteFunction = vkDestroyDescriptorSetLayout
 }
 
-public typealias VkDescriptorPoolCreateInfo = CVulkan.VkDescriptorPoolCreateInfo
-
 extension VkDescriptorPoolCreateInfo: EntityInfo {
     public typealias Parent = VkDevice.Pointee
     public typealias Result = VkDescriptorPool.Pointee
     public static let createFunction: CreateFunction = vkCreateDescriptorPool
     public static let deleteFunction: DeleteFunction = vkDestroyDescriptorPool
 }
-
-public typealias VkRenderPassCreateInfo2 = CVulkan.VkRenderPassCreateInfo2
 
 extension VkRenderPassCreateInfo2: EntityInfo {
     public typealias Parent = VkDevice.Pointee

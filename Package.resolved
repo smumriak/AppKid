@@ -6,23 +6,31 @@
         "repositoryURL" : "https://github.com/recp/cglm",
         "state" : {
           "branch" : "master",
-          "revision" : "d0d1e4653399a5d7b3a72c01903275590adf935e"
+          "revision" : "f20bf0aaaf34edb21b600b035c718a07fd18f9b9"
         }
       },
       {
         "package" : "swift-argument-parser",
         "repositoryURL" : "https://github.com/apple/swift-argument-parser",
         "state" : {
-          "revision" : "986d191f94cec88f6350056da59c2e59e83d1229",
-          "version" : "0.4.3"
+          "revision" : "e1465042f195f374b94f915ba8ca49de24300a0d",
+          "version" : "1.0.2"
         }
       },
       {
         "package" : "swift-collections",
         "repositoryURL" : "https://github.com/apple/swift-collections",
         "state" : {
-          "revision" : "2d33a0ea89c961dcb2b3da2157963d9c0370347e",
-          "version" : "1.0.1"
+          "revision" : "48254824bb4248676bf7ce56014ff57b142b77eb",
+          "version" : "1.0.2"
+        }
+      },
+      {
+        "package" : "XMLCoder",
+        "repositoryURL" : "https://github.com/MaxDesiatov/XMLCoder.git",
+        "state" : {
+          "revision" : "f30119af03996939cc4f54e0bf0dda9f88a84da5",
+          "version" : "0.13.1"
         }
       }
     ]

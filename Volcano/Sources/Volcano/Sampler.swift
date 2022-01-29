@@ -34,7 +34,7 @@ public final class Sampler: VulkanDeviceEntity<SmartPointer<VkSampler_T>> {
 
         public static let nearest = Filters(magnification: .nearest, minification: .nearest)
         public static let linear = Filters(magnification: .linear, minification: .linear)
-        public static let cubic = Filters(magnification: .cubic, minification: .cubic)
+        public static let cubic = Filters(magnification: .cubicImg, minification: .cubicImg)
     }
 
     public struct LevelOfDetails {
@@ -51,7 +51,7 @@ public final class Sampler: VulkanDeviceEntity<SmartPointer<VkSampler_T>> {
         public static let none = LevelOfDetails(bias: 0, min: 0, max: 0)
     }
 
-    public init(device: Device, addressModes: AddressModes = .repeat, flags: VkSamplerCreateFlagBits = [], filters: Filters = .linear, mipMapMode: VkSamplerMipmapMode = .linear, levelOfDetails: LevelOfDetails = .none, borderColor: VkBorderColor = .opaqueBlackInt, maxAnisotropy: Float? = nil, compareOperation: VkCompareOp? = nil, unnormalizedCoordinates: Bool = false) throws {
+    public init(device: Device, addressModes: AddressModes = .repeat, flags: VkSamplerCreateFlagBits = [], filters: Filters = .linear, mipMapMode: VkSamplerMipmapMode = .linear, levelOfDetails: LevelOfDetails = .none, borderColor: VkBorderColor = .intOpaqueBlack, maxAnisotropy: Float? = nil, compareOperation: VkCompareOp? = nil, unnormalizedCoordinates: Bool = false) throws {
         var info = VkSamplerCreateInfo.new()
         info.flags = flags.rawValue
         

@@ -152,7 +152,7 @@ internal class VolcanoSwapchainRenderer {
                 (index, texture) = try grabNextTexture()
                 break
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
+                if errorCode == .errorOutOfDateKhr || errorCode == .suboptimalKhr {
                     if skipRecreation == true {
                         recreateSwapchainOnNextRun = true
                         return
@@ -186,7 +186,7 @@ internal class VolcanoSwapchainRenderer {
 
             try layerRenderer.endFrame()
         } catch VulkanError.badResult(let errorCode) {
-            if errorCode == .errorOutOfDate || errorCode == .suboptimal {
+            if errorCode == .errorOutOfDateKhr || errorCode == .suboptimalKhr {
                 recreateSwapchainOnNextRun = true
             } else {
                 throw VulkanError.badResult(errorCode)

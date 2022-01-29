@@ -9,6 +9,8 @@ import Foundation
 import ArgumentParser
 import XMLCoder
 
+// palkovnik: The code below is extremely bad. Abstraction is bad, a lot of hardcoded values and it was written in three nights. But vk.xml is a crappy format for specification anyway, so crappy input deserves crappy tool
+
 let spellOutNumberFormatter = NumberFormatter()
 spellOutNumberFormatter.numberStyle = .spellOut
 spellOutNumberFormatter.locale = Locale(identifier: "en_US")
@@ -20,6 +22,7 @@ let platformToDefine = [
     "wayland": "VOLCANO_PLATFORM_LINUX",
     "ios": "VOLCANO_PLATFORM_IOS",
     "macos": "VOLCANO_PLATFORM_MACOS",
+    "metal": "VOLCANO_PLATFORM_APPLE_METAL",
     "android": "VOLCANO_PLATFORM_ANDROID",
     "win32": "VOLCANO_PLATFORM_WINDOWS",
 ]
@@ -37,6 +40,56 @@ struct Templates {
         extension <NAME>: VulkanInStructure {
             public static let type: VkStructureType = <TYPE>
         }
+        """
+
+    static let vulkanCEnumsLicense =
+        """
+        //
+        //  VulkanEnums.h
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 17.08.2020.
+        //
+        """
+
+    static let vulkanCOptionSetsLicense =
+        """
+        //
+        //  VulkanOptionSets.h
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 17.08.2020.
+        //
+        """
+
+    static let vulkanSwiftStructuresLicense =
+        """
+        //
+        //  VulkanStructureConformance.swift
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 28.01.2021.
+        //
+        """
+
+    static let vulkanSwiftEnumsLicense =
+        """
+        //
+        //  VulkanEnums.swift
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 28.01.2021.
+        //
+        """
+
+    static let vulkanSwiftOptionSetsLicense =
+        """
+        //
+        //  VulkanOptionSets.swift
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 28.01.2021.
+        //
         """
 }
 
@@ -60,6 +113,9 @@ struct RegistryDefinition: Codable, Equatable {
 
 struct PlatformsContainer: Codable, Equatable {
     let elements: [PlatformDefinition]
+    var byName: [String: PlatformDefinition] {
+        Dictionary(uniqueKeysWithValues: elements.map { ($0.name, $0) })
+    }
 
     enum CodingKeys: String, CodingKey {
         case elements = "platform"
@@ -68,7 +124,7 @@ struct PlatformsContainer: Codable, Equatable {
 
 struct PlatformDefinition: Codable, Equatable, DynamicNodeDecoding {
     let name: String
-    let protectingDefine: String
+    let protectingDefine: String?
 
     enum CodingKeys: String, CodingKey {
         case name
@@ -321,11 +377,22 @@ struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
 }
 
 struct VulkanStructureGenerator: ParsableCommand {
+    enum GeneratedFileType: String, EnumerableFlag {
+        case swiftStructs
+        case swiftOptionSets
+        case swiftEnums
+        case cEnums
+        case cOptionSets
+    }
+
     @Argument(help: "Vulkan API registry file path")
     var registryFilePath: String = "/usr/share/vulkan/registry/vk.xml"
 
     @Option(name: .shortAndLong, help: "Location of the output swift code file")
     var outputFilePath: String
+
+    @Flag(help: "")
+    var generatedFileType: GeneratedFileType
 
     func run() throws {
         let registryFileURL = URL(fileURLWithPath: registryFilePath, isDirectory: false)
@@ -354,6 +421,11 @@ struct VulkanStructureGenerator: ParsableCommand {
         var parsedOptionSets = Dictionary(uniqueKeysWithValues:
             registry.enumerations
                 .filter { $0.subtype == .bitmask }
+                .filter {
+                    $0.name != "VkAccessFlagBits2KHR"
+                        && $0.name != "VkFormatFeatureFlagBits2KHR"
+                        && $0.name != "VkPipelineStageFlagBits2KHR"
+                }
                 .map { ParsedEnum(enumerationDefinition: $0) }
                 .map { ($0.name, $0) }
         )
@@ -365,6 +437,10 @@ struct VulkanStructureGenerator: ParsableCommand {
                         return
                     }
 
+                    if let protectingDefine = $0.protectingDefine, protectingDefine == "VK_ENABLE_BETA_EXTENSIONS" {
+                        return
+                    }
+
                     if var enumeration = parsedEnumerations[extends] {
                         var addedCase = ParsedEnum.Case(name: $0.name)
 
@@ -372,21 +448,33 @@ struct VulkanStructureGenerator: ParsableCommand {
                             addedCase.cDefines.append(protectingDefine)
                         }
 
-                        enumeration.cases.append(addedCase)
+                        let alreadyExists = enumeration.cases.contains {
+                            $0.name == addedCase.name
+                        }
+
+                        if alreadyExists == false {
+                            enumeration.cases.append(addedCase)
+                        }
 
                         parsedEnumerations[extends] = enumeration
                     }
 
-                    if var enumeration = parsedOptionSets[extends] {
+                    if var optionSet = parsedOptionSets[extends] {
                         var addedCase = ParsedEnum.Case(name: $0.name)
 
                         if let protectingDefine = $0.protectingDefine {
                             addedCase.cDefines.append(protectingDefine)
                         }
 
-                        enumeration.cases.append(addedCase)
+                        let alreadyExists = optionSet.cases.contains {
+                            $0.name == addedCase.name
+                        }
 
-                        parsedOptionSets[extends] = enumeration
+                        if alreadyExists == false {
+                            optionSet.cases.append(addedCase)
+                        }
+
+                        parsedOptionSets[extends] = optionSet
                     }
                 }
             }
@@ -395,11 +483,17 @@ struct VulkanStructureGenerator: ParsableCommand {
         registry.extensions.elements.forEach { extensionItem in
             var shouldRemoveType = false
             var swiftDefine: String?
+            var cDefine: String?
+            
             if let platformName = extensionItem.platformName {
                 if let swiftDefineForPlatform = platformToDefine[platformName] {
                     swiftDefine = swiftDefineForPlatform
                 } else {
                     shouldRemoveType = true
+                }
+
+                if let platform = registry.platforms.byName[platformName] {
+                    cDefine = platform.protectingDefine
                 }
             }
 
@@ -415,6 +509,12 @@ struct VulkanStructureGenerator: ParsableCommand {
                                 structure.swiftDefines.append($0)
                             }
 
+                            cDefine.map {
+                                if structure.cDefines.contains($0) == false {
+                                    structure.cDefines.append($0)
+                                }
+                            }
+
                             parsedStructures[$0.name] = structure
                         }
 
@@ -422,7 +522,13 @@ struct VulkanStructureGenerator: ParsableCommand {
                             swiftDefine.map {
                                 enumeration.swiftDefines.append($0)
                             }
-                            
+
+                            cDefine.map {
+                                if enumeration.cDefines.contains($0) == false {
+                                    enumeration.cDefines.append($0)
+                                }
+                            }
+
                             parsedEnumerations[$0.name] = enumeration
                         }
 
@@ -430,14 +536,28 @@ struct VulkanStructureGenerator: ParsableCommand {
                             swiftDefine.map {
                                 optionSet.swiftDefines.append($0)
                             }
-                            
+
+                            cDefine.map {
+                                if optionSet.cDefines.contains($0) == false {
+                                    optionSet.cDefines.append($0)
+                                }
+                            }
+
                             parsedOptionSets[$0.name] = optionSet
                         }
                     }
                 }
-                
+
+                if extensionItem.supported == .disabled {
+                    return
+                }
+
                 requirement.enumerants?.forEach {
                     guard let extends = $0.extends else {
+                        return
+                    }
+
+                    if let protectingDefine = $0.protectingDefine, protectingDefine == "VK_ENABLE_BETA_EXTENSIONS" {
                         return
                     }
 
@@ -456,7 +576,13 @@ struct VulkanStructureGenerator: ParsableCommand {
                             }
                         }
                             
-                        enumeration.cases.append(addedCase)
+                        let alreadyExists = enumeration.cases.contains {
+                            $0.name == addedCase.name
+                        }
+
+                        if alreadyExists == false {
+                            enumeration.cases.append(addedCase)
+                        }
 
                         parsedEnumerations[extends] = enumeration
                     }
@@ -476,7 +602,13 @@ struct VulkanStructureGenerator: ParsableCommand {
                             }
                         }
 
-                        optionSet.cases.append(addedCase)
+                        let alreadyExists = optionSet.cases.contains {
+                            $0.name == addedCase.name
+                        }
+
+                        if alreadyExists == false {
+                            optionSet.cases.append(addedCase)
+                        }
 
                         parsedOptionSets[extends] = optionSet
                     }
@@ -484,45 +616,162 @@ struct VulkanStructureGenerator: ParsableCommand {
             }
         }
 
-        debugPrint("Starting")
+        let resultString: String
+        switch generatedFileType {
+            case .swiftStructs:
+                var result: [String] = []
 
-        var result: [String] = []
-        result += parsedStructures.map { $0.value }
-            .sorted {
-                $0.name < $1.name
-            }
-            .flatMap {
-                [
-                    // $0.exportString,
-                    $0.vulkanStructureExtensionString,
+                result += [
+                    Templates.vulkanSwiftStructuresLicense,
+                    """
+                    import TinyFoundation
+                    import CVulkan
+                    """,
                 ]
-            }
-        // result += parsedEnumerations.map { $0.value }
-        //     .sorted {
-        //         $0.name < $1.name
-        //     }
-        //     .flatMap {
-        //         [
-        //             $0.exportString,
-        //             $0.convenienceCasesString(tags: registry.tags.elements),
-        //         ]
-        //     }
-        // result += parsedOptionSets.map { $0.value }
-        //     .sorted {
-        //         $0.name < $1.name
-        //     }
-        //     .flatMap {
-        //         [
-        //             $0.exportString,
-        //             $0.convenienceCasesString(tags: registry.tags.elements),
-        //         ]
-        //     }
+
+                result += parsedStructures.map { $0.value }
+                    .sorted {
+                        $0.name < $1.name
+                    }
+                    .flatMap {
+                        [
+                            $0.exportString,
+                            $0.vulkanStructureExtensionString,
+                        ]
+                    }
+                    
+                resultString = result.joined(separator: "\n\n")
+
+            case .swiftEnums:
+                var result: [String] = []
+
+                result += [
+                    Templates.vulkanSwiftEnumsLicense,
+                    """
+                    import TinyFoundation
+                    import CVulkan
+                    """,
+                ]
+
+                result += parsedEnumerations.map { $0.value }
+                    .sorted {
+                        $0.name < $1.name
+                    }
+                    .filter {
+                        $0.cases.isEmpty == false
+                    }
+                    .flatMap {
+                        [
+                            $0.exportString,
+                            $0.convenienceCasesString(tags: registry.tags.elements),
+                        ]
+                    }
+
+                resultString = result.joined(separator: "\n\n")
+
+            case .swiftOptionSets:
+                var result: [String] = []
+
+                result += [
+                    Templates.vulkanSwiftOptionSetsLicense,
+                    """
+                    import TinyFoundation
+                    import CVulkan
+                    """,
+                ]
+
+                result += parsedOptionSets.map { $0.value }
+                    .sorted {
+                        $0.name < $1.name
+                    }
+                    .filter {
+                        $0.cases.isEmpty == false
+                    }
+                    .flatMap {
+                        [
+                            $0.exportString,
+                            $0.convenienceCasesString(tags: registry.tags.elements),
+                        ]
+                    }
+
+                result += [""]
+
+                resultString = result.joined(separator: "\n\n")
+
+            case .cEnums:
+                var result: [String] = []
+
+                result += [
+                    Templates.vulkanCEnumsLicense,
+                    "",
+                    "#ifndef VulkanEnums_h",
+                    "#define VulkanEnums_h 1",
+                    "",
+                    "#include \"../CCore/include/CCore.h\"",
+                    "",
+                ]
+                
+                result += parsedEnumerations.map { $0.value }
+                    .sorted {
+                        $0.name < $1.name
+                    }
+                    .filter {
+                        $0.cases.isEmpty == false
+                    }
+                    .flatMap {
+                        [
+                            // $0.exportString,
+                            $0.cDeclaration,
+                        ]
+                    }
+
+                result += [
+                    "",
+                    "#endif /* VulkanEnums_h */",
+                    "",
+                ]
+
+                resultString = result.joined(separator: "\n")
+
+            case .cOptionSets:
+                var result: [String] = []
+
+                result += [
+                    Templates.vulkanCOptionSetsLicense,
+                    "",
+                    "#ifndef VulkanOptionSets_h",
+                    "#define VulkanOptionSets_h 1",
+                    "",
+                    "#include \"../CCore/include/CCore.h\"",
+                    "",
+                ]
+                
+                result += parsedOptionSets.map { $0.value }
+                    .sorted {
+                        $0.name < $1.name
+                    }
+                    .filter {
+                        $0.cases.isEmpty == false
+                    }
+                    .flatMap {
+                        [
+                            // $0.exportString,
+                            $0.cDeclaration,
+                        ]
+                    }
+
+                result += [
+                    "",
+                    "#endif /* VulkanOptionSets_h */",
+                    "",
+                ]
+
+                resultString = result.joined(separator: "\n")
+        }
 
         let outputFileURL = URL(fileURLWithPath: outputFilePath, isDirectory: false)
 
-        debugPrint("\(outputFileURL)")
-
-        try result.joined(separator: "\n\n")
+        try resultString
             .write(to: outputFileURL, atomically: true, encoding: .utf8)
     }
 }
@@ -545,20 +794,42 @@ extension String {
             .joined()
     }
 
-    mutating func stripTagSuffix(tags: [TagDefinition], isEnumName: Bool = false) {
-        self = stripingTagSuffix(tags: tags, isEnumName: isEnumName)
+    func tagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String? {
+        for tag in tags {
+            let name = caseSensitive ? tag.name : tag.name.lowercased()
+            let checkedValue = caseSensitive ? self : self.lowercased()
+            
+            let suffix: String
+            if withoutUnderscore {
+                suffix = name
+            } else {
+                suffix = "_" + name
+            }
+            if checkedValue.hasSuffix(suffix) {
+                return suffix
+            }
+        }
+
+        return nil
     }
 
-    func stripingTagSuffix(tags: [TagDefinition], isEnumName: Bool = false) -> String {
+    mutating func stripTagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false) {
+        self = stripingTagSuffix(tags: tags, withoutUnderscore: withoutUnderscore)
+    }
+
+    func stripingTagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String {
         for tag in tags {
+            let name = caseSensitive ? tag.name : tag.name.lowercased()
+            let checkedValue = caseSensitive ? self : self.lowercased()
+            
             let suffix: String
-            if isEnumName {
-                suffix = tag.name
+            if withoutUnderscore {
+                suffix = name
             } else {
-                suffix = "_" + tag.name
+                suffix = "_" + name
             }
-            if hasSuffix(suffix) {
-                return String(dropLast(suffix.count))
+            if checkedValue.hasSuffix(suffix) {
+                return String(self.dropLast(suffix.count))
             }
         }
 
@@ -621,25 +892,41 @@ extension VulkanType {
 }
 
 extension ParsedEnum.Case {
-    func convenienceGenerated(enumerationName: String, isOptionSet: Bool, tags: [TagDefinition]) -> [String] {
+    func convenienceGenerated(enumerationName: String, isOptionSet: Bool, tags: [TagDefinition], enumTagToStrip: String? = nil) -> [String] {
+        let brokenNames: Set<String> = [
+            "VK_SURFACE_COUNTER_VBLANK_EXT",
+            "VK_PIPELINE_CREATE_DISPATCH_BASE",
+            "VK_PERFORMANCE_COUNTER_DESCRIPTION_PERFORMANCE_IMPACTING_KHR",
+            "VK_PERFORMANCE_COUNTER_DESCRIPTION_CONCURRENTLY_IMPACTED_KHR",
+            "VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES2_EXT",
+        ]
+
+        if brokenNames.contains(name) {
+            return []
+        }
+
         var result = name
             .replacingOccurrences(of: "_1D", with: "_ONE_DIMENSION")
             .replacingOccurrences(of: "_2D", with: "_TWO_DIMENSIONS")
             .replacingOccurrences(of: "_3D", with: "_THREE_DIMENSIONS")
-
-        // special case for vendors. in most cases Vendor ID == Tag
-        if enumerationName != "VkVendorId" {
-            result.stripTagSuffix(tags: tags, isEnumName: false)
-        }
+            .replacingOccurrences(of: "_SRC", with: "_SOURCE")
+            .replacingOccurrences(of: "_DST", with: "_DESTINATION")
             
-        if isOptionSet && result.hasSuffix("_BIT") {
-            result = String(result.dropLast(4))
+        if isOptionSet {
+            var withoutTag = result.stripingTagSuffix(tags: tags, withoutUnderscore: false)
+            let tag = result.dropFirst(withoutTag.count)
+
+            if withoutTag.hasSuffix("_BIT") {
+                withoutTag = String(withoutTag.dropLast(4))
+            }
+
+            result = withoutTag + tag
         }
 
         result = result.snakecased(capitalizeFirst: true)
 
         var prefixToRemove = enumerationName
-            .stripingTagSuffix(tags: tags, isEnumName: true)
+            .stripingTagSuffix(tags: tags, withoutUnderscore: true)
 
         if isOptionSet, let range = prefixToRemove.range(of: "FlagBits") {
             prefixToRemove.removeSubrange(range)
@@ -648,6 +935,34 @@ extension ParsedEnum.Case {
         prefixToRemove = prefixToRemove.commonPrefix(with: result)
 
         result = String(result.dropFirst(prefixToRemove.count))
+
+        if enumerationName == "VkFormat" {
+            result = result.replacingOccurrences(of: "Unorm", with: "UNorm")
+            result = result.replacingOccurrences(of: "Snorm", with: "SNorm")
+            result = result.replacingOccurrences(of: "Uint", with: "UInt")
+            result = result.replacingOccurrences(of: "Sint", with: "SInt")
+            result = result.replacingOccurrences(of: "Uscaled", with: "UScaled")
+            result = result.replacingOccurrences(of: "Sscaled", with: "SScaled")
+            result = result.replacingOccurrences(of: "Ufloat", with: "UFloat")
+            result = result.replacingOccurrences(of: "Sfloat", with: "SFloat")
+            result = result.replacingOccurrences(of: "Sfloat", with: "SFloat")
+
+            result = result.replacingOccurrences(of: "R([0-9])", with: "r$1", options: .regularExpression)
+            result = result.replacingOccurrences(of: "G([0-9])", with: "g$1", options: .regularExpression)
+            result = result.replacingOccurrences(of: "B([0-9])", with: "b$1", options: .regularExpression)
+            result = result.replacingOccurrences(of: "A([0-9])", with: "a$1", options: .regularExpression)
+
+            result = result.replacingOccurrences(of: "rgb", with: "RGB", options: .caseInsensitive)
+            result = result.replacingOccurrences(of: "rgba", with: "RGBA", options: .caseInsensitive)
+        }
+
+        if isOptionSet && result.stripingTagSuffix(tags: tags, withoutUnderscore: true, caseSensitive: false).lowercased() == "none" {
+            return []
+        }
+
+        if let enumTagToStrip = enumTagToStrip, result.lowercased().hasSuffix(enumTagToStrip.lowercased()) {
+            result = String(result.dropLast(enumTagToStrip.count))
+        }
 
         let digitsPrefix = result.prefix {
             $0.isNumber
@@ -658,6 +973,17 @@ extension ParsedEnum.Case {
         }
 
         result.lowercaseFirst()
+
+        let keywords: Set<String> = [
+            "repeat",
+            "static",
+            "default",
+            "import",
+        ]
+
+        if keywords.contains(result) {
+            result = "`" + result + "`"
+        }
 
         var resultingArray: [String] = []
         resultingArray += swiftDefines.map {
@@ -700,18 +1026,34 @@ struct ParsedEnum: VulkanType {
     }
 
     func convenienceCasesString(tags: [TagDefinition]) -> String {
+        let enumTagToStrip = name.tagSuffix(tags: tags, withoutUnderscore: true, caseSensitive: false)
+    
         var result: [String] = []
+
+        result += swiftDefines.map {
+            "#if \($0)"
+        }
+
         result.append("public extension \(name) {")
 
-        result += cases.map {
-            $0.convenienceGenerated(enumerationName: name, isOptionSet: isOptionSet, tags: tags)
-                .map {
-                    "    " + $0
-                }
-                .joined(separator: "\n")
+        result += cases.compactMap {
+            let strings = $0.convenienceGenerated(enumerationName: name, isOptionSet: isOptionSet, tags: tags, enumTagToStrip: enumTagToStrip)
+
+            if strings.isEmpty {
+                return nil
+            }
+
+            return strings.map {
+                "    " + $0
+            }
+            .joined(separator: "\n")
         }
 
         result.append("}")
+
+        result += swiftDefines.map { _ in
+            "#endif"
+        }
 
         return result.joined(separator: "\n")
     }
@@ -723,7 +1065,11 @@ struct ParsedEnum: VulkanType {
             "#ifdef \($0)"
         }
 
-        result += ["AK_EXISTING_ENUM(VkImageViewType);"]
+        if isOptionSet {
+            result += ["AK_EXISTING_OPTIONS(\(name));"]
+        } else {
+            result += ["AK_EXISTING_ENUM(\(name));"]
+        }
 
         result += cDefines.map { _ in
             "#endif"

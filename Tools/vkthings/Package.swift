@@ -5,8 +5,11 @@ import PackageDescription
 
 let package = Package(
     name: "vkthings",
+    products: [
+        .executable(name: "vkthings", targets: ["vkthings"]),
+    ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/MaxDesiatov/XMLCoder.git", from: "0.13.1"),
     ],
     targets: [

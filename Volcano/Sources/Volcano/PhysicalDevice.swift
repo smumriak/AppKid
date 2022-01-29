@@ -54,7 +54,7 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
             return 0
         } else {
             result += properties.limits.maxImageDimension2D
-            if properties.deviceType == .discrete {
+            if properties.deviceType == .discreteGpu {
                 result += 1000
             }
         }

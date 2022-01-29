@@ -139,7 +139,7 @@ internal class VolcanoSwapchainRenderer1 {
             do {
                 return try await body()
             } catch VulkanError.badResult(let errorCode) {
-                if errorCode == .errorOutOfDate || errorCode == .suboptimal {
+                if errorCode == .errorOutOfDateKhr || errorCode == .suboptimalKhr {
                     if skipRecreation == true {
                         throw VulkanError.badResult(errorCode)
                     }
@@ -153,7 +153,7 @@ internal class VolcanoSwapchainRenderer1 {
             }
         } while !skipRecreation
 
-        throw VulkanError.badResult(.errorOutOfDate)
+        throw VulkanError.badResult(.errorOutOfDateKhr)
     }
 
     @MainActor func grabNextTextureAsync(semaphore: Volcano.Semaphore) async throws -> (index: Int, texture: Texture) {

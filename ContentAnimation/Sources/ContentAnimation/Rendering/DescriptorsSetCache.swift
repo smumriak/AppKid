@@ -81,7 +81,7 @@ internal class DescriptorsSetCache {
                     } catch {
                         if case let VulkanError.badResult(vulkanResult) = error {
                             switch vulkanResult {
-                                case .errmentedPool, .errorOutOfPoolMemory:
+                                case .errorFragmentedPool, .errorOutOfPoolMemory:
                                     _currentPool = nil
 
                                     return try currentPool.allocate(with: layout)

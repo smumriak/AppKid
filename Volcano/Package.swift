@@ -21,6 +21,7 @@ let package = Package(
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
+        .package(path: "../Tools/vkthings"),
     ],
     targets: [
         .target(
@@ -38,6 +39,7 @@ let package = Package(
                 .define("VOLCANO_PLATFORM_LINUX", .when(platforms: [.linux])),
                 .define("VOLCANO_PLATFORM_MACOS", .when(platforms: [.macOS])),
                 .define("VOLCANO_PLATFORM_IOS", .when(platforms: [.iOS])),
+                .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
                 .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
                 .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
             ]

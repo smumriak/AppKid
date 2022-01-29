@@ -25,7 +25,7 @@ public struct TextureUsage: OptionSet {
 }
 
 public final class TextureDescriptor {
-    public var textureType: VkImageViewType = .type2D
+    public var textureType: VkImageViewType = .twoDimensions
     public var pixelFormat: VkFormat = .rgba8UNorm
     public var width: Int = 1
     public var height: Int = 1
@@ -53,7 +53,7 @@ public extension TextureDescriptor {
     static func texture2DDescriptor(pixelFormat: VkFormat, width: Int, height: Int, mipmapped: Bool) -> TextureDescriptor {
         let result = TextureDescriptor()
 
-        result.textureType = .type2D
+        result.textureType = .twoDimensions
         result.pixelFormat = pixelFormat
         result.width = width
         result.height = height

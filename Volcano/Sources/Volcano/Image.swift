@@ -31,7 +31,7 @@ public final class Image: VulkanDeviceEntity<SmartPointer<VkImage_T>> {
 
 public class ImageDescriptor {
     public var flags: VkImageCreateFlagBits = []
-    public var imageType: VkImageType = .type2D
+    public var imageType: VkImageType = .twoDimensions
     public var format: VkFormat = .rgba8UNorm
     public var extent: VkExtent3D = .zero
     public var mipLevels: CUnsignedInt = 0

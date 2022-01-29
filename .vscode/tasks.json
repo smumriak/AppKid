@@ -2,13 +2,122 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "clearShell",
+            "type": "shell",
+            "command": "clear",
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+        },
+        {
+            "label": "generateVolcanoCEnums",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanEnums.h --c-enums"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanEnums.h --c-enums"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
+            "label": "generateVolcanoCOptionSets",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanOptionSets.h --c-option-sets"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanOptionSets.h --c-option-sets"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
+            "label": "generateVolcanoSwiftStructures",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
+            "label": "generateVolcanoSwiftEnums",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
+            "label": "generateVolcanoSwiftOptionSets",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+        },
+        {
             "label": "buildProject",
             "type": "shell",
             "linux": {
-                "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
+                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
             },
             "osx": {
-                "command": "clear; swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
+                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
             },
             "group": "build",
             "presentation": {
@@ -17,13 +126,13 @@
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
-                "clear": true
+                "clear": false
             },
         },
         {
             "label": "clean",
             "type": "shell",
-            "command": "clear; ./clean.sh",
+            "command": "./clean.sh",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -31,17 +140,17 @@
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
-                "clear": true,
+                "clear": false
             },
         },
         {
             "label": "build_tests",
             "type": "shell",
             "linux": {
-                "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux"
             },
             "osx": {
-                "command": "clear; swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin"
             },
             "group": "test",
             "presentation": {
@@ -50,7 +159,7 @@
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
-                "clear": true
+                "clear": false
             },
         },
         {
@@ -69,7 +178,7 @@
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
-                "clear": true
+                "clear": false
             },
         },
         {
@@ -88,7 +197,7 @@
                 "focus": false,
                 "panel": "shared",
                 "showReuseMessage": false,
-                "clear": true
+                "clear": false
             },
         },
         {
@@ -108,6 +217,7 @@
         {
             "label": "build",
             "dependsOn": [
+                "clearShell",
                 "buildShaders",
                 "buildProject"
             ],
@@ -125,12 +235,35 @@
         {
             "label": "build_arm64",
             "dependsOn": [
+                "clearShell",
                 "buildShaders",
                 "buildProject_arm64",
                 "upload_jetson"
             ],
             "dependsOrder": "sequence",
             "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "vkthings",
+            "dependsOn": [
+                "clearShell",
+                "generateVolcanoCEnums",
+                "generateVolcanoCOptionSets",
+                "generateVolcanoSwiftStructures",
+                "generateVolcanoSwiftEnums",
+                "generateVolcanoSwiftOptionSets",
+            ],
+            "dependsOrder": "sequence",
+            "group": "none",
             "presentation": {
                 "echo": false,
                 "reveal": "always",

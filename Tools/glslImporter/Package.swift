@@ -19,7 +19,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../../TinyFoundation"),
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "0.4.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [
         .executableTarget(
