@@ -61,6 +61,29 @@ public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>
         return result
     }()
 
+    public private(set) lazy var maximumSampleCount: VkSampleCountFlagBits = {
+        let framebufferColorSampleCount = VkSampleCountFlagBits(rawValue: properties.limits.framebufferColorSampleCounts)
+        let framebufferDepthSampleCounts = VkSampleCountFlagBits(rawValue: properties.limits.framebufferDepthSampleCounts)
+        let supportedSampleCount = framebufferColorSampleCount.intersection(framebufferDepthSampleCounts)
+
+        let sampleCounts: [VkSampleCountFlagBits] = [
+            .sixtyFour,
+            .thirtyTwo,
+            .sixteen,
+            .eight,
+            .four,
+            .two,
+        ]
+
+        for sampleCount in sampleCounts {
+            if supportedSampleCount.contains(sampleCount) {
+                return sampleCount
+            }
+        }
+
+        return .one
+    }()
+
     internal override init(instance: Instance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
         // var features11: VkPhysicalDeviceVulkan11Features = .new()
         // var features12: VkPhysicalDeviceVulkan12Features = .new()
