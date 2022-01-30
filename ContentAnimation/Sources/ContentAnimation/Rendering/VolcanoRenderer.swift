@@ -437,20 +437,9 @@ internal extension VkPipelineColorBlendAttachmentState {
 }
 
 internal extension RenderPass {
-    func createBackgroundPipeline(subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout]) throws -> GraphicsPipeline {
-        #if os(Linux)
-            let bundle = Bundle.module
-        #else
-            let bundle = Bundle.main
-        #endif
-
-        let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
-        let fragmentShader = try device.shader(named: "BackgroundFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
-
+    func sharedGraphicsPipelineDescriptor(subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) -> GraphicsPipelineDescriptor {
         let descriptor = GraphicsPipelineDescriptor()
-        descriptor.vertexShader = vertexShader
-        descriptor.fragmentShader = fragmentShader
-
+    
         descriptor.descriptorSetLayouts = descriptorSetLayouts
         descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
 
@@ -472,9 +461,8 @@ internal extension RenderPass {
         descriptor.lineWidth = 1.0
 
         descriptor.sampleShadingEnabled = true
-        descriptor.minSampleShading = 0.4
+        descriptor.minSampleShading = 0.2
         descriptor.rasterizationSamples = .four
-        descriptor.minSampleShading = 1.0
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
         descriptor.alphaToOneEnabled = false
@@ -489,6 +477,23 @@ internal extension RenderPass {
             .scissor,
             .lineWidth,
         ]
+
+        return descriptor
+    }
+
+    func createBackgroundPipeline(subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout]) throws -> GraphicsPipeline {
+        #if os(Linux)
+            let bundle = Bundle.module
+        #else
+            let bundle = Bundle.main
+        #endif
+
+        let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
+        let fragmentShader = try device.shader(named: "BackgroundFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
+
+        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts)
+        descriptor.vertexShader = vertexShader
+        descriptor.fragmentShader = fragmentShader
 
         return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
     }
@@ -503,49 +508,9 @@ internal extension RenderPass {
         let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
         let fragmentShader = try device.shader(named: "BorderFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
 
-        let descriptor = GraphicsPipelineDescriptor()
+        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts)
         descriptor.vertexShader = vertexShader
         descriptor.fragmentShader = fragmentShader
-
-        descriptor.descriptorSetLayouts = descriptorSetLayouts
-
-        descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
-
-        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
-        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
-
-        descriptor.inputPrimitiveTopology = .triangleList
-        descriptor.primitiveRestartEnabled = false
-
-        descriptor.depthClampEnabled = false
-        descriptor.discardEnabled = false
-        descriptor.polygonMode = .fill
-        descriptor.cullModeFlags = []
-        descriptor.frontFace = .counterClockwise
-        descriptor.depthBiasEnabled = false
-        descriptor.depthBiasConstantFactor = 0.0
-        descriptor.depthBiasClamp = 0.0
-        descriptor.depthBiasSlopeFactor = 0.0
-        descriptor.lineWidth = 1.0
-
-        descriptor.sampleShadingEnabled = true
-        descriptor.minSampleShading = 0.4
-        descriptor.rasterizationSamples = .four
-        descriptor.minSampleShading = 1.0
-        descriptor.sampleMasks = []
-        descriptor.alphaToCoverageEnabled = false
-        descriptor.alphaToOneEnabled = false
-
-        descriptor.logicOperationEnabled = false
-        descriptor.logicOperation = .copy
-        descriptor.colorBlendAttachments = [.rgbaBlend]
-        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
-
-        descriptor.dynamicStates = [
-            .viewport,
-            .scissor,
-            .lineWidth,
-        ]
 
         return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
     }
@@ -560,49 +525,12 @@ internal extension RenderPass {
         let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
         let fragmentShader = try device.shader(named: "ContentsFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
 
-        let descriptor = GraphicsPipelineDescriptor()
+        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts)
         descriptor.vertexShader = vertexShader
         descriptor.fragmentShader = fragmentShader
 
-        descriptor.descriptorSetLayouts = descriptorSetLayouts
-
-        descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)
-
-        descriptor.vertexInputBindingDescriptions = [LayerRenderDescriptor.inputBindingDescription()]
-        descriptor.inputAttributeDescrioptions = LayerRenderDescriptor.attributesDescriptions()
-
-        descriptor.inputPrimitiveTopology = .triangleList
-        descriptor.primitiveRestartEnabled = false
-
-        descriptor.depthClampEnabled = false
-        descriptor.discardEnabled = false
-        descriptor.polygonMode = .fill
-        descriptor.cullModeFlags = []
-        descriptor.frontFace = .counterClockwise
-        descriptor.depthBiasEnabled = false
-        descriptor.depthBiasConstantFactor = 0.0
-        descriptor.depthBiasClamp = 0.0
-        descriptor.depthBiasSlopeFactor = 0.0
-        descriptor.lineWidth = 1.0
-
-        descriptor.sampleShadingEnabled = true
-        descriptor.minSampleShading = 0.5
-        descriptor.rasterizationSamples = .four
-        descriptor.minSampleShading = 1.0
-        descriptor.sampleMasks = []
-        descriptor.alphaToCoverageEnabled = false
-        descriptor.alphaToOneEnabled = false
-
-        descriptor.logicOperationEnabled = false
-        descriptor.logicOperation = .copy
-        descriptor.colorBlendAttachments = [.rgbaBlend]
-        descriptor.blendConstants = (0.0, 0.0, 0.0, 0.0)
-
-        descriptor.dynamicStates = [
-            .viewport,
-            .scissor,
-            .lineWidth,
-        ]
+        descriptor.sampleShadingEnabled = false
+        descriptor.minSampleShading = 0.0
 
         return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
     }
