@@ -45,7 +45,8 @@ internal class VolcanoSwapchainRenderer {
     internal let timelineSemaphore: TimelineSemaphore
 
     internal var device: Device { renderStack.device }
-    internal var textures: [Texture] = []
+    internal var aliasingTextures: [Texture] = []
+    internal var swapchainTextures: [Texture] = []
 
     @Synchronized internal var state: State = .idle
 
@@ -106,13 +107,23 @@ internal class VolcanoSwapchainRenderer {
 
         swapchain = try Swapchain(device: device, surface: surface, desiredPresentModes: [.mailbox, .fifo], size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
 
-        textures = try swapchain.creteTextures()
+        swapchainTextures = try swapchain.creteTextures()
+
+        let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: swapchain.imageFormat, width: Int(swapchain.size.width), height: Int(swapchain.size.height), mipmapped: false)
+        textureDescriptor.usage = [.renderTarget, .shaderRead]
+        textureDescriptor.tiling = .optimal
+        textureDescriptor.setAccessQueues([renderStack.queues.graphics, renderStack.queues.transfer])
+        textureDescriptor.sampleCount = .four
+        
+        aliasingTextures = try swapchainTextures.map { _ in
+            try device.createTexture(with: textureDescriptor)
+        }
 
         oldSwapchain = nil
     }
     
     func clearSwapchain() throws {
-        textures.removeAll()
+        swapchainTextures.removeAll()
         layerRenderer.renderTargetsCache.clear()
         oldSwapchain = swapchain
         swapchain = nil
@@ -121,7 +132,7 @@ internal class VolcanoSwapchainRenderer {
     func grabNextTexture() throws -> (index: Int, texture: Texture) {
         let index = try swapchain.getNextImageIndex(semaphore: textureReadySemaphore)
 
-        return (index: index, texture: textures[index])
+        return (index: index, texture: swapchainTextures[index])
     }
 
     func render() throws {
@@ -145,11 +156,11 @@ internal class VolcanoSwapchainRenderer {
         // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
         var index: Int?
-        var texture: Texture?
+        var swapchainTexture: Texture?
 
         while skipRecreation == false {
             do {
-                (index, texture) = try grabNextTexture()
+                (index, swapchainTexture) = try grabNextTexture()
                 break
             } catch VulkanError.badResult(let errorCode) {
                 if errorCode == .errorOutOfDateKhr || errorCode == .suboptimalKhr {
@@ -168,12 +179,14 @@ internal class VolcanoSwapchainRenderer {
             }
         }
 
-        guard let index = index, let texture = texture else {
+        guard let index = index, let swapchainTexture = swapchainTexture else {
             return
         }
 
+        let aliasingTexture = aliasingTextures[index]
+
         do {
-            try layerRenderer.setDestination(texture)
+            try layerRenderer.setDestination(target: aliasingTexture, resolve: swapchainTexture)
 
             try layerRenderer.beginFrame(atTime: 0)
 

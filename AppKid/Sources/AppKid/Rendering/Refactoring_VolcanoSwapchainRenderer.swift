@@ -235,7 +235,7 @@ internal class VolcanoSwapchainRenderer1 {
             return nil
         }
 
-        try layerRenderer.setDestination(texture)
+        try layerRenderer.setDestination(target: texture, resolve: texture)
 
         if steps.contains(.operations) {
             try layerRenderer.beginFrame(atTime: 0)

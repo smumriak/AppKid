@@ -11,6 +11,10 @@ public protocol PublicInitializable {
     init()
 }
 
+public protocol InitializableWithNew: PublicInitializable {
+    static func new() -> Self
+}
+
 extension Optional: PublicInitializable {
     public init() {
         self = .none

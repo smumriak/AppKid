@@ -12,142 +12,142 @@ infix operator <-: AssignmentPrecedence
 prefix operator <-
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, Value>, value: Value) -> Val<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, Value>, value: Value) -> Val<Struct, Value> {
     return Val(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure>(path: WritableKeyPath<Struct, VkBool32>, value: Bool) -> Val<Struct, VkBool32> {
+public func <- <Struct: InitializableWithNew>(path: WritableKeyPath<Struct, VkBool32>, value: Bool) -> Val<Struct, VkBool32> {
     return Val(path, value.vkBool)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, CInt>, value: Value) -> Val<Struct, CInt> {
+public func <- <Struct: InitializableWithNew, Value: BinaryInteger>(path: WritableKeyPath<Struct, CInt>, value: Value) -> Val<Struct, CInt> {
     Val(path, CInt(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, CUnsignedInt>, value: Value) -> Val<Struct, CUnsignedInt> {
+public func <- <Struct: InitializableWithNew, Value: BinaryInteger>(path: WritableKeyPath<Struct, CUnsignedInt>, value: Value) -> Val<Struct, CUnsignedInt> {
     Val(path, CUnsignedInt(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, Int64>, value: Value) -> Val<Struct, Int64> {
+public func <- <Struct: InitializableWithNew, Value: BinaryInteger>(path: WritableKeyPath<Struct, Int64>, value: Value) -> Val<Struct, Int64> {
     Val(path, Int64(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryInteger>(path: WritableKeyPath<Struct, UInt64>, value: Value) -> Val<Struct, UInt64> {
+public func <- <Struct: InitializableWithNew, Value: BinaryInteger>(path: WritableKeyPath<Struct, UInt64>, value: Value) -> Val<Struct, UInt64> {
     Val(path, UInt64(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Float>, value: Value) -> Val<Struct, Float> {
+public func <- <Struct: InitializableWithNew, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Float>, value: Value) -> Val<Struct, Float> {
     Val(path, Float(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Double>, value: Value) -> Val<Struct, Double> {
+public func <- <Struct: InitializableWithNew, Value: BinaryFloatingPoint>(path: WritableKeyPath<Struct, Double>, value: Value) -> Val<Struct, Double> {
     Val(path, Double(value))
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [Value]) -> Arr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [Value]) -> Arr<Struct, Value> {
     Arr(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: [Value]) -> NoCountArr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: [Value]) -> NoCountArr<Struct, Value> {
     NoCountArr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value, Count: BinaryInteger>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), count: Count) -> NilArr<Struct, Value, Count> {
+public func <- <Struct: InitializableWithNew, Value, Count: BinaryInteger>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), count: Count) -> NilArr<Struct, Value, Count> {
     NilArr(paths.0, paths.1, count)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> Flags<Struct, Value> where Value.RawValue == VkFlags {
+public func <- <Struct: InitializableWithNew, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> Flags<Struct, Value> where Value.RawValue == VkFlags {
     Flags(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> Flags64<Struct, Value> where Value.RawValue == VkFlags64 {
+public func <- <Struct: InitializableWithNew, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> Flags64<Struct, Value> where Value.RawValue == VkFlags64 {
     Flags64(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, builder: VkBuilder<SubStruct>) -> Sub<Struct, SubStruct> {
+public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, builder: VkBuilder<SubStruct>) -> Sub<Struct, SubStruct> {
     Sub(path, builder)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @VkBuilder<SubStruct> _ content: () -> (VkBuilder<SubStruct>)) -> Sub<Struct, SubStruct> {
+public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @VkBuilder<SubStruct> _ content: () -> (VkBuilder<SubStruct>)) -> Sub<Struct, SubStruct> {
     Sub(path, content())
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: UnsafePointer<Value>) -> Ptr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: UnsafePointer<Value>) -> Ptr<Struct, Value> {
     Ptr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: UnsafeMutablePointer<Value>) -> Ptr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: UnsafeMutablePointer<Value>) -> Ptr<Struct, Value> {
     Ptr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: UnsafeMutablePointer<Value>) -> MPtr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: UnsafeMutablePointer<Value>) -> MPtr<Struct, Value> {
     MPtr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: SmartPointer<Value>) -> SmartPtr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: SmartPointer<Value>) -> SmartPtr<Struct, Value> {
     SmartPtr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartPtr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartPtr<Struct, Value> {
     SmartPtr(path, value.handlePointer)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: SmartPointer<Value>) -> SmartMPtr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: SmartPointer<Value>) -> SmartMPtr<Struct, Value> {
     SmartMPtr(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartMPtr<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> SmartMPtr<Struct, Value> {
     SmartMPtr(path, value.handlePointer)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [String]) -> SmartPtrArray<Struct, CChar> {
+public func <- <Struct: InitializableWithNew>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [String]) -> SmartPtrArray<Struct, CChar> {
     SmartPtrArray(paths.0, paths.1, value.cStrings)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [SmartPointer<CChar>]) -> SmartPtrArray<Struct, CChar> {
+public func <- <Struct: InitializableWithNew>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [SmartPointer<CChar>]) -> SmartPtrArray<Struct, CChar> {
     SmartPtrArray(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartPtrArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartPtrArray<Struct, Value> {
     SmartPtrArray(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartMPtrArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SmartPointer<Value>]) -> SmartMPtrArray<Struct, Value> {
     SmartMPtrArray(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [HandleStorage<SmartPointer<Value>>]) -> SmartMPtrArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [HandleStorage<SmartPointer<Value>>]) -> SmartMPtrArray<Struct, Value> {
     SmartMPtrArray(paths.0, paths.1, value.smartPointers())
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: Value) -> PtrTo<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: Value) -> PtrTo<Struct, Value> {
     PtrTo(path, value)
 }
 
@@ -157,11 +157,11 @@ public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChain
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: VulkanStructure, Value: StringProtocol>(path: WritableKeyPath<Struct, UnsafePointer<CChar>?>, value: Value) -> Str<Struct> {
+public func <- <Struct: InitializableWithNew, Value: StringProtocol>(path: WritableKeyPath<Struct, UnsafePointer<CChar>?>, value: Value) -> Str<Struct> {
     Str(path, String(value))
 }
 
-public class Path<Struct: VulkanStructure> {
+public class Path<Struct: InitializableWithNew> {
     @inlinable @inline(__always)
     public func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         let indices = tail.indices
@@ -178,7 +178,7 @@ public class Path<Struct: VulkanStructure> {
     }
 }
 
-public class Val<Struct: VulkanStructure, Value>: Path<Struct> {
+public class Val<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, Value>
 
     @usableFromInline
@@ -199,7 +199,7 @@ public class Val<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class Arr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class Arr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -228,7 +228,7 @@ public class Arr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class NoCountArr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class NoCountArr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
     @usableFromInline
@@ -251,7 +251,7 @@ public class NoCountArr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class NilArr<Struct: VulkanStructure, Value, Count: BinaryInteger>: Path<Struct> {
+public class NilArr<Struct: InitializableWithNew, Value, Count: BinaryInteger>: Path<Struct> {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -278,7 +278,7 @@ public class NilArr<Struct: VulkanStructure, Value, Count: BinaryInteger>: Path<
     }
 }
 
-public class Flags<Struct: VulkanStructure, Value: RawRepresentable>: Path<Struct> where Value.RawValue == VkFlags {
+public class Flags<Struct: InitializableWithNew, Value: RawRepresentable>: Path<Struct> where Value.RawValue == VkFlags {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, Value.RawValue>
 
     @usableFromInline
@@ -299,7 +299,7 @@ public class Flags<Struct: VulkanStructure, Value: RawRepresentable>: Path<Struc
     }
 }
 
-public class Flags64<Struct: VulkanStructure, Value: RawRepresentable>: Path<Struct> where Value.RawValue == VkFlags64 {
+public class Flags64<Struct: InitializableWithNew, Value: RawRepresentable>: Path<Struct> where Value.RawValue == VkFlags64 {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, Value.RawValue>
 
     @usableFromInline
@@ -320,7 +320,7 @@ public class Flags64<Struct: VulkanStructure, Value: RawRepresentable>: Path<Str
     }
 }
 
-public class Sub<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<Struct> {
+public class Sub<Struct: InitializableWithNew, SubStruct: InitializableWithNew>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<SubStruct>?>
 
     @usableFromInline
@@ -343,7 +343,7 @@ public class Sub<Struct: VulkanStructure, SubStruct: VulkanStructure>: Path<Stru
     }
 }
 
-public class Ptr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class Ptr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
     @usableFromInline
@@ -369,7 +369,7 @@ public class Ptr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class MPtr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class MPtr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>
 
     @usableFromInline
@@ -390,7 +390,7 @@ public class MPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class SmartPtr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class SmartPtr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
     @usableFromInline
@@ -411,7 +411,7 @@ public class SmartPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class SmartMPtr<Struct: VulkanStructure, Value>: Path<Struct> {
+public class SmartMPtr<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>
 
     @usableFromInline
@@ -432,7 +432,7 @@ public class SmartMPtr<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class SmartPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
+public class SmartPtrArray<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>
 
@@ -461,7 +461,7 @@ public class SmartPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class SmartMPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
+public class SmartMPtrArray<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>
 
@@ -490,7 +490,7 @@ public class SmartMPtrArray<Struct: VulkanStructure, Value>: Path<Struct> {
     }
 }
 
-public class PtrTo<Struct: VulkanStructure, Value>: Path<Struct> {
+public class PtrTo<Struct: InitializableWithNew, Value>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
     @usableFromInline
@@ -535,7 +535,7 @@ public class Next<Struct: VulkanChainableStructure, Next: VulkanChainableStructu
     }
 }
 
-public class Str<Struct: VulkanStructure>: Path<Struct> {
+public class Str<Struct: InitializableWithNew>: Path<Struct> {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<CChar>?>
 
     @usableFromInline
@@ -559,7 +559,7 @@ public class Str<Struct: VulkanStructure>: Path<Struct> {
 }
 
 @resultBuilder
-public struct VkBuilder<Struct: VulkanStructure> {
+public struct VkBuilder<Struct: InitializableWithNew> {
     public typealias Expression = Path<Struct>
     public typealias Component = [Path<Struct>]
 

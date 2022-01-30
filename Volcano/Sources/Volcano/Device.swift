@@ -40,6 +40,7 @@ public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> 
     public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<VulkanExtensionName> = [], memoryAllocatorClass: MemoryAllocator.Type = DirectMemoryAllocator.self) throws {
         var features = physicalDevice.features
         features.samplerAnisotropy = true.vkBool
+        features.sampleRateShading = true.vkBool
 
         // let features11 = physicalDevice.features11
         // var features12 = physicalDevice.features12

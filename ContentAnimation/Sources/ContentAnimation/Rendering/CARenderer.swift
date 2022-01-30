@@ -77,7 +77,7 @@ open class CARenderer: NSObject {
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
 
-        renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
+        renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, resolveAttachment: texture, clearColor: VkClearValue(color: .red))
 
         descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
@@ -123,7 +123,7 @@ open class CARenderer: NSObject {
         self.texture = texture
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
-        renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: VkClearValue(color: .red))
+        renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, resolveAttachment: texture, clearColor: VkClearValue(color: .red))
 
         let backgroundPipeline = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
         let borderPipeline = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])

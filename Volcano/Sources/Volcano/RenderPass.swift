@@ -50,19 +50,22 @@ internal final class RenderPassBuilder {
         }
 
         subpasses.append(subpass)
-        if let inputAttachments = subpass.inputAttachments {
-            attachments.append(contentsOf: inputAttachments)
+
+        subpass.inputAttachments.map {
+            attachments.append(contentsOf: $0)
         }
 
-        if let colorAttachments = subpass.colorAttachments {
-            attachments.append(contentsOf: colorAttachments)
+        subpass.colorAttachments.map {
+            attachments.append(contentsOf: $0)
         }
 
-        if let resolveAttachments = subpass.resolveAttachments {
-            attachments.append(contentsOf: resolveAttachments)
+        subpass.resolveAttachments.map {
+            attachments.append(contentsOf: $0)
         }
 
-        subpass.depthStencilAttachment.map { attachments.append($0) }
+        subpass.depthStencilAttachment.map {
+            attachments.append($0)
+        }
     }
 
     func add(dependency: Subpass.Dependency) {
@@ -218,17 +221,22 @@ fileprivate extension ArraySlice where Element == Subpass {
                     return try withUnsafeBufferPointerOrNil(resolveAttachmentsReferences) { resolveAttachmentsReferences in
                         return try depthStencilAttachmentsReference.withUnsafePointerOrNil { depthStencilAttachmentsReference in
                             var subpass = VkSubpassDescription()
+                            
                             subpass.pipelineBindPoint = head.bindPoint
                             subpass.flags = head.flags.rawValue
-                            if let inputAttachmentsReferences = inputAttachmentsReferences {
-                                subpass.inputAttachmentCount = CUnsignedInt(inputAttachmentsReferences.count)
-                                subpass.pInputAttachments = inputAttachmentsReferences.baseAddress!
+                            
+                            inputAttachmentsReferences.map {
+                                subpass.inputAttachmentCount = CUnsignedInt($0.count)
+                                subpass.pInputAttachments = $0.baseAddress!
                             }
-                            if let colorAttachmentsReferences = colorAttachmentsReferences {
-                                subpass.colorAttachmentCount = CUnsignedInt(colorAttachmentsReferences.count)
-                                subpass.pColorAttachments = colorAttachmentsReferences.baseAddress!
+
+                            colorAttachmentsReferences.map {
+                                subpass.colorAttachmentCount = CUnsignedInt($0.count)
+                                subpass.pColorAttachments = $0.baseAddress!
                             }
+
                             subpass.pResolveAttachments = resolveAttachmentsReferences?.baseAddress
+                            
                             subpass.pDepthStencilAttachment = depthStencilAttachmentsReference
     
                             buffer.append(subpass)

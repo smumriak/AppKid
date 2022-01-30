@@ -8,8 +8,15 @@
 import TinyFoundation
 import CVulkan
 
-public protocol VulkanBaseStructure: PublicInitializable {
+public protocol VulkanBaseStructure: InitializableWithNew {
     var sType: VkStructureType { get set }
+}
+
+public extension VulkanBaseStructure {
+    @_transparent
+    static func new() -> Self {
+        return Self()
+    }
 }
 
 extension VkBaseInStructure: VulkanBaseStructure {}

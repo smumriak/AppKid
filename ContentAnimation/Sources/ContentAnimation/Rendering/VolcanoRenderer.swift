@@ -92,14 +92,14 @@ internal class DescriptorSetContainer {
         }
     }
 
-    public func createRenderTarget(for texture: Texture) throws -> RenderTarget {
+    public func createRenderTarget(forTarget target: Texture, resolve: Texture) throws -> RenderTarget {
         try lock.synchronized {
-            let textureIdentifier = ObjectIdentifier(texture)
+            let textureIdentifier = ObjectIdentifier(target)
 
             if let result = renderTargets[textureIdentifier] {
                 return result
             } else {
-                let result = try RenderTarget(renderPass: renderPass, colorAttachment: texture, clearColor: clearColor)
+                let result = try RenderTarget(renderPass: renderPass, colorAttachment: target, resolveAttachment: resolve, clearColor: clearColor)
 
                 renderTargets[textureIdentifier] = result
 
@@ -190,13 +190,13 @@ internal class DescriptorSetContainer {
         try commandBuffer.reset()
     }
 
-    public func setDestination(_ texture: Texture) throws {
-        guard renderTarget?.colorAttachment !== texture else {
+    public func setDestination(target: Texture, resolve: Texture) throws {
+        guard renderTarget?.colorAttachment !== target else {
             return
         }
 
-        if pixelFormat != texture.pixelFormat {
-            renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
+        if pixelFormat != target.pixelFormat {
+            renderPass = try device.createMainRenderPass(pixelFormat: target.pixelFormat)
             let descriptorSetsLayouts = renderContext.descriptorSetsLayouts
 
             let backgroundPipeline = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
@@ -212,7 +212,7 @@ internal class DescriptorSetContainer {
             renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         }
 
-        renderTarget = try renderTargetsCache.createRenderTarget(for: texture)
+        renderTarget = try renderTargetsCache.createRenderTarget(forTarget: target, resolve: resolve)
     }
 
     @_spi(AppKid) public func buildRenderOperations() throws {
@@ -471,8 +471,9 @@ internal extension RenderPass {
         descriptor.depthBiasSlopeFactor = 0.0
         descriptor.lineWidth = 1.0
 
-        descriptor.sampleShadingEnabled = false
-        descriptor.rasterizationSamples = .one
+        descriptor.sampleShadingEnabled = true
+        descriptor.minSampleShading = 0.4
+        descriptor.rasterizationSamples = .four
         descriptor.minSampleShading = 1.0
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
@@ -527,8 +528,9 @@ internal extension RenderPass {
         descriptor.depthBiasSlopeFactor = 0.0
         descriptor.lineWidth = 1.0
 
-        descriptor.sampleShadingEnabled = false
-        descriptor.rasterizationSamples = .one
+        descriptor.sampleShadingEnabled = true
+        descriptor.minSampleShading = 0.4
+        descriptor.rasterizationSamples = .four
         descriptor.minSampleShading = 1.0
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
@@ -583,8 +585,9 @@ internal extension RenderPass {
         descriptor.depthBiasSlopeFactor = 0.0
         descriptor.lineWidth = 1.0
 
-        descriptor.sampleShadingEnabled = false
-        descriptor.rasterizationSamples = .one
+        descriptor.sampleShadingEnabled = true
+        descriptor.minSampleShading = 0.5
+        descriptor.rasterizationSamples = .four
         descriptor.minSampleShading = 1.0
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
@@ -609,18 +612,27 @@ internal extension Device {
     func createMainRenderPass(pixelFormat: VkFormat) throws -> RenderPass {
         var colorAttachmentDescription = VkAttachmentDescription()
         colorAttachmentDescription.format = pixelFormat
-        colorAttachmentDescription.samples = .one
+        colorAttachmentDescription.samples = .four
         colorAttachmentDescription.loadOp = .clear
-        colorAttachmentDescription.storeOp = .store
-        colorAttachmentDescription.stencilLoadOp = .clear
-        colorAttachmentDescription.stencilStoreOp = .store
+        colorAttachmentDescription.storeOp = .dontCare
+        colorAttachmentDescription.stencilLoadOp = .dontCare
+        colorAttachmentDescription.stencilStoreOp = .dontCare
         colorAttachmentDescription.initialLayout = .undefined
-        colorAttachmentDescription.finalLayout = .presentSourceKhr
-        colorAttachmentDescription.samples = .one
-        // colorAttachmentDescription.samples = physicalDevice.maximumSampleCount
+        colorAttachmentDescription.finalLayout = .colorAttachmentOptimal
+
+        var resolveAttachmentDescription = VkAttachmentDescription()
+        resolveAttachmentDescription.format = pixelFormat
+        resolveAttachmentDescription.samples = .one
+        resolveAttachmentDescription.loadOp = .dontCare
+        resolveAttachmentDescription.storeOp = .store
+        resolveAttachmentDescription.stencilLoadOp = .dontCare
+        resolveAttachmentDescription.stencilStoreOp = .dontCare
+        resolveAttachmentDescription.initialLayout = .undefined
+        resolveAttachmentDescription.finalLayout = .presentSourceKhr
 
         let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
-        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
+        let resolveAttachment = Attachment(description: resolveAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment], resolveAttachments: [resolveAttachment])
         let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
 
         return try RenderPass(device: self, subpasses: [subpass1], dependencies: [dependency1])
