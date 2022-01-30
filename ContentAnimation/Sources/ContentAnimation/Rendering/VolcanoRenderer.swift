@@ -461,7 +461,7 @@ internal extension RenderPass {
         descriptor.lineWidth = 1.0
 
         descriptor.sampleShadingEnabled = true
-        descriptor.minSampleShading = 0.4
+        descriptor.minSampleShading = 0.6
         descriptor.rasterizationSamples = .four
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
