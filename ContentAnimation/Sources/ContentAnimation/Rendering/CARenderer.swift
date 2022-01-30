@@ -47,14 +47,15 @@ internal class DescriptorSetsLayouts {
 open class CARenderer: NSObject {
     internal var frameTime: CFTimeInterval = 0.0
     internal let queues: VolcanoRenderStack.Queues
-    internal var renderContext: RenderContext
+    internal var renderContext: RenderContext1
+    internal let commandPool: CommandPool
+    internal let commandBuffer: CommandBuffer
 
     public fileprivate(set) var texture: Texture
     internal let renderStack: VolcanoRenderStack
 
     internal var device: Device { renderStack.device }
 
-    internal fileprivate(set) var commandBufferExecutionCompleteSemaphore: Volcano.Semaphore
     @_spi(AppKid) public fileprivate(set) var fence: Fence
     internal fileprivate(set) var renderPass: RenderPass
     internal fileprivate(set) var renderTarget: RenderTarget
@@ -72,7 +73,6 @@ open class CARenderer: NSObject {
 
         self.queues = VolcanoRenderStack.Queues(graphics: renderStack.queues.graphics, transfer: renderStack.queues.transfer)
 
-        commandBufferExecutionCompleteSemaphore = try Semaphore(device: device)
         fence = try Fence(device: device)
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
@@ -85,13 +85,16 @@ open class CARenderer: NSObject {
         let borderPipeline = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
         let contentsPipeline = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler])
 
-        let pipelines = RenderContext.Pipelines(
+        let pipelines = RenderContext1.Pipelines(
             background: backgroundPipeline,
             border: borderPipeline,
             contents: contentsPipeline
         )
         
-        renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
+        renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
+        
+        commandPool = try renderStack.queues.graphics.createCommandPool(flags: .resetCommandBuffer)
+        commandBuffer = try commandPool.createCommandBuffer()
 
         super.init()
     }
@@ -126,13 +129,13 @@ open class CARenderer: NSObject {
         let borderPipeline = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
         let contentsPipeline = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler])
 
-        let pipelines = RenderContext.Pipelines(
+        let pipelines = RenderContext1.Pipelines(
             background: backgroundPipeline,
             border: borderPipeline,
             contents: contentsPipeline
         )
 
-        renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
+        renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
     }
 
     public func render(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = []) throws {
@@ -147,39 +150,49 @@ open class CARenderer: NSObject {
         isRendering = true
         defer { isRendering = false }
 
-        // let startTime = CFAbsoluteTimeGetCurrent()
-        // debugPrint("Draw frame start: \(startTime)")
         try fence.reset()
 
         try renderContext.clear()
 
-        let modelViewProjection: RenderContext.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
+        let modelViewProjection: RenderContext1.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
+
+        renderContext.mainCommandBuffer = commandBuffer
+        renderContext.sceneRenderTarget = renderTarget
 
         renderContext.add(.updateModelViewProjection(modelViewProjection: modelViewProjection))
 
-        renderContext.add(.pushCommandBuffer())
+        renderContext.add(.begineScene())
 
-        renderContext.add(.pushRenderTarget(renderTarget: renderTarget))
+        renderContext.add(.pushRenderTarget(renderTarget))
 
         var index: UInt = 0
 
         try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext)
 
-        renderContext.add(.popRenderTarget(rebind: false))
-
-        let waitStages: [VkPipelineStageFlagBits] = Array(repeating: .colorAttachmentOutput, count: waitSemaphores.count)
-
-        renderContext.add(.submitCommandBuffer(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, waitStages: waitStages, fence: fence))
-        renderContext.add(.wait(fence: fence))
-        renderContext.add(.popCommandBuffer())
+        renderContext.add(.endScene())
 
         try renderContext.performOperations()
-        // let endTime = CFAbsoluteTimeGetCurrent()
-        // debugPrint("Draw frame end: \(endTime)")
-        // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
+
+        let descriptor = SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
+        try waitSemaphores.forEach {
+            try descriptor.add(.wait($0, stages: .colorAttachmentOutput))
+        }
+
+        try signalSemaphores.forEach {
+            try descriptor.add(.signal($0))
+        }
+
+        if renderContext.vertexBufferCopyCount > 0 {
+            try descriptor.add(.wait(renderContext.vertexBufferCopySemaphore, value: renderContext.vertexBufferCopyCount, stages: .vertexInput))
+        }
+
+        try renderContext.graphicsQueue.submit(with: descriptor)
+
+        try fence.wait()
+        try fence.reset()
     }
 
-    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext) throws {
+    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext1) throws {
         if layer.isHidden || layer.opacity <= 0.01 {
             return
         }

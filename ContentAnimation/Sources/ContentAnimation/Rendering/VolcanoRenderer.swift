@@ -275,18 +275,11 @@ internal class DescriptorSetContainer {
         isRendering = true
         defer { isRendering = false }
 
-        // let startTime = CFAbsoluteTimeGetCurrent()
         try buildRenderOperations()
-
-        // debugPrint("Draw frame start: \(startTime)")
 
         try performRenderOperations()
 
         try submitCommandBuffer(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, fence: fence)
-
-        // let endTime = CFAbsoluteTimeGetCurrent()
-        // debugPrint("Draw frame end: \(endTime)")
-        // debugPrint("Frame draw took \((endTime - startTime) * 1000.0) ms")
     }
 
     fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext1) throws {
@@ -353,7 +346,7 @@ internal class DescriptorSetContainer {
                 contentsTexture = backingStore.currentTexture
 
                 if contentsTexture == nil {
-                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
+                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
 
                     backingStore.currentTexture = contentsTexture
                 }
@@ -623,6 +616,8 @@ internal extension Device {
         colorAttachmentDescription.stencilStoreOp = .store
         colorAttachmentDescription.initialLayout = .undefined
         colorAttachmentDescription.finalLayout = .presentSourceKhr
+        colorAttachmentDescription.samples = .one
+        // colorAttachmentDescription.samples = physicalDevice.maximumSampleCount
 
         let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
         let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
