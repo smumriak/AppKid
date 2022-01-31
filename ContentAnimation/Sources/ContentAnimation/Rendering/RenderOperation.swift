@@ -14,7 +14,7 @@ import CVulkan
 import TinyFoundation
 import LayerRenderingData
 
-@_spi(AppKid) public class RenderContext1 {
+@_spi(AppKid) public class RenderContext {
     typealias ModelViewProjection = (model: mat4s, view: mat4s, projection: mat4s)
 
     @usableFromInline let renderStack: VolcanoRenderStack
@@ -193,7 +193,7 @@ import LayerRenderingData
         var bufferInfo = VkDescriptorBufferInfo()
         bufferInfo.buffer = modelViewProjectionBuffer.handle
         bufferInfo.offset = 0
-        bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext1.ModelViewProjection>.stride)
+        bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext.ModelViewProjection>.stride)
 
         try withUnsafePointer(to: &bufferInfo) { bufferInfo in
             var writeInfo = VkWriteDescriptorSet.new()
@@ -243,16 +243,19 @@ import LayerRenderingData
     }
 }
 
-extension RenderContext1 {
+extension RenderContext {
     struct Pipelines {
-        let background: GraphicsPipeline
-        let border: GraphicsPipeline
-        let contents: GraphicsPipeline
+        let backgroundAliased: GraphicsPipeline
+        let backgroundNotAliased: GraphicsPipeline
+        let borderAliased: GraphicsPipeline
+        let borderNotAliased: GraphicsPipeline
+        let contentsAliased: GraphicsPipeline
+        let contentsNotAliased: GraphicsPipeline
     }
 }
 
 internal class RenderOperation {
-    func perform(in context: RenderContext1) throws {}
+    func perform(in context: RenderContext) throws {}
 
     @inlinable @inline(__always)
     static func begineScene() -> RenderOperation {
@@ -265,13 +268,13 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func background() -> RenderOperation {
-        return BackgroundRenderOperation()
+    static func background(aliased: Bool) -> RenderOperation {
+        return BackgroundRenderOperation(aliased: aliased)
     }
 
     @inlinable @inline(__always)
-    static func border() -> RenderOperation {
-        return BorderRenderOperation()
+    static func border(aliased: Bool) -> RenderOperation {
+        return BorderRenderOperation(aliased: aliased)
     }
 
     @inlinable @inline(__always)
@@ -310,18 +313,18 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func contents(texture: Texture, layerIndex: UInt) -> RenderOperation {
-        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex)
+    static func contents(texture: Texture, layerIndex: UInt, aliased: Bool) -> RenderOperation {
+        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex, aliased: aliased)
     }
 
     @inlinable @inline(__always)
-    static func updateModelViewProjection(modelViewProjection: RenderContext1.ModelViewProjection) -> RenderOperation {
+    static func updateModelViewProjection(modelViewProjection: RenderContext.ModelViewProjection) -> RenderOperation {
         return UpdateModelViewProjectionRenderOperation(modelViewProjection: modelViewProjection)
     }
 }
 
 internal class BegineSceneRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         guard let commandBuffer = context.mainCommandBuffer else {
             fatalError("No main command buffer attached")
         }
@@ -350,7 +353,7 @@ internal class BegineSceneRenderOperation: RenderOperation {
 }
 
 internal class EndSceneRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
 
         try commandBuffer.endRenderPass()
@@ -375,7 +378,7 @@ internal class BindVertexBufferRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let vertexBuffer = try context.vertexBuffer
         try context.commandBuffer.bind(vertexBuffer: vertexBuffer, offset: offset, firstBinding: firstBinding)
     }
@@ -388,7 +391,7 @@ internal class PushCommandBufferRenderOperation: RenderOperation {
         self.commandBuffer = commandBuffer
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = try commandBuffer ?? context.commandPool.createCommandBuffer()
         context.commandBuffersStack.prepend(commandBuffer)
         try commandBuffer.begin()
@@ -396,7 +399,7 @@ internal class PushCommandBufferRenderOperation: RenderOperation {
 }
 
 internal class PopCommandBufferRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         try context.commandBuffer.end()
 
         context.commandBuffersStack.removeFirst()
@@ -412,7 +415,7 @@ internal class WaitFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         try fence.wait()
     }
 }
@@ -426,15 +429,21 @@ internal class ResetFenceRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         try fence.reset()
     }
 }
 
 internal class BackgroundRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext1) throws {
+    internal let aliased: Bool
+
+    init(aliased: Bool = false) {
+        self.aliased = aliased
+    }
+
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let backgroundPipeline = context.pipelines.background
+        let backgroundPipeline = aliased ? context.pipelines.backgroundAliased : context.pipelines.backgroundNotAliased
         try commandBuffer.bind(pipeline: backgroundPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: backgroundPipeline)
@@ -444,9 +453,15 @@ internal class BackgroundRenderOperation: RenderOperation {
 }
 
 internal class BorderRenderOperation: RenderOperation {
-    override func perform(in context: RenderContext1) throws {
+        internal let aliased: Bool
+
+    init(aliased: Bool = false) {
+        self.aliased = aliased
+    }
+
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let borderPipeline = context.pipelines.border
+        let borderPipeline = aliased ? context.pipelines.borderAliased : context.pipelines.borderNotAliased
         try commandBuffer.bind(pipeline: borderPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: borderPipeline)
@@ -464,7 +479,7 @@ internal class PushRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
 
         if context.renderTargetsStack.isEmpty == false {
@@ -496,7 +511,7 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
         super.init()
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
 
         try commandBuffer.endRenderPass()
@@ -524,15 +539,17 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
 internal class ContentsRenderOperation: RenderOperation {
     internal let texture: Texture
     internal let layerIndex: UInt
+    internal let aliased: Bool
 
-    init(texture: Texture, layerIndex: UInt) {
+    init(texture: Texture, layerIndex: UInt, aliased: Bool) {
         self.texture = texture
         self.layerIndex = layerIndex
+        self.aliased = aliased
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let contentsPipeline = context.pipelines.contents
+        let contentsPipeline = aliased ? context.pipelines.contentsAliased : context.pipelines.contentsNotAliased
         try commandBuffer.bind(pipeline: contentsPipeline)
 
         let contentsDescriptorSet = try context.contentsDescriptorSet(for: texture, layerIndex: layerIndex)
@@ -544,13 +561,13 @@ internal class ContentsRenderOperation: RenderOperation {
 }
 
 internal class UpdateModelViewProjectionRenderOperation: RenderOperation {
-    internal let modelViewProjection: RenderContext1.ModelViewProjection
+    internal let modelViewProjection: RenderContext.ModelViewProjection
 
-    init(modelViewProjection: RenderContext1.ModelViewProjection) {
+    init(modelViewProjection: RenderContext.ModelViewProjection) {
         self.modelViewProjection = modelViewProjection
     }
 
-    override func perform(in context: RenderContext1) throws {
+    override func perform(in context: RenderContext) throws {
         try withUnsafePointer(to: modelViewProjection) {
             try context.modelViewProjectionBuffer.memoryChunk.write(data: UnsafeBufferPointer(start: $0, count: 1))
         }

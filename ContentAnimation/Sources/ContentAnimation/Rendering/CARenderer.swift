@@ -47,7 +47,7 @@ internal class DescriptorSetsLayouts {
 open class CARenderer: NSObject {
     internal var frameTime: CFTimeInterval = 0.0
     internal let queues: VolcanoRenderStack.Queues
-    internal var renderContext: RenderContext1
+    internal var renderContext: RenderContext
     internal let commandPool: CommandPool
     internal let commandBuffer: CommandBuffer
 
@@ -81,17 +81,23 @@ open class CARenderer: NSObject {
 
         descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
-        let backgroundPipeline = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
-        let borderPipeline = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
-        let contentsPipeline = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler])
+        let backgroundPipelineAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let backgroundPipelineNotAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let borderPipelineAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let borderPipelineNotAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let contentsPipelineAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
+        let contentsPipelineNotAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
 
-        let pipelines = RenderContext1.Pipelines(
-            background: backgroundPipeline,
-            border: borderPipeline,
-            contents: contentsPipeline
+        let pipelines = RenderContext.Pipelines(
+            backgroundAliased: backgroundPipelineAliased,
+            backgroundNotAliased: backgroundPipelineNotAliased,
+            borderAliased: borderPipelineAliased,
+            borderNotAliased: borderPipelineNotAliased,
+            contentsAliased: contentsPipelineAliased,
+            contentsNotAliased: contentsPipelineNotAliased
         )
         
-        renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
+        renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         
         commandPool = try renderStack.queues.graphics.createCommandPool(flags: .resetCommandBuffer)
         commandBuffer = try commandPool.createCommandBuffer()
@@ -124,18 +130,23 @@ open class CARenderer: NSObject {
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
         renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, resolveAttachment: texture, clearColor: VkClearValue(color: .red))
+        let backgroundPipelineAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let backgroundPipelineNotAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let borderPipelineAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let borderPipelineNotAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
+        let contentsPipelineAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
+        let contentsPipelineNotAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
 
-        let backgroundPipeline = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
-        let borderPipeline = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection])
-        let contentsPipeline = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler])
-
-        let pipelines = RenderContext1.Pipelines(
-            background: backgroundPipeline,
-            border: borderPipeline,
-            contents: contentsPipeline
+        let pipelines = RenderContext.Pipelines(
+            backgroundAliased: backgroundPipelineAliased,
+            backgroundNotAliased: backgroundPipelineNotAliased,
+            borderAliased: borderPipelineAliased,
+            borderNotAliased: borderPipelineNotAliased,
+            contentsAliased: contentsPipelineAliased,
+            contentsNotAliased: contentsPipelineNotAliased
         )
 
-        renderContext = try RenderContext1(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
+        renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
     }
 
     public func render(waitSemaphores: [Volcano.Semaphore] = [], signalSemaphores: [Volcano.Semaphore] = []) throws {
@@ -154,7 +165,7 @@ open class CARenderer: NSObject {
 
         try renderContext.clear()
 
-        let modelViewProjection: RenderContext1.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
+        let modelViewProjection: RenderContext.ModelViewProjection = (model: .identity, view: .identity, projection: layer.projectionMatrix)
 
         renderContext.mainCommandBuffer = commandBuffer
         renderContext.sceneRenderTarget = renderTarget
@@ -192,7 +203,7 @@ open class CARenderer: NSObject {
         try fence.reset()
     }
 
-    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext1) throws {
+    fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext) throws {
         if layer.isHidden || layer.opacity <= 0.01 {
             return
         }
@@ -244,7 +255,7 @@ open class CARenderer: NSObject {
         renderContext.descriptors.append(descriptor)
 
         renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background())
+        renderContext.add(.background(aliased: true))
 
         var contentsTexture: Texture? = nil
 
@@ -266,7 +277,7 @@ open class CARenderer: NSObject {
         }
 
         if let contentsTexture = contentsTexture {
-            renderContext.add(.contents(texture: contentsTexture, layerIndex: index))
+            renderContext.add(.contents(texture: contentsTexture, layerIndex: index, aliased: false))
         }
 
         try layer.sublayers?.forEach {
@@ -276,7 +287,7 @@ open class CARenderer: NSObject {
 
         if layer.borderWidth > 0 && layer.borderColor != nil {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.border())
+            renderContext.add(.border(aliased: true))
         }
     }
 }
