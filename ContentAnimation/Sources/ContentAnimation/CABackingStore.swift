@@ -9,7 +9,7 @@ import Foundation
 import CoreFoundation
 import TinyFoundation
 @_spi(AppKid) import CairoGraphics
-import Volcano
+@_spi(AppKid) import Volcano
 
 #if os(macOS)
     import class CairoGraphics.CGContext
@@ -110,12 +110,36 @@ import Volcano
         }
 
         try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
-            try $0.transitionLayout(for: result, newLayout: .transferDestinationOptimal)
+            try $0.performPredefinedLayoutTransition(for: result, newLayout: .transferDestinationOptimal)
             try $0.copyBuffer(from: stagingBuffer, to: result, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
-            try $0.transitionLayout(for: result, newLayout: .shaderReadOnlyOptimal)
+            try $0.performPredefinedLayoutTransition(for: result, newLayout: .shaderReadOnlyOptimal)
         }
 
         return result
+    }
+
+    public func updateCurrentTexture(renderStack: VolcanoRenderStack, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws {
+        guard let currentTexture = currentTexture else {
+            return 
+        }
+
+        let device = renderStack.device
+
+        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: VkDeviceSize(bytesPerRow * height), accessQueues: [graphicsQueue])
+
+        let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
+
+        frontContext.flush()
+
+        try stagingBuffer.memoryChunk.withMappedData { data, size in
+            data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
+        }
+
+        try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
+            try $0.performPredefinedLayoutTransition(for: currentTexture, newLayout: .transferDestinationOptimal)
+            try $0.copyBuffer(from: stagingBuffer, to: currentTexture, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
+            try $0.performPredefinedLayoutTransition(for: currentTexture, newLayout: .shaderReadOnlyOptimal)
+        }
     }
 
     public func update(flags: CABackingStoreFlags = [], callback: (_ context: CGContext) -> ()) {

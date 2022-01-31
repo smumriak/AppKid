@@ -199,7 +199,7 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
         }
     }
 
-    public func transitionLayout(for texture: Texture, newLayout: VkImageLayout) throws {
+    @_spi(AppKid) public func performPredefinedLayoutTransition(for texture: Texture, newLayout: VkImageLayout) throws {
         var barrier = VkImageMemoryBarrier.new()
 
         var sourceAccessMask: VkAccessFlagBits = []
@@ -223,9 +223,16 @@ public final class CommandBuffer: VulkanDeviceEntity<SmartPointer<VkCommandBuffe
 
                 sourceStage.formUnion(.transfer)
                 destinationStage.formUnion(.fragmentShader)
-            
+
+            case (.shaderReadOnlyOptimal, .transferDestinationOptimal):
+                sourceAccessMask.formUnion(.shaderRead)
+                destinationAccessMask.formUnion(.transferWrite)
+
+                sourceStage.formUnion(.fragmentShader)
+                destinationStage.formUnion(.transfer)
+
             default:
-                assertionFailure("Unsupported layout transition from \(oldLayout) to \(newLayout)")
+                assertionFailure("Volcano: Unsupported layout transition from \(oldLayout) to \(newLayout)")
         }
 
         barrier.srcAccessMask = sourceAccessMask.rawValue
