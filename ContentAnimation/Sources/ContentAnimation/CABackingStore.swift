@@ -103,6 +103,8 @@ import Volcano
 
         let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
 
+        frontContext.flush()
+
         try stagingBuffer.memoryChunk.withMappedData { data, size in
             data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
         }
@@ -122,7 +124,8 @@ import Volcano
     }
 
     public func fits(size: CGSize, scale: CGFloat) -> Bool {
-        return width == Int(size.width.rounded(.up)) && height == Int(size.height.rounded(.up))
+        let scaledSize = size * scale
+        return width == Int(scaledSize.width.rounded(.up)) && height == Int(scaledSize.height.rounded(.up))
     }
 }
 

@@ -187,6 +187,24 @@ public extension CGContext {
             _state = CGContextState()
         }
     }
+
+    func clear(_ rect: CGRect) {
+        recreateDataIfNeeded()
+
+        saveState()
+
+        cairo_set_operator(context.pointer, CAIRO_OPERATOR_CLEAR)
+        cairo_new_path(context.pointer)
+        cairo_rectangle(context.pointer, Double(rect.origin.x), Double(rect.origin.y), Double(rect.width), Double(rect.height))
+        cairo_clip(context.pointer)
+        cairo_paint(context.pointer)
+
+        restoreState()
+    }
+
+    func flush() {
+        cairo_surface_flush(surface.pointer)
+    }
 }
 
 public extension CGContext {

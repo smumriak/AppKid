@@ -248,6 +248,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
                 
                 delegate?.layerWillDraw(self)
                 backingStore.update { context in
+                    context.clear(bounds)
                     draw(in: context)
                 }
 

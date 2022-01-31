@@ -67,26 +67,28 @@ import TinyFoundation
 
         let cairoContextPointer = context.context.pointer
         
-        pango_cairo_update_context(cairoContextPointer, pangoContext.pointer)
-
         let newWidth = CInt(rect.width.rounded(.down)) * PANGO_SCALE
         let newHeight = CInt(rect.height.rounded(.down)) * PANGO_SCALE
         
         if newWidth != pango_layout_get_height(layout.pointer) {
             pango_layout_set_width(layout.pointer, newWidth)
+            hasChanged = true
         }
 
         if newHeight != pango_layout_get_height(layout.pointer) {
             pango_layout_set_height(layout.pointer, newHeight)
+            hasChanged = true
         }
 
         if hasChanged {
+            pango_cairo_update_context(cairoContextPointer, pangoContext.pointer)
             pango_layout_context_changed(layout.pointer)
             hasChanged = false
         }
 
         context.move(to: rect.origin)
         cairo_set_source(cairoContextPointer, textColor.cairoPattern.pointer)
+        pango_cairo_update_layout(cairoContextPointer, layout.pointer)
         pango_cairo_show_layout(cairoContextPointer, layout.pointer)
     }
 }

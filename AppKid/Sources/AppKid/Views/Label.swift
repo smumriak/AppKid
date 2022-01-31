@@ -49,8 +49,18 @@ open class Label: View {
         layout.text = text ?? ""
         layout.textColor = textColor
         layout.font = font
+    }
 
-        layer.setNeedsDisplay()
+    open override var frame: CGRect {
+        didSet {
+            layer.setNeedsDisplay()
+        }
+    }
+
+    open override var bounds: CGRect {
+        didSet {
+            layer.setNeedsDisplay()
+        }
     }
 
     // MARK: - Rendering

@@ -345,7 +345,8 @@ internal class DescriptorSetContainer {
             case .some(let backingStore as CABackingStore):
                 contentsTexture = backingStore.currentTexture
 
-                if contentsTexture == nil {
+                // TODO: palkovnik: Find a way to reuse vulkan texture if backing store does not need to be recreated
+                if contentsTexture == nil || needsDisplay {
                     contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
 
                     backingStore.currentTexture = contentsTexture
