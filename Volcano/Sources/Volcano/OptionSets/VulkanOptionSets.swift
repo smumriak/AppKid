@@ -272,6 +272,7 @@ public extension VkDisplayPlaneAlphaFlagBitsKHR {
 public typealias VkEventCreateFlagBits = CVulkan.VkEventCreateFlagBits
 
 public extension VkEventCreateFlagBits {
+    static let deviceOnly: VkEventCreateFlagBits = .VK_EVENT_CREATE_DEVICE_ONLY_BIT
     static let deviceOnlyKhr: VkEventCreateFlagBits = .VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR
 }
 
@@ -507,6 +508,7 @@ public extension VkImageCreateFlagBits {
     static let disjointKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_DISJOINT_BIT_KHR
     static let aliasKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_ALIAS_BIT_KHR
     static let subsampledExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_SUBSAMPLED_BIT_EXT
+    static let fragmentDensityMapOffsetQcom: VkImageCreateFlagBits = .VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM
 }
 
 public typealias VkImageUsageFlagBits = CVulkan.VkImageUsageFlagBits
@@ -603,7 +605,14 @@ public extension VkPerformanceCounterDescriptionFlagBitsKHR {
 public typealias VkPipelineCacheCreateFlagBits = CVulkan.VkPipelineCacheCreateFlagBits
 
 public extension VkPipelineCacheCreateFlagBits {
+    static let externallySynchronized: VkPipelineCacheCreateFlagBits = .VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT
     static let externallySynchronizedExt: VkPipelineCacheCreateFlagBits = .VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT_EXT
+}
+
+public typealias VkPipelineColorBlendStateCreateFlagBits = CVulkan.VkPipelineColorBlendStateCreateFlagBits
+
+public extension VkPipelineColorBlendStateCreateFlagBits {
+    static let rasterizationOrderAttachmentAccessArm: VkPipelineColorBlendStateCreateFlagBits = .VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_ARM
 }
 
 public typealias VkPipelineCreateFlagBits = CVulkan.VkPipelineCreateFlagBits
@@ -614,7 +623,11 @@ public extension VkPipelineCreateFlagBits {
     static let derivative: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_DERIVATIVE_BIT
     static let viewIndexFromDeviceIndex: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_VIEW_INDEX_FROM_DEVICE_INDEX_BIT
     static let dispatchBase: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_DISPATCH_BASE_BIT
+    static let failOnPipelineCompileRequired: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT
+    static let earlyReturnOnFailure: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT
+    static let renderingFragmentShadingRateAttachmentKhr: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RENDERING_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR
     static let rasterizationStateCreateFragmentShadingRateAttachmentKhr: VkPipelineCreateFlagBits = .VK_PIPELINE_RASTERIZATION_STATE_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR
+    static let renderingFragmentDensityMapAttachmentExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT
     static let rasterizationStateCreateFragmentDensityMapAttachmentExt: VkPipelineCreateFlagBits = .VK_PIPELINE_RASTERIZATION_STATE_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT
     static let viewIndexFromDeviceIndexKhr: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR
     static let dispatchBaseKhr: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_DISPATCH_BASE_KHR
@@ -635,17 +648,29 @@ public extension VkPipelineCreateFlagBits {
     static let rayTracingAllowMotionNv: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV
 }
 
-public typealias VkPipelineCreationFeedbackFlagBitsEXT = CVulkan.VkPipelineCreationFeedbackFlagBitsEXT
+public typealias VkPipelineCreationFeedbackFlagBits = CVulkan.VkPipelineCreationFeedbackFlagBits
 
-public extension VkPipelineCreationFeedbackFlagBitsEXT {
-    static let valid: VkPipelineCreationFeedbackFlagBitsEXT = .VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT_EXT
-    static let applicationPipelineCacheHit: VkPipelineCreationFeedbackFlagBitsEXT = .VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT_EXT
-    static let basePipelineAcceleration: VkPipelineCreationFeedbackFlagBitsEXT = .VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT_EXT
+public extension VkPipelineCreationFeedbackFlagBits {
+    static let valid: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT
+    static let validExt: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT_EXT
+    static let applicationPipelineCacheHit: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT
+    static let applicationPipelineCacheHitExt: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_APPLICATION_PIPELINE_CACHE_HIT_BIT_EXT
+    static let basePipelineAcceleration: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT
+    static let basePipelineAccelerationExt: VkPipelineCreationFeedbackFlagBits = .VK_PIPELINE_CREATION_FEEDBACK_BASE_PIPELINE_ACCELERATION_BIT_EXT
+}
+
+public typealias VkPipelineDepthStencilStateCreateFlagBits = CVulkan.VkPipelineDepthStencilStateCreateFlagBits
+
+public extension VkPipelineDepthStencilStateCreateFlagBits {
+    static let rasterizationOrderAttachmentDepthAccessArm: VkPipelineDepthStencilStateCreateFlagBits = .VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_ARM
+    static let rasterizationOrderAttachmentStencilAccessArm: VkPipelineDepthStencilStateCreateFlagBits = .VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_ARM
 }
 
 public typealias VkPipelineShaderStageCreateFlagBits = CVulkan.VkPipelineShaderStageCreateFlagBits
 
 public extension VkPipelineShaderStageCreateFlagBits {
+    static let allowVaryingSubgroupSize: VkPipelineShaderStageCreateFlagBits = .VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT
+    static let requireFullSubgroups: VkPipelineShaderStageCreateFlagBits = .VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT
     static let allowVaryingSubgroupSizeExt: VkPipelineShaderStageCreateFlagBits = .VK_PIPELINE_SHADER_STAGE_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT
     static let requireFullSubgroupsExt: VkPipelineShaderStageCreateFlagBits = .VK_PIPELINE_SHADER_STAGE_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT
 }
@@ -731,12 +756,15 @@ public extension VkRenderPassCreateFlagBits {
     static let transformQcom: VkRenderPassCreateFlagBits = .VK_RENDER_PASS_CREATE_TRANSFORM_BIT_QCOM
 }
 
-public typealias VkRenderingFlagBitsKHR = CVulkan.VkRenderingFlagBitsKHR
+public typealias VkRenderingFlagBits = CVulkan.VkRenderingFlagBits
 
-public extension VkRenderingFlagBitsKHR {
-    static let contentsSecondaryCommandBuffers: VkRenderingFlagBitsKHR = .VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR
-    static let suspending: VkRenderingFlagBitsKHR = .VK_RENDERING_SUSPENDING_BIT_KHR
-    static let resuming: VkRenderingFlagBitsKHR = .VK_RENDERING_RESUMING_BIT_KHR
+public extension VkRenderingFlagBits {
+    static let contentsSecondaryCommandBuffers: VkRenderingFlagBits = .VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT
+    static let contentsSecondaryCommandBuffersKhr: VkRenderingFlagBits = .VK_RENDERING_CONTENTS_SECONDARY_COMMAND_BUFFERS_BIT_KHR
+    static let suspending: VkRenderingFlagBits = .VK_RENDERING_SUSPENDING_BIT
+    static let suspendingKhr: VkRenderingFlagBits = .VK_RENDERING_SUSPENDING_BIT_KHR
+    static let resuming: VkRenderingFlagBits = .VK_RENDERING_RESUMING_BIT
+    static let resumingKhr: VkRenderingFlagBits = .VK_RENDERING_RESUMING_BIT_KHR
 }
 
 public typealias VkResolveModeFlagBits = CVulkan.VkResolveModeFlagBits
@@ -850,10 +878,11 @@ public extension VkSubgroupFeatureFlagBits {
     static let partitionedNv: VkSubgroupFeatureFlagBits = .VK_SUBGROUP_FEATURE_PARTITIONED_BIT_NV
 }
 
-public typealias VkSubmitFlagBitsKHR = CVulkan.VkSubmitFlagBitsKHR
+public typealias VkSubmitFlagBits = CVulkan.VkSubmitFlagBits
 
-public extension VkSubmitFlagBitsKHR {
-    static let protected: VkSubmitFlagBitsKHR = .VK_SUBMIT_PROTECTED_BIT_KHR
+public extension VkSubmitFlagBits {
+    static let protected: VkSubmitFlagBits = .VK_SUBMIT_PROTECTED_BIT
+    static let protectedKhr: VkSubmitFlagBits = .VK_SUBMIT_PROTECTED_BIT_KHR
 }
 
 public typealias VkSubpassDescriptionFlagBits = CVulkan.VkSubpassDescriptionFlagBits
@@ -863,6 +892,9 @@ public extension VkSubpassDescriptionFlagBits {
     static let perViewPositionXOnlyNvx: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_PER_VIEW_POSITION_X_ONLY_BIT_NVX
     static let fragmentRegionQcom: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_FRAGMENT_REGION_BIT_QCOM
     static let shaderResolveQcom: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_SHADER_RESOLVE_BIT_QCOM
+    static let rasterizationOrderAttachmentColorAccessArm: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_ARM
+    static let rasterizationOrderAttachmentDepthAccessArm: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_ARM
+    static let rasterizationOrderAttachmentStencilAccessArm: VkSubpassDescriptionFlagBits = .VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_ARM
 }
 
 public typealias VkSurfaceCounterFlagBitsEXT = CVulkan.VkSurfaceCounterFlagBitsEXT
@@ -903,14 +935,19 @@ public extension VkSwapchainCreateFlagBitsKHR {
     }
 #endif
 
-public typealias VkToolPurposeFlagBitsEXT = CVulkan.VkToolPurposeFlagBitsEXT
+public typealias VkToolPurposeFlagBits = CVulkan.VkToolPurposeFlagBits
 
-public extension VkToolPurposeFlagBitsEXT {
-    static let validation: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_VALIDATION_BIT_EXT
-    static let profiling: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_PROFILING_BIT_EXT
-    static let tracing: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_TRACING_BIT_EXT
-    static let additionalFeatures: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT
-    static let modifyingFeatures: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT
-    static let debugReporting: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT
-    static let debugMarkers: VkToolPurposeFlagBitsEXT = .VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT
+public extension VkToolPurposeFlagBits {
+    static let validation: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_VALIDATION_BIT
+    static let validationExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_VALIDATION_BIT_EXT
+    static let profiling: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_PROFILING_BIT
+    static let profilingExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_PROFILING_BIT_EXT
+    static let tracing: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_TRACING_BIT
+    static let tracingExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_TRACING_BIT_EXT
+    static let additionalFeatures: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT
+    static let additionalFeaturesExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_ADDITIONAL_FEATURES_BIT_EXT
+    static let modifyingFeatures: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT
+    static let modifyingFeaturesExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT
+    static let debugReportingExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT
+    static let debugMarkersExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT
 }

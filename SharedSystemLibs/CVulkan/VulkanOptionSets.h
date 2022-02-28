@@ -62,8 +62,10 @@ AK_EXISTING_OPTIONS(VkMemoryPropertyFlagBits);
 AK_EXISTING_OPTIONS(VkPeerMemoryFeatureFlagBits);
 AK_EXISTING_OPTIONS(VkPerformanceCounterDescriptionFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkPipelineCacheCreateFlagBits);
+AK_EXISTING_OPTIONS(VkPipelineColorBlendStateCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineCreateFlagBits);
-AK_EXISTING_OPTIONS(VkPipelineCreationFeedbackFlagBitsEXT);
+AK_EXISTING_OPTIONS(VkPipelineCreationFeedbackFlagBits);
+AK_EXISTING_OPTIONS(VkPipelineDepthStencilStateCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineShaderStageCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineStageFlagBits);
 AK_EXISTING_OPTIONS(VkQueryControlFlagBits);
@@ -71,7 +73,7 @@ AK_EXISTING_OPTIONS(VkQueryPipelineStatisticFlagBits);
 AK_EXISTING_OPTIONS(VkQueryResultFlagBits);
 AK_EXISTING_OPTIONS(VkQueueFlagBits);
 AK_EXISTING_OPTIONS(VkRenderPassCreateFlagBits);
-AK_EXISTING_OPTIONS(VkRenderingFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkRenderingFlagBits);
 AK_EXISTING_OPTIONS(VkResolveModeFlagBits);
 AK_EXISTING_OPTIONS(VkSampleCountFlagBits);
 AK_EXISTING_OPTIONS(VkSamplerCreateFlagBits);
@@ -82,7 +84,7 @@ AK_EXISTING_OPTIONS(VkSparseImageFormatFlagBits);
 AK_EXISTING_OPTIONS(VkSparseMemoryBindFlagBits);
 AK_EXISTING_OPTIONS(VkStencilFaceFlagBits);
 AK_EXISTING_OPTIONS(VkSubgroupFeatureFlagBits);
-AK_EXISTING_OPTIONS(VkSubmitFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkSubmitFlagBits);
 AK_EXISTING_OPTIONS(VkSubpassDescriptionFlagBits);
 AK_EXISTING_OPTIONS(VkSurfaceCounterFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkSurfaceTransformFlagBitsKHR);
@@ -90,6 +92,6 @@ AK_EXISTING_OPTIONS(VkSwapchainCreateFlagBitsKHR);
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 AK_EXISTING_OPTIONS(VkSwapchainImageUsageFlagBitsANDROID);
 #endif
-AK_EXISTING_OPTIONS(VkToolPurposeFlagBitsEXT);
+AK_EXISTING_OPTIONS(VkToolPurposeFlagBits);
 
 #endif /* VulkanOptionSets_h */

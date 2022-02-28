@@ -63,6 +63,7 @@ public typealias VkAttachmentStoreOp = CVulkan.VkAttachmentStoreOp
 public extension VkAttachmentStoreOp {
     static let store: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_STORE
     static let dontCare: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_DONT_CARE
+    static let none: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_NONE
     static let noneKhr: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_NONE_KHR
     static let noneQcom: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_NONE_QCOM
     static let noneExt: VkAttachmentStoreOp = .VK_ATTACHMENT_STORE_OP_NONE_EXT
@@ -362,6 +363,7 @@ public extension VkDescriptorType {
     static let uniformBufferDynamic: VkDescriptorType = .VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
     static let storageBufferDynamic: VkDescriptorType = .VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC
     static let inputAttachment: VkDescriptorType = .VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT
+    static let inlineUniformBlock: VkDescriptorType = .VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK
     static let inlineUniformBlockExt: VkDescriptorType = .VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT
     static let accelerationStructureKhr: VkDescriptorType = .VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR
     static let accelerationStructureNv: VkDescriptorType = .VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV
@@ -436,6 +438,8 @@ public extension VkDriverId {
     static let mesaTurnip: VkDriverId = .VK_DRIVER_ID_MESA_TURNIP
     static let mesaV3Dv: VkDriverId = .VK_DRIVER_ID_MESA_V3DV
     static let mesaPanvk: VkDriverId = .VK_DRIVER_ID_MESA_PANVK
+    static let samsungProprietary: VkDriverId = .VK_DRIVER_ID_SAMSUNG_PROPRIETARY
+    static let mesaVenus: VkDriverId = .VK_DRIVER_ID_MESA_VENUS
     static let amdProprietaryKhr: VkDriverId = .VK_DRIVER_ID_AMD_PROPRIETARY_KHR
     static let amdOpenSourceKhr: VkDriverId = .VK_DRIVER_ID_AMD_OPEN_SOURCE_KHR
     static let mesaRadvKhr: VkDriverId = .VK_DRIVER_ID_MESA_RADV_KHR
@@ -462,6 +466,21 @@ public extension VkDynamicState {
     static let stencilCompareMask: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK
     static let stencilWriteMask: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_WRITE_MASK
     static let stencilReference: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_REFERENCE
+    static let cullMode: VkDynamicState = .VK_DYNAMIC_STATE_CULL_MODE
+    static let frontFace: VkDynamicState = .VK_DYNAMIC_STATE_FRONT_FACE
+    static let primitiveTopology: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY
+    static let viewportWithCount: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT
+    static let scissorWithCount: VkDynamicState = .VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT
+    static let vertexInputBindingStride: VkDynamicState = .VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE
+    static let depthTestEnable: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE
+    static let depthWriteEnable: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE
+    static let depthCompareOp: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_COMPARE_OP
+    static let depthBoundsTestEnable: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE
+    static let stencilTestEnable: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE
+    static let stencilOp: VkDynamicState = .VK_DYNAMIC_STATE_STENCIL_OP
+    static let rasterizerDiscardEnable: VkDynamicState = .VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE
+    static let depthBiasEnable: VkDynamicState = .VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE
+    static let primitiveRestartEnable: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE
     static let viewportWScalingNv: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_W_SCALING_NV
     static let discardRectangleExt: VkDynamicState = .VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT
     static let sampleLocationsExt: VkDynamicState = .VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT
@@ -723,6 +742,26 @@ public extension VkFormat {
     static let g16b16r163Plane422UNorm: VkFormat = .VK_FORMAT_G16_B16_R16_3PLANE_422_UNORM
     static let g16b16r162Plane422UNorm: VkFormat = .VK_FORMAT_G16_B16R16_2PLANE_422_UNORM
     static let g16b16r163Plane444UNorm: VkFormat = .VK_FORMAT_G16_B16_R16_3PLANE_444_UNORM
+    static let g8b8r82Plane444UNorm: VkFormat = .VK_FORMAT_G8_B8R8_2PLANE_444_UNORM
+    static let g10X6b10X6r10X62Plane444UNorm3Pack16: VkFormat = .VK_FORMAT_G10X6_B10X6R10X6_2PLANE_444_UNORM_3PACK16
+    static let g12X4b12X4r12X42Plane444UNorm3Pack16: VkFormat = .VK_FORMAT_G12X4_B12X4R12X4_2PLANE_444_UNORM_3PACK16
+    static let g16b16r162Plane444UNorm: VkFormat = .VK_FORMAT_G16_B16R16_2PLANE_444_UNORM
+    static let a4r4g4b4UNormPack16: VkFormat = .VK_FORMAT_A4R4G4B4_UNORM_PACK16
+    static let a4b4g4r4UNormPack16: VkFormat = .VK_FORMAT_A4B4G4R4_UNORM_PACK16
+    static let astc4X4SFloatBlock: VkFormat = .VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK
+    static let astc5X4SFloatBlock: VkFormat = .VK_FORMAT_ASTC_5x4_SFLOAT_BLOCK
+    static let astc5X5SFloatBlock: VkFormat = .VK_FORMAT_ASTC_5x5_SFLOAT_BLOCK
+    static let astc6X5SFloatBlock: VkFormat = .VK_FORMAT_ASTC_6x5_SFLOAT_BLOCK
+    static let astc6X6SFloatBlock: VkFormat = .VK_FORMAT_ASTC_6x6_SFLOAT_BLOCK
+    static let astc8X5SFloatBlock: VkFormat = .VK_FORMAT_ASTC_8x5_SFLOAT_BLOCK
+    static let astc8X6SFloatBlock: VkFormat = .VK_FORMAT_ASTC_8x6_SFLOAT_BLOCK
+    static let astc8X8SFloatBlock: VkFormat = .VK_FORMAT_ASTC_8x8_SFLOAT_BLOCK
+    static let astc10X5SFloatBlock: VkFormat = .VK_FORMAT_ASTC_10x5_SFLOAT_BLOCK
+    static let astc10X6SFloatBlock: VkFormat = .VK_FORMAT_ASTC_10x6_SFLOAT_BLOCK
+    static let astc10X8SFloatBlock: VkFormat = .VK_FORMAT_ASTC_10x8_SFLOAT_BLOCK
+    static let astc10X10SFloatBlock: VkFormat = .VK_FORMAT_ASTC_10x10_SFLOAT_BLOCK
+    static let astc12X10SFloatBlock: VkFormat = .VK_FORMAT_ASTC_12x10_SFLOAT_BLOCK
+    static let astc12X12SFloatBlock: VkFormat = .VK_FORMAT_ASTC_12x12_SFLOAT_BLOCK
     static let pvrtc12BppUNormBlockImg: VkFormat = .VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG
     static let pvrtc14BppUNormBlockImg: VkFormat = .VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG
     static let pvrtc22BppUNormBlockImg: VkFormat = .VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG
@@ -869,6 +908,8 @@ public extension VkImageLayout {
     static let depthReadOnlyOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL
     static let stencilAttachmentOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL
     static let stencilReadOnlyOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_STENCIL_READ_ONLY_OPTIMAL
+    static let readOnlyOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL
+    static let attachmentOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
     static let presentSourceKhr: VkImageLayout = .VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
     static let sharedPresentKhr: VkImageLayout = .VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR
     static let depthReadOnlyStencilAttachmentOptimalKhr: VkImageLayout = .VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR
@@ -1010,6 +1051,7 @@ public extension VkObjectType {
     static let commandPool: VkObjectType = .VK_OBJECT_TYPE_COMMAND_POOL
     static let samplerYcbcrConversion: VkObjectType = .VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION
     static let descriptorUpdateTemplate: VkObjectType = .VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE
+    static let privateDataSlot: VkObjectType = .VK_OBJECT_TYPE_PRIVATE_DATA_SLOT
     static let surfaceKhr: VkObjectType = .VK_OBJECT_TYPE_SURFACE_KHR
     static let swapchainKhr: VkObjectType = .VK_OBJECT_TYPE_SWAPCHAIN_KHR
     static let displayKhr: VkObjectType = .VK_OBJECT_TYPE_DISPLAY_KHR
@@ -1205,13 +1247,17 @@ public extension VkQueryType {
     static let performanceQueryIntel: VkQueryType = .VK_QUERY_TYPE_PERFORMANCE_QUERY_INTEL
 }
 
-public typealias VkQueueGlobalPriorityEXT = CVulkan.VkQueueGlobalPriorityEXT
+public typealias VkQueueGlobalPriorityKHR = CVulkan.VkQueueGlobalPriorityKHR
 
-public extension VkQueueGlobalPriorityEXT {
-    static let low: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_LOW_EXT
-    static let medium: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT
-    static let high: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT
-    static let realtime: VkQueueGlobalPriorityEXT = .VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT
+public extension VkQueueGlobalPriorityKHR {
+    static let low: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_LOW_KHR
+    static let medium: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR
+    static let high: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR
+    static let realtime: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR
+    static let lowExt: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_LOW_EXT
+    static let mediumExt: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_EXT
+    static let highExt: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_HIGH_EXT
+    static let realtimeExt: VkQueueGlobalPriorityKHR = .VK_QUEUE_GLOBAL_PRIORITY_REALTIME_EXT
 }
 
 public typealias VkRasterizationOrderAMD = CVulkan.VkRasterizationOrderAMD
@@ -1258,6 +1304,7 @@ public extension VkResult {
     static let errorInvalidExternalHandle: VkResult = .VK_ERROR_INVALID_EXTERNAL_HANDLE
     static let errorFragmentation: VkResult = .VK_ERROR_FRAGMENTATION
     static let errorInvalidOpaqueCaptureAddress: VkResult = .VK_ERROR_INVALID_OPAQUE_CAPTURE_ADDRESS
+    static let pipelineCompileRequired: VkResult = .VK_PIPELINE_COMPILE_REQUIRED
     static let errorSurfaceLostKhr: VkResult = .VK_ERROR_SURFACE_LOST_KHR
     static let errorNativeWindowInUseKhr: VkResult = .VK_ERROR_NATIVE_WINDOW_IN_USE_KHR
     static let suboptimalKhr: VkResult = .VK_SUBOPTIMAL_KHR
@@ -1270,6 +1317,7 @@ public extension VkResult {
     static let errorInvalidDrmFormatModifierPlaneLayoutExt: VkResult = .VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT
     static let errorFragmentationExt: VkResult = .VK_ERROR_FRAGMENTATION_EXT
     static let errorNotPermittedExt: VkResult = .VK_ERROR_NOT_PERMITTED_EXT
+    static let errorNotPermittedKhr: VkResult = .VK_ERROR_NOT_PERMITTED_KHR
     static let errorInvalidDeviceAddressExt: VkResult = .VK_ERROR_INVALID_DEVICE_ADDRESS_EXT
     #if VOLCANO_PLATFORM_WINDOWS
         static let errorFullScreenExclusiveModeLostExt: VkResult = .VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT
@@ -1588,6 +1636,58 @@ public extension VkStructureType {
     static let bufferOpaqueCaptureAddressCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_OPAQUE_CAPTURE_ADDRESS_CREATE_INFO
     static let memoryOpaqueCaptureAddressAllocateInfo: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO
     static let deviceMemoryOpaqueCaptureAddressInfo: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_MEMORY_OPAQUE_CAPTURE_ADDRESS_INFO
+    static let physicalDeviceVulkan13Features: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES
+    static let physicalDeviceVulkan13Properties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES
+    static let pipelineCreationFeedbackCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_CREATION_FEEDBACK_CREATE_INFO
+    static let physicalDeviceShaderTerminateInvocationFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TERMINATE_INVOCATION_FEATURES
+    static let physicalDeviceToolProperties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TOOL_PROPERTIES
+    static let physicalDeviceShaderDemoteToHelperInvocationFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES
+    static let physicalDevicePrivateDataFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIVATE_DATA_FEATURES
+    static let devicePrivateDataCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_PRIVATE_DATA_CREATE_INFO
+    static let privateDataSlotCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_PRIVATE_DATA_SLOT_CREATE_INFO
+    static let physicalDevicePipelineCreationCacheControlFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES
+    static let memoryBarrier2: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_BARRIER_2
+    static let bufferMemoryBarrier2: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2
+    static let imageMemoryBarrier2: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2
+    static let dependencyInfo: VkStructureType = .VK_STRUCTURE_TYPE_DEPENDENCY_INFO
+    static let submitInfo2: VkStructureType = .VK_STRUCTURE_TYPE_SUBMIT_INFO_2
+    static let semaphoreSubmitInfo: VkStructureType = .VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO
+    static let commandBufferSubmitInfo: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO
+    static let physicalDeviceSynchronization2Features: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES
+    static let physicalDeviceZeroInitializeWorkgroupMemoryFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES
+    static let physicalDeviceImageRobustnessFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES
+    static let copyBufferInfo2: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2
+    static let copyImageInfo2: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2
+    static let copyBufferToImageInfo2: VkStructureType = .VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2
+    static let copyImageToBufferInfo2: VkStructureType = .VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2
+    static let blitImageInfo2: VkStructureType = .VK_STRUCTURE_TYPE_BLIT_IMAGE_INFO_2
+    static let resolveImageInfo2: VkStructureType = .VK_STRUCTURE_TYPE_RESOLVE_IMAGE_INFO_2
+    static let bufferCopy2: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_COPY_2
+    static let imageCopy2: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COPY_2
+    static let imageBlit2: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2
+    static let bufferImageCopy2: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2
+    static let imageResolve2: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2
+    static let physicalDeviceSubgroupSizeControlProperties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES
+    static let pipelineShaderStageRequiredSubgroupSizeCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_REQUIRED_SUBGROUP_SIZE_CREATE_INFO
+    static let physicalDeviceSubgroupSizeControlFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_FEATURES
+    static let physicalDeviceInlineUniformBlockFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_FEATURES
+    static let physicalDeviceInlineUniformBlockProperties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INLINE_UNIFORM_BLOCK_PROPERTIES
+    static let writeDescriptorSetInlineUniformBlock: VkStructureType = .VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK
+    static let descriptorPoolInlineUniformBlockCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_INLINE_UNIFORM_BLOCK_CREATE_INFO
+    static let physicalDeviceTextureCompressionAstcHdrFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXTURE_COMPRESSION_ASTC_HDR_FEATURES
+    static let renderingInfo: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_INFO
+    static let renderingAttachmentInfo: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO
+    static let pipelineRenderingCreateInfo: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO
+    static let physicalDeviceDynamicRenderingFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES
+    static let commandBufferInheritanceRenderingInfo: VkStructureType = .VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_RENDERING_INFO
+    static let physicalDeviceShaderIntegerDotProductFeatures: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_FEATURES
+    static let physicalDeviceShaderIntegerDotProductProperties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_INTEGER_DOT_PRODUCT_PROPERTIES
+    static let physicalDeviceTexelBufferAlignmentProperties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TEXEL_BUFFER_ALIGNMENT_PROPERTIES
+    static let formatProperties3: VkStructureType = .VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3
+    static let physicalDeviceMaintenance4Features: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES
+    static let physicalDeviceMaintenance4Properties: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES
+    static let deviceBufferMemoryRequirements: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS
+    static let deviceImageMemoryRequirements: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS
     static let swapchainCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
     static let presentInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
     static let deviceGroupPresentCapabilitiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_GROUP_PRESENT_CAPABILITIES_KHR
@@ -1928,6 +2028,9 @@ public extension VkStructureType {
     static let pipelineCompilerControlCreateInfoAmd: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD
     static let calibratedTimestampInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT
     static let physicalDeviceShaderCorePropertiesAmd: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD
+    static let deviceQueueGlobalPriorityCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_KHR
+    static let physicalDeviceGlobalPriorityQueryFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_KHR
+    static let queueFamilyGlobalPriorityPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR
     static let deviceMemoryOverallocationCreateInfoAmd: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_MEMORY_OVERALLOCATION_CREATE_INFO_AMD
     static let physicalDeviceVertexAttributeDivisorPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_EXT
     static let pipelineVertexInputDivisorStateCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT
@@ -2112,6 +2215,7 @@ public extension VkStructureType {
     static let bufferImageCopy2Khr: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR
     static let imageResolve2Khr: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR
     static let physicalDevice4444FormatsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT
+    static let physicalDeviceRasterizationOrderAttachmentAccessFeaturesArm: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM
     static let physicalDeviceRgba10X6FormatsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT
     static let directfbSurfaceCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_DIRECTFB_SURFACE_CREATE_INFO_EXT
     static let physicalDeviceMutableDescriptorTypeFeaturesValve: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_VALVE
@@ -2120,6 +2224,8 @@ public extension VkStructureType {
     static let vertexInputBindingDescription2Ext: VkStructureType = .VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT
     static let vertexInputAttributeDescription2Ext: VkStructureType = .VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT
     static let physicalDeviceDrmPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRM_PROPERTIES_EXT
+    static let physicalDeviceDepthClipControlFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLIP_CONTROL_FEATURES_EXT
+    static let pipelineViewportDepthClipControlCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLIP_CONTROL_CREATE_INFO_EXT
     static let physicalDevicePrimitiveTopologyListRestartFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVE_TOPOLOGY_LIST_RESTART_FEATURES_EXT
     static let formatProperties3Khr: VkStructureType = .VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_3_KHR
     static let importMemoryZirconHandleInfoFuchsia: VkStructureType = .VK_STRUCTURE_TYPE_IMPORT_MEMORY_ZIRCON_HANDLE_INFO_FUCHSIA
@@ -2149,6 +2255,8 @@ public extension VkStructureType {
     static let pipelineColorWriteCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT
     static let physicalDeviceGlobalPriorityQueryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT
     static let queueFamilyGlobalPriorityPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT
+    static let physicalDeviceImageViewMinLodFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT
+    static let imageViewMinLodCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT
     static let physicalDeviceMultiDrawFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT
     static let physicalDeviceMultiDrawPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT
     static let physicalDeviceBorderColorSwizzleFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT
@@ -2158,6 +2266,10 @@ public extension VkStructureType {
     static let physicalDeviceMaintenance4PropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES_KHR
     static let deviceBufferMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR
     static let deviceImageMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR
+    static let physicalDeviceFragmentDensityMapOffsetFeaturesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM
+    static let physicalDeviceFragmentDensityMapOffsetPropertiesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM
+    static let subpassFragmentDensityMapOffsetEndInfoQcom: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM
+    static let physicalDeviceLinearColorAttachmentFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV
 }
 
 public typealias VkSubpassContents = CVulkan.VkSubpassContents

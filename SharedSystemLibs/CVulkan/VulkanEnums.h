@@ -82,7 +82,7 @@ AK_EXISTING_ENUM(VkPrimitiveTopology);
 AK_EXISTING_ENUM(VkProvokingVertexModeEXT);
 AK_EXISTING_ENUM(VkQueryPoolSamplingModeINTEL);
 AK_EXISTING_ENUM(VkQueryType);
-AK_EXISTING_ENUM(VkQueueGlobalPriorityEXT);
+AK_EXISTING_ENUM(VkQueueGlobalPriorityKHR);
 AK_EXISTING_ENUM(VkRasterizationOrderAMD);
 AK_EXISTING_ENUM(VkRayTracingShaderGroupTypeKHR);
 AK_EXISTING_ENUM(VkResult);
