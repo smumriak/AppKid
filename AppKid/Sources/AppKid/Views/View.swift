@@ -7,7 +7,7 @@
 
 import Foundation
 import CairoGraphics
-import ContentAnimation
+@_spi(AppKid) import ContentAnimation
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -268,6 +268,8 @@ open class View: Responder, CALayerActionDelegate {
     }
     
     internal func invalidateTransforms() {
+        layer.invalidateTransforms()
+
         transformsAreValid = false
         for view in subviews {
             view.invalidateTransforms()
@@ -277,6 +279,10 @@ open class View: Responder, CALayerActionDelegate {
     // MARK: - Geometry conversion
     
     open func convert(_ point: CGPoint, to view: View?) -> CGPoint {
+        if let view = view {
+            assert(window == view.window)
+        }
+        
         let toView = view ?? window
         
         let transformFromWindow = toView?.transformFromWindow ?? .identity
@@ -285,6 +291,10 @@ open class View: Responder, CALayerActionDelegate {
     }
     
     open func convert(_ point: CGPoint, from view: View?) -> CGPoint {
+        if let view = view {
+            assert(window == view.window)
+        }
+        
         let fromView = view ?? window
         
         let transformToWindow = fromView?.transformToWindow ?? .identity
@@ -293,6 +303,10 @@ open class View: Responder, CALayerActionDelegate {
     }
     
     open func convert(_ rect: CGRect, to view: View?) -> CGRect {
+        if let view = view {
+            assert(window == view.window)
+        }
+        
         let toView = view ?? window
 
         let transformFromWindow = toView?.transformFromWindow ?? .identity
@@ -301,6 +315,10 @@ open class View: Responder, CALayerActionDelegate {
     }
     
     open func convert(_ rect: CGRect, from view: View?) -> CGRect {
+        if let view = view {
+            assert(window == view.window)
+        }
+        
         let fromView = view ?? window
 
         let transformToWindow = fromView?.transformToWindow ?? .identity
