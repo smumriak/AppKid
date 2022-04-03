@@ -10,6 +10,7 @@ import CoreFoundation
 import CairoGraphics
 import TinyFoundation
 import OrderedCollections
+import SimpleGLM
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -140,6 +141,92 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     public var repeatDuration: CFTimeInterval = 0.0
     public var autoreverses: Bool = false
     public var fillMode: CAMediaTimingFillMode = .removed
+
+    // MARK: - Transforms
+
+    internal var transformsAreValid = false
+
+    @_spi(AppKid) public func invalidateTransforms() {
+        transformsAreValid = false
+        sublayers?.forEach { sublayer in
+            sublayer.invalidateTransforms()
+        }
+    }
+
+    fileprivate var _transformToRoot: mat4s = .identity
+    internal var transformToRoot: mat4s {
+        rebuildTransformsIfNeeded()
+        return _transformToRoot
+    }
+
+    fileprivate var _transformFromRoot: mat4s = .identity
+    internal var transformFromRoot: mat4s {
+        rebuildTransformsIfNeeded()
+        return _transformFromRoot
+    }
+
+    internal func rebuildTransformsIfNeeded() {
+        if transformsAreValid { return }
+        
+        transformsAreValid = true
+        
+        if superlayer == nil {
+            _transformToRoot = .identity
+            _transformFromRoot = .identity
+        } else {
+            let superlayerTransformToRoot = superlayer?.transformToRoot ?? .identity
+
+            // let toScreenScaleTransform = mat4s(scaleVector: vec3s(x: bounds.width, y: bounds.height, z: 1.0))
+            let anchorPointTransform = mat4s(translationVector: vec3s(x: anchorPoint.x * bounds.width, y: anchorPoint.y * bounds.height, z: 0.0))
+
+            let positionTransform = mat4s(translationVector: vec3s(x: (position.x - bounds.midX) * contentsScale, y: (position.y - bounds.midY) * contentsScale, z: 0.0))
+
+            let _transformFromRoot =
+                superlayerTransformToRoot
+                    * positionTransform
+                    * anchorPointTransform
+                    * transform.mat4
+                    * anchorPointTransform.inversed
+            
+            _transformToRoot = _transformFromRoot.inversed
+        }
+    }
+
+    // MARK: - Geometry conversion
+    
+    // open func convert(_ point: CGPoint, to layer: CALayer?) -> CGPoint {
+    //     let toView = layer ?? window
+        
+    //     let transformFromWindow = toView?.transformFromWindow ?? .identity
+        
+    //     return point.applying(transformToWindow).applying(transformFromWindow)
+    // }
+    
+    // open func convert(_ point: CGPoint, from layer: CALayer?) -> CGPoint {
+    //     let fromView = layer ?? window
+        
+    //     let transformToWindow = fromView?.transformToWindow ?? .identity
+        
+    //     return point.applying(transformToWindow).applying(transformFromWindow)
+    // }
+    
+    // open func convert(_ rect: CGRect, to layer: CALayer?) -> CGRect {
+    //     let toView = layer ?? window
+
+    //     let transformFromWindow = toView?.transformFromWindow ?? .identity
+
+    //     return rect.applying(transformToWindow).applying(transformFromWindow)
+    // }
+    
+    // open func convert(_ rect: CGRect, from layer: CALayer?) -> CGRect {
+    //     let fromView = layer ?? window
+
+    //     let transformToWindow = fromView?.transformToWindow ?? .identity
+
+    //     return rect.applying(transformToWindow).applying(transformFromWindow)
+    // }
+
+    // MARK: -
 
     public func presentation() -> Self? {
         if isPresentation {

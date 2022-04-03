@@ -250,6 +250,7 @@ internal class DescriptorSetContainer {
         var index: UInt = 0
 
         try traverseLayerTree(for: layer, parentTransform: .identity, index: &index, renderContext: renderContext)
+        // try traverseLayerTree(for: layer, renderContext: renderContext)
 
         renderContext.add(.endScene())
     }
@@ -292,6 +293,123 @@ internal class DescriptorSetContainer {
         try performRenderOperations()
 
         try submitCommandBuffer(waitSemaphores: waitSemaphores, signalSemaphores: signalSemaphores, fence: fence)
+    }
+
+    internal struct StackValue {
+        var layer: CALayer
+        var layerIndex: UInt
+        var sublayerIndex: Int
+    }
+
+    fileprivate func traverseLayerTree(for layer: CALayer, renderContext: RenderContext) throws {
+        var stack: [StackValue] = []
+        var currentLayerOptional: CALayer? = layer
+        var currentLayerIndex: UInt = 0
+
+        while currentLayerOptional != nil || stack.isEmpty == false {
+            if let current = currentLayerOptional {
+                let bounds = current.bounds
+                let position = current.position
+                let contentsScale = current.contentsScale
+
+                // let needsOffscreenRendering = current.needsOffscreenRendering
+                let needsDisplay = current.needsDisplay
+
+                if needsDisplay {
+                    current.display()
+                }
+
+                let toScreenScaleTransform = mat4s(scaleVector: vec3s(x: bounds.width * contentsScale, y: bounds.height * contentsScale, z: 1.0))
+                // let anchorPointTransform = mat4s(translationVector: vec3s(x: anchorPoint.x * bounds.width * contentsScale, y: anchorPoint.y * bounds.height * contentsScale, z: 0.0))
+
+                // let positionTransform = mat4s(translationVector: vec3s(x: (position.x - bounds.midX) * contentsScale, y: (position.y - bounds.midY) * contentsScale, z: 0.0))
+
+                // let layerLocalTransform =
+                //     parentTransform
+                //         * positionTransform
+                //         * anchorPointTransform
+                //         * current.transform.mat4
+                //         * anchorPointTransform.inversed
+
+                // let layerScreenTransform = layerLocalTransform * toScreenScaleTransform
+
+                let layerScreenTransform = current.transformToRoot * toScreenScaleTransform
+
+                let descriptor = LayerRenderDescriptor(transform: layerScreenTransform,
+                                                       contentsTransform: layerScreenTransform,
+                                                       position: position.vec2,
+                                                       anchorPoint: current.anchorPoint.vec2,
+                                                       bounds: bounds.vec4,
+                                                       backgroundColor: current.backgroundColor?.vec4 ?? .zero,
+                                                       borderColor: current.borderColor?.vec4 ?? .zero,
+                                                       borderWidth: Float(current.borderWidth),
+                                                       cornerRadius: Float(current.cornerRadius),
+                                                       masksToBounds: current.masksToBounds ? 1 : 0,
+                                                       shadowOffset: current.shadowOffset.vec2,
+                                                       shadowColor: current.shadowColor?.vec4 ?? .zero,
+                                                       shadowRadius: Float(current.shadowRadius),
+                                                       shadowOpacity: Float(current.shadowOpacity),
+                                                       padding0: .zero,
+                                                       padding1: .zero)
+
+                renderContext.descriptors.append(descriptor)
+
+                renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+                renderContext.add(.background(antiAliased: true))
+
+                var contentsTexture: Texture? = nil
+
+                switch current.contents {
+                    case .some(_ as CGImage):
+                        break
+
+                    case .some(let backingStore as CABackingStore):
+                        contentsTexture = backingStore.currentTexture
+
+                        if contentsTexture == nil {
+                            contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+
+                            backingStore.currentTexture = contentsTexture
+                        } else if needsDisplay {
+                            try backingStore.updateCurrentTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                        }
+
+                    default:
+                        break
+                }
+
+                if let contentsTexture = contentsTexture {
+                    renderContext.add(.contents(texture: contentsTexture, layerIndex: currentLayerIndex, antiAliased: true))
+                }
+
+                if let next = current.sublayers?.first {
+                    stack.append(StackValue(layer: current, layerIndex: currentLayerIndex, sublayerIndex: 0))
+
+                    currentLayerIndex += 1
+                    currentLayerOptional = next
+                } else {
+                    currentLayerOptional = nil
+                }
+            } else {
+                if var previous = stack.popLast() {
+                    previous.sublayerIndex += 1
+                    
+                    if let sublayers = previous.layer.sublayers, previous.sublayerIndex < sublayers.count {
+                        stack.append(previous)
+                        
+                        currentLayerIndex += 1
+                        currentLayerOptional = sublayers[previous.sublayerIndex]
+                    } else {
+                        if previous.layer.borderWidth > 0 && previous.layer.borderColor != nil {
+                            renderContext.add(.bindVertexBuffer(index: previous.layerIndex))
+                            renderContext.add(.border(antiAliased: true))
+                        }
+                    }
+                } else {
+                    break
+                }
+            }
+        }
     }
 
     fileprivate func traverseLayerTree(for layer: CALayer, parentTransform: mat4s, index: inout UInt, renderContext: RenderContext) throws {
