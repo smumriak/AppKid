@@ -245,12 +245,12 @@ import LayerRenderingData
 
 extension RenderContext {
     struct Pipelines {
-        let backgroundAliased: GraphicsPipeline
-        let backgroundNotAliased: GraphicsPipeline
-        let borderAliased: GraphicsPipeline
-        let borderNotAliased: GraphicsPipeline
-        let contentsAliased: GraphicsPipeline
-        let contentsNotAliased: GraphicsPipeline
+        let backgroundAntiAliased: GraphicsPipeline
+        let backgroundNotAntiAliased: GraphicsPipeline
+        let borderAntiAliased: GraphicsPipeline
+        let borderNotAntiAliased: GraphicsPipeline
+        let contentsAntiAliased: GraphicsPipeline
+        let contentsNotAntiAliased: GraphicsPipeline
     }
 }
 
@@ -268,13 +268,13 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func background(aliased: Bool) -> RenderOperation {
-        return BackgroundRenderOperation(aliased: aliased)
+    static func background(antiAliased: Bool) -> RenderOperation {
+        return BackgroundRenderOperation(antiAliased: antiAliased)
     }
 
     @inlinable @inline(__always)
-    static func border(aliased: Bool) -> RenderOperation {
-        return BorderRenderOperation(aliased: aliased)
+    static func border(antiAliased: Bool) -> RenderOperation {
+        return BorderRenderOperation(antiAliased: antiAliased)
     }
 
     @inlinable @inline(__always)
@@ -313,8 +313,8 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func contents(texture: Texture, layerIndex: UInt, aliased: Bool) -> RenderOperation {
-        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex, aliased: aliased)
+    static func contents(texture: Texture, layerIndex: UInt, antiAliased: Bool) -> RenderOperation {
+        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex, antiAliased: antiAliased)
     }
 
     @inlinable @inline(__always)
@@ -435,15 +435,15 @@ internal class ResetFenceRenderOperation: RenderOperation {
 }
 
 internal class BackgroundRenderOperation: RenderOperation {
-    internal let aliased: Bool
+    internal let antiAliased: Bool
 
-    init(aliased: Bool = false) {
-        self.aliased = aliased
+    init(antiAliased: Bool = false) {
+        self.antiAliased = antiAliased
     }
 
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let backgroundPipeline = aliased ? context.pipelines.backgroundAliased : context.pipelines.backgroundNotAliased
+        let backgroundPipeline = antiAliased ? context.pipelines.backgroundAntiAliased : context.pipelines.backgroundNotAntiAliased
         try commandBuffer.bind(pipeline: backgroundPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: backgroundPipeline)
@@ -453,15 +453,15 @@ internal class BackgroundRenderOperation: RenderOperation {
 }
 
 internal class BorderRenderOperation: RenderOperation {
-        internal let aliased: Bool
+        internal let antiAliased: Bool
 
-    init(aliased: Bool = false) {
-        self.aliased = aliased
+    init(antiAliased: Bool = false) {
+        self.antiAliased = antiAliased
     }
 
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let borderPipeline = aliased ? context.pipelines.borderAliased : context.pipelines.borderNotAliased
+        let borderPipeline = antiAliased ? context.pipelines.borderAntiAliased : context.pipelines.borderNotAntiAliased
         try commandBuffer.bind(pipeline: borderPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: borderPipeline)
@@ -539,17 +539,17 @@ internal class PopRenderTargetRenderOperation: RenderOperation {
 internal class ContentsRenderOperation: RenderOperation {
     internal let texture: Texture
     internal let layerIndex: UInt
-    internal let aliased: Bool
+    internal let antiAliased: Bool
 
-    init(texture: Texture, layerIndex: UInt, aliased: Bool) {
+    init(texture: Texture, layerIndex: UInt, antiAliased: Bool) {
         self.texture = texture
         self.layerIndex = layerIndex
-        self.aliased = aliased
+        self.antiAliased = antiAliased
     }
 
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let contentsPipeline = aliased ? context.pipelines.contentsAliased : context.pipelines.contentsNotAliased
+        let contentsPipeline = antiAliased ? context.pipelines.contentsAntiAliased : context.pipelines.contentsNotAntiAliased
         try commandBuffer.bind(pipeline: contentsPipeline)
 
         let contentsDescriptorSet = try context.contentsDescriptorSet(for: texture, layerIndex: layerIndex)

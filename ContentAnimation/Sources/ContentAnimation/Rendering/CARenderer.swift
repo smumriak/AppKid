@@ -81,20 +81,20 @@ open class CARenderer: NSObject {
 
         descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
-        let backgroundPipelineAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let backgroundPipelineNotAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let borderPipelineAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let borderPipelineNotAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let contentsPipelineAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
-        let contentsPipelineNotAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
+        let backgroundPipelineAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
+        let backgroundPipelineNotAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
+        let borderPipelineAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
+        let borderPipelineNotAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
+        let contentsPipelineAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: true)
+        let contentsPipelineNotAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: false)
 
         let pipelines = RenderContext.Pipelines(
-            backgroundAliased: backgroundPipelineAliased,
-            backgroundNotAliased: backgroundPipelineNotAliased,
-            borderAliased: borderPipelineAliased,
-            borderNotAliased: borderPipelineNotAliased,
-            contentsAliased: contentsPipelineAliased,
-            contentsNotAliased: contentsPipelineNotAliased
+            backgroundAntiAliased: backgroundPipelineAntiAliased,
+            backgroundNotAntiAliased: backgroundPipelineNotAntiAliased,
+            borderAntiAliased: borderPipelineAntiAliased,
+            borderNotAntiAliased: borderPipelineNotAntiAliased,
+            contentsAntiAliased: contentsPipelineAntiAliased,
+            contentsNotAntiAliased: contentsPipelineNotAntiAliased
         )
         
         renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
@@ -130,20 +130,20 @@ open class CARenderer: NSObject {
 
         renderPass = try device.createMainRenderPass(pixelFormat: texture.pixelFormat)
         renderTarget = try RenderTarget(renderPass: renderPass, colorAttachment: texture, resolveAttachment: texture, clearColor: VkClearValue(color: .red))
-        let backgroundPipelineAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let backgroundPipelineNotAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let borderPipelineAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let borderPipelineNotAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], aliased: true)
-        let contentsPipelineAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
-        let contentsPipelineNotAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], aliased: false)
+        let backgroundPipelineAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
+        let backgroundPipelineNotAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
+        let borderPipelineAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
+        let borderPipelineNotAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
+        let contentsPipelineAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: true)
+        let contentsPipelineNotAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: false)
 
         let pipelines = RenderContext.Pipelines(
-            backgroundAliased: backgroundPipelineAliased,
-            backgroundNotAliased: backgroundPipelineNotAliased,
-            borderAliased: borderPipelineAliased,
-            borderNotAliased: borderPipelineNotAliased,
-            contentsAliased: contentsPipelineAliased,
-            contentsNotAliased: contentsPipelineNotAliased
+            backgroundAntiAliased: backgroundPipelineAntiAliased,
+            backgroundNotAntiAliased: backgroundPipelineNotAntiAliased,
+            borderAntiAliased: borderPipelineAntiAliased,
+            borderNotAntiAliased: borderPipelineNotAntiAliased,
+            contentsAntiAliased: contentsPipelineAntiAliased,
+            contentsNotAntiAliased: contentsPipelineNotAntiAliased
         )
 
         renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
@@ -255,7 +255,7 @@ open class CARenderer: NSObject {
         renderContext.descriptors.append(descriptor)
 
         renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background(aliased: true))
+        renderContext.add(.background(antiAliased: true))
 
         var contentsTexture: Texture? = nil
 
@@ -277,7 +277,7 @@ open class CARenderer: NSObject {
         }
 
         if let contentsTexture = contentsTexture {
-            renderContext.add(.contents(texture: contentsTexture, layerIndex: index, aliased: false))
+            renderContext.add(.contents(texture: contentsTexture, layerIndex: index, antiAliased: false))
         }
 
         try layer.sublayers?.forEach {
@@ -287,7 +287,7 @@ open class CARenderer: NSObject {
 
         if layer.borderWidth > 0 && layer.borderColor != nil {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.border(aliased: true))
+            renderContext.add(.border(antiAliased: true))
         }
     }
 }
