@@ -23,8 +23,7 @@ let package = Package(
         .package(path: "./ContentAnimation"),
         .package(path: "./SharedSystemLibs"),
         .package(path: "./Volcano"),
-        .package(name: "glslImporter", path: "./Tools/glslImporter"),
-        .package(name: "vkthings", path: "./Tools/vkthings"),
+        .package(path: "./VolcanoSL"),
     ],
     targets: [
         .executableTarget(

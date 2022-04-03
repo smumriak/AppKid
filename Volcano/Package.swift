@@ -16,12 +16,15 @@ let package = Package(
     products: [
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
         .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
+        .executable(name: "vkthings", targets: ["vkthings"]),
     ],
     dependencies: [
         .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
-        .package(path: "../Tools/vkthings"),
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
+        .package(url: "https://github.com/MaxDesiatov/XMLCoder.git", from: "0.13.1"),
+
     ],
     targets: [
         .target(
@@ -53,5 +56,12 @@ let package = Package(
                 .unsafeFlags(["-Wno-nullability-completeness", "-std=gnu++17"]),
             ]
         ),
+        .executableTarget(
+            name: "vkthings",
+            dependencies: [
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "XMLCoder", package: "XMLCoder"),
+
+            ]),
     ]
 )

@@ -1,6 +1,6 @@
 //
 //  main.swift
-//  glslImporter
+//  VolcanoSL
 //
 //  Created by Serhii Mumriak on 13.06.2021.
 //
@@ -237,7 +237,7 @@ extension String {
 
 let glslTypesIncludeFileURL = Bundle.module.url(forResource: "GLSLTypesInclude", withExtension: "h")!
 
-struct GLSLImporter: ParsableCommand {
+struct VolcanoSL: ParsableCommand {
     @Argument(help: "Path to shader source file")
     var filePath: String
 
@@ -494,4 +494,4 @@ func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [U
     return importGenerationContext
 }
 
-GLSLImporter.main()
+VolcanoSL.main()

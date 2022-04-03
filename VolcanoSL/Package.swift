@@ -1,7 +1,7 @@
 // swift-tools-version:5.5
 //
 //  Package.swift
-//  glslImporter
+//  VolcanoSL
 //
 //  Created by Serhii Mumriak on 13.06.2021.
 //
@@ -9,21 +9,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "glslImporter",
+    name: "VolcanoSL",
     platforms: [
         .macOS(.v12),
     ],
     products: [
-        .executable(name: "glslImporter", targets: ["glslImporter"]),
-        // .plugin(name: "GLSLImporterPlugin", targets: ["GLSLImporterPlugin"])
+        .executable(name: "volcanosl", targets: ["VolcanoSL"]),
+        // .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"])
     ],
     dependencies: [
-        .package(path: "../../TinyFoundation"),
+        .package(path: "../TinyFoundation"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [
         .executableTarget(
-            name: "glslImporter",
+            name: "VolcanoSL",
             dependencies: [
                 "CClang",
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
@@ -33,9 +33,9 @@ let package = Package(
                 .copy("Resources/GLSLTypesInclude.h"),
             ]),
         // .plugin(
-        //     name: "GLSLImporterPlugin",
+        //     name: "VolcanoSLPlugin",
         //     capability: .buildTool(),
-        //     dependencies: [.target(name: "glslImporter")]
+        //     dependencies: [.target(name: "VolcanoSL")]
         // ),
         .systemLibrary(
             name: "CClang",
@@ -45,7 +45,7 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "glslImporterTests",
-            dependencies: ["glslImporter"]),
+            name: "VolcanoSLTests",
+            dependencies: ["VolcanoSL"]),
     ]
 )

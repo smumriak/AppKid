@@ -22,7 +22,7 @@ let package = Package(
         .package(path: "../CairoGraphics"),
         .package(path: "../Volcano"),
         .package(path: "../SimpleGLM"),
-        .package(path: "../Tools/glslImporter"),
+        .package(path: "../Tools/VolcanoSL"),
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [

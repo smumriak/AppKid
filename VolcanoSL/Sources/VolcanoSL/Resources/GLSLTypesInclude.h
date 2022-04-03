@@ -1,6 +1,6 @@
 //
 //  GLSLTypesInclude.h
-//  glslImporter
+//  VolcanoSL
 //
 //  Created by Serhii Mumriak on 14.06.2021.
 //
