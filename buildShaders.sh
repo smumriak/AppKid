@@ -1,5 +1,7 @@
 #!/bin/bash
 
+APPKID_LOCAL_BUILD=1
+
 arch=`uname`
 
 resourcesPath=./ContentAnimation/Sources/ContentAnimation/Resources

@@ -7,6 +7,30 @@
 //
 
 import PackageDescription
+import Foundation
+
+let sharedSystemLibsDependency: PackageDescription.Package.Dependency
+let tinyFoundationDependency: PackageDescription.Package.Dependency
+let cairoGraphicsDependency: PackageDescription.Package.Dependency
+let volcanoDependency: PackageDescription.Package.Dependency
+let simpleGLMDependency: PackageDescription.Package.Dependency
+let volcanoSLDependency: PackageDescription.Package.Dependency
+
+if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
+    sharedSystemLibsDependency = .package(url: "https://github.com/smumriak/SharedSystemLibs", branch: "main")
+    tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
+    cairoGraphicsDependency = .package(url: "https://github.com/smumriak/CairoGraphics", branch: "main")
+    volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
+    simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
+    volcanoSLDependency = .package(url: "https://github.com/smumriak/VolcanoSL", branch: "main")
+} else {
+    sharedSystemLibsDependency = .package(path: "../SharedSystemLibs")
+    tinyFoundationDependency = .package(path: "../TinyFoundation")
+    cairoGraphicsDependency = .package(path: "../CairoGraphics")
+    volcanoDependency = .package(path: "../Volcano")
+    simpleGLMDependency = .package(path: "../SimpleGLM")
+    volcanoSLDependency = .package(path: "../VolcanoSL")
+}
 
 let package = Package(
     name: "ContentAnimation",
@@ -17,12 +41,12 @@ let package = Package(
         .library(name: "ContentAnimation", type: .dynamic, targets: ["ContentAnimation"]),
     ],
     dependencies: [
-        .package(path: "../SharedSystemLibs"),
-        .package(path: "../TinyFoundation"),
-        .package(path: "../CairoGraphics"),
-        .package(path: "../Volcano"),
-        .package(path: "../SimpleGLM"),
-        .package(path: "../Tools/VolcanoSL"),
+        sharedSystemLibsDependency,
+        tinyFoundationDependency,
+        cairoGraphicsDependency,
+        volcanoDependency,
+        simpleGLMDependency,
+        volcanoSLDependency,
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [

@@ -33,6 +33,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "generateVolcanoCOptionSets",
@@ -52,6 +57,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "generateVolcanoSwiftStructures",
@@ -71,6 +81,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "generateVolcanoSwiftEnums",
@@ -90,6 +105,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "generateVolcanoSwiftOptionSets",
@@ -109,6 +129,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "buildProject",
@@ -128,6 +153,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "clean",
@@ -161,6 +191,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "buildShaders",
@@ -199,6 +234,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "upload_jetson",

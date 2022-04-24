@@ -7,6 +7,15 @@
 //
 
 import PackageDescription
+import Foundation
+
+let tinyFoundationDependency: PackageDescription.Package.Dependency
+
+if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
+    tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
+} else {
+    tinyFoundationDependency = .package(path: "../TinyFoundation")
+}
 
 let package = Package(
     name: "VolcanoSL",
@@ -18,7 +27,7 @@ let package = Package(
         // .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"])
     ],
     dependencies: [
-        .package(path: "../TinyFoundation"),
+        tinyFoundationDependency,
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [

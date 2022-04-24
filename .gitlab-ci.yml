@@ -6,6 +6,8 @@ stages:
 
 build_project:
   stage: build
+  variables:
+    APPKID_LOCAL_BUILD: "1"
   script:
     - rm -rf .build
     - swift build -v
