@@ -465,6 +465,15 @@ public extension VkGeometryInstanceFlagBitsKHR {
     static let forceNoOpaqueNv: VkGeometryInstanceFlagBitsKHR = .VK_GEOMETRY_INSTANCE_FORCE_NO_OPAQUE_BIT_NV
 }
 
+public typealias VkGraphicsPipelineLibraryFlagBitsEXT = CVulkan.VkGraphicsPipelineLibraryFlagBitsEXT
+
+public extension VkGraphicsPipelineLibraryFlagBitsEXT {
+    static let vertexInputInterface: VkGraphicsPipelineLibraryFlagBitsEXT = .VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT
+    static let preRasterizationShaders: VkGraphicsPipelineLibraryFlagBitsEXT = .VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT
+    static let fragmentShader: VkGraphicsPipelineLibraryFlagBitsEXT = .VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT
+    static let fragmentOutputInterface: VkGraphicsPipelineLibraryFlagBitsEXT = .VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT
+}
+
 public typealias VkImageAspectFlagBits = CVulkan.VkImageAspectFlagBits
 
 public extension VkImageAspectFlagBits {
@@ -508,6 +517,7 @@ public extension VkImageCreateFlagBits {
     static let disjointKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_DISJOINT_BIT_KHR
     static let aliasKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_ALIAS_BIT_KHR
     static let subsampledExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_SUBSAMPLED_BIT_EXT
+    static let twoDimensionsViewCompatibleExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT
     static let fragmentDensityMapOffsetQcom: VkImageCreateFlagBits = .VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM
 }
 
@@ -547,6 +557,12 @@ public typealias VkIndirectStateFlagBitsNV = CVulkan.VkIndirectStateFlagBitsNV
 
 public extension VkIndirectStateFlagBitsNV {
     static let flagFrontface: VkIndirectStateFlagBitsNV = .VK_INDIRECT_STATE_FLAG_FRONTFACE_BIT_NV
+}
+
+public typealias VkInstanceCreateFlagBits = CVulkan.VkInstanceCreateFlagBits
+
+public extension VkInstanceCreateFlagBits {
+    static let enumeratePortabilityKhr: VkInstanceCreateFlagBits = .VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR
 }
 
 public typealias VkMemoryAllocateFlagBits = CVulkan.VkMemoryAllocateFlagBits
@@ -645,6 +661,8 @@ public extension VkPipelineCreateFlagBits {
     static let libraryKhr: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_LIBRARY_BIT_KHR
     static let failOnPipelineCompileRequiredExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT
     static let earlyReturnOnFailureExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_EARLY_RETURN_ON_FAILURE_BIT_EXT
+    static let retainLinkTimeOptimizationInfoExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT
+    static let linkTimeOptimizationExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_LINK_TIME_OPTIMIZATION_BIT_EXT
     static let rayTracingAllowMotionNv: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV
 }
 
@@ -664,6 +682,12 @@ public typealias VkPipelineDepthStencilStateCreateFlagBits = CVulkan.VkPipelineD
 public extension VkPipelineDepthStencilStateCreateFlagBits {
     static let rasterizationOrderAttachmentDepthAccessArm: VkPipelineDepthStencilStateCreateFlagBits = .VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_DEPTH_ACCESS_BIT_ARM
     static let rasterizationOrderAttachmentStencilAccessArm: VkPipelineDepthStencilStateCreateFlagBits = .VK_PIPELINE_DEPTH_STENCIL_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_STENCIL_ACCESS_BIT_ARM
+}
+
+public typealias VkPipelineLayoutCreateFlagBits = CVulkan.VkPipelineLayoutCreateFlagBits
+
+public extension VkPipelineLayoutCreateFlagBits {
+    static let independentSetsExt: VkPipelineLayoutCreateFlagBits = .VK_PIPELINE_LAYOUT_CREATE_INDEPENDENT_SETS_BIT_EXT
 }
 
 public typealias VkPipelineShaderStageCreateFlagBits = CVulkan.VkPipelineShaderStageCreateFlagBits

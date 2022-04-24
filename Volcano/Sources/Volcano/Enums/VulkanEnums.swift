@@ -1245,6 +1245,7 @@ public extension VkQueryType {
     static let accelerationStructureSerializationSizeKhr: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_SIZE_KHR
     static let accelerationStructureCompactedSizeNv: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV
     static let performanceQueryIntel: VkQueryType = .VK_QUERY_TYPE_PERFORMANCE_QUERY_INTEL
+    static let primitivesGeneratedExt: VkQueryType = .VK_QUERY_TYPE_PRIMITIVES_GENERATED_EXT
 }
 
 public typealias VkQueueGlobalPriorityKHR = CVulkan.VkQueueGlobalPriorityKHR
@@ -2189,6 +2190,9 @@ public extension VkStructureType {
     static let physicalDeviceSynchronization2FeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES_KHR
     static let queueFamilyCheckpointProperties2Nv: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_2_NV
     static let checkpointData2Nv: VkStructureType = .VK_STRUCTURE_TYPE_CHECKPOINT_DATA_2_NV
+    static let physicalDeviceGraphicsPipelineLibraryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT
+    static let physicalDeviceGraphicsPipelineLibraryPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT
+    static let graphicsPipelineLibraryCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT
     static let physicalDeviceShaderSubgroupUniformControlFlowFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR
     static let physicalDeviceZeroInitializeWorkgroupMemoryFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES_KHR
     static let physicalDeviceFragmentShadingRateEnumsPropertiesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV
@@ -2253,12 +2257,14 @@ public extension VkStructureType {
     static let screenSurfaceCreateInfoQnx: VkStructureType = .VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX
     static let physicalDeviceColorWriteEnableFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT
     static let pipelineColorWriteCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT
+    static let physicalDevicePrimitivesGeneratedQueryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT
     static let physicalDeviceGlobalPriorityQueryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT
     static let queueFamilyGlobalPriorityPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT
     static let physicalDeviceImageViewMinLodFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT
     static let imageViewMinLodCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_MIN_LOD_CREATE_INFO_EXT
     static let physicalDeviceMultiDrawFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT
     static let physicalDeviceMultiDrawPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT
+    static let physicalDeviceImageTwoDimensionsViewOfThreeDimensionsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT
     static let physicalDeviceBorderColorSwizzleFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT
     static let samplerBorderColorComponentMappingCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT
     static let physicalDevicePageableDeviceLocalMemoryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT
@@ -2266,6 +2272,9 @@ public extension VkStructureType {
     static let physicalDeviceMaintenance4PropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES_KHR
     static let deviceBufferMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR
     static let deviceImageMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR
+    static let physicalDeviceDescriptorSetHostMappingFeaturesValve: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE
+    static let descriptorSetBindingReferenceValve: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE
+    static let descriptorSetLayoutHostMappingInfoValve: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE
     static let physicalDeviceFragmentDensityMapOffsetFeaturesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_FEATURES_QCOM
     static let physicalDeviceFragmentDensityMapOffsetPropertiesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM
     static let subpassFragmentDensityMapOffsetEndInfoQcom: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM
