@@ -15,7 +15,6 @@ let package = Package(
     ],
     products: [
         .library(name: "CCore", targets: ["CCore"]),
-        .library(name: "CXlib", targets: ["CXlib"]),
         .library(name: "CCairo", targets: ["CCairo"]),
         .library(name: "CPango", targets: ["CPango"]),
         .library(name: "CVulkan", targets: ["CVulkan"]),
@@ -25,15 +24,6 @@ let package = Package(
             name: "CCore",
             dependencies: [],
             path: "CCore"
-        ),
-        .systemLibrary(
-            name: "CXlib",
-            path: "CXlib",
-            pkgConfig: "x11 xext xi xcb",
-            providers: [
-                .apt(["libx11-dev libxext-dev libxi-dev libwayland-dev libxcb1-dev"]),
-                .brew(["xquartz"]),
-            ]
         ),
         .systemLibrary(
             name: "CCairo",

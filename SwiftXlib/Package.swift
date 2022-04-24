@@ -14,6 +14,7 @@ let package = Package(
         .macOS(.v12),
     ],
     products: [
+        .library(name: "CXlib", targets: ["CXlib"]),
         .library(name: "SwiftXlib", type: .dynamic, targets: ["SwiftXlib"]),
     ],
     dependencies: [
@@ -21,10 +22,18 @@ let package = Package(
         .package(path: "../TinyFoundation"),
     ],
     targets: [
+        .systemLibrary(
+            name: "CXlib",
+            pkgConfig: "x11 xext xi xcb",
+            providers: [
+                .apt(["libx11-dev libxext-dev libxi-dev libwayland-dev libxcb1-dev"]),
+                .brew(["xquartz"]),
+            ]
+        ),
         .target(
             name: "SwiftXlib",
             dependencies: [
-                .product(name: "CXlib", package: "SharedSystemLibs"),
+                "CXlib",
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
             ],
             swiftSettings: [
