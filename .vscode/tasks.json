@@ -215,6 +215,11 @@
                 "showReuseMessage": false,
                 "clear": false
             },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
         },
         {
             "label": "buildProject_arm64",

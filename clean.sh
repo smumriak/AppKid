@@ -2,6 +2,5 @@
 rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftyFan-`uname`
 rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftyFanTests-`uname`
 rm -rf ~/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64
-rm -rf ~/Library/Developer/Xcode/DerivedData/VolcanoSL-`uname`
 rm -rf ~/Library/Developer/Xcode/DerivedData/AppKidShaders-`uname`
 # rm ContentAnimation/Sources/ContentAnimation/Resources/ShaderBinaries/*.spv

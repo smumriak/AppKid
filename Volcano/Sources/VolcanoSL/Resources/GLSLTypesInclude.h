@@ -8,7 +8,7 @@
 #ifndef __GLSL_TYPES_INCLUDE_H__
 #define __GLSL_TYPES_INCLUDE_H__
 
-#ifdef __GLSL_IMPORTER__
+#ifdef __VOLCANO_SL__
 
 #define bvec2s bvec2
 #define bvec3s bvec3

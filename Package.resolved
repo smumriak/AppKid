@@ -2,15 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "CCore",
-        "repositoryURL": "http://gitlab.cherryink/palkovnik/CCore",
-        "state": {
-          "branch": "main",
-          "revision": "320d0499df250609dc2e99de1fe34b86590956c6",
-          "version": null
-        }
-      },
-      {
         "package": "cglm",
         "repositoryURL": "https://github.com/recp/cglm",
         "state": {

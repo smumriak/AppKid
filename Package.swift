@@ -22,7 +22,6 @@ let package = Package(
         .package(path: "./CairoGraphics"),
         .package(path: "./ContentAnimation"),
         .package(path: "./Volcano"),
-        .package(path: "./VolcanoSL"),
     ],
     targets: [
         .executableTarget(

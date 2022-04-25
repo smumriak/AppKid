@@ -34,6 +34,8 @@ let package = Package(
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
         .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
         .executable(name: "vkthings", targets: ["vkthings"]),
+        .executable(name: "volcanosl", targets: ["VolcanoSL"]),
+        // .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"])
     ],
     dependencies: [
         tinyFoundationDependency,
@@ -48,6 +50,13 @@ let package = Package(
             pkgConfig: "vulkan",
             providers: [
                 .apt(["vulkan-sdk"]),
+            ]
+        ),
+        .systemLibrary(
+            name: "CClang",
+            pkgConfig: "clang",
+            providers: [
+                .apt(["libclang-dev"]),
             ]
         ),
         .target(
@@ -85,5 +94,20 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "XMLCoder", package: "XMLCoder"),
             ]),
+        .executableTarget(
+            name: "VolcanoSL",
+            dependencies: [
+                "CClang",
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+            ],
+            resources: [
+                .copy("Resources/GLSLTypesInclude.h"),
+            ]),
+        // .plugin(
+        //     name: "VolcanoSLPlugin",
+        //     capability: .buildTool(),
+        //     dependencies: [.target(name: "VolcanoSL")]
+        // ),
     ]
 )

@@ -390,7 +390,7 @@ func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [U
 
     let flags: CXTranslationUnit_Flags = []
 
-    var commandLineArguments: [String] = ["-D__GLSL_IMPORTER__"]
+    var commandLineArguments: [String] = ["-D__VOLCANO_SL__"]
     commandLineArguments.append("--include=\(glslTypesIncludeFileURL.path)")
 
     let translationUnit = commandLineArguments.withUnsafeNullableCStringsBufferPointer { commandLineArguments in

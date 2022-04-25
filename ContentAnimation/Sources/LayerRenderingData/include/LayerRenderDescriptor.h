@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 13.06.2021.
 //
 
-#ifndef __GLSL_IMPORTER__
+#ifndef __VOLCANO_SL__
 #include <cglm/struct.h>
 #endif
 
