@@ -10,7 +10,7 @@
 
 #include <X11/X.h>
 
-#include "../../../CCore/CCore.h"
+#include "../../../CCore/include/CCore.h"
 
 typedef AK_ENUM(int32_t, XlibResult) {
     XlibResultBadAccess = BadAccess,

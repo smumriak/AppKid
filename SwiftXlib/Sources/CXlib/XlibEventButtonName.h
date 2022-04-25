@@ -10,7 +10,7 @@
 
 #include <X11/X.h>
 
-#include "../../../CCore/CCore.h"
+#include "../../../CCore/include/CCore.h"
 
 typedef AK_CLOSED_ENUM(int32_t, XlibEventButtonName) {
     XlibEventButtonNameOne = Button1,

@@ -11,7 +11,7 @@
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI.h>
 
-#include "../../../CCore/CCore.h"
+#include "../../../CCore/include/CCore.h"
 
 typedef AK_OPTIONS(int32_t, XInput2EventTypeMask) {
     XInput2EventTypeMaskKeyPress = XI_KeyPressMask,

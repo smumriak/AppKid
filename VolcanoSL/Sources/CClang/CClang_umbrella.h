@@ -10,7 +10,7 @@
 
 struct CXTranslationUnitImpl {};
 
-#include "../../../CCore/CCore.h"
+#include "../../../CCore/include/CCore.h"
 
 AK_EXISTING_ENUM(CXCursorKind);
 AK_EXISTING_ENUM(CXChildVisitResult);

@@ -707,7 +707,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     "#ifndef VulkanEnums_h",
                     "#define VulkanEnums_h 1",
                     "",
-                    "#include \"../../../CCore/CCore.h\"",
+                    "#include \"../../../CCore/include/CCore.h\"",
                     "",
                 ]
                 
@@ -742,7 +742,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     "#ifndef VulkanOptionSets_h",
                     "#define VulkanOptionSets_h 1",
                     "",
-                    "#include \"../../../CCore/CCore.h\"",
+                    "#include \"../../../CCore/include/CCore.h\"",
                     "",
                 ]
                 

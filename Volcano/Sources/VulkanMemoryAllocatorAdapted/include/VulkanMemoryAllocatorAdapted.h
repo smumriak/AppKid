@@ -3,7 +3,7 @@
 
 #ifndef __cplusplus
 
-#include "../../../../CCore/CCore.h"
+#include "../../../../CCore/include/CCore.h"
 
 struct VmaAllocator_T {};
 struct VmaPool_T {};

@@ -24,7 +24,7 @@ let package = Package(
             sources: [
                 "empty.c",
             ],
-            publicHeaderPath: "./"
+            publicHeadersPath: "./include"
         ),
     ]
 )

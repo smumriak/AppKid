@@ -1,39 +1,52 @@
 {
-  "object" : {
-    "pins" : [
+  "object": {
+    "pins": [
       {
-        "package" : "cglm",
-        "repositoryURL" : "https://github.com/recp/cglm",
-        "state" : {
-          "branch" : "master",
-          "revision" : "f20bf0aaaf34edb21b600b035c718a07fd18f9b9"
+        "package": "CCore",
+        "repositoryURL": "http://gitlab.cherryink/palkovnik/CCore",
+        "state": {
+          "branch": "main",
+          "revision": "320d0499df250609dc2e99de1fe34b86590956c6",
+          "version": null
         }
       },
       {
-        "package" : "swift-argument-parser",
-        "repositoryURL" : "https://github.com/apple/swift-argument-parser",
-        "state" : {
-          "revision" : "e1465042f195f374b94f915ba8ca49de24300a0d",
-          "version" : "1.0.2"
+        "package": "cglm",
+        "repositoryURL": "https://github.com/recp/cglm",
+        "state": {
+          "branch": "master",
+          "revision": "f20bf0aaaf34edb21b600b035c718a07fd18f9b9",
+          "version": null
         }
       },
       {
-        "package" : "swift-collections",
-        "repositoryURL" : "https://github.com/apple/swift-collections",
-        "state" : {
-          "revision" : "48254824bb4248676bf7ce56014ff57b142b77eb",
-          "version" : "1.0.2"
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "e1465042f195f374b94f915ba8ca49de24300a0d",
+          "version": "1.0.2"
         }
       },
       {
-        "package" : "XMLCoder",
-        "repositoryURL" : "https://github.com/MaxDesiatov/XMLCoder.git",
-        "state" : {
-          "revision" : "f30119af03996939cc4f54e0bf0dda9f88a84da5",
-          "version" : "0.13.1"
+        "package": "swift-collections",
+        "repositoryURL": "https://github.com/apple/swift-collections",
+        "state": {
+          "branch": null,
+          "revision": "48254824bb4248676bf7ce56014ff57b142b77eb",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "XMLCoder",
+        "repositoryURL": "https://github.com/MaxDesiatov/XMLCoder.git",
+        "state": {
+          "branch": null,
+          "revision": "f30119af03996939cc4f54e0bf0dda9f88a84da5",
+          "version": "0.13.1"
         }
       }
     ]
   },
-  "version" : 1
+  "version": 1
 }
