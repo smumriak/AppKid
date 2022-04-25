@@ -18,7 +18,6 @@ let package = Package(
         .library(name: "SwiftXlib", type: .dynamic, targets: ["SwiftXlib"]),
     ],
     dependencies: [
-        .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
     ],
     targets: [

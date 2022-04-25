@@ -10,7 +10,7 @@
 
 #include <X11/X.h>
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 typedef AK_ENUM(KeySym, X11ModifierKeySymbol) {
     X11ModifierKeySymbolLeftShift = XK_Shift_L,

@@ -21,7 +21,6 @@ let package = Package(
         .package(path: "./AppKid"),
         .package(path: "./CairoGraphics"),
         .package(path: "./ContentAnimation"),
-        .package(path: "./SharedSystemLibs"),
         .package(path: "./Volcano"),
         .package(path: "./VolcanoSL"),
     ],

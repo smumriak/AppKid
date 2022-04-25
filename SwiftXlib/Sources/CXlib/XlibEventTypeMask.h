@@ -10,7 +10,7 @@
 
 #include <X11/X.h>
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 typedef AK_OPTIONS(int32_t, XlibEventTypeMask) {
     XlibEventTypeMaskNoEvent = NoEventMask,

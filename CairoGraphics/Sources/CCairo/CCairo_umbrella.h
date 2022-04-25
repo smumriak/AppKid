@@ -8,7 +8,7 @@
 #ifndef CCairo_umbrella_h
 #define CCairo_umbrella_h 1
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 struct _cairo {};
 struct _cairo_surface {};

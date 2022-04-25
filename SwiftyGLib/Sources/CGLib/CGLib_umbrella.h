@@ -8,7 +8,7 @@
 #ifndef CGlib_umbrella_h
 #define CGlib_umbrella_h 1
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 

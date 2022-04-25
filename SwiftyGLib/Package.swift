@@ -14,7 +14,6 @@ let package = Package(
         .library(name: "SwiftyGLib", type: .dynamic, targets: ["SwiftyGLib"]),
     ],
     dependencies: [
-        .package(path: "../SharedSystemLibs"),
         .package(path: "../TinyFoundation"),
     ],
     targets: [

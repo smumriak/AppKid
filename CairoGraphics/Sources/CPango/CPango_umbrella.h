@@ -15,6 +15,6 @@ struct _PangoContext {};
 #include <pango/pango.h>
 #include <pango/pangocairo.h>
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 #endif

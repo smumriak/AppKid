@@ -8,7 +8,7 @@
 #ifndef VulkanEnums_h
 #define VulkanEnums_h 1
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 AK_EXISTING_ENUM(VkAccelerationStructureBuildTypeKHR);
 AK_EXISTING_ENUM(VkAccelerationStructureCompatibilityKHR);

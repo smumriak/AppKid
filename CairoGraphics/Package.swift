@@ -23,7 +23,7 @@ let package = Package(
         .library(name: "STBImageResize", type: .static, targets: ["STBImageResize"]),
     ],
     dependencies: [
-        .package(path: "../SharedSystemLibs"),
+        .package(path: "../CCore"),
         .package(path: "../TinyFoundation"),
         .package(path: "../SimpleGLM"),
     ],

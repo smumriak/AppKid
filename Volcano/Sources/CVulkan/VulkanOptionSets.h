@@ -8,7 +8,7 @@
 #ifndef VulkanOptionSets_h
 #define VulkanOptionSets_h 1
 
-#include "../../../SharedSystemLibs/CCore/include/CCore.h"
+#include "../../../CCore/CCore.h"
 
 AK_EXISTING_OPTIONS(VkAccelerationStructureCreateFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkAccessFlagBits);

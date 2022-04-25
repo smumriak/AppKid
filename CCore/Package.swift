@@ -1,7 +1,7 @@
 // swift-tools-version:5.5
 //
 //  Package.swift
-//  SharedSystemLibs
+//  CCore
 //
 //  Created by Serhii Mumriak on 15.05.2020.
 //
@@ -9,7 +9,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SharedSystemLibs",
+    name: "CCore",
     platforms: [
         .macOS(.v12),
     ],
@@ -20,7 +20,11 @@ let package = Package(
         .target(
             name: "CCore",
             dependencies: [],
-            path: "CCore"
+            path: "./",
+            sources: [
+                "empty.c",
+            ],
+            publicHeaderPath: "./"
         ),
     ]
 )

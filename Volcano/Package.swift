@@ -9,19 +9,16 @@
 import PackageDescription
 import Foundation
 
-let sharedSystemLibsDependency: PackageDescription.Package.Dependency
 let tinyFoundationDependency: PackageDescription.Package.Dependency
 let simpleGLMDependency: PackageDescription.Package.Dependency
 let swiftXlibDependency: PackageDescription.Package.Dependency
 
 if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
-    sharedSystemLibsDependency = .package(url: "https://github.com/smumriak/SharedSystemLibs", branch: "main")
     tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch:
         "main")
     swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
 } else {
-    sharedSystemLibsDependency = .package(path: "../SharedSystemLibs")
     tinyFoundationDependency = .package(path: "../TinyFoundation")
     simpleGLMDependency = .package(path: "../SimpleGLM")
     swiftXlibDependency = .package(path: "../SwiftXlib")
@@ -39,7 +36,6 @@ let package = Package(
         .executable(name: "vkthings", targets: ["vkthings"]),
     ],
     dependencies: [
-        sharedSystemLibsDependency,
         tinyFoundationDependency,
         simpleGLMDependency,
         swiftXlibDependency,
