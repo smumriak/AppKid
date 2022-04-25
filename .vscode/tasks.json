@@ -19,10 +19,10 @@
             "label": "generateVolcanoCEnums",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanEnums.h --c-enums"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanEnums.h --c-enums"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
             },
             "group": "none",
             "presentation": {
@@ -43,10 +43,10 @@
             "label": "generateVolcanoCOptionSets",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanOptionSets.h --c-option-sets"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./SharedSystemLibs/CVulkan/VulkanOptionSets.h --c-option-sets"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
             },
             "group": "none",
             "presentation": {

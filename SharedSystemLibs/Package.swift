@@ -15,19 +15,12 @@ let package = Package(
     ],
     products: [
         .library(name: "CCore", targets: ["CCore"]),
-        .library(name: "CVulkan", targets: ["CVulkan"]),
     ],
     targets: [
         .target(
             name: "CCore",
             dependencies: [],
             path: "CCore"
-        ),
-
-        .systemLibrary(
-            name: "CVulkan",
-            path: "CVulkan",
-            pkgConfig: "vulkan"
         ),
     ]
 )

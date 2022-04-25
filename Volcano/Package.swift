@@ -33,6 +33,7 @@ let package = Package(
         .macOS(.v12),
     ],
     products: [
+        .library(name: "CVulkan", targets: ["CVulkan"]),
         .library(name: "Volcano", type: .dynamic, targets: ["Volcano"]),
         .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
         .executable(name: "vkthings", targets: ["vkthings"]),
@@ -44,13 +45,19 @@ let package = Package(
         swiftXlibDependency,
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/MaxDesiatov/XMLCoder.git", from: "0.13.1"),
-
     ],
     targets: [
+        .systemLibrary(
+            name: "CVulkan",
+            pkgConfig: "vulkan",
+            providers: [
+                .apt(["vulkan-sdk"]),
+            ]
+        ),
         .target(
             name: "Volcano",
             dependencies: [
-                .product(name: "CVulkan", package: "SharedSystemLibs"),
+                "CVulkan",
                 .product(name: "CXlib", package: "SwiftXlib"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
@@ -70,7 +77,7 @@ let package = Package(
         .target(
             name: "VulkanMemoryAllocatorAdapted",
             dependencies: [
-                .product(name: "CVulkan", package: "SharedSystemLibs"),
+                "CVulkan",
             ],
             cSettings: [
                 .unsafeFlags(["-Wno-nullability-completeness", "-std=gnu++17"]),
