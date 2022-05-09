@@ -1,27 +1,19 @@
 {
-    "sde.languageServerMode": "sourcekit-lsp",
-    "sde.swiftBuildingParams": [
-        "build",
-        "--build-path",
-        "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
-    ],
-    "sde.enableTracing.client": true,
-    "sde.enableTracing.LSPServer": true,
-    "sde.buildOnSave": true,
-    "sourcekit-lsp.trace.server": "messages",
     "sourcekit-lsp.serverArguments": [
-        "--build-path",
-        "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux",
         "--configuration",
         "debug"
     ],
+    // "sourcekit-lsp.trace.server": "messages",
+    "sourcekit-lsp.inlayHints.enabled": false,
+    "swift.autoGenerateLaunchConfigurations": false,
+    "swift.buildArguments": [
+        "--configuration",
+        "debug"
+    ],
+    "swift.buildPath": "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux",
     "swiftformat.configSearchPaths": [
         ".swiftformat"
     ],
-    "swiftformat.path": "/usr/local/bin/swiftformat",
-    "swift.path.swift_driver_bin": "/opt/swift/usr/bin/swift",
-    "swift.diagnosis.max_num_problems": 999,
-    "swift.languageServerPath": "",
     "lldb.adapterEnv": {
         "LLDB_DEBUGSERVER_PATH": "/opt/swift/usr/bin/lldb-server"
     },

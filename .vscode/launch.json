@@ -9,14 +9,14 @@
             "preLaunchTask": "build",
             "env": {
                 "DEBUG": "1",
-                "APPKID_FORCE_SCALE_FACTOR": "2.0",
+                "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
             },
             "osx": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
-            },
+            }
         },
         {
             "name": "RunWithoutBuilding",
@@ -25,14 +25,14 @@
             "args": [],
             "env": {
                 "DEBUG": "1",
-                "APPKID_FORCE_SCALE_FACTOR": "2.0",
+                "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
             },
             "osx": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
-            },
+            }
         },
         {
             "name": "Test",
@@ -46,7 +46,7 @@
             },
             "osx": {
                 "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin/debug/SwiftyFanPackageTests.xctest"
-            },
+            }
         },
         {
             "name": "Run arm64",
@@ -59,18 +59,18 @@
                 "platform connect connect://192.168.55.1:1234",
                 "platform settings -w ~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug",
                 "settings set target.inherit-env false",
-                "settings set target.process.stop-on-sharedlibrary-events false",
+                "settings set target.process.stop-on-sharedlibrary-events false"
             ],
             "env": {
                 "DEBUG": "1",
-                "APPKID_FORCE_SCALE_FACTOR": "2.0",
+                "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
                 "program": "SwiftyFan"
             },
             "osx": {
                 "program": "SwiftyFan"
-            },
-        },
+            }
+        }
     ]
 }

@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "sswg.swift-lang",
+        "vknabel.vscode-swiftformat",
+        "vadimcn.vscode-lldb",
+        "wmaurer.change-case",
+        "maptz.camelcasenavigation"
+    ]
+}
