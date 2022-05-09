@@ -70,7 +70,7 @@ public final class Swapchain: DeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
         try super.init(device: device, handlePointer: handlePointer)
     }
 
-    public func creteTextures() throws -> [Texture] {
+    public func createTextures() throws -> [Texture] {
         try rawImages.indices.map {
             try SwapchainTexture(swapchain: self, imageIndex: $0)
         }

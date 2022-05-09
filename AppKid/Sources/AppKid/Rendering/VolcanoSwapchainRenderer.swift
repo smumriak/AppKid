@@ -107,7 +107,7 @@ internal class VolcanoSwapchainRenderer {
 
         swapchain = try Swapchain(device: device, surface: surface, desiredPresentModes: [.mailbox, .fifo], size: size, graphicsQueue: renderStack.queues.graphics, presentationQueue: presentationQueue, usage: .colorAttachment, compositeAlpha: .opaque, oldSwapchain: oldSwapchain)
 
-        swapchainTextures = try swapchain.creteTextures()
+        swapchainTextures = try swapchain.createTextures()
 
         let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: swapchain.imageFormat, width: Int(swapchain.size.width), height: Int(swapchain.size.height), mipmapped: false)
         textureDescriptor.usage = [.renderTarget, .shaderRead]
