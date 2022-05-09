@@ -19,22 +19,31 @@ open class InstanceEntity<Entity>: HandleStorage<Entity> where Entity: SmartPoin
     }
 }
 
-open class PhysicalDeviceEntity<Entity>: InstanceEntity<Entity> where Entity: SmartPointerProtocol {
+open class PhysicalDeviceEntity<Entity>: HandleStorage<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var physicalDevice: PhysicalDevice
+
+    @inlinable @inline(__always)
+    public var instance: Instance { physicalDevice.instance }
 
     public init(physicalDevice: PhysicalDevice, handlePointer: Entity) throws {
         self.physicalDevice = physicalDevice
 
-        try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
+        super.init(handlePointer: handlePointer)
     }
 }
 
-open class DeviceEntity<Entity>: PhysicalDeviceEntity<Entity>, DeviceEntityProtocol where Entity: SmartPointerProtocol {
+open class DeviceEntity<Entity>: HandleStorage<Entity>, DeviceEntityProtocol where Entity: SmartPointerProtocol {
     public internal(set) var device: Device
+
+    @inlinable @inline(__always)
+    public var physicalDevice: PhysicalDevice { device.physicalDevice }
+
+    @inlinable @inline(__always)
+    public var instance: Instance { device.instance }
 
     public init(device: Device, handlePointer: Entity) throws {
         self.device = device
 
-        try super.init(physicalDevice: device.physicalDevice, handlePointer: handlePointer)
+        super.init(handlePointer: handlePointer)
     }
 }
