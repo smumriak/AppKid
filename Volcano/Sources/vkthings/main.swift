@@ -191,6 +191,7 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
     let supported: Supported
     let requirements: [RequirementDefinition]?
     let platformName: String?
+    let deprecatedBy: String?
 
     enum CodingKeys: String, CodingKey {
         case name
@@ -199,6 +200,7 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
         case supported
         case requirements = "require"
         case platformName = "platform"
+        case deprecatedBy = "deprecatedby"
     }
 
     static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
@@ -209,6 +211,7 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
             case CodingKeys.supported: return .attribute
             case CodingKeys.requirements: return .element
             case CodingKeys.platformName: return .attribute
+            case CodingKeys.deprecatedBy: return .attribute
             default: return .elementOrAttribute
         }
     }
@@ -443,6 +446,13 @@ struct VulkanStructureGenerator: ParsableCommand {
 
         let enabledExtensions = registry.extensions.elements
             .filter { $0.supported != .disabled }
+            .filter {
+                if let deprecatedBy = $0.deprecatedBy {
+                    return deprecatedBy.isEmpty
+                } else {
+                    return true
+                }
+            }
 
         let parsedInstanceExtensions = Dictionary(uniqueKeysWithValues:
             enabledExtensions
@@ -808,7 +818,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     "",
                 ]
 
-                result += ["public enum VulkanInstanceExtension: String {"]
+                result += ["public enum InstanceExtension: String {"]
 
                 result += parsedInstanceExtensions.map {
                     $0.1.caseName(tags: registry.tags.elements)
@@ -816,7 +826,7 @@ struct VulkanStructureGenerator: ParsableCommand {
 
                 result += ["}", ""]
 
-                result += ["public enum VulkanDeviceExtension: String {"]
+                result += ["public enum DeviceExtension: String {"]
 
                 result += parsedDeviceExtensions.map {
                     $0.1.caseName(tags: registry.tags.elements)
@@ -901,6 +911,26 @@ extension String {
         }
 
         return self
+    }
+
+    func tagPrefix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String? {
+        for tag in tags {
+            let name = caseSensitive ? tag.name : tag.name.lowercased()
+            let checkedValue = caseSensitive ? self : self.lowercased()
+            
+            let prefix: String
+            if withoutUnderscore {
+                prefix = name
+            } else {
+                prefix = name + "_"
+            }
+            
+            if checkedValue.hasPrefix(prefix) {
+                return prefix
+            }
+        }
+
+        return nil
     }
 
     mutating func stripTagPrefix(tags: [TagDefinition], withoutUnderscore: Bool = false) {
@@ -1254,7 +1284,10 @@ extension ParsedExtension {
     func caseName(tags: [TagDefinition]) -> String {
         var result = name
             .strippingVKPrevix
-            .strippingTagPrefix(tags: tags)
+
+        let tagPrefix = result.tagPrefix(tags: tags)
+
+        result = result.strippingTagPrefix(tags: tags)
             .camelcased
 
         let digitsPrefix = result.prefix { $0.isNumber }
@@ -1264,6 +1297,10 @@ extension ParsedExtension {
         }
 
         result.lowercaseFirst()
+
+        if let tagPrefix = tagPrefix {
+            result += tagPrefix.camelcased(capitalizeFirst: true)
+        }
 
         return "case \(result) = \"\(name)\""
     }

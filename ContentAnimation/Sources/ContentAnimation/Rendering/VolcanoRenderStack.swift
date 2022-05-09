@@ -44,9 +44,9 @@ import CVulkan
     }
 
     internal init() throws {
-        var extensions: Set<VulkanExtensionName> = [.surface]
+        var extensions: Set<InstanceExtension> = [.surfaceKhr]
         #if os(Linux)
-            extensions.formUnion([.xlibSurface, .xcbSurface, .waylandSurface])
+            extensions.formUnion([.xlibSurfaceKhr, .xcbSurfaceKhr, .waylandSurfaceKhr])
         #endif
         instance = Instance(extensions: extensions)
 
@@ -65,7 +65,7 @@ import CVulkan
 
         let queueRequests = [graphicsQueueRequest, transferQueueRequest]
 
-        let vulkanExtensions: Set<VulkanExtensionName> = [.swapchain]
+        let vulkanExtensions: Set<DeviceExtension> = [.swapchainKhr]
 
         let device = try Device(physicalDevice: physicalDevice, queueRequests: queueRequests, extensions: vulkanExtensions, memoryAllocatorClass: VulkanMemoryAllocator.self)
 

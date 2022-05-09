@@ -49,7 +49,7 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
         }
     }()
     
-    public init(extensions: Set<VulkanExtensionName> = []) {
+    public init(extensions: Set<InstanceExtension> = []) {
         do {
             let vulkanVersion: CUnsignedInt = (1 << 22) | (0 << 12) | 0
 
@@ -58,14 +58,14 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
             layers.append("VK_LAYER_KHRONOS_validation")
 
             var extensions = extensions + [
-                .getPhysicalDeviceProperties2,
-                .getSurfaceCapabilities2,
+                .getPhysicalDeviceProperties2Khr,
+                .getSurfaceCapabilities2Khr,
             ]
 
             #if os(Linux)
-                extensions.insert(.externalFenceCapabilities)
+                extensions.insert(.externalFenceCapabilitiesKhr)
             #elseif os(Windows)
-                extensions.insert(.externalFenceCapabilities)
+                extensions.insert(.externalFenceCapabilitiesKhr)
             #endif
 
             let handlePointer: SmartPointer<VkInstance_T> = try VkBuilder<VkInstanceCreateInfo> {

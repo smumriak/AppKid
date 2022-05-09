@@ -37,7 +37,7 @@ public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
     internal let vkWaitSemaphoresKHR: PFN_vkWaitSemaphoresKHR
     internal let vkSignalSemaphoreKHR: PFN_vkSignalSemaphoreKHR
 
-    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<VulkanExtensionName> = [], memoryAllocatorClass: MemoryAllocator.Type = DirectMemoryAllocator.self) throws {
+    public init(physicalDevice: PhysicalDevice, queueRequests: [QueueRequest] = [.default], extensions: Set<DeviceExtension> = [], memoryAllocatorClass: MemoryAllocator.Type = DirectMemoryAllocator.self) throws {
         var features = physicalDevice.features
         features.samplerAnisotropy = true.vkBool
         features.sampleRateShading = true.vkBool
@@ -50,7 +50,7 @@ public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
         features2.features = features
 
         var extensions = extensions
-        extensions.formUnion([.timelineSemaphore])
+        extensions.formUnion([.timelineSemaphoreKhr])
 
         let processedQueueRequests = try processQueueRequests(from: queueRequests, familiesDescriptors: physicalDevice.queueFamiliesDescriptors)
         var timelineSemaphoreFeatures = VkPhysicalDeviceTimelineSemaphoreFeatures.new()

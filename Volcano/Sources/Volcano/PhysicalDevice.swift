@@ -30,7 +30,7 @@ public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_
 
     public let memoryProperties: VkPhysicalDeviceMemoryProperties
     public let extensionProperties: [VkExtensionProperties]
-    public let supportedExtensionsVersions: [VulkanExtensionName: UInt]
+    public let supportedExtensionsVersions: [DeviceExtension: UInt]
 
     public lazy var memoryTypes: [VkMemoryType] = {
         return withUnsafeBytes(of: memoryProperties.memoryTypes) {
@@ -131,7 +131,7 @@ public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_
         // palkovnik: when running under renderdoc this thing contains duplicate values. not sure if it's because i have validation layers enabled in code or not
         supportedExtensionsVersions = extensionProperties
             .compactMap {
-                $0.nameVersionKeyValue
+                $0.nameVersion() as (name: DeviceExtension, version: UInt)?
             }
             .reduce([:]) { accumulator, element in
                 if let existing = accumulator[element.name], existing >= element.version {
