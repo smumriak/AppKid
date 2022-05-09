@@ -91,6 +91,16 @@ struct Templates {
         //  Created by Serhii Mumriak on 28.01.2021.
         //
         """
+
+    static let vulkanSwiftExtensionsLicense =
+        """
+        //
+        //  VulkanExtensionsNames.swift
+        //  Volcano
+        //
+        //  Created by Serhii Mumriak on 20.07.2021.
+        //
+        """
 }
 
 struct RegistryDefinition: Codable, Equatable {
@@ -383,6 +393,7 @@ struct VulkanStructureGenerator: ParsableCommand {
         case swiftEnums
         case cEnums
         case cOptionSets
+        case swiftExtensions
     }
 
     @Argument(help: "Vulkan API registry file path")
@@ -427,6 +438,23 @@ struct VulkanStructureGenerator: ParsableCommand {
                         && $0.name != "VkPipelineStageFlagBits2"
                 }
                 .map { ParsedEnum(enumerationDefinition: $0) }
+                .map { ($0.name, $0) }
+        )
+
+        let enabledExtensions = registry.extensions.elements
+            .filter { $0.supported != .disabled }
+
+        let parsedInstanceExtensions = Dictionary(uniqueKeysWithValues:
+            enabledExtensions
+                .filter { $0.extensionType == .instance }
+                .map { ParsedInstanceExtension(extensionDefinition: $0) }
+                .map { ($0.name, $0) }
+        )
+
+        let parsedDeviceExtensions = Dictionary(uniqueKeysWithValues:
+            enabledExtensions
+                .filter { $0.extensionType == .device }
+                .map { ParsedDeviceExtension(extensionDefinition: $0) }
                 .map { ($0.name, $0) }
         )
 
@@ -767,6 +795,36 @@ struct VulkanStructureGenerator: ParsableCommand {
                 ]
 
                 resultString = result.joined(separator: "\n")
+
+            case .swiftExtensions:
+                var result: [String] = []
+                
+                result += [
+                    Templates.vulkanSwiftExtensionsLicense,
+                    "",
+                    "import Foundation",
+                    "import TinyFoundation",
+                    "import CVulkan",
+                    "",
+                ]
+
+                result += ["public enum VulkanInstanceExtension: String {"]
+
+                result += parsedInstanceExtensions.map {
+                    $0.1.caseName(tags: registry.tags.elements)
+                }
+
+                result += ["}", ""]
+
+                result += ["public enum VulkanDeviceExtension: String {"]
+
+                result += parsedDeviceExtensions.map {
+                    $0.1.caseName(tags: registry.tags.elements)
+                }
+
+                result += ["}", ""]
+
+                resultString = result.joined(separator: "\n")
         }
 
         let outputFileURL = URL(fileURLWithPath: outputFilePath, isDirectory: false)
@@ -777,11 +835,19 @@ struct VulkanStructureGenerator: ParsableCommand {
 }
 
 extension String {
-    var snakecased: String {
-        return snakecased(capitalizeFirst: false)
+    var camelcased: String {
+        return camelcased(capitalizeFirst: false)
     }
 
-    func snakecased(capitalizeFirst: Bool = false) -> String {
+    var strippingVKPrevix: String {
+        if self.hasPrefix("VK_") {
+            return String(self.dropFirst(3))
+        } else {
+            return self
+        }
+    }
+
+    func camelcased(capitalizeFirst: Bool = false) -> String {
         return split(separator: "_")
             .enumerated()
             .map {
@@ -814,10 +880,10 @@ extension String {
     }
 
     mutating func stripTagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false) {
-        self = stripingTagSuffix(tags: tags, withoutUnderscore: withoutUnderscore)
+        self = strippingTagSuffix(tags: tags, withoutUnderscore: withoutUnderscore)
     }
 
-    func stripingTagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String {
+    func strippingTagSuffix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String {
         for tag in tags {
             let name = caseSensitive ? tag.name : tag.name.lowercased()
             let checkedValue = caseSensitive ? self : self.lowercased()
@@ -829,7 +895,32 @@ extension String {
                 suffix = "_" + name
             }
             if checkedValue.hasSuffix(suffix) {
+                // FIXME: replace self with checkedValue
                 return String(self.dropLast(suffix.count))
+            }
+        }
+
+        return self
+    }
+
+    mutating func stripTagPrefix(tags: [TagDefinition], withoutUnderscore: Bool = false) {
+        self = strippingTagPrefix(tags: tags, withoutUnderscore: withoutUnderscore)
+    }
+
+    func strippingTagPrefix(tags: [TagDefinition], withoutUnderscore: Bool = false, caseSensitive: Bool = true) -> String {
+        for tag in tags {
+            let name = caseSensitive ? tag.name : tag.name.lowercased()
+            let checkedValue = caseSensitive ? self : self.lowercased()
+            
+            let prefix: String
+            if withoutUnderscore {
+                prefix = name
+            } else {
+                prefix = name + "_"
+            }
+            
+            if checkedValue.hasPrefix(prefix) {
+                return String(self.dropFirst(prefix.count))
             }
         }
 
@@ -849,12 +940,12 @@ extension String {
         return first!.lowercased() + afterFirst
     }
 
-    var spelledOutNumberSnakecasedString: String {
+    var spelledOutNumberCamelcasedString: String {
         let number = Int(self)!
         if number < 100 {
             return spellOutNumberFormatter.string(from: NSNumber(value: number))!
                 .replacingOccurrences(of: "-", with: "_")
-                .snakecased
+                .camelcased
         } else {
             return enumerated().reduce("") { accumulator, element in
                 let number = Int(String(element.element))!
@@ -913,7 +1004,7 @@ extension ParsedEnum.Case {
             .replacingOccurrences(of: "_DST", with: "_DESTINATION")
             
         if isOptionSet {
-            var withoutTag = result.stripingTagSuffix(tags: tags, withoutUnderscore: false)
+            var withoutTag = result.strippingTagSuffix(tags: tags, withoutUnderscore: false)
             let tag = result.dropFirst(withoutTag.count)
 
             if withoutTag.hasSuffix("_BIT") {
@@ -923,10 +1014,10 @@ extension ParsedEnum.Case {
             result = withoutTag + tag
         }
 
-        result = result.snakecased(capitalizeFirst: true)
+        result = result.camelcased(capitalizeFirst: true)
 
         var prefixToRemove = enumerationName
-            .stripingTagSuffix(tags: tags, withoutUnderscore: true)
+            .strippingTagSuffix(tags: tags, withoutUnderscore: true)
 
         if isOptionSet, let range = prefixToRemove.range(of: "FlagBits") {
             prefixToRemove.removeSubrange(range)
@@ -956,7 +1047,7 @@ extension ParsedEnum.Case {
             result = result.replacingOccurrences(of: "rgba", with: "RGBA", options: .caseInsensitive)
         }
 
-        if isOptionSet && result.stripingTagSuffix(tags: tags, withoutUnderscore: true, caseSensitive: false).lowercased() == "none" {
+        if isOptionSet && result.strippingTagSuffix(tags: tags, withoutUnderscore: true, caseSensitive: false).lowercased() == "none" {
             return []
         }
 
@@ -964,12 +1055,10 @@ extension ParsedEnum.Case {
             result = String(result.dropLast(enumTagToStrip.count))
         }
 
-        let digitsPrefix = result.prefix {
-            $0.isNumber
-        }
+        let digitsPrefix = result.prefix { $0.isNumber }
 
         if digitsPrefix.isEmpty == false {
-            result = String(digitsPrefix).spelledOutNumberSnakecasedString + result.dropFirst(digitsPrefix.count)
+            result = String(digitsPrefix).spelledOutNumberCamelcasedString + result.dropFirst(digitsPrefix.count)
         }
 
         result.lowercaseFirst()
@@ -1151,5 +1240,57 @@ struct ParsedStruct: VulkanType {
         }
 
         return result.joined(separator: "\n")
+    }
+}
+
+protocol ParsedExtension {
+    var name: String { get }
+    var version: String { get }
+    var cDefines: [String] { get }
+    var swiftDefines: [String] { get }
+}
+
+extension ParsedExtension {
+    func caseName(tags: [TagDefinition]) -> String {
+        var result = name
+            .strippingVKPrevix
+            .strippingTagPrefix(tags: tags)
+            .camelcased
+
+        let digitsPrefix = result.prefix { $0.isNumber }
+
+        if digitsPrefix.isEmpty == false {
+            result = String(digitsPrefix).spelledOutNumberCamelcasedString + result.dropFirst(digitsPrefix.count)
+        }
+
+        result.lowercaseFirst()
+
+        return "case \(result) = \"\(name)\""
+    }
+}
+
+struct ParsedInstanceExtension: ParsedExtension {
+    let name: String
+    let version: String
+    var cDefines: [String] = []
+    var swiftDefines: [String] = []
+    
+    init(extensionDefinition: ExtensionDefinition) {
+        assert(extensionDefinition.extensionType == .instance)
+        name = extensionDefinition.name
+        version = extensionDefinition.number
+    }
+}
+
+struct ParsedDeviceExtension: ParsedExtension {
+    let name: String
+    let version: String
+    var cDefines: [String] = []
+    var swiftDefines: [String] = []
+    
+    init(extensionDefinition: ExtensionDefinition) {
+        assert(extensionDefinition.extensionType == .device)
+        name = extensionDefinition.name
+        version = extensionDefinition.number
     }
 }

@@ -136,6 +136,30 @@
             }
         },
         {
+            "label": "generateVolcanoSwiftExtensionsNames",
+            "type": "shell",
+            "linux": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/VulkanExtensionsNames.swift"
+            },
+            "osx": {
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/VulkanExtensionsNames.swift"
+            },
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1",
+                }
+            }
+        },
+        {
             "label": "buildProject",
             "type": "shell",
             "linux": {
