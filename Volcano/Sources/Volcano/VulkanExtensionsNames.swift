@@ -1,5 +1,5 @@
 //
-//  VulkanExtensionName.swift
+//  VulkanExtensionsNames.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 20.07.2021.
