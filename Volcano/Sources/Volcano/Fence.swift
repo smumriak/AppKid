@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Fence: VulkanDeviceEntity<SmartPointer<VkFence_T>> {
+public final class Fence: DeviceEntity<SmartPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
         var info = VkFenceCreateInfo(sType: .fenceCreateInfo, pNext: nil, flags: flags.rawValue)
         

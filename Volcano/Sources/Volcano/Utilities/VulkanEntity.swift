@@ -8,9 +8,9 @@
 import TinyFoundation
 import CVulkan
 
-public protocol VulkanDeviceEntityProtocol: SmartPointerHandleStorageProtocol {}
+public protocol DeviceEntityProtocol: SmartPointerHandleStorageProtocol {}
 
-open class VulkanEntity<Entity>: HandleStorage<Entity> where Entity: SmartPointerProtocol {
+open class InstanceEntity<Entity>: HandleStorage<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var instance: Instance
 
     public init(instance: Instance, handlePointer: Entity) throws {
@@ -19,7 +19,7 @@ open class VulkanEntity<Entity>: HandleStorage<Entity> where Entity: SmartPointe
     }
 }
 
-open class VulkanPhysicalDeviceEntity<Entity>: VulkanEntity<Entity> where Entity: SmartPointerProtocol {
+open class PhysicalDeviceEntity<Entity>: InstanceEntity<Entity> where Entity: SmartPointerProtocol {
     public internal(set) var physicalDevice: PhysicalDevice
 
     public init(physicalDevice: PhysicalDevice, handlePointer: Entity) throws {
@@ -29,7 +29,7 @@ open class VulkanPhysicalDeviceEntity<Entity>: VulkanEntity<Entity> where Entity
     }
 }
 
-open class VulkanDeviceEntity<Entity>: VulkanPhysicalDeviceEntity<Entity>, VulkanDeviceEntityProtocol where Entity: SmartPointerProtocol {
+open class DeviceEntity<Entity>: PhysicalDeviceEntity<Entity>, DeviceEntityProtocol where Entity: SmartPointerProtocol {
     public internal(set) var device: Device
 
     public init(device: Device, handlePointer: Entity) throws {

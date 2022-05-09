@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorPool_T>> {
+public final class DescriptorPool: DeviceEntity<SmartPointer<VkDescriptorPool_T>> {
     public let maxSets: UInt
     public init(device: Device, sizes: [VkDescriptorPoolSize], maxSets: UInt) throws {
         assert(!sizes.isEmpty)
@@ -47,7 +47,7 @@ public final class DescriptorPool: VulkanDeviceEntity<SmartPointer<VkDescriptorP
     }
 }
 
-public final class DescriptorSetLayout: VulkanDeviceEntity<SmartPointer<VkDescriptorSetLayout_T>> {
+public final class DescriptorSetLayout: DeviceEntity<SmartPointer<VkDescriptorSetLayout_T>> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
         let handlePointer: SmartPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
             var info = VkDescriptorSetLayoutCreateInfo.new()

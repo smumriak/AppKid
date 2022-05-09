@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public class AbstractSemaphore: VulkanDeviceEntity<SmartPointer<VkSemaphore_T>> {}
+public class AbstractSemaphore: DeviceEntity<SmartPointer<VkSemaphore_T>> {}
 
 public class Semaphore: AbstractSemaphore {
     public init(device: Device) throws {

@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 
 public protocol MemoryAllocateDescriptor {
-    associatedtype Result: VulkanDeviceEntityProtocol
+    associatedtype Result: DeviceEntityProtocol
     associatedtype Info: EntityInfo where Info.Result: MemoryBacked, Info.Parent == VkDevice.Pointee
 
     var requiredMemoryProperties: VkMemoryPropertyFlagBits { get }

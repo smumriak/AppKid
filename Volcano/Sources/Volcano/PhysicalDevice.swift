@@ -13,7 +13,7 @@ import CXlib
 extension VkPhysicalDevice_T: EntityFactory {}
 extension VkPhysicalDevice_T: DataLoader {}
 
-public final class PhysicalDevice: VulkanEntity<SmartPointer<VkPhysicalDevice_T>> {
+public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_T>> {
     public let features: VkPhysicalDeviceFeatures
     // public let features11: VkPhysicalDeviceVulkan11Features
     // public let features12: VkPhysicalDeviceVulkan12Features

@@ -19,11 +19,11 @@ Volcano follows [SemVer 2.0.0](https://semver.org/#semantic-versioning-200) and 
 ### Architecture
 
 Vulkan API provides three top-level entities that create all other entities: `VkInstance`, `VkPhysicalDevice` and `VkDevice`. Vulkan requires that these top level objects are valid while their child objects are in use. Volcano has encapsulated them in dedicated class pairs:
-    - `Instance` class wraps `VkInstance`. `VulkanEntity` has a strong reference to `Instance`
-    - `PhysicalDevice` class wraps `VkPhysicalDevice`. `VulkanPhysicalDeviceEntity` has a strong reference to `PhysicalDevice`
-    - `Device` class wraps `VkDevice`. `VulkanDeviceEntity` has a strong reference to `Device`
+    - `Instance` class wraps `VkInstance`. `InstanceEntity` has a strong reference to `Instance`
+    - `PhysicalDevice` class wraps `VkPhysicalDevice`. `PhysicalDeviceEntity` has a strong reference to `PhysicalDevice`
+    - `Device` class wraps `VkDevice`. `DeviceEntity` has a strong reference to `Device`
 
-`PhysicalDevice` is `VulkanEntity`, `Device` is `VulkanPhysicalDeviceEntity`.
+`PhysicalDevice` is `InstanceEntity`, `Device` is `PhysicalDeviceEntity`.
 
 ##  # VolcanoSL
 

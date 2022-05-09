@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Image: VulkanDeviceEntity<SmartPointer<VkImage_T>> {
+public final class Image: DeviceEntity<SmartPointer<VkImage_T>> {
     public let format: VkFormat
 
     public init(device: Device, handlePointer: SmartPointer<VkImage_T>, format: VkFormat) throws {

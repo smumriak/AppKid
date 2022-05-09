@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Swapchain: VulkanDeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
+public final class Swapchain: DeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
     public unowned let surface: Surface
     public var size: VkExtent2D
     public let imageFormat: VkFormat

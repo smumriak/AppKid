@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 import VulkanMemoryAllocatorAdapted
 
-open class MemoryChunk: VulkanDeviceEntity<SmartPointer<VkDeviceMemory_T>> {
+open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     public let parent: MemoryChunk?
     public let offset: VkDeviceSize
     public let size: VkDeviceSize
@@ -140,7 +140,7 @@ public protocol MemoryBindable: SmartPointerHandleStorageProtocol where Handle_t
     static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
-extension VulkanDeviceEntity: MemoryBindable where Handle_t.Pointee: MemoryBacked {
+extension DeviceEntity: MemoryBindable where Handle_t.Pointee: MemoryBacked {
     public static var requirementsFunction: (VkDevice?, Handle_t?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
         return Handle_t.Pointee.requirementsFunction
     }

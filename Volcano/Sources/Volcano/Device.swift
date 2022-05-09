@@ -22,7 +22,7 @@ internal extension SmartPointer where Pointee == VkDevice_T {
 extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
-public final class Device: VulkanPhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
+public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
     public internal(set) var queuesByFamilyIndex: [CUnsignedInt: [Queue]] = [:]
     public internal(set) lazy var allQueues: [Queue] = queuesByFamilyIndex.values.flatMap { $0 }.sorted { $0.type < $1.type }
     private var _memoryAllocator: MemoryAllocator? = nil

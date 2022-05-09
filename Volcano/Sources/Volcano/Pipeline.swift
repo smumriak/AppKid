@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public class Pipeline: VulkanDeviceEntity<SmartPointer<VkPipeline_T>> {
+public class Pipeline: DeviceEntity<SmartPointer<VkPipeline_T>> {
     public internal(set) var layout: SmartPointer<VkPipelineLayout_T>
 
     public init(device: Device, handlePointer: SmartPointer<VkPipeline_T>, layout: SmartPointer<VkPipelineLayout_T>) throws {
