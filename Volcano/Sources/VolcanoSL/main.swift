@@ -9,6 +9,7 @@ import CClang
 import Foundation
 import TinyFoundation
 import ArgumentParser
+import TSCBasic
 
 enum ShaderStage {
     case vertex
@@ -244,8 +245,11 @@ struct VolcanoSL: ParsableCommand {
     @Option(name: .customShort("I"), help: "Addition hader search path, no recursion")
     var include: [String] = []
 
-    @Option(name: .shortAndLong, help: "Output file path. Leave empty to get generated file path")
-    var output: String?
+    @Option(name: .shortAndLong, help: "GLSL output file path. Leave empty to get generated file path")
+    var glslOutput: String?
+
+    @Option(name: .shortAndLong, help: "SPIR-V output file path. When not-empty volcanosl will automatically invoke glslc on generated glsl file")
+    var spvOutput: String?
 
     @Flag(name: .long, help: "Epands generated strucures with newlines and some tabs")
     var pretty: Bool = false
@@ -303,15 +307,35 @@ struct VolcanoSL: ParsableCommand {
 
         let result: String = parsedShaderLines.joined(separator: "\n")
 
-        let outputFileURL: URL = {
-            if let output = output {
-                return URL(fileURLWithPath: output)
+        let glslOutputFileURL: URL = {
+            if let glslOutput = glslOutput {
+                return URL(fileURLWithPath: glslOutput)
             } else {
                 return fileURL.appendingPathExtension("glsl")
             }
         }()
 
-        try result.write(to: outputFileURL, atomically: true, encoding: encoding)
+        try result.write(to: glslOutputFileURL, atomically: true, encoding: encoding)
+
+        if let spvOutput = spvOutput {
+            let arguments: [String] = [
+                glslOutputFileURL.absoluteURL.path,
+                "-o", spvOutput,
+                "-I", fileURL.deletingLastPathComponent().absoluteURL.path,
+            ] + include.flatMap {
+                ["-I", $0]
+            }
+
+            let command = ["glslc"] + arguments
+
+            let glslcCommandResult = try Process.popen(arguments: command, environment: ProcessInfo.processInfo.environment)
+
+            let glslcCommandOutput = try glslcCommandResult.utf8Output() + glslcCommandResult.utf8stderrOutput()
+
+            if glslcCommandResult.exitStatus != .terminated(code: 0) {
+                fatalError("Failed to compile SPIR-V using \(command)\n\n\(glslcCommandOutput)")
+            }
+        }
     }
 }
 

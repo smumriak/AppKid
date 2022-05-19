@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APPKID_LOCAL_BUILD=1
+export APPKID_LOCAL_BUILD=1
 
 arch=`uname`
 
@@ -19,8 +19,8 @@ mkdir -p $contentAnimationShadersBuildPath
 find $shadersSourceCodePath -name "*.volcano" | while read file; do
     shaderName=`basename $file .volcano`
     outputAfterImport=$contentAnimationShadersBuildPath/$shaderName.volcano.glsl
-    swift run --build-path $VolcanoSLBuildPath volcanosl $file -I $importHeaderSearchPath -o $outputAfterImport || exit 1
-    glslc $outputAfterImport -I $shadersSourceCodePath -o $shadersBinariesCodePath/$shaderName.spv|| exit 1
+    swift run --build-path $VolcanoSLBuildPath volcanosl $file -I $importHeaderSearchPath -g $outputAfterImport -s $shadersBinariesCodePath/$shaderName.spv || exit 1
+    # glslc $outputAfterImport -I $shadersSourceCodePath -o $shadersBinariesCodePath/$shaderName.spv || exit 1
 done || exit 1
 
 exit 0

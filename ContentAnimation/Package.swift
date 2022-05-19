@@ -61,6 +61,9 @@ let package = Package(
             ],
             swiftSettings: [
                 .unsafeFlags(["-emit-module"]),
+            ],
+            plugins: [
+                // .plugin(name: "VolcanoSLPlugin", package: "Volcano"),
             ]
         ),
         .target(

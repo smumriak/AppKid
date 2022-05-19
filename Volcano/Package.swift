@@ -35,7 +35,7 @@ let package = Package(
         .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: ["VulkanMemoryAllocatorAdapted"]),
         .executable(name: "vkthings", targets: ["vkthings"]),
         .executable(name: "volcanosl", targets: ["VolcanoSL"]),
-        // .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"])
+        .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"]),
     ],
     dependencies: [
         tinyFoundationDependency,
@@ -43,6 +43,7 @@ let package = Package(
         swiftXlibDependency,
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/MaxDesiatov/XMLCoder.git", from: "0.13.1"),
+        .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
     ],
     targets: [
         .systemLibrary(
@@ -100,14 +101,15 @@ let package = Package(
                 "CClang",
                 .product(name: "TinyFoundation", package: "TinyFoundation"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "TSCBasic", package: "swift-tools-support-core"),
             ],
             resources: [
                 .copy("Resources/GLSLTypesInclude.h"),
             ]),
-        // .plugin(
-        //     name: "VolcanoSLPlugin",
-        //     capability: .buildTool(),
-        //     dependencies: [.target(name: "VolcanoSL")]
-        // ),
+        .plugin(
+            name: "VolcanoSLPlugin",
+            capability: .buildTool(),
+            dependencies: [.target(name: "VolcanoSL")]
+        ),
     ]
 )
