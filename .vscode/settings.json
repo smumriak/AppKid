@@ -57,4 +57,8 @@
     "diffEditor.wordWrap": "on",
     "launch-config.ifDebugSessionRunning": "stop/start",
     "editor.semanticHighlighting.enabled": true,
+    "editor.bracketPairColorization.enabled": false,
+    "swift.swiftEnvironmentVariables": {
+        "APPKID_LOCAL_BUILD": "1"
+    },
 }
