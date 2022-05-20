@@ -18,7 +18,6 @@
         "LLDB_DEBUGSERVER_PATH": "/opt/swift/usr/bin/lldb-server"
     },
     "lldb.verboseLogging": false,
-    "lldb.library": "/opt/swift/usr/lib/liblldb.so",
     "lldb.launch.expressions": "native",
     "lldb.commandCompletions": true,
     "lldb.launch.terminal": "console",
@@ -52,7 +51,7 @@
         "RunWithoutBuilding": "RunWithoutBuilding",
         "Test": "Test"
     },
-    "terminal.integrated.scrollback": 20000,
+    "terminal.integrated.scrollback": 200000,
     "editor.wordWrap": "on",
     "diffEditor.wordWrap": "on",
     "launch-config.ifDebugSessionRunning": "stop/start",
