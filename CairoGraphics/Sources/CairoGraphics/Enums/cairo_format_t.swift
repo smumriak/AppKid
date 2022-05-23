@@ -23,7 +23,7 @@ public extension cairo_format_t {
         let pixelFormatInfo = CGContext.CGImagePixelFormatInfo(bitmapInfo: bitmapInfo)
 
         switch (colorSpace, pixelFormatInfo, alphaInfo, bitsPerComponent) {
-            // palkovnik: this is all wrong, but will do for now
+            // smumriak: this is all wrong, but will do for now
             case (_, _, .alphaOnly, 8): self = .a8
             case (_, .packed, let alpha, 8) where [.first, .premultipliedFirst, .noneSkipFirst].contains(alpha): self = .argb32
             default: self = .invalid

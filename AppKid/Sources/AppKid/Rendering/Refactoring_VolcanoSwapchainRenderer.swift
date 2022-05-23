@@ -199,7 +199,7 @@ internal class VolcanoSwapchainRenderer1 {
         }
 
         windowKeepAlive = window
-        // palkovnik:TODO: Test how this behaves, is it really called after recordFrameImplementation
+        // smumriak:TODO: Test how this behaves, is it really called after recordFrameImplementation
         // defer {
         //     windowKeepAlive = nil
         // }

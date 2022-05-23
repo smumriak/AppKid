@@ -9,7 +9,7 @@ import Foundation
 import CCairo
 import TinyFoundation
 
-// TODO: palkovnik: placeholder because color spaces are hard
+// TODO: smumriak: placeholder because color spaces are hard
 public struct CGColor {
     public var red: CGFloat = .zero {
         didSet {

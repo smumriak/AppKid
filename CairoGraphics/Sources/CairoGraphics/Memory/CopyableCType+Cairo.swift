@@ -19,7 +19,7 @@ extension cairo_font_options_t: CopyableCType {
     }
 }
 
-// palkovnik: This is a workaround for some kind of swift bug when compiler does not generate interface for this enum and treats it as a struct
+// smumriak: This is a workaround for some kind of swift bug when compiler does not generate interface for this enum and treats it as a struct
 public extension cairo_path_data_type_t {
     static var moveTo = cairo_path_data_type_t(rawValue: 0)
     static var lineTo = cairo_path_data_type_t(rawValue: 1)

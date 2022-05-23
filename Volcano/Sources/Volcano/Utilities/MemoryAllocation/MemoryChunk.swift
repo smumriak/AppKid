@@ -53,7 +53,7 @@ open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         assert(properties.contains(.hostVisible), "Only host visible memory can be mapped")
         assert(currentlyMappedPointer == nil && parent?.currentlyMappedPointer == nil, "Memory chunk is already mapped")
 
-        // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
+        // smumriak:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
         let remainingMemorySize = self.size - offset
 
         try vulkanInvoke {
@@ -74,7 +74,7 @@ open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
     }
 
     public func withMappedData<R>(_ offset: VkDeviceSize = 0, body: (_ data: UnsafeMutableRawPointer, _ size: VkDeviceSize) throws -> (R)) throws -> R {
-        // palkovnik:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
+        // smumriak:TODO:Check if memory can be mapped. Maybe separate read and write functions is better design
         let remainingMemorySize = self.size - offset
 
         let data: UnsafeMutableRawPointer = try mapData(offset)

@@ -33,7 +33,7 @@ public final class Swapchain: DeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
         self.presentMode = presentMode
 
         let minImageCount = capabilities.minImageCount + 1
-        // palkovnik:Spec says "maxImageCount is the maximum number of images the specified device supports for a swapchain created for the surface, and will be either 0, or greater than or equal to minImageCount. A value of 0 means that there is no limit on the number of images, though there may be limits related to the total amount of memory used by presentable images.". So this code adjusts accordingly
+        // smumriak:Spec says "maxImageCount is the maximum number of images the specified device supports for a swapchain created for the surface, and will be either 0, or greater than or equal to minImageCount. A value of 0 means that there is no limit on the number of images, though there may be limits related to the total amount of memory used by presentable images.". So this code adjusts accordingly
         let maxImageCount = capabilities.maxImageCount > 0 ? capabilities.maxImageCount : minImageCount
 
         let imageCount = min(minImageCount, maxImageCount)

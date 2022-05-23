@@ -135,7 +135,7 @@ public extension Device {
             vkAllocateMemory(handle, info, callbacks, &memory)
         }
 
-        // palkovnik:TODO:Validate if this has to retain the thing. Maybe it needs to
+        // smumriak:TODO:Validate if this has to retain the thing. Maybe it needs to
         return SmartPointer(with: memory!) { [unowned self] in
             vkFreeMemory(self.handle, $0, callbacks)
         }

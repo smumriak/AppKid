@@ -78,7 +78,7 @@ internal extension cairo_line_join_t {
 }
 
 @_spi(AppKid) public class CGContextDataStore {
-    // palkovnik: swift-atomics libabry can not be built on macOS. oh the irony
+    // smumriak: swift-atomics libabry can not be built on macOS. oh the irony
     @Synchronized private var useCount: UInt
 
     public let surface: SmartPointer<cairo_surface_t>
@@ -301,11 +301,11 @@ public extension CGContext {
     }
     
     func addArc(tangent1End: CGPoint, tangent2End: CGPoint, radius: CGFloat) {
-        // TODO: palkovnik: Implement
+        // TODO: smumriak: Implement
     }
     
     func addEllipse(in rect: CGRect) {
-        // TODO: palkovnik: Implement
+        // TODO: smumriak: Implement
     }
     
     func addPath(_ path: CGPath) {

@@ -261,7 +261,7 @@ open class Application: Responder {
                 return nil
             }
 
-            // palkovnik: code performs one shot of runloop go give timers, dispatch queues and other things to process their events
+            // smumriak: code performs one shot of runloop go give timers, dispatch queues and other things to process their events
             let result = RunLoop.current.run(mode: mode, before: Date())
             if result == false {
                 return nil
@@ -313,7 +313,7 @@ open class Application: Responder {
     }
 
     @_spi(AppKid) public func remove(window: Window) {
-        // TODO: palkovnik: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
+        // TODO: smumriak: order matters. renderer should always be destroyed before window is destroyed because renderer has strong reference to graphics context. this should change i.e. graphics context for particular window should be private to it's renderer
         let windowNumber = window.windowNumber
 
         if isVolcanoRenderingEnabled {
@@ -328,7 +328,7 @@ open class Application: Responder {
         windowsByNumber.removeValue(forKey: windowNumber)
 
         if windows.isEmpty && isRunning && delegate?.applicationShouldTerminateAfterLastWindowClosed(self) == true {
-            // TODO: palkovnik:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing
+            // TODO: smumriak:Change to notification handling from window instead of directly doing that on remove. Also give one runloop spin for that thing
             terminate()
         }
     }
@@ -361,7 +361,7 @@ public extension Application {
 
 public extension ApplicationDelegate {
     static func main() {
-        // palkovnik:This is the reason why RunLoop is used and not dispatchMain()
+        // smumriak:This is the reason why RunLoop is used and not dispatchMain()
         // DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
         //     debugPrint("ON main queue async")
         //     debugPrint("Main thread: \(Thread.mainThread)")

@@ -7,7 +7,7 @@
 
 import Foundation
 
-// palkovnik:ExpressibleByStringLiteral maybe?
+// smumriak:ExpressibleByStringLiteral maybe?
 public protocol KeyValueCodable {
     func value(forKey key: String) -> Any?
     func value(forKeyPath keyPath: String) -> Any?

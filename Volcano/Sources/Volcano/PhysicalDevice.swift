@@ -128,7 +128,7 @@ public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_
 
         extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
 
-        // palkovnik: when running under renderdoc this thing contains duplicate values. not sure if it's because i have validation layers enabled in code or not
+        // smumriak: when running under renderdoc this thing contains duplicate values. not sure if it's because i have validation layers enabled in code or not
         supportedExtensionsVersions = extensionProperties
             .compactMap {
                 $0.nameVersion() as (name: DeviceExtension, version: UInt)?

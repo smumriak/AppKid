@@ -60,7 +60,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     @_spi(AppKid) public fileprivate(set) var isPresentation = false
     @_spi(AppKid) public fileprivate(set) var animations: OrderedDictionary<AnyHashable, CAAnimation> = [:]
     open var actions: [AnyHashable: CAAction]? = nil
-    // palkovnik:TODO: Also style property!
+    // smumriak:TODO: Also style property!
     // open var style: [AnyHashable: Any]? = nil
 
     @CAProperty(name: "bounds")
@@ -259,7 +259,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
         layer.superlayer = self
     }
 
-    // palkovnik:TODO:Finish this later
+    // smumriak:TODO:Finish this later
     public func insertSublayer(layer: CALayer, below sibling: CALayer?) throws {
         guard let sibling = sibling else {
             addSublayer(layer)
@@ -267,7 +267,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
         }
 
         guard let _ = sublayers?.firstIndex(of: sibling) else {
-            // palkovnik:TODO:Throw an exception here
+            // smumriak:TODO:Throw an exception here
             return
         }
     }
@@ -279,7 +279,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
         }
 
         guard let _ = sublayers?.firstIndex(of: sibling) else {
-            // palkovnik:TODO:Throw an exception here
+            // smumriak:TODO:Throw an exception here
             return
         }
     }
@@ -486,7 +486,7 @@ internal func dropNSNull(_ action: CAAction) -> CAAction? {
 
 // extension CALayer: Equatable {
 //     public static func == (lhs: CALayer, rhs: CALayer) -> Bool {
-//         // palkovnik:TODO:this is wrong, but will do for now. Change to checking the variables OR the dictionary of variables
+//         // smumriak:TODO:this is wrong, but will do for now. Change to checking the variables OR the dictionary of variables
 //         return lhs === rhs
 //     }
 // }

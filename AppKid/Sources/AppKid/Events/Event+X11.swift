@@ -48,7 +48,7 @@ fileprivate extension XEvent {
     var keyboardEventType: Event.EventType {
         var mutableCopy = self
         let keySymbol = XLookupKeysym(&mutableCopy.xkey, 0)
-        // palkovnik: swift generates intializer that actually allows initialization with invalid value :/
+        // smumriak: swift generates intializer that actually allows initialization with invalid value :/
         if let x11ModifierKeySymbol = X11ModifierKeySymbol(rawValue: keySymbol), x11ModifierKeySymbol.isValidRawValue {
             return .flagsChanged
         } else {

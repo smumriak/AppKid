@@ -38,7 +38,7 @@ public struct Font {
 
 public extension Font {
     static func systemFont(ofSize size: CGFloat) -> Font {
-        // TODO: palkovnik: Use GTK dylib to fetch system font for GTK-based environment and vice versa
+        // TODO: smumriak: Use GTK dylib to fetch system font for GTK-based environment and vice versa
         return Font(familyName: "Liberation Sans", size: size)
     }
 }

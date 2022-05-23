@@ -135,7 +135,7 @@ public extension CGAffineTransform_cglm_WorkInProgress {
         return CGAffineTransform_cglm_WorkInProgress(matrix: matrix.rotated(by: angle))
     }
 
-    // palkovnik:For unknown reason this code crashes swift compiler on raspberry pi
+    // smumriak:For unknown reason this code crashes swift compiler on raspberry pi
     // func inverted() -> CGAffineTransform_cglm_WorkInProgress {
     //     if isIdentity { return self }
 

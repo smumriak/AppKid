@@ -10,7 +10,7 @@ import CoreFoundation
 import CXlib
 import CairoGraphics
 
-// palkovnik: Start from 1
+// smumriak: Start from 1
 internal var globalWindowCounter: Int = 1
 
 #if os(macOS)
@@ -255,11 +255,11 @@ open class Window: View {
         // try? application.renderScheduler?.removeRenderer(for: self)
         application.windowsByNumber.removeValue(forKey: windowNumber)
 
-        // palkovnik:TODO:Send destroy request to windowing system asynchronously
+        // smumriak:TODO:Send destroy request to windowing system asynchronously
     }
 
     internal func beforeFrameRender() {
-        // palkovnik:TODO: Investigate why this floods the X11 events queue
+        // smumriak:TODO: Investigate why this floods the X11 events queue
         // nativeWindow.window.sendSyncCounterForRenderingStart()
     }
 

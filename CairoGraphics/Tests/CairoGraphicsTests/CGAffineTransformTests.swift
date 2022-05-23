@@ -10,7 +10,7 @@ import Foundation
 @testable import CairoGraphics
 import SimpleGLM
 
-// palkovnik:cglm supports floats only for now and most operations have really low precision. at least the API i used for things. aparently there are some functions that have another implementation with higher precision
+// smumriak:cglm supports floats only for now and most operations have really low precision. at least the API i used for things. aparently there are some functions that have another implementation with higher precision
 let accuracy: CGFloat = 0.0001
 
 typealias TestedAffineTransform = CGAffineTransform_cglm_WorkInProgress

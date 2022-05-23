@@ -105,7 +105,7 @@ internal extension X11DisplayServer {
                             XFreeEventData(display.handle, &x11Event.xcookie)
                         }
 
-                        // palkovnik:Hacking XInput2 event to have button number for motion events
+                        // smumriak:Hacking XInput2 event to have button number for motion events
                         if x11Event.xcookie.xInput2EventType == .motion {
                             x11Event.deviceEvent.detail = context.currentPressedMouseButton.rawValue
                         }

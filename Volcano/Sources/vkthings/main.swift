@@ -9,7 +9,7 @@ import Foundation
 import ArgumentParser
 import XMLCoder
 
-// palkovnik: The code below is extremely bad. Abstraction is bad, a lot of hardcoded values and it was written in three nights. But vk.xml is a crappy format for specification anyway, so crappy input deserves crappy tool
+// smumriak: The code below is extremely bad. Abstraction is bad, a lot of hardcoded values and it was written in three nights. But vk.xml is a crappy format for specification anyway, so crappy input deserves crappy tool
 
 let spellOutNumberFormatter = NumberFormatter()
 spellOutNumberFormatter.numberStyle = .spellOut

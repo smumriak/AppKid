@@ -106,7 +106,7 @@ open class View: Responder, CALayerActionDelegate {
     open internal(set) var subviews = [View]()
     open internal(set) weak var window: Window? = nil {
         didSet {
-            // palkovnik: Here? Maybe not. I don't know
+            // smumriak: Here? Maybe not. I don't know
             if let window = window {
                 contentScaleFactor = window.contentScaleFactor
             }

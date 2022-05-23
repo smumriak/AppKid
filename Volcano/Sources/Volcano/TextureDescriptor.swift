@@ -113,7 +113,7 @@ public extension TextureDescriptor {
 
     var imageViewDescriptor: ImageViewDescriptor {
         let result = ImageViewDescriptor()
-        // palkovnik:TODO:Add proper calculation of this things instad of hardcode. Too late in the night - brain does not work.
+        // smumriak:TODO:Add proper calculation of this things instad of hardcode. Too late in the night - brain does not work.
         result.flags = []
         result.type = textureType
         result.format = pixelFormat
