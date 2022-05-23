@@ -19,7 +19,7 @@ internal class X11RenderContext: CGContext {
     var nativeWindow: X11NativeWindow
     
     init(nativeWindow: X11NativeWindow) {
-        let windowAttributes = nativeWindow.attributes
+        let windowAttributes = nativeWindow.window.attributes
         #if os(Linux)
             let surface = cairo_xlib_surface_create(nativeWindow.display.handle, nativeWindow.windowIdentifier, windowAttributes.visual, windowAttributes.width, windowAttributes.height)!
 

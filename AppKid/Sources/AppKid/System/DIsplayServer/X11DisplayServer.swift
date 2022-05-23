@@ -206,10 +206,10 @@ extension X11DisplayServer {
             XSetClassHint(display.handle, windowIdentifier, classHint)
         }
 
-        var atoms: [Atom] = [
-            display.deleteWindowAtom,
-            display.takeFocusAtom,
-            display.syncRequestAtom,
+        var atoms: [CXlib.Atom] = [
+            display.knownAtom(.deleteWindow),
+            display.knownAtom(.takeFocus),
+            display.knownAtom(.syncRequest),
         ]
         atoms.withUnsafeMutableBufferPointer {
             let _ = XSetWMProtocols(display.handle, windowIdentifier, $0.baseAddress!, CInt($0.count))

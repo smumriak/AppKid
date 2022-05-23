@@ -16,9 +16,9 @@ public class RootWindow: NSObject, WindowProtocol {
     public let windowIdentifier: CXlib.Window
     public let destroyOnDeinit: Bool = false
 
-    public lazy var hints: [Atom] = get(property: display.supportedHintsAtom, type: XA_ATOM)
+    public lazy var hints: [CXlib.Atom] = get(property: display.knownAtom(.supportedHints), type: XA_ATOM)
 
-    public lazy var supportsExtendedSyncCounter: Bool = hints.contains(display.frameDrawnAtom)
+    public lazy var supportsExtendedSyncCounter: Bool = hints.contains(display.knownAtom(.frameDrawn))
 
     @_spi(AppKid) public init(display: Display, screen: Screen) {
         self.display = display

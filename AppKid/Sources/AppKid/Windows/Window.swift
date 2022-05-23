@@ -134,6 +134,7 @@ open class Window: View {
         let nativeWindow = displayServer.createNativeWindow(contentRect: contentRect, title: "Window")
 
         // nativeWindow.transitionToFullScreen()
+        // nativeWindow.setFloatsOnTop()
 
         self.init(nativeWindow: nativeWindow)
 

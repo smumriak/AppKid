@@ -165,7 +165,7 @@ internal extension Event {
     @_transparent
     convenience init(clientMessageEvent: XClientMessageEvent, timestamp: TimeInterval, displayServer: X11DisplayServer, windowNumber: Int) {
         switch clientMessageEvent.message_type {
-            case displayServer.display.protocolsAtom:
+            case displayServer.display.knownAtom(.protocols):
                 let atom = Atom(clientMessageEvent.data.l.0)
 
                 guard atom != Atom(None) else {
@@ -174,14 +174,14 @@ internal extension Event {
                 }
 
                 switch atom {
-                    case displayServer.display.deleteWindowAtom:
+                    case displayServer.display.knownAtom(.deleteWindow):
                         self.init(withAppKidEventSubType: .windowDeleteRequest, windowNumber: windowNumber)
 
-                    case displayServer.display.syncRequestAtom:
+                    case displayServer.display.knownAtom(.syncRequest):
                         self.init(withAppKidEventSubType: .windowSyncRequest, windowNumber: windowNumber)
                         syncCounterValue = XSyncValue(hi: CInt(clientMessageEvent.data.l.3), lo: CUnsignedInt(clientMessageEvent.data.l.2))
 
-                    case displayServer.display.frameDrawnAtom:
+                    case displayServer.display.knownAtom(.frameDrawn):
                         self.init(withAppKidEventSubType: .message, windowNumber: windowNumber)
 
                     default:

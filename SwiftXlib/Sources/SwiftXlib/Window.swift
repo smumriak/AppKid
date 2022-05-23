@@ -54,11 +54,11 @@ public class Window: NSObject, WindowProtocol {
             if rootWindow.supportsExtendedSyncCounter == true {
                 let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
                 syncCounter = (basicSyncCounter, extendedSyncCounter)
-                set(property: display.syncCounterAtom, type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter)
+                set(property: display.knownAtom(.syncCounter), type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter)
             } else {
                 syncCounter = (basicSyncCounter, XSyncCounter(None))
                 
-                set(property: display.syncCounterAtom, type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter.basic)
+                set(property: display.knownAtom(.syncCounter), type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter.basic)
             }
         }
     }
@@ -132,7 +132,7 @@ public extension Rect where StorageType == CInt {
     }
 }
 
-public enum WindowPropertyType {
+public enum PropertyFormat {
     case eight
     case sixteen
     case thirtyTwo
@@ -168,11 +168,11 @@ public protocol WindowProtocol {
 }
 
 public extension WindowProtocol {
-    func get<T>(property: Atom, type: Atom) -> T? {
+    func get<T>(property: Atom, type: CXlib.Atom) -> T? {
         var numberOfItems: UInt = 0
         var bytesAfterReturn: UInt = 0
         var itemsBytesPointer: UnsafeMutablePointer<UInt8>? = nil
-        var actualType: Atom = Atom(None)
+        var actualType: CXlib.Atom = CXlib.Atom(None)
         var actualFormat: CInt = 0
 
         XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
@@ -192,7 +192,7 @@ public extension WindowProtocol {
         }
     }
 
-    func set<T>(property: Atom, type: Atom, format: WindowPropertyType, mode: XlibPropertyChangeMode = .replace, value: T) {
+    func set<T>(property: Atom, type: CXlib.Atom, format: PropertyFormat, mode: XlibPropertyChangeMode = .replace, value: T) {
         let stride = MemoryLayout<T>.stride
         
         withUnsafeBytes(of: value) { bytes in
@@ -201,11 +201,11 @@ public extension WindowProtocol {
         }
     }
 
-    func get<T>(property: Atom, type: Atom) -> [T] {
+    func get<T>(property: Atom, type: CXlib.Atom) -> [T] {
         var numberOfItems: UInt = 0
         var bytesAfterReturn: UInt = 0
         var itemsBytesPointer: UnsafeMutablePointer<UInt8>? = nil
-        var actualType: Atom = Atom(None)
+        var actualType: CXlib.Atom = CXlib.Atom(None)
         var actualFormat: CInt = 0
 
         XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
@@ -225,10 +225,27 @@ public extension WindowProtocol {
         }
     }
 
-    func set<T>(property: Atom, type: Atom, format: WindowPropertyType, mode: XlibPropertyChangeMode = .replace, value: [T]) {
+    func set<T>(property: Atom, type: CXlib.Atom, format: PropertyFormat, mode: XlibPropertyChangeMode = .replace, value: [T]) {
         value.withUnsafeBytes { bytes in
             let buffer = bytes.bindMemory(to: UInt8.self)
             _ = XChangeProperty(display.handle, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
+        }
+    }
+}
+
+public extension WindowProtocol {
+    var attributes: XWindowAttributes {
+        var windowAttributes = XWindowAttributes()
+        if XGetWindowAttributes(display.handle, windowIdentifier, &windowAttributes) == 0 {
+            fatalError("Can not get window attributes for window with ID: \(windowIdentifier)")
+        }
+        return windowAttributes
+    }
+
+    func send<T: XEventProtocol>(event: T) {
+        var eventCopy = event
+        eventCopy.withTypeErasedEvent { event in
+            _ = XSendEvent(display.handle, XDefaultRootWindow(display.handle), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
         }
     }
 }

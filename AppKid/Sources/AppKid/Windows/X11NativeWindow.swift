@@ -30,21 +30,13 @@ public final class X11NativeWindow: NSObject, NativeWindow {
             }
         }
     }
-    
-    var attributes: XWindowAttributes {
-        var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display.handle, windowIdentifier, &windowAttributes) == 0 {
-//            fatalError("Can not get window attributes for window with ID: \(windowIdentifier)")
-        }
-        return windowAttributes
-    }
 
     var currentRect: CGRect {
         return currentIntRect.cgRect
     }
     
     var currentIntRect: Rect<CInt> {
-        return Rect<CInt>(x11WindowAttributes: attributes)
+        return Rect<CInt>(x11WindowAttributes: window.attributes)
     }
 
     var isRoot: Bool {
@@ -64,47 +56,36 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         }
     }
     
-    // TODO: palkovnik: Looks like native window will need access to display context after all. Looks like Screen class is coming
-    // func setFloatsOnTop() {
-    //     var event = XClientMessageEvent()
-    //     event.type = ClientMessage
-    //     event.window = Application.shared.windows[0].nativeWindow.windowIdentifier
-    //     event.message_type = context.stateAtom
-    //     event.format = 32
-    //     event.data.l.0 = 1
-    //     event.data.l.1 = Int(context.stayAboveAtom)
-    //     event.data.l.2 = 0
-    //     event.data.l.3 = 0
-    //     event.data.l.4 = 0
+    func setFloatsOnTop() {
+        var event = XClientMessageEvent()
+        event.type = ClientMessage
+        event.window = windowIdentifier
+        event.message_type = display.knownAtom(.state)
+        event.format = 32
+        event.data.l.0 = 1
+        event.data.l.1 = Int(display.knownAtom(.stateAbove))
+        event.data.l.2 = 0
+        event.data.l.3 = 0
+        event.data.l.4 = 0
 
-    //     let size = MemoryLayout.size(ofValue: event)
+        display.rootWindow.send(event: event)
 
-    //     withUnsafeMutablePointer(to: &event) { event in
-    //         event.withMemoryRebound(to: XEvent.self, capacity: size) { event in
-    //             let _ = XSendEvent(display, XDefaultRootWindow(display), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
-    //         }
-    //     }
-    // }
+        display.flush()
+    }
 
     public func transitionToFullScreen() {
         var event = XClientMessageEvent()
         event.type = ClientMessage
         event.window = windowIdentifier
-        event.message_type = display.stateAtom
+        event.message_type = display.knownAtom(.state)
         event.format = 32
         event.data.l.0 = 1
-        event.data.l.1 = Int(display.stateFullscreenAtom)
+        event.data.l.1 = Int(display.knownAtom(.stateFullscreen))
         event.data.l.2 = 0
         event.data.l.3 = 0
         event.data.l.4 = 0
 
-        let size = MemoryLayout.size(ofValue: event)
-
-        withUnsafeMutablePointer(to: &event) { event in
-            event.withMemoryRebound(to: XEvent.self, capacity: size) { event in
-                let _ = XSendEvent(display.handle, XDefaultRootWindow(display.handle), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
-            }
-        }
+        display.rootWindow.send(event: event)
 
         display.flush()
     }
@@ -117,7 +98,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
             withUnsafePointer(to: value) {
                 $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: opacity)) {
                     let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display.handle, windowIdentifier, display.opacityAtom, XA_CARDINAL, 32, PropModeReplace, optional, 1)
+                    XChangeProperty(display.handle, windowIdentifier, display.knownAtom(.opacity), XA_CARDINAL, 32, PropModeReplace, optional, 1)
                 }
             }
         }
