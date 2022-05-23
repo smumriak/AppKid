@@ -150,7 +150,7 @@ struct Application: DebianPackage {
 
 let swiftRuntimeURL = URL(fileURLWithPath: "/opt/swift/usr/lib/swift/linux/", isDirectory: true)
 let swiftRuntimeVersion = Version.numeric(major: 5, minor: 5, patch: 0)
-let appKidLibsURL = URL(fileURLWithPath: "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/release/", isDirectory: true)
+let appKidLibsURL = URL(fileURLWithPath: "/home/palkovnik/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux/release/", isDirectory: true)
 let appKidLibsVersion = Version.numeric(major: 0, minor: 0, patch: 1)
 
 let swiftRuntime = [
@@ -189,9 +189,9 @@ let appKidLibs = [
     return Library(name: $0, version: appKidLibsVersion, originURL: appKidLibsURL)
 }
 
-let swiftyFanApp = Application(name: "SwiftyFan", version: appKidLibsVersion, originURL: appKidLibsURL)
+let AppKidDemoApp = Application(name: "AppKidDemo", version: appKidLibsVersion, originURL: appKidLibsURL)
 
-let packages: [DebianPackage] = swiftRuntime + appKidLibs + swiftICULibs + [swiftyFanApp]
+let packages: [DebianPackage] = swiftRuntime + appKidLibs + swiftICULibs + [AppKidDemoApp]
 
 let currentDirectoryURL = URL(fileURLWithPath: fileManager.currentDirectoryPath, isDirectory: true)
 

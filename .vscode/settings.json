@@ -10,7 +10,7 @@
         "--configuration",
         "debug"
     ],
-    "swift.buildPath": "/home/palkovnik/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux",
+    "swift.buildPath": "/home/palkovnik/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux",
     "swiftformat.configSearchPaths": [
         ".swiftformat"
     ],

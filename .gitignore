@@ -11,7 +11,7 @@ Build
 .Trashes
 .swiftpm/
 *.volcano.glsl
-SwiftyFan.executable.link
+AppKidDemo.executable.link
 .DS_Store
 DerivedData/
 .netrc

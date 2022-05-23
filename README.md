@@ -1,6 +1,6 @@
-# SwiftyFan
+# AppKidDemo
 
-SwiftyFan is an application written in swift that aims to provide simple and convenient interface to control PWM fans on the given computer.
+AppKidDemo is an application written in swift that aims to provide simple and convenient interface to control PWM fans on the given computer.
 
 ## Getting Started
 #### Dependencies and environment setup

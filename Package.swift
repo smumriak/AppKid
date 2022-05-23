@@ -1,7 +1,7 @@
 // swift-tools-version:5.5
 //
 //  Package.swift
-//  SwiftyFan
+//  AppKidDemo
 //
 //  Created by Serhii Mumriak on 29.01.2020.
 //
@@ -9,12 +9,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftyFan",
+    name: "AppKidDemo",
     platforms: [
         .macOS(.v12),
     ],
     products: [
-        .executable(name: "SwiftyFan", targets: ["SwiftyFan"]),
+        .executable(name: "AppKidDemo", targets: ["AppKidDemo"]),
     ],
     dependencies: [
         .package(path: "./TinyFoundation"),
@@ -25,7 +25,7 @@ let package = Package(
     ],
     targets: [
         .executableTarget(
-            name: "SwiftyFan",
+            name: "AppKidDemo",
             dependencies: [
                 .product(name: "AppKid", package: "AppKid"),
                 .product(name: "CairoGraphics", package: "CairoGraphics"),
@@ -38,8 +38,8 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "SwiftyFanTests",
-            dependencies: ["SwiftyFan"]
+            name: "AppKidDemoTests",
+            dependencies: ["AppKidDemo"]
         ),
     ]
 )

@@ -12,10 +12,10 @@
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux/debug/AppKidDemo"
             },
             "osx": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin/debug/AppKidDemo"
             }
         },
         {
@@ -28,10 +28,10 @@
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug/SwiftyFan"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux/debug/AppKidDemo"
             },
             "osx": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin/debug/SwiftyFan"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin/debug/AppKidDemo"
             }
         },
         {
@@ -42,10 +42,10 @@
             "preLaunchTask": "build_tests",
             "terminal": "console",
             "linux": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Linux/debug/SwiftyFanPackageTests.xctest"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemoTests-Linux/debug/AppKidDemoPackageTests.xctest"
             },
             "osx": {
-                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFanTests-Darwin/debug/SwiftyFanPackageTests.xctest"
+                "program": "${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemoTests-Darwin/debug/AppKidDemoPackageTests.xctest"
             }
         },
         {
@@ -57,7 +57,7 @@
             "initCommands": [
                 "platform select remote-linux",
                 "platform connect connect://192.168.55.1:1234",
-                "platform settings -w ~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug",
+                "platform settings -w ~/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux/debug",
                 "settings set target.inherit-env false",
                 "settings set target.process.stop-on-sharedlibrary-events false"
             ],
@@ -66,10 +66,10 @@
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
             "linux": {
-                "program": "SwiftyFan"
+                "program": "AppKidDemo"
             },
             "osx": {
-                "program": "SwiftyFan"
+                "program": "AppKidDemo"
             }
         }
     ]

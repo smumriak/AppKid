@@ -19,10 +19,10 @@
             "label": "generateVolcanoCEnums",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums"
             },
             "group": "none",
             "presentation": {
@@ -43,10 +43,10 @@
             "label": "generateVolcanoCOptionSets",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets"
             },
             "group": "none",
             "presentation": {
@@ -67,10 +67,10 @@
             "label": "generateVolcanoSwiftStructures",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift"
             },
             "group": "none",
             "presentation": {
@@ -91,10 +91,10 @@
             "label": "generateVolcanoSwiftEnums",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift"
             },
             "group": "none",
             "presentation": {
@@ -115,10 +115,10 @@
             "label": "generateVolcanoSwiftOptionSets",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift"
             },
             "group": "none",
             "presentation": {
@@ -139,10 +139,10 @@
             "label": "generateVolcanoSwiftExtensionsNames",
             "type": "shell",
             "linux": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift"
             },
             "osx": {
-                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift"
+                "command": "swift run --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift"
             },
             "group": "none",
             "presentation": {
@@ -164,10 +164,10 @@
             "label": "buildProject",
             "type": "shell",
             "linux": {
-                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
+                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux"
             },
             "osx": {
-                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
+                "command": "swift build --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin"
             },
             "group": "build",
             "presentation": {
@@ -202,10 +202,10 @@
             "label": "build_tests",
             "type": "shell",
             "linux": {
-                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux"
             },
             "osx": {
-                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Darwin"
+                "command": "swift build --build-tests --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Darwin"
             },
             "group": "test",
             "presentation": {
@@ -250,7 +250,7 @@
             "label": "buildProject_arm64",
             "type": "shell",
             "linux": {
-                "command": "swift build --verbose --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux --destination ${env:HOME}/Documents/SwiftCrossCompilers/InstallPackagers/SwiftCrossCompiler/Developer/Destinations/arm64-5.3.3-RELEASE.json"
+                "command": "swift build --verbose --build-path ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux --destination ${env:HOME}/Documents/SwiftCrossCompilers/InstallPackagers/SwiftCrossCompiler/Developer/Destinations/arm64-5.3.3-RELEASE.json"
             },
             "osx": {
                 "command": "echo NO_OP"
@@ -273,7 +273,7 @@
         {
             "label": "upload_jetson",
             "type": "shell",
-            "command": "cd ${env:HOME}/Library/Developer/Xcode/DerivedData/SwiftyFan-arm64/debug; rsync -r -l --progress SwiftyFan *.so *.resources 192.168.55.1:~/Library/Developer/Xcode/DerivedData/SwiftyFan-Linux/debug",
+            "command": "cd ${env:HOME}/Library/Developer/Xcode/DerivedData/AppKidDemo-arm64/debug; rsync -r -l --progress AppKidDemo *.so *.resources 192.168.55.1:~/Library/Developer/Xcode/DerivedData/AppKidDemo-Linux/debug",
             "group": "none",
             "presentation": {
                 "echo": false,
