@@ -215,6 +215,11 @@ extension X11DisplayServer {
             let _ = XSetWMProtocols(display.handle, windowIdentifier, $0.baseAddress!, CInt($0.count))
         }
 
+        let value: Int = 2
+                
+        result.window.set(property: display.knownAtom(.bypassCompositor), type: XA_CARDINAL, format: .thirtyTwo, value: value)
+
+
         result.updateListeningEvents(displayServer: self)
         result.map(displayServer: self)
 
