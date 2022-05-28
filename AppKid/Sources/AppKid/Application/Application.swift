@@ -126,7 +126,7 @@ open class Application: Responder {
     }
     
     internal override init() {
-        displayServer = X11DisplayServer(applicationName: "SwiftyFan")
+        displayServer = X11DisplayServer(applicationName: "AppKid")
 
         do {
             try VolcanoRenderStack.setupGlobalStack()

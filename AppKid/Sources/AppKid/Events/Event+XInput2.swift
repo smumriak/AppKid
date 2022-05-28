@@ -91,7 +91,7 @@ internal extension Event {
 
                 buttonNumber = Int(deviceEvent.detail)
             
-                // palkonvnik:TODO:Implement acceledation and deceleration of scrolling
+                // smumriak:TODO:Implement acceledation and deceleration of scrolling
                 switch deviceEvent.button {
                     case .scrollUp:
                         if currentModifierFlags.contains(.shift) {
