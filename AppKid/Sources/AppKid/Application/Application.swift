@@ -35,7 +35,14 @@ public protocol ApplicationDelegate: NSObjectProtocol, PublicInitializable {
 public extension ApplicationDelegate {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool { true }
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool { true }
-    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool { false }
+    func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool {
+        #if os(Linux) || os(Windows)
+            return true
+        #else
+            return false
+        #endif
+    }
+
     func applicationShouldTerminate(_ application: Application) -> Application.TerminateReply { .now }
     func applicationWillTerminate(_ application: Application) {}
 }
