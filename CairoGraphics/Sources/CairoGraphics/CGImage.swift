@@ -10,7 +10,7 @@ import CoreFoundation
 import TinyFoundation
 import STBImageRead
 
-enum ImageFormat {
+enum ImageFormat: CaseIterable {
     case png
     case jpeg
     case gif
@@ -36,15 +36,16 @@ public final class CGImage {
     public internal(set) var bitsPerPixel: Int
     public internal(set) var bytesPerRow: Int
     public internal(set) var colorSpace: CGColorSpace?
+    public let dataProvider: CGDataProvider
 
     @_spi(AppKid) public internal(set) var dataStore: CGContextDataStore?
-    @_spi(AppKid) public internal(set) var bitmap: UnsafeMutableRawBufferPointer?
+    @_spi(AppKid) public internal(set) var bitmap: UnsafeMutableRawBufferPointer
 
     deinit {
         if let dataStore = dataStore {
             dataStore.decreaseUseCount()
         } else {
-            bitmap?.deallocate()
+            bitmap.deallocate()
         }
     }
 
@@ -56,35 +57,32 @@ public final class CGImage {
         let headerSize = ImageFormat.maxHeaderSize
         let header = data[0..<headerSize].map { $0 }
 
-        switch header {
-            case ImageFormat.jpeg.header, ImageFormat.png.header, ImageFormat.gif.header:
-                var width: Int32 = 0
-                var height: Int32 = 0
-                var bitsPerPixel: Int32 = 0
+        if header.starts(with: ImageFormat.jpeg.header) || header.starts(with: ImageFormat.png.header) || header.starts(with: ImageFormat.gif.header) {
+            var width: Int32 = 0
+            var height: Int32 = 0
+            var bitsPerPixel: Int32 = 0
 
-                let pixelData: UnsafeMutablePointer<stbi_uc> = data.withUnsafeBytes { pngData in
-                    let boundData = pngData.bindMemory(to: stbi_uc.self)
-                    return stbi_load_from_memory(boundData.baseAddress!, Int32(pngData.count), &width, &height, &bitsPerPixel, 4)
-                }
+            let pixelData: UnsafeMutablePointer<stbi_uc> = data.withUnsafeBytes { pngData in
+                let boundData = pngData.bindMemory(to: stbi_uc.self)
+                return stbi_load_from_memory(boundData.baseAddress!, Int32(pngData.count), &width, &height, &bitsPerPixel, 4)
+            }
 
-                self.isMask = false
-                self.width = Int(width)
-                self.height = Int(height)
-                self.bitsPerComponent = 8
-                self.bitsPerPixel = Int(bitsPerPixel)
-                self.bytesPerRow = Int(width) * Int(bitsPerPixel)
+            self.isMask = false
+            self.width = Int(width)
+            self.height = Int(height)
+            self.bitsPerComponent = 8
+            self.bitsPerPixel = Int(bitsPerPixel)
+            self.bytesPerRow = Int(width) * Int(bitsPerPixel)
 
-                self.bitmap = UnsafeMutableRawBufferPointer(start: UnsafeMutableRawPointer(pixelData), count: self.width)
-
-            default:
-                return nil
+            self.bitmap = UnsafeMutableRawBufferPointer(start: UnsafeMutableRawPointer(pixelData), count: self.width)
+            self.dataProvider = dataProvider
+        } else {
+            return nil
         }
-
-        return nil
     }
 
     internal init?(context: CGContext) {
-        guard let dataStore = dataStore else {
+        guard let dataStore = context.dataStore else {
             return nil
         }
 
@@ -99,6 +97,7 @@ public final class CGImage {
         self.bitsPerComponent = context.bitsPerComponent
         self.bitsPerPixel = context.bitsPerPixel
         self.bytesPerRow = context.bytesPerRow
+        self.dataProvider = CGDataProvider(data: Data(bytesNoCopy: dataStore.data, count: context.bytesPerRow * context.height, deallocator: .none))!
 
         //
         //        guard let pixelData = context.data else {

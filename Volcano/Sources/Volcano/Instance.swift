@@ -55,8 +55,6 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
 
             var layers: [String] = []
             
-            layers.append("VK_LAYER_KHRONOS_validation")
-
             var extensions = extensions + [
                 .getPhysicalDeviceProperties2Khr,
                 .getSurfaceCapabilities2Khr,
@@ -66,6 +64,11 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
                 extensions.insert(.externalFenceCapabilitiesKhr)
             #elseif os(Windows)
                 extensions.insert(.externalFenceCapabilitiesKhr)
+            #endif
+
+            #if DEBUG
+                layers.append("VK_LAYER_KHRONOS_validation")
+                extensions.insert(.debugUtilsExt)
             #endif
 
             let handlePointer: SmartPointer<VkInstance_T> = try VkBuilder<VkInstanceCreateInfo> {

@@ -33,8 +33,34 @@ public final class Image: NSObject {
         if fileExtension.isEmpty {
             fileExtension = "png"
         }
+
+        var url = bundle.url(forResource: fileName, withExtension: fileExtension)
+
+        let fileManager = FileManager.default
+
+        if url == nil {
+            let contents = try? fileManager
+                .contentsOfDirectory(at: bundle.bundleURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles])
+                .filter {
+                    let isDirectory = try? $0.resourceValues(forKeys: [.isDirectoryKey]).isDirectory
+                    return isDirectory ?? false
+                }
+                .filter {
+                    $0.pathExtension == "resources"
+                }
+
+            if let contents = contents {
+                for contentURL in contents {
+                    let lookupURL = contentURL.appendingPathComponent(fileName, isDirectory: false).appendingPathExtension(fileExtension)
+                    if fileManager.fileExists(atPath: lookupURL.absoluteURL.path) {
+                        url = lookupURL
+                        break;
+                    }
+                }
+            }
+        }
         
-        guard let url = bundle.url(forResource: fileName, withExtension: fileExtension) else {
+        guard let url = url else {
             return nil
         }
 

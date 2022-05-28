@@ -15,15 +15,16 @@ fileprivate let testString = "And if you gaze long into an abyss, the abyss also
 
 class RootViewController: ViewController {
     let greenSubview: View = {
-        let result = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
+        guard let image = Image(named: "AppIcon") else {
+            fatalError()
+        }
+
+        let result = ImageView(image: image)
+
+        result.frame = CGRect(x: 0.0, y: 0.0, width: 100.0, height: 100.0)
 
         result.tag = 1
-        result.backgroundColor = .green
-        result.backgroundColor.alpha = 0.5
         result.masksToBounds = true
-        result.layer.cornerRadius = 20.0
-        result.layer.borderColor = .black
-        result.layer.borderWidth = 1.0
 
         return result
     }()
@@ -297,6 +298,7 @@ class RootViewController: ViewController {
             }
         } else if event.characters == "n" && event.modifierFlags.contains(.command) {
             let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 400.0, height: 400.0))
+            window.title = "AppKid Sample Demo"
             window.rootViewController = RootViewController()
 
             // Application.shared.add(window: window)

@@ -8,15 +8,12 @@
 import Foundation
 import TinyFoundation
 import CairoGraphics
+import ContentAnimation
 
-public class ImageView: View {
-    public var image: Image? {
-        didSet {
-            layer.contents = image?.cgImage
-        }
-    }
+public class ImageView: View, CALayerDisplayDelegate {
+    public var image: Image?
 
-    init(image: Image?) {
+    public init(image: Image?) {
         var frame: CGRect = .zero
 
         if let image = image {
@@ -26,6 +23,12 @@ public class ImageView: View {
 
         super.init(with: frame)
 
+        setNeedsDisplay()
+    }
+
+    // MARK: CALayerDisplayDelegate
+
+    public func display(_ layer: CALayer) {
         layer.contents = image?.cgImage
     }
 }

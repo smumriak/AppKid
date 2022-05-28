@@ -35,6 +35,7 @@ let package = Package(
             ],
             resources: [
                 .copy("Resources/AppIcon.png"),
+                .copy("Resources/fan.png"),
             ]
         ),
         .testTarget(

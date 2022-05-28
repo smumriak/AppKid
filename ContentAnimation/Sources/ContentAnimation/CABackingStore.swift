@@ -53,14 +53,12 @@ import TinyFoundation
 @_spi(AppKid) public class CABackingStore {
     public fileprivate(set) var frontContext: CGContext
     public fileprivate(set) var backContext: CGContext
-    public var frontTexture: Texture?
     public fileprivate(set) var bitsPerComponent: Int
     public fileprivate(set) var bytesPerPixel: Int
     public fileprivate(set) var bytesPerRow: Int
     public fileprivate(set) var colorSpace: CGColorSpace
     public let width: Int
     public let height: Int
-    public var currentTexture: Texture?
 
     public init(size: CGSize, scale: CGFloat, device: Device, accessQueues: [Queue]) throws {
         let pixelSize = CGSize(width: size.width * scale, height: size.height * scale)
@@ -87,59 +85,6 @@ import TinyFoundation
 
     public var image: CGImage? {
         return frontContext.makeImage()
-    }
-
-    public func makeTexture(renderStack: VolcanoRenderStack, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws -> Texture {
-        let device = renderStack.device
-
-        let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8UNorm, width: width, height: height, mipmapped: false)
-        textureDescriptor.usage = [.renderTarget, .shaderRead]
-        textureDescriptor.tiling = .optimal
-        textureDescriptor.requiredMemoryProperties = .deviceLocal
-
-        let result = try device.createTexture(with: textureDescriptor)
-
-        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: VkDeviceSize(bytesPerRow * height), accessQueues: [graphicsQueue])
-
-        let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
-
-        frontContext.flush()
-
-        try stagingBuffer.memoryChunk.withMappedData { data, size in
-            data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
-        }
-
-        try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
-            try $0.performPredefinedLayoutTransition(for: result, newLayout: .transferDestinationOptimal)
-            try $0.copyBuffer(from: stagingBuffer, to: result, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
-            try $0.performPredefinedLayoutTransition(for: result, newLayout: .shaderReadOnlyOptimal)
-        }
-
-        return result
-    }
-
-    public func updateCurrentTexture(renderStack: VolcanoRenderStack, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws {
-        guard let currentTexture = currentTexture else {
-            return 
-        }
-
-        let device = renderStack.device
-
-        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: VkDeviceSize(bytesPerRow * height), accessQueues: [graphicsQueue])
-
-        let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
-
-        frontContext.flush()
-
-        try stagingBuffer.memoryChunk.withMappedData { data, size in
-            data.copyMemory(from: UnsafeRawPointer(frontContext.data!), byteCount: Int(stagingBuffer.size))
-        }
-
-        try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
-            try $0.performPredefinedLayoutTransition(for: currentTexture, newLayout: .transferDestinationOptimal)
-            try $0.copyBuffer(from: stagingBuffer, to: currentTexture, texelsPerRow: CUnsignedInt(frontContext.width), height: CUnsignedInt(frontContext.height))
-            try $0.performPredefinedLayoutTransition(for: currentTexture, newLayout: .shaderReadOnlyOptimal)
-        }
     }
 
     public func update(flags: CABackingStoreFlags = [], callback: (_ context: CGContext) -> ()) {

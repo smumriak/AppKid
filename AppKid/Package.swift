@@ -16,21 +16,21 @@ let volcanoDependency: PackageDescription.Package.Dependency
 let simpleGLMDependency: PackageDescription.Package.Dependency
 let swiftXlibDependency: PackageDescription.Package.Dependency
 
-if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
-    tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
-    cairoGraphicsDependency = .package(url: "https://github.com/smumriak/CairoGraphics", branch: "main")
-    contentAnimationDependency = .package(url: "https://github.com/smumriak/ContentAnimation", branch: "main")
-    volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
-    simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
-    swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
-} else {
+// if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
+//     tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
+//     cairoGraphicsDependency = .package(url: "https://github.com/smumriak/CairoGraphics", branch: "main")
+//     contentAnimationDependency = .package(url: "https://github.com/smumriak/ContentAnimation", branch: "main")
+//     volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
+//     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
+//     swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
+// } else {
     tinyFoundationDependency = .package(path: "../TinyFoundation")
     cairoGraphicsDependency = .package(path: "../CairoGraphics")
     contentAnimationDependency = .package(path: "../ContentAnimation")
     volcanoDependency = .package(path: "../Volcano")
     simpleGLMDependency = .package(path: "../SimpleGLM")
     swiftXlibDependency = .package(path: "../SwiftXlib")
-}
+// }
 
 let package = Package(
     name: "AppKid",

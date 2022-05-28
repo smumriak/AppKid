@@ -11,7 +11,7 @@ import CoreFoundation
 import TinyFoundation
 import CVulkan
 import SimpleGLM
-import CairoGraphics
+@_spi(AppKid) import CairoGraphics
 import LayerRenderingData
 
 #if os(macOS)
@@ -354,32 +354,39 @@ internal class DescriptorSetContainer {
 
                 renderContext.descriptors.append(descriptor)
 
-                renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-                renderContext.add(.background(antiAliased: true))
+                if let backgroundColor = layer.backgroundColor, backgroundColor.alpha != 0 {
+                    renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+                    renderContext.add(.background(antiAliased: true))
+                }
+        
+                let drawableContents: TextureDrawable?
 
-                var contentsTexture: Texture? = nil
+                if needsDisplay {
+                    switch layer.contents {
+                        case .some(let image as CGImage):
+                            drawableContents = image
 
-                switch current.contents {
-                    case .some(_ as CGImage):
-                        break
+                        case .some(let backingStore as CABackingStore):
+                            backingStore.frontContext.flush()
+                            drawableContents = backingStore
 
-                    case .some(let backingStore as CABackingStore):
-                        contentsTexture = backingStore.currentTexture
+                        default:
+                            drawableContents = nil
+                    }
 
-                        if contentsTexture == nil {
-                            contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
-
-                            backingStore.currentTexture = contentsTexture
-                        } else if needsDisplay {
-                            try backingStore.updateCurrentTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                    if let drawableContents = drawableContents {
+                        if layer.texture == nil || layer.flags.contains(.needsNewTexture) {
+                            layer.texture = try drawableContents.createTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                            layer.flags.remove(.needsNewTexture)
                         }
 
-                    default:
-                        break
+                        try drawableContents.drawIn(texture: layer.texture!, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                    }
                 }
 
-                if let contentsTexture = contentsTexture {
-                    renderContext.add(.contents(texture: contentsTexture, layerIndex: currentLayerIndex, antiAliased: true))
+                if let layerTexture = layer.texture {
+                    renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+                    renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false))
                 }
 
                 if let next = current.sublayers?.first {
@@ -463,32 +470,39 @@ internal class DescriptorSetContainer {
 
         renderContext.descriptors.append(descriptor)
 
-        renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background(antiAliased: true))
+        if let backgroundColor = layer.backgroundColor, backgroundColor.alpha != 0 {
+            renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+            renderContext.add(.background(antiAliased: true))
+        }
+        
+        let drawableContents: TextureDrawable?
 
-        var contentsTexture: Texture? = nil
+        if needsDisplay {
+            switch layer.contents {
+                case .some(let image as CGImage):
+                    drawableContents = image
 
-        switch layer.contents {
-            case .some(_ as CGImage):
-                break
+                case .some(let backingStore as CABackingStore):
+                    backingStore.frontContext.flush()
+                    drawableContents = backingStore
 
-            case .some(let backingStore as CABackingStore):
-                contentsTexture = backingStore.currentTexture
+                default:
+                    drawableContents = nil
+            }
 
-                if contentsTexture == nil {
-                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
-
-                    backingStore.currentTexture = contentsTexture
-                } else if needsDisplay {
-                    try backingStore.updateCurrentTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+            if let drawableContents = drawableContents {
+                if layer.texture == nil || layer.flags.contains(.needsNewTexture) {
+                    layer.texture = try drawableContents.createTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                    layer.flags.remove(.needsNewTexture)
                 }
 
-            default:
-                break
+                try drawableContents.drawIn(texture: layer.texture!, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+            }
         }
 
-        if let contentsTexture = contentsTexture {
-            renderContext.add(.contents(texture: contentsTexture, layerIndex: currentLayerIndex, antiAliased: true))
+        if let layerTexture = layer.texture {
+            renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+            renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false))
         }
 
         try layer.sublayers?.forEach {
@@ -496,7 +510,7 @@ internal class DescriptorSetContainer {
             try traverseLayerTree(for: $0, parentTransform: layerLocalTransform, index: &index, renderContext: renderContext)
         }
 
-        if layer.borderWidth > 0 && layer.borderColor != nil {
+        if layer.borderWidth > 0, let borderColor = layer.borderColor, borderColor.alpha != 0 {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
             renderContext.add(.border(antiAliased: true))
         }
@@ -699,5 +713,61 @@ internal extension Device {
         let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
 
         return try RenderPass(device: self, subpasses: [subpass1], dependencies: [dependency1])
+    }
+}
+
+internal protocol TextureDrawable {
+    var width: Int { get }
+    var height: Int { get }
+    var bytesPerRow: Int { get }
+    var pixelData: UnsafeRawPointer { get }
+}
+
+extension TextureDrawable {
+    func createTexture(renderStack: VolcanoRenderStack, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws -> Texture {
+        let device = renderStack.device
+
+        let textureDescriptor = TextureDescriptor.texture2DDescriptor(pixelFormat: .rgba8UNorm, width: width, height: height, mipmapped: false)
+        textureDescriptor.usage = [.renderTarget, .shaderRead]
+        textureDescriptor.tiling = .optimal
+        textureDescriptor.requiredMemoryProperties = .deviceLocal
+
+        return try device.createTexture(with: textureDescriptor)
+    }
+
+    func drawIn(texture: Texture, graphicsQueue: Queue, commandPool: CommandPool, semaphores: [TimelineSemaphore] = []) throws {
+        let device = texture.device
+
+        let stagingBufferDescriptor = BufferDescriptor(stagingWithSize: VkDeviceSize(bytesPerRow * height), accessQueues: [graphicsQueue])
+
+        let stagingBuffer = try device.memoryAllocator.create(with: stagingBufferDescriptor).result
+
+        try stagingBuffer.memoryChunk.withMappedData { data, size in
+            data.copyMemory(from: UnsafeRawPointer(pixelData), byteCount: Int(stagingBuffer.size))
+        }
+
+        try graphicsQueue.oneShot(in: commandPool, wait: true, semaphores: semaphores) {
+            try $0.performPredefinedLayoutTransition(for: texture, newLayout: .transferDestinationOptimal)
+            try $0.copyBuffer(from: stagingBuffer, to: texture, texelsPerRow: CUnsignedInt(width), height: CUnsignedInt(height))
+            try $0.performPredefinedLayoutTransition(for: texture, newLayout: .shaderReadOnlyOptimal)
+        }
+    }
+}
+
+extension CGImage: TextureDrawable {
+    var pixelData: UnsafeRawPointer {
+        return UnsafeRawPointer(bitmap.baseAddress!)
+    }
+}
+
+extension CABackingStore: TextureDrawable {
+    var pixelData: UnsafeRawPointer {
+        return UnsafeRawPointer(frontContext.data!)
+    }
+}
+
+extension CGContext: TextureDrawable {
+    var pixelData: UnsafeRawPointer {
+        return UnsafeRawPointer(data!)
     }
 }

@@ -254,30 +254,39 @@ open class CARenderer: NSObject {
 
         renderContext.descriptors.append(descriptor)
 
-        renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-        renderContext.add(.background(antiAliased: true))
+        if let backgroundColor = layer.backgroundColor, backgroundColor.alpha != 0 {
+            renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+            renderContext.add(.background(antiAliased: true))
+        }
+        
+        let drawableContents: TextureDrawable?
 
-        var contentsTexture: Texture? = nil
+        if needsDisplay {
+            switch layer.contents {
+                case .some(let image as CGImage):
+                    drawableContents = image
 
-        switch layer.contents {
-            case .some(_ as CGImage):
-                break
+                case .some(let backingStore as CABackingStore):
+                    backingStore.frontContext.flush()
+                    drawableContents = backingStore
 
-            case .some(let backingStore as CABackingStore):
-                contentsTexture = backingStore.currentTexture
+                default:
+                    drawableContents = nil
+            }
 
-                if contentsTexture == nil {
-                    contentsTexture = try backingStore.makeTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: renderContext.commandPool)
-
-                    backingStore.currentTexture = contentsTexture
+            if let drawableContents = drawableContents {
+                if layer.texture == nil || layer.flags.contains(.needsNewTexture) {
+                    layer.texture = try drawableContents.createTexture(renderStack: renderStack, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+                    layer.flags.remove(.needsNewTexture)
                 }
 
-            default:
-                break
+                try drawableContents.drawIn(texture: layer.texture!, graphicsQueue: renderContext.graphicsQueue, commandPool: commandPool)
+            }
         }
 
-        if let contentsTexture = contentsTexture {
-            renderContext.add(.contents(texture: contentsTexture, layerIndex: index, antiAliased: false))
+        if let layerTexture = layer.texture {
+            renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
+            renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false))
         }
 
         try layer.sublayers?.forEach {

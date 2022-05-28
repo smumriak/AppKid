@@ -36,6 +36,7 @@ import LayerRenderingData
     var descriptors: [LayerRenderDescriptor] = []
     var operations: [RenderOperation] = []
 
+    internal var currentlyBoundVertexBufferIndex: UInt? = nil
     internal var vertexBufferCopyCount: UInt64 = 0
     internal var vertexBufferCopySemaphore: TimelineSemaphore
 
@@ -227,6 +228,7 @@ import LayerRenderingData
         vertexBufferCopyCount = 0
         vertexBufferCopySemaphore = try TimelineSemaphore(device: renderStack.device)
         // _vertexBuffer = nil
+        currentlyBoundVertexBufferIndex = nil
     }
 
     func performOperations() throws {
@@ -367,20 +369,25 @@ internal class EndSceneRenderOperation: RenderOperation {
 }
 
 internal class BindVertexBufferRenderOperation: RenderOperation {
-    fileprivate let index: CUnsignedInt
-    fileprivate lazy var offset = VkDeviceSize(index * UInt32(MemoryLayout<LayerRenderDescriptor>.stride))
+    fileprivate let index: UInt
+    fileprivate lazy var offset = VkDeviceSize(index * UInt(MemoryLayout<LayerRenderDescriptor>.stride))
     fileprivate let firstBinding: CUnsignedInt
 
     init(index: UInt, firstBinding: UInt) {
-        self.index = CUnsignedInt(index)
+        self.index = index
         self.firstBinding = CUnsignedInt(firstBinding)
 
         super.init()
     }
 
     override func perform(in context: RenderContext) throws {
+        if let currentlyBoundVertexBufferIndex = context.currentlyBoundVertexBufferIndex, currentlyBoundVertexBufferIndex == index {
+            return;
+        }
+
         let vertexBuffer = try context.vertexBuffer
         try context.commandBuffer.bind(vertexBuffer: vertexBuffer, offset: offset, firstBinding: firstBinding)
+        context.currentlyBoundVertexBufferIndex = index
     }
 }
 
@@ -453,7 +460,7 @@ internal class BackgroundRenderOperation: RenderOperation {
 }
 
 internal class BorderRenderOperation: RenderOperation {
-        internal let antiAliased: Bool
+    internal let antiAliased: Bool
 
     init(antiAliased: Bool = false) {
         self.antiAliased = antiAliased

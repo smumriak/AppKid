@@ -11,6 +11,7 @@ import CairoGraphics
 import TinyFoundation
 import OrderedCollections
 import SimpleGLM
+import Volcano
 
 #if os(macOS)
     import struct CairoGraphics.CGAffineTransform
@@ -43,15 +44,59 @@ public extension CALayerActionDelegate {
     func action(for layer: CALayer, forKey event: String) -> CAAction? { nil }
 }
 
+internal struct CALayerFlags: OptionSet {
+    let rawValue: UInt
+
+    public static let needsLayout: CALayerFlags = .init(rawValue: 1 << 0)
+    public static let needsDisplay: CALayerFlags = .init(rawValue: 1 << 1)
+    public static let needsNewTexture: CALayerFlags = .init(rawValue: 1 << 2)
+}
+
 open class CALayer: CAValuesContainer, CAMediaTiming {
+    internal var flags: CALayerFlags = []
+    internal var texture: Texture?
+
     open weak var delegate: CALayerDelegate? = nil
 
-    open var contentsScale: CGFloat = 1.0
+    @CAProperty(name: "contentsScale")
+    open var contentsScale: CGFloat = 1.0 {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
     
-    public var needsDisplay = false
+    public var needsDisplay: Bool {
+        get {
+            return flags.contains(.needsDisplay)
+        }
+        set {
+            if newValue {
+                flags.insert(.needsDisplay)
+            } else {
+                flags.remove(.needsDisplay)
+            }
+        }
+    }
 
     public func setNeedsDisplay() {
         needsDisplay = true
+    }
+
+    public var needsLayout: Bool {
+        get {
+            flags.contains(.needsLayout)
+        }
+        set {
+            if newValue {
+                flags.insert(.needsLayout)
+            } else {
+                flags.remove(.needsLayout)
+            }
+        }
+    }
+    
+    public func setNeedsLayout() {
+        needsLayout = true
     }
 
     @CAProperty(name: "identifier")
@@ -128,7 +173,11 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
     @CAProperty(name: "shadowPath")
     open var shadowPath: CGPath?
 
-    open var contents: Any?
+    open var contents: Any? {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
 
     open var superlayer: CALayer? = nil
     open var sublayers: [CALayer]? = nil
@@ -329,6 +378,7 @@ open class CALayer: CAValuesContainer, CAMediaTiming {
                     if let backingStore = contents as? CABackingStore, backingStore.fits(size: bounds.size, scale: contentsScale) {
                         return backingStore
                     } else {
+                        flags.formUnion(.needsNewTexture)
                         return try CABackingStoreContext.global.createBackingStore(size: bounds.size, scale: contentsScale)
                     }
                 }()

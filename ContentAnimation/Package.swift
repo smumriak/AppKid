@@ -14,17 +14,17 @@ let cairoGraphicsDependency: PackageDescription.Package.Dependency
 let volcanoDependency: PackageDescription.Package.Dependency
 let simpleGLMDependency: PackageDescription.Package.Dependency
 
-if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
-    tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
-    cairoGraphicsDependency = .package(url: "https://github.com/smumriak/CairoGraphics", branch: "main")
-    volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
-    simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
-} else {
+// if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
+//     tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
+//     cairoGraphicsDependency = .package(url: "https://github.com/smumriak/CairoGraphics", branch: "main")
+//     volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
+//     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
+// } else {
     tinyFoundationDependency = .package(path: "../TinyFoundation")
     cairoGraphicsDependency = .package(path: "../CairoGraphics")
     volcanoDependency = .package(path: "../Volcano")
     simpleGLMDependency = .package(path: "../SimpleGLM")
-}
+// }
 
 let package = Package(
     name: "ContentAnimation",

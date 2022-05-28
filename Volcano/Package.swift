@@ -13,16 +13,15 @@ let tinyFoundationDependency: PackageDescription.Package.Dependency
 let simpleGLMDependency: PackageDescription.Package.Dependency
 let swiftXlibDependency: PackageDescription.Package.Dependency
 
-if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
-    tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
-    simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch:
-        "main")
-    swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
-} else {
+// if ProcessInfo.processInfo.environment["APPKID_LOCAL_BUILD"] == nil {
+//     tinyFoundationDependency = .package(url: "https://github.com/smumriak/TinyFoundation", branch: "main")
+//     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
+//     swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
+// } else {
     tinyFoundationDependency = .package(path: "../TinyFoundation")
     simpleGLMDependency = .package(path: "../SimpleGLM")
     swiftXlibDependency = .package(path: "../SwiftXlib")
-}
+// }
 
 let package = Package(
     name: "Volcano",
