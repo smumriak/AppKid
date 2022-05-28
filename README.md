@@ -54,13 +54,15 @@ Installation is pretty much the same as on Ubuntu, just using your local package
 Well, not there. Sorry about that.
 ## Development
 I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can just open `Packge.swift` in Xcode and it will be pretty much the same user experience.
-For everyone's convenience (mostly people who are not using mac) there is a vscode configuration file provided. Just load the repo directory in VSCode (or VSCodium if you don't like the telemetry thing). You need next plugins to be installed for good experience: 
-- [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+For everyone's convenience (mostly people who are not using mac) there is a vscode configuration file provided. Just load the repo directory in VSCode (or VSCodium if you don't like the telemetry thing). You can install next plugins for best experience: 
+- [Swift](https://marketplace.visualstudio.com/items?itemName=sswg.swift-lang)
 - [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
-- [iOS Snippets](https://marketplace.visualstudio.com/items?itemName=ornithologist.ios-snippets)
-- [SourceKit-LSP](https://github.com/apple/sourcekit-lsp)
+- [Camel Case Navigation](https://marketplace.visualstudio.com/items?itemName=maptz.camelcasenavigation)
+- [SwiftFormat](https://marketplace.visualstudio.com/items?itemName=vknabel.vscode-swiftformat)
+- [Launch Configs](https://marketplace.visualstudio.com/items?itemName=ArturoDent.launch-config)
+- [change-case](https://marketplace.visualstudio.com/items?itemName=wmaurer.change-case)
+- [Shader languages support](https://marketplace.visualstudio.com/items?itemName=slevesque.shader)
 
-SourceKit-LSP is created by Apple and requires building and installing it manually without VSCode marketplace. It's easy.
 ## Building and running
 On macOS running from Xcode is not really supported, only building and linking to get copiler checks and all that kind of stuff.
 On Linux machine : `swift build` to build, `swift run` to run or use provided VSCode setup.

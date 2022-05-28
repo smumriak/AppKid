@@ -1,9 +1,11 @@
 {
     "recommendations": [
         "sswg.swift-lang",
-        "vknabel.vscode-swiftformat",
         "vadimcn.vscode-lldb",
+        "maptz.camelcasenavigation",
+        "vknabel.vscode-swiftformat",
+        "ArturoDent.launch-config",
         "wmaurer.change-case",
-        "maptz.camelcasenavigation"
+        "slevesque.shader"
     ]
 }
