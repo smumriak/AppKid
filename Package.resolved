@@ -6,7 +6,7 @@
         "repositoryURL": "https://github.com/recp/cglm",
         "state": {
           "branch": "master",
-          "revision": "f20bf0aaaf34edb21b600b035c718a07fd18f9b9",
+          "revision": "63990be905976dedcaee6ccf09fa5e9c120ccef4",
           "version": null
         }
       },
@@ -42,7 +42,7 @@
         "repositoryURL": "https://github.com/apple/swift-tools-support-core",
         "state": {
           "branch": "main",
-          "revision": "babdefd2f6e2d1592a3cdfe2bee3e602f826f2e8",
+          "revision": "f77146012019e87940ea661ee7adcded1311cce1",
           "version": null
         }
       },

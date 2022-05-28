@@ -20,7 +20,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
     ],
     targets: [
-        .target(name: "TinyFoundation",
+        .target(
+            name: "TinyFoundation",
                 dependencies: [
                     .product(name: "Collections", package: "swift-collections"),
                 ]
