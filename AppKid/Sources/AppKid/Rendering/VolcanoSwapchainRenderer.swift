@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 23.08.2020.
 //
 
+internal let kAntialiasingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
+
 import Foundation
 import CoreFoundation
 import TinyFoundation
@@ -113,10 +115,16 @@ internal class VolcanoSwapchainRenderer {
         textureDescriptor.usage = [.renderTarget, .shaderRead]
         textureDescriptor.tiling = .optimal
         textureDescriptor.setAccessQueues([renderStack.queues.graphics, renderStack.queues.transfer])
-        textureDescriptor.sampleCount = .four
+        if kAntialiasingEnabled {
+            textureDescriptor.sampleCount = .four
+        } else {
+            textureDescriptor.sampleCount = .one
+        }
         
-        aliasingTextures = try swapchainTextures.map { _ in
-            try device.createTexture(with: textureDescriptor)
+        if kAntialiasingEnabled {
+            aliasingTextures = try swapchainTextures.map { _ in
+                try device.createTexture(with: textureDescriptor)
+            }
         }
 
         oldSwapchain = nil
@@ -183,10 +191,13 @@ internal class VolcanoSwapchainRenderer {
             return
         }
 
-        let aliasingTexture = aliasingTextures[index]
-
         do {
-            try layerRenderer.setDestination(target: aliasingTexture, resolve: swapchainTexture)
+            if kAntialiasingEnabled {
+                let aliasingTexture = aliasingTextures[index]
+                try layerRenderer.setDestination(target: aliasingTexture, resolve: swapchainTexture)
+            } else {
+                try layerRenderer.setDestination(target: swapchainTexture)
+            }
 
             try layerRenderer.beginFrame(atTime: 0)
 

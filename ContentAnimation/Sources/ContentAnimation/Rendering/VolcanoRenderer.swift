@@ -5,6 +5,8 @@
 //  Created by Serhii Mumriak on 18.07.2021.
 //
 
+internal let kAntialiasingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
+
 import Foundation
 import CoreFoundation
 @_spi(AppKid) import Volcano
@@ -92,7 +94,7 @@ internal class DescriptorSetContainer {
         }
     }
 
-    public func createRenderTarget(forTarget target: Texture, resolve: Texture) throws -> RenderTarget {
+    public func createRenderTarget(forTarget target: Texture, resolve: Texture?) throws -> RenderTarget {
         try lock.synchronized {
             let textureIdentifier = ObjectIdentifier(target)
 
@@ -196,7 +198,7 @@ internal class DescriptorSetContainer {
         try commandBuffer.reset()
     }
 
-    public func setDestination(target: Texture, resolve: Texture) throws {
+    public func setDestination(target: Texture, resolve: Texture? = nil) throws {
         guard renderTarget?.colorAttachment !== target else {
             return
         }
@@ -606,15 +608,20 @@ internal extension RenderPass {
         descriptor.depthBiasSlopeFactor = 0.0
         descriptor.lineWidth = 1.0
 
-        if antiAliased {
-            descriptor.sampleShadingEnabled = true
-            descriptor.minSampleShading = 1.0
+        if kAntialiasingEnabled {
+            if antiAliased {
+                descriptor.sampleShadingEnabled = true
+                descriptor.minSampleShading = 1.0
+            } else {
+                descriptor.sampleShadingEnabled = false
+                descriptor.minSampleShading = 0.0
+            }
+
+            descriptor.rasterizationSamples = .four
         } else {
-            descriptor.sampleShadingEnabled = false
-            descriptor.minSampleShading = 0.0
+            descriptor.rasterizationSamples = .one
         }
 
-        descriptor.rasterizationSamples = .four
         descriptor.sampleMasks = []
         descriptor.alphaToCoverageEnabled = false
         descriptor.alphaToOneEnabled = false
@@ -687,30 +694,50 @@ internal extension RenderPass {
 
 internal extension Device {
     func createMainRenderPass(pixelFormat: VkFormat) throws -> RenderPass {
-        var colorAttachmentDescription = VkAttachmentDescription()
-        colorAttachmentDescription.format = pixelFormat
-        colorAttachmentDescription.samples = .four
-        colorAttachmentDescription.loadOp = .clear
-        colorAttachmentDescription.storeOp = .dontCare
-        colorAttachmentDescription.stencilLoadOp = .dontCare
-        colorAttachmentDescription.stencilStoreOp = .dontCare
-        colorAttachmentDescription.initialLayout = .undefined
-        colorAttachmentDescription.finalLayout = .colorAttachmentOptimal
+        let subpass1: Subpass
+        let dependency1: Subpass.Dependency
 
-        var resolveAttachmentDescription = VkAttachmentDescription()
-        resolveAttachmentDescription.format = pixelFormat
-        resolveAttachmentDescription.samples = .one
-        resolveAttachmentDescription.loadOp = .dontCare
-        resolveAttachmentDescription.storeOp = .store
-        resolveAttachmentDescription.stencilLoadOp = .dontCare
-        resolveAttachmentDescription.stencilStoreOp = .dontCare
-        resolveAttachmentDescription.initialLayout = .undefined
-        resolveAttachmentDescription.finalLayout = .presentSourceKhr
+        if kAntialiasingEnabled {
+            var colorAttachmentDescription = VkAttachmentDescription()
+            colorAttachmentDescription.format = pixelFormat
+            colorAttachmentDescription.samples = .four
+            colorAttachmentDescription.loadOp = .clear
+            colorAttachmentDescription.storeOp = .dontCare
+            colorAttachmentDescription.stencilLoadOp = .dontCare
+            colorAttachmentDescription.stencilStoreOp = .dontCare
+            colorAttachmentDescription.initialLayout = .undefined
+            colorAttachmentDescription.finalLayout = .colorAttachmentOptimal
 
-        let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
-        let resolveAttachment = Attachment(description: resolveAttachmentDescription, imageLayout: .colorAttachmentOptimal)
-        let subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment], resolveAttachments: [resolveAttachment])
-        let dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
+            var resolveAttachmentDescription = VkAttachmentDescription()
+            resolveAttachmentDescription.format = pixelFormat
+            resolveAttachmentDescription.samples = .one
+            resolveAttachmentDescription.loadOp = .dontCare
+            resolveAttachmentDescription.storeOp = .store
+            resolveAttachmentDescription.stencilLoadOp = .dontCare
+            resolveAttachmentDescription.stencilStoreOp = .dontCare
+            resolveAttachmentDescription.initialLayout = .undefined
+            resolveAttachmentDescription.finalLayout = .presentSourceKhr
+
+            let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+            let resolveAttachment = Attachment(description: resolveAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+            subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment], resolveAttachments: [resolveAttachment])
+            dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
+
+        } else {
+            var colorAttachmentDescription = VkAttachmentDescription()
+            colorAttachmentDescription.format = pixelFormat
+            colorAttachmentDescription.samples = .one
+            colorAttachmentDescription.loadOp = .dontCare
+            colorAttachmentDescription.storeOp = .store
+            colorAttachmentDescription.stencilLoadOp = .dontCare
+            colorAttachmentDescription.stencilStoreOp = .dontCare
+            colorAttachmentDescription.initialLayout = .undefined
+            colorAttachmentDescription.finalLayout = .presentSourceKhr
+
+            let colorAttachment = Attachment(description: colorAttachmentDescription, imageLayout: .colorAttachmentOptimal)
+            subpass1 = Subpass(bindPoint: .graphics, colorAttachments: [colorAttachment])
+            dependency1 = Subpass.Dependency(destination: subpass1, sourceStage: .colorAttachmentOutput, destinationStage: .colorAttachmentOutput, destinationAccess: .colorAttachmentWrite)
+        }
 
         return try RenderPass(device: self, subpasses: [subpass1], dependencies: [dependency1])
     }
