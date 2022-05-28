@@ -187,7 +187,7 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "./clean.sh",
+            "command": "./Utilities/clean.sh",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -226,7 +226,7 @@
             "label": "buildShaders",
             "type": "shell",
             "linux": {
-                "command": "./buildShaders.sh"
+                "command": "./Utilities/buildShaders.sh"
             },
             "osx": {
                 "command": "echo NO_OP"
