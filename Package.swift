@@ -17,11 +17,11 @@ let package = Package(
         .executable(name: "AppKidDemo", targets: ["AppKidDemo"]),
     ],
     dependencies: [
-        .package(path: "./TinyFoundation"),
-        .package(path: "./AppKid"),
-        .package(path: "./CairoGraphics"),
-        .package(path: "./ContentAnimation"),
-        .package(path: "./Volcano"),
+        .package(path: "TinyFoundation"),
+        .package(path: "AppKid"),
+        .package(path: "CairoGraphics"),
+        .package(path: "ContentAnimation"),
+        .package(path: "Volcano"),
     ],
     targets: [
         .executableTarget(
