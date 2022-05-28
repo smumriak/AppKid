@@ -10,4 +10,4 @@ build_project:
     APPKID_LOCAL_BUILD: "1"
   script:
     - rm -rf .build
-    - swift build -v
+    - swift build --product AppKidDemo -v --build-path .build/AppKidDemo
