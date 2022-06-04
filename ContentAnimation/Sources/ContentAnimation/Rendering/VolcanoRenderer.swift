@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 18.07.2021.
 //
 
-internal let kAntialiasingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
+internal let kMultisamplingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
 
 import Foundation
 import CoreFoundation
@@ -608,7 +608,7 @@ internal extension RenderPass {
         descriptor.depthBiasSlopeFactor = 0.0
         descriptor.lineWidth = 1.0
 
-        if kAntialiasingEnabled {
+        if kMultisamplingEnabled {
             if antiAliased {
                 descriptor.sampleShadingEnabled = true
                 descriptor.minSampleShading = 1.0
@@ -697,7 +697,7 @@ internal extension Device {
         let subpass1: Subpass
         let dependency1: Subpass.Dependency
 
-        if kAntialiasingEnabled {
+        if kMultisamplingEnabled {
             var colorAttachmentDescription = VkAttachmentDescription()
             colorAttachmentDescription.format = pixelFormat
             colorAttachmentDescription.samples = .four
