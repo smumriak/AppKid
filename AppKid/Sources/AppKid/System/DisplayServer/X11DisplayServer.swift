@@ -166,7 +166,10 @@ extension X11DisplayServer {
         // attributes.border_pixel = 0
 
         // attributesMask |= UInt(CWBackPixel)
-        // attributes.background_pixel = UInt.max
+        // attributes.background_pixel = XWhitePixel(display.handle, XDefaultScreen(display.handle))
+
+        // attributesMask |= UInt(CWBackPixmap)
+        // attributes.background_pixmap = Pixmap(CXlib.None)
 
         // attributesMask |= UInt(CWOverrideRedirect)
         // attributes.override_redirect = 1
