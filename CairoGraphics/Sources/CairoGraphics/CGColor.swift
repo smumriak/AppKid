@@ -44,6 +44,7 @@ public struct CGColor {
         self.green = green
         self.blue = blue
         self.alpha = alpha
+        cairoPattern = RetainablePointer(withRetained: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha))!)
     }
 
     public init(white: CGFloat, alpha: CGFloat = 1.0) {
@@ -51,9 +52,10 @@ public struct CGColor {
         self.green = white
         self.blue = white
         self.alpha = alpha
+        cairoPattern = RetainablePointer(withRetained: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha))!)
     }
 
-    internal fileprivate(set) lazy var cairoPattern: RetainablePointer<cairo_pattern_t> = freshCairoPattern
+    internal fileprivate(set) var cairoPattern: RetainablePointer<cairo_pattern_t>
 }
 
 public extension CGColor {
