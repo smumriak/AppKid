@@ -221,6 +221,11 @@ open class Application: Responder {
                 break
             }
 
+            currentEvent = event
+            defer { 
+                currentEvent = nil
+            }
+
             if event.type == .appKidDefined && event.subType == .terminate {
                 break
             }
@@ -245,9 +250,7 @@ open class Application: Responder {
     }
     
     open func send(event: Event) {
-        currentEvent = event
         event.window?.send(event: event)
-        currentEvent = nil
     }
 
     internal func indexOfEvent(matching mask: Event.EventTypeMask, serviceDisplayServerEventQueue: Bool = true) -> Array<Event>.Index? {
