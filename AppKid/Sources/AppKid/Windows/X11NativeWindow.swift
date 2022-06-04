@@ -144,7 +144,7 @@ public final class X11NativeWindow: NSObject, NativeWindow {
     }
 
     func map(displayServer: X11DisplayServer) {
-        XMapWindow(display.handle, windowIdentifier)
+        window.sendMapRequest()
     }
 }
 

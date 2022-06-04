@@ -17,6 +17,8 @@ public class Window: NSObject, WindowProtocol {
     public let destroyOnDeinit: Bool
     
     deinit {
+        sendUnmapRequest()
+
         if syncCounter.basic != XSyncCounter(None) {
             XSyncDestroyCounter(display.handle, syncCounter.basic)
         }
@@ -124,6 +126,15 @@ public class Window: NSObject, WindowProtocol {
     public func syncRequested(with value: XSyncValue) {
         incomingSyncCounterValue = value
     }
+
+    public func sendMapRequest() {
+        XMapWindow(display.handle, windowIdentifier)
+    }
+
+    public func sendUnmapRequest() {
+        XUnmapWindow(display.handle, windowIdentifier)
+    }
+
 }
 
 public extension Rect where StorageType == CInt {
