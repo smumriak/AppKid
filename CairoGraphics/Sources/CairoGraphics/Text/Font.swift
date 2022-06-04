@@ -27,7 +27,7 @@ public struct Font {
         self.weight = weight
     }
 
-    lazy var cairoFontDescription: CopyablePointer<PangoFontDescription> = {
+    public lazy var cairoFontDescription: CopyablePointer<PangoFontDescription> = {
         let result = CopyablePointer(with: pango_font_description_new())
         pango_font_description_set_family(result.pointer, familyName)
         pango_font_description_set_weight(result.pointer, weight.pangoWeight)
