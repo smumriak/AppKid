@@ -11,6 +11,10 @@ public protocol ReleasableCType {
     static var releaseFunc: (_ pointer: SmartPointer<Self>.Pointer_t?) -> () { get }
 }
 
+extension ReleasableCType {
+    static var deleter: ReleasablePointer<Self>.Deleter { .custom(releaseFunc) }
+}
+
 public extension UnsafeMutablePointer where Pointee: ReleasableCType {
     func release() {
         defer { globalRetainCount.decrement() }
@@ -20,12 +24,8 @@ public extension UnsafeMutablePointer where Pointee: ReleasableCType {
 }
 
 public class ReleasablePointer<Pointee>: SmartPointer<Pointee> where Pointee: ReleasableCType {
-    deinit {
-        pointer.release()
-    }
-    
     public init(with pointer: Pointer_t) {
-        super.init(with: pointer, deleter: .none)
+        super.init(with: pointer, deleter: Pointee.deleter)
     }
 }
 
