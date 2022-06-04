@@ -22,9 +22,9 @@ let package = Package(
     targets: [
         .target(
             name: "TinyFoundation",
-                dependencies: [
-                    .product(name: "Collections", package: "swift-collections"),
-                ]
+            dependencies: [
+                .product(name: "Collections", package: "swift-collections"),
+            ]
         ),
         .testTarget(
             name: "TinyFoundationTests",

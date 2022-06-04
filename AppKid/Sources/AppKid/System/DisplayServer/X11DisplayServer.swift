@@ -222,7 +222,6 @@ extension X11DisplayServer {
                 
         result.window.set(property: display.knownAtom(.bypassCompositor), type: XA_CARDINAL, format: .thirtyTwo, value: value)
 
-
         result.updateListeningEvents(displayServer: self)
         result.map(displayServer: self)
 

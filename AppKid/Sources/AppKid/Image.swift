@@ -54,7 +54,7 @@ public final class Image: NSObject {
                     let lookupURL = contentURL.appendingPathComponent(fileName, isDirectory: false).appendingPathExtension(fileExtension)
                     if fileManager.fileExists(atPath: lookupURL.absoluteURL.path) {
                         url = lookupURL
-                        break;
+                        break
                     }
                 }
             }

@@ -134,7 +134,6 @@ public class Window: NSObject, WindowProtocol {
     public func sendUnmapRequest() {
         XUnmapWindow(display.handle, windowIdentifier)
     }
-
 }
 
 public extension Rect where StorageType == CInt {

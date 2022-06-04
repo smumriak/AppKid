@@ -20,10 +20,10 @@ let simpleGLMDependency: PackageDescription.Package.Dependency
 //     volcanoDependency = .package(url: "https://github.com/smumriak/Volcano", branch: "main")
 //     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
 // } else {
-    tinyFoundationDependency = .package(path: "../TinyFoundation")
-    cairoGraphicsDependency = .package(path: "../CairoGraphics")
-    volcanoDependency = .package(path: "../Volcano")
-    simpleGLMDependency = .package(path: "../SimpleGLM")
+tinyFoundationDependency = .package(path: "../TinyFoundation")
+cairoGraphicsDependency = .package(path: "../CairoGraphics")
+volcanoDependency = .package(path: "../Volcano")
+simpleGLMDependency = .package(path: "../SimpleGLM")
 // }
 
 let package = Package(

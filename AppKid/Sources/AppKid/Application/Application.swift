@@ -222,7 +222,7 @@ open class Application: Responder {
             }
 
             currentEvent = event
-            defer { 
+            defer {
                 currentEvent = nil
             }
 

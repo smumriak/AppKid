@@ -18,9 +18,9 @@ let swiftXlibDependency: PackageDescription.Package.Dependency
 //     simpleGLMDependency = .package(url: "https://github.com/smumriak/SimpleGLM", branch: "main")
 //     swiftXlibDependency = .package(url: "https://github.com/smumriak/SwiftXlib", branch: "main")
 // } else {
-    tinyFoundationDependency = .package(path: "../TinyFoundation")
-    simpleGLMDependency = .package(path: "../SimpleGLM")
-    swiftXlibDependency = .package(path: "../SwiftXlib")
+tinyFoundationDependency = .package(path: "../TinyFoundation")
+simpleGLMDependency = .package(path: "../SimpleGLM")
+swiftXlibDependency = .package(path: "../SwiftXlib")
 // }
 
 let package = Package(

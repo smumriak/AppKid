@@ -382,7 +382,7 @@ internal class BindVertexBufferRenderOperation: RenderOperation {
 
     override func perform(in context: RenderContext) throws {
         if let currentlyBoundVertexBufferIndex = context.currentlyBoundVertexBufferIndex, currentlyBoundVertexBufferIndex == index {
-            return;
+            return
         }
 
         let vertexBuffer = try context.vertexBuffer
