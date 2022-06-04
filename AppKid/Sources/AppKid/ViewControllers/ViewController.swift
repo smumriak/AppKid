@@ -18,9 +18,7 @@ open class ViewController: Responder {
     open fileprivate(set) var viewIfLoaded: View? = nil
     open var view: View {
         get {
-            if viewIfLoaded == nil {
-                loadView()
-            }
+            loadViewIfNeeded()
 
             return viewIfLoaded!
         }
@@ -31,7 +29,7 @@ open class ViewController: Responder {
 
     open func loadViewIfNeeded() {
         if !isViewLoaded {
-            loadView()
+            loadViewPrivate()
         }
     }
 
@@ -39,6 +37,10 @@ open class ViewController: Responder {
 
     open func loadView() {
         view = View(with: .zero)
+    }
+
+    private func loadViewPrivate() {
+        loadView()
         view.viewDelegate = self
 
         viewDidLoad()
