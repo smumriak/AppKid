@@ -58,9 +58,9 @@ open class Window: View {
         return .identity
     }
 
-    fileprivate var leftMouseDownView: View? = nil
-    fileprivate var rightMouseDownView: View? = nil
-    fileprivate var otherMouseDownView: View? = nil
+    fileprivate weak var leftMouseDownView: View? = nil
+    fileprivate weak var rightMouseDownView: View? = nil
+    fileprivate weak var otherMouseDownView: View? = nil
 
     open internal(set) var firstResponder: Responder? = nil
     
@@ -266,6 +266,12 @@ open class Window: View {
     internal func afterFrameRender() {
         nativeWindow.window.sendSyncCounterIfNeeded()
     }
+
+    internal func cancelTrackingMouse(for view: View) {
+        if leftMouseDownView === view {
+            leftMouseDownView = nil
+        }
+    }
 }
 
 public extension Window {
@@ -278,25 +284,10 @@ fileprivate extension Window {
     // MARK: - Send Mouse Event
 
     func sendMouseEvent(_ event: Event) {
-        let application = Application.shared
-
         switch event.type {
             case .leftMouseDown:
                 leftMouseDownView = hitTest(event.locationInWindow) ?? self
                 leftMouseDownView?.mouseDown(with: event)
-
-                while true {
-                    guard let nextEvent = application.nextEvent(matching: [.leftMouseDragged, .leftMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                        break
-                    }
-
-                    application.send(event: nextEvent)
-
-                    if nextEvent.type == .leftMouseUp {
-                        application.discardEvent(matching: .any, before: nextEvent)
-                        break
-                    }
-                }
 
             case .leftMouseDragged:
                 leftMouseDownView?.mouseDragged(with: event)
@@ -309,19 +300,6 @@ fileprivate extension Window {
                 rightMouseDownView = hitTest(event.locationInWindow) ?? self
                 rightMouseDownView?.rightMouseDown(with: event)
 
-                while true {
-                    guard let nextEvent = application.nextEvent(matching: [.rightMouseDragged, .rightMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                        break
-                    }
-
-                    application.send(event: nextEvent)
-
-                    if nextEvent.type == .rightMouseUp {
-                        application.discardEvent(matching: .any, before: nextEvent)
-                        break
-                    }
-                }
-
             case .rightMouseDragged:
                 rightMouseDownView?.rightMouseDragged(with: event)
 
@@ -332,19 +310,6 @@ fileprivate extension Window {
             case .otherMouseDown:
                 otherMouseDownView = hitTest(event.locationInWindow) ?? self
                 otherMouseDownView?.otherMouseDown(with: event)
-
-                while true {
-                    guard let nextEvent = application.nextEvent(matching: [.otherMouseDragged, .otherMouseUp], until: Date.distantFuture, in: .tracking, dequeue: true) else {
-                        break
-                    }
-
-                    application.send(event: nextEvent)
-
-                    if nextEvent.type == .otherMouseUp {
-                        application.discardEvent(matching: .any, before: nextEvent)
-                        break
-                    }
-                }
 
             case .otherMouseDragged:
                 otherMouseDownView?.otherMouseDragged(with: event)
