@@ -113,13 +113,7 @@ open class View: Responder, CALayerActionDelegate {
         }
     }
     
-    internal var dirtyRect: CGRect? {
-        didSet {
-            if let dirtyRect = dirtyRect {
-                superview?.setNeedsDisplay(in: convert(dirtyRect, to: superview))
-            }
-        }
-    }
+    internal var dirtyRect: CGRect?
 
     // MARK: - Layout
 
@@ -430,11 +424,5 @@ open class View: Responder, CALayerActionDelegate {
 public extension View {
     static func == (lhs: View, rhs: View) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
-    }
-}
-
-open class BlueView: View {
-    open override func render(in context: CGContext) {
-        super.render(in: context)
     }
 }
