@@ -18,26 +18,28 @@ import ContentAnimation
 open class Label: View {
     open var text: String? = nil {
         didSet {
-            layout.text = text ?? ""
-            layer.setNeedsDisplay()
+            layout.text = text
+            setNeedsLayout()
+            setNeedsDisplay()
         }
     }
 
     open var textColor: CGColor = .black {
         didSet {
             layout.textColor = textColor
-            layer.setNeedsDisplay()
+            setNeedsDisplay()
         }
     }
 
     open var font: Font = .systemFont(ofSize: 17) {
         didSet {
             layout.font = font
-            layer.setNeedsDisplay()
+            setNeedsLayout()
+            setNeedsDisplay()
         }
     }
 
-    internal var layout = TextLayout()
+    internal var layout = LabelTextLayout()
 
     // MARK: - Initialization
 
@@ -46,20 +48,20 @@ open class Label: View {
 
         userInteractionEnabled = false
         
-        layout.text = text ?? ""
+        layout.text = text
         layout.textColor = textColor
         layout.font = font
     }
 
     open override var frame: CGRect {
         didSet {
-            layer.setNeedsDisplay()
+            setNeedsDisplay()
         }
     }
 
     open override var bounds: CGRect {
         didSet {
-            layer.setNeedsDisplay()
+            setNeedsDisplay()
         }
     }
 
