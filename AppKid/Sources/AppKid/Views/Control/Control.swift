@@ -53,14 +53,40 @@ open class Control: View, ControlProtocol {
 
     // MARK: - Mouse Events
 
-    open override func mouseDown(with event: Event) {
-        isHighlighted = true
-        lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
+    open override func mouseDown(with event: AppKid.Event) {
+        if !isEnabled {
+            super.mouseDown(with: event)
+            return
+        }
+
+        if !startTrackingMouse(with: event) {
+            isHighlighted = false
+            lastLocationsForMouseButton[event.buttonNumber] = nil
+            isTrackingMouse = false
+            window?.cancelTrackingMouse(for: self)
+        }
+
+        let location = convert(event.locationInWindow, from: nil)
+
+        if point(inside: location) {
+            isHighlighted = true
+        } else {
+            isHighlighted = false
+        }
+
+        lastLocationsForMouseButton[event.buttonNumber] = location
 
         sendActions(for: .mouseDown, with: event)
     }
 
-    open override func mouseDragged(with event: Event) {
+    open override func mouseDragged(with event: AppKid.Event) {
+        if !continueTrackingMouse(with: event) {
+            isHighlighted = false
+            lastLocationsForMouseButton[event.buttonNumber] = nil
+
+            return
+        }
+
         let location = convert(event.locationInWindow, from: window)
 
         let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
@@ -85,7 +111,9 @@ open class Control: View, ControlProtocol {
         }
     }
 
-    open override func mouseUp(with event: Event) {
+    open override func mouseUp(with event: AppKid.Event) {
+        stopTrackingMouse(with: event)
+
         let location = convert(event.locationInWindow, from: window)
 
         if point(inside: location) {
@@ -99,13 +127,13 @@ open class Control: View, ControlProtocol {
         isHighlighted = false
     }
 
-    open override func rightMouseDown(with event: Event) {
+    open override func rightMouseDown(with event: AppKid.Event) {
         lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
 
         sendActions(for: .rightMouseDown, with: event)
     }
 
-    open override func rightMouseDragged(with event: Event) {
+    open override func rightMouseDragged(with event: AppKid.Event) {
         let location = convert(event.locationInWindow, from: window)
 
         let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
@@ -126,7 +154,7 @@ open class Control: View, ControlProtocol {
         }
     }
 
-    open override func rightMouseUp(with event: Event) {
+    open override func rightMouseUp(with event: AppKid.Event) {
         let location = convert(event.locationInWindow, from: window)
 
         if point(inside: location) {
@@ -138,13 +166,13 @@ open class Control: View, ControlProtocol {
         lastLocationsForMouseButton.removeValue(forKey: event.buttonNumber)
     }
 
-    open override func otherMouseDown(with event: Event) {
+    open override func otherMouseDown(with event: AppKid.Event) {
         lastLocationsForMouseButton[event.buttonNumber] = convert(event.locationInWindow, from: window)
 
         sendActions(for: .otherMouseDown, with: event)
     }
 
-    open override func otherMouseDragged(with event: Event) {
+    open override func otherMouseDragged(with event: AppKid.Event) {
         let location = convert(event.locationInWindow, from: window)
 
         let previousLocation = lastLocationsForMouseButton[event.buttonNumber] ?? CGPoint(x: CGFloat.nan, y: CGFloat.nan)
@@ -165,7 +193,7 @@ open class Control: View, ControlProtocol {
         }
     }
 
-    open override func otherMouseUp(with event: Event) {
+    open override func otherMouseUp(with event: AppKid.Event) {
         let location = convert(event.locationInWindow, from: window)
 
         if point(inside: location) {
@@ -179,20 +207,31 @@ open class Control: View, ControlProtocol {
 
     // MARK: - Mouse Tracking
 
-    open func startTrackingMouse(with event: Event) -> Bool {
-        return false
+    open func startTrackingMouse(with event: AppKid.Event) -> Bool {
+        return true
     }
 
-    open func continueTrackingMouse(with event: Event) -> Bool {
-        return false
+    open func continueTrackingMouse(with event: AppKid.Event) -> Bool {
+        return true
     }
 
-    open func stopTrackingMouse(with event: Event) {
+    open func stopTrackingMouse(with event: AppKid.Event) {
     }
+
+    open func cancelTrackingMouse(with event: AppKid.Event) {
+        isTrackingMouse = false
+        window?.cancelTrackingMouse(for: self)
+    }
+
+    open var isTrackingMouse: Bool = false
+
+    var isMouseInside: Bool = false
 
     // MARK: - Actions
 
     public var actions: Set<ActionIdentifier> = []
+
+    internal static let primaryActionEvent: Event = .valueChanged
 }
 
 public extension Control {
@@ -210,11 +249,24 @@ public extension Control {
         public static var selected = State(rawValue: 1 << 2)
         public static var focused = State(rawValue: 1 << 3)
         public static var application = State(rawValue: 1 << 4)
+
+        public static let allValues: [State] = [
+            .normal,
+            .highlighted,
+            .disabled,
+            .selected,
+            .focused,
+            .application,
+        ]
+
+        internal var deconstructed: [State] {
+            State.allValues.filter(contains)
+        }
     }
 }
 
 public extension Control {
-    struct ControlEvent: OptionSet {
+    struct Event: OptionSet {
         public typealias RawValue = UInt64
         public let rawValue: RawValue
         

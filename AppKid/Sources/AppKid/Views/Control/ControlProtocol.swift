@@ -12,18 +12,18 @@ public protocol ControlProtocol: AnyObject {
 
     typealias Action<Sender> = () -> ()
     typealias SenderAction<Sender> = (_ sender: Sender) -> ()
-    typealias SenderEventAction<Sender> = (_ sender: Sender, _ event: Event) -> ()
+    typealias SenderEventAction<Sender> = (_ sender: Sender, _ event: AppKid.Event) -> ()
 
     typealias ClassAction<Target, Sender> = (Target) -> () -> ()
     typealias SenderClassAction<Target, Sender> = (Target) -> (_ sender: Sender) -> ()
-    typealias SenderEventClassAction<Target, Sender> = (Target) -> (_ sender: Sender, _ event: Event) -> ()
+    typealias SenderEventClassAction<Target, Sender> = (Target) -> (_ sender: Sender, _ event: AppKid.Event) -> ()
 
     var actions: Set<ActionIdentifier> { get set }
 }
 
 public extension ControlProtocol {
     @discardableResult
-    func addAction(for event: Control.ControlEvent, action: @escaping Action<Self>) -> ActionIdentifier {
+    func addAction(for event: Control.Event, action: @escaping Action<Self>) -> ActionIdentifier {
         let actionIndentifier = PlainActionIdentifier(action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -32,7 +32,7 @@ public extension ControlProtocol {
     }
 
     @discardableResult
-    func addAction(for event: Control.ControlEvent, action: @escaping SenderAction<Self>) -> ActionIdentifier {
+    func addAction(for event: Control.Event, action: @escaping SenderAction<Self>) -> ActionIdentifier {
         let actionIndentifier = SenderActionIdentifier(action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -41,7 +41,7 @@ public extension ControlProtocol {
     }
 
     @discardableResult
-    func addAction(for event: Control.ControlEvent, action: @escaping SenderEventAction<Self>) -> ActionIdentifier {
+    func addAction(for event: Control.Event, action: @escaping SenderEventAction<Self>) -> ActionIdentifier {
         let actionIndentifier = SenderEventActionIdentifier(action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -50,7 +50,7 @@ public extension ControlProtocol {
     }
 
     @discardableResult
-    func add<Target>(target: Target, action: @escaping ClassAction<Target, Self>, for event: Control.ControlEvent) -> ActionIdentifier where Target: AnyObject {
+    func add<Target>(target: Target, action: @escaping ClassAction<Target, Self>, for event: Control.Event) -> ActionIdentifier where Target: AnyObject {
         let actionIndentifier = TargetActionIdentifier(target: target, action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -59,7 +59,7 @@ public extension ControlProtocol {
     }
 
     @discardableResult
-    func add<Target>(target: Target, action: @escaping SenderClassAction<Target, Self>, for event: Control.ControlEvent) -> ActionIdentifier where Target: AnyObject {
+    func add<Target>(target: Target, action: @escaping SenderClassAction<Target, Self>, for event: Control.Event) -> ActionIdentifier where Target: AnyObject {
         let actionIndentifier = TargetSenderActionIdentifier(target: target, action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -68,7 +68,7 @@ public extension ControlProtocol {
     }
 
     @discardableResult
-    func add<Target>(target: Target, action: @escaping SenderEventClassAction<Target, Self>, for event: Control.ControlEvent) -> ActionIdentifier where Target: AnyObject {
+    func add<Target>(target: Target, action: @escaping SenderEventClassAction<Target, Self>, for event: Control.Event) -> ActionIdentifier where Target: AnyObject {
         let actionIndentifier = TargetSenderEventActionIdentifier(target: target, action: action, event: event)
 
         actions.insert(actionIndentifier)
@@ -76,7 +76,7 @@ public extension ControlProtocol {
         return actionIndentifier
     }
 
-    func remove(actionIdentifier: ActionIdentifier, for event: Control.ControlEvent? = nil) {
+    func remove(actionIdentifier: ActionIdentifier, for event: Control.Event? = nil) {
         guard actions.contains(actionIdentifier) else {
             return
         }
@@ -96,7 +96,7 @@ public extension ControlProtocol {
         actions.removeAll()
     }
 
-    func sendActions(for controlEvents: Control.ControlEvent, with event: Event) {
+    func sendActions(for controlEvents: Control.Event, with event: AppKid.Event) {
         actions.forEach {
             if !$0.event.intersection(controlEvents).isEmpty {
                 $0.invoke(sender: self, event: event)
@@ -107,13 +107,13 @@ public extension ControlProtocol {
 
 public extension Control {
     class ActionIdentifier {
-        internal var event: Control.ControlEvent
+        internal var event: Control.Event
 
-        internal init(event: Control.ControlEvent) {
+        internal init(event: Control.Event) {
             self.event = event
         }
 
-        internal func invoke(sender: ControlProtocol, event: Event) {}
+        internal func invoke(sender: ControlProtocol, event: AppKid.Event) {}
     }
 }
 
