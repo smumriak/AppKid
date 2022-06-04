@@ -14,8 +14,19 @@ import CairoGraphics
 #endif
 
 open class Button: Control {
-    var stateToTitle: [State: String] = [:]
-    var stateToTextColor: [State: CGColor] = [:]
+    public enum ButtonType {
+        case custom
+        case system
+        // case detailDisclosure
+        // case infoLight
+        // case infoDark
+        // case contactAdd
+        // case plain
+        // case close
+    }
+
+    private var stateToTitle: [State: String] = [:]
+    private var stateToTextColor: [State: CGColor] = [:]
 
     open fileprivate(set) var titleLabel: Label?
 
@@ -40,26 +51,30 @@ open class Button: Control {
 
         layer.borderColor = .black
         layer.borderWidth = 1.0
+        layer.cornerRadius = frame.size.height * 0.5
     }
 
     open func set(title: String?, for state: State) {
-        if let title = title {
-            stateToTitle[state] = title
-        } else {
-            stateToTitle.removeValue(forKey: state)
+        state.deconstructed.forEach {
+            if let title = title {
+                stateToTitle[$0] = title
+            } else {
+                stateToTitle.removeValue(forKey: $0)
+            }
         }
 
         updateText()
-        setNeedsLayout()
     }
 
     open func set(textColor: CGColor?, for state: State) {
-        if let textColor = textColor {
-            stateToTextColor[state] = textColor
-        } else {
-            stateToTextColor.removeValue(forKey: state)
+        state.deconstructed.forEach {
+            if let textColor = textColor {
+                stateToTextColor[$0] = textColor
+            } else {
+                stateToTextColor.removeValue(forKey: $0)
+            }
         }
-
+        
         updateText()
     }
 
@@ -90,6 +105,22 @@ open class Button: Control {
             context.strokeColor = borderColor
             context.lineWidth = layer.borderWidth
             context.stroke(bounds)
+        }
+    }
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+
+        var labelFrame = bounds
+        labelFrame.origin = .zero
+        labelFrame = labelFrame.insetBy(dx: 8.0, dy: 8.0)
+
+        titleLabel?.frame = labelFrame
+    }
+
+    open override var bounds: CGRect {
+        didSet {
+            layer.cornerRadius = bounds.size.height * 0.5
         }
     }
 }
