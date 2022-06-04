@@ -117,9 +117,9 @@ open class CGContext {
     open var shouldAntialias = false {
         didSet {
             if shouldAntialias {
-                cairo_set_antialias(context.pointer, CAIRO_ANTIALIAS_GOOD)
+                cairo_set_antialias(context.pointer, .good)
             } else {
-                cairo_set_antialias(context.pointer, CAIRO_ANTIALIAS_NONE)
+                cairo_set_antialias(context.pointer, .none)
             }
         }
     }
