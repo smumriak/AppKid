@@ -11,7 +11,11 @@ import CairoGraphics
 import ContentAnimation
 
 public class ImageView: View, CALayerDisplayDelegate {
-    public var image: Image?
+    public var image: Image? {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
 
     public init(image: Image?) {
         var frame: CGRect = .zero
