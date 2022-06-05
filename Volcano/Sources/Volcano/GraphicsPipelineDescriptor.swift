@@ -10,6 +10,9 @@ import CVulkan
 
 public class GraphicsPipelineDescriptor {
     public var vertexShader: Shader?
+    public var tessellationControlShader: Shader?
+    public var tessellationEvaluationShader: Shader?
+    public var geometryShader: Shader?
     public var fragmentShader: Shader?
 
     // MARK: - Pipelie Layout
@@ -210,13 +213,21 @@ internal extension GraphicsPipelineDescriptor {
     @_transparent
     func withStageCreateInfosBufferPointer<T>(_ body: (UnsafeBufferPointer<VkPipelineShaderStageCreateInfo>) throws -> (T)) rethrows -> T {
         var infos: [VkPipelineShaderStageCreateInfo] = []
-                                
-        vertexShader.map { vertexShader in
-            infos.append(vertexShader.createStageInfo(for: .vertex))
-        }
 
-        fragmentShader.map { fragmentShader in
-            infos.append(fragmentShader.createStageInfo(for: .fragment))
+        let shaders: [(shader: Shader?, stage: VkShaderStageFlagBits)] = [
+            (vertexShader, .vertex),
+            (tessellationControlShader, .tessellationControl),
+            (tessellationEvaluationShader, .tessellationEvaluation),
+            (geometryShader, .geometry),
+            (fragmentShader, .fragment),
+        ]
+
+        infos += shaders.compactMap {
+            if let shader = $0.shader {
+                return shader.createStageInfo(for: $0.1)
+            } else {
+                return nil
+            }
         }
 
         return try infos.withUnsafeBufferPointer { infos in
@@ -302,6 +313,9 @@ internal extension GraphicsPipelineDescriptor {
         @VkArrayBuilder<VkPipelineShaderStageCreateInfo>
         var shaders: VkArrayBuilder<VkPipelineShaderStageCreateInfo> {
             vertexShader?.builder(for: .vertex)
+            tessellationControlShader?.builder(for: .tessellationControl)
+            tessellationEvaluationShader?.builder(for: .tessellationEvaluation)
+            geometryShader?.builder(for: .geometry)
             fragmentShader?.builder(for: .fragment)
         }
     }
