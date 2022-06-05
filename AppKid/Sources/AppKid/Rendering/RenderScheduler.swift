@@ -37,28 +37,9 @@ internal class RenderScheduler {
         submitSemaphore = try Semaphore(device: renderStack.device)
         submitTimelineSemaphore = try TimelineSemaphore(device: renderStack.device, initialValue: 0)
 
-        let activity: CFRunLoopActivity = [.beforeWaiting]
+        let activity: CFRunLoopActivity = [.afterWaiting]
         let observer = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, activity.rawValue, true, CFIndex.max) { [unowned self] observer, activity in
-            // let currentDate = Date()
-            // if currentDate.timeIntervalSince(lastRenderFinishedDate) < 1 / 60.0 || currentDate.timeIntervalSince(lastRenderStartedDate) < 1 / 60.0 {
-            //     return
-            // }
-
-            if self.async {
-                Task(priority: .userInitiated) { @MainActor in
-                    do {
-                        try await self.sendAsyncRenderRequests()
-                    } catch {
-                        fatalError("Failed to render with error: \(error)")
-                    }
-                }
-            } else {
-                do {
-                    try self.sendSyncRenderRequests()
-                } catch {
-                    fatalError("Failed to render with error: \(error)")
-                }
-            }
+            self.sendRenderRequests()
         }
 
         CFRunLoopAddObserver(runLoop, observer, CFRunLoopCommonModesConstant)
@@ -104,6 +85,29 @@ internal class RenderScheduler {
         } else {
             let renderer = syncRenderers[window.windowNumber]
             renderer?.recreateSwapchainOnNextRun = true
+        }
+    }
+
+    func sendRenderRequests() {
+        // let currentDate = Date()
+        // if currentDate.timeIntervalSince(lastRenderFinishedDate) < 1 / 60.0 || currentDate.timeIntervalSince(lastRenderStartedDate) < 1 / 60.0 {
+        //     return
+        // }
+
+        if self.async {
+            Task(priority: .userInitiated) { @MainActor in
+                do {
+                    try await self.sendAsyncRenderRequests()
+                } catch {
+                    fatalError("Failed to render with error: \(error)")
+                }
+            }
+        } else {
+            do {
+                try self.sendSyncRenderRequests()
+            } catch {
+                fatalError("Failed to render with error: \(error)")
+            }
         }
     }
 
