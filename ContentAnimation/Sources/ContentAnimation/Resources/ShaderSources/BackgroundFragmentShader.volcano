@@ -18,23 +18,10 @@
 
 void main() 
 {
+    vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
     if (layer.cornerRadius > 0.0) 
     {
-        // vec2 cornerRadiusNormalized = layer.cornerRadius / layer.bounds.zw;
-        // vec2 pointOnRectangleNormalized = clamp(textureCoordinates, cornerRadiusNormalized, vec2(1.0) - cornerRadiusNormalized);
-        // float distanceToRectNormalized = distance(textureCoordinates, pointOnRectangleNormalized);
-
-        // i have no idea to which value i should compare the distance in 0.0-1.0 coordinate range, so using real pixel values below
-        // probably need to remap size of the layer so box axis are not in 0.0-1.0 range, but rather rescale based on relationship of width and height
-
-        // define rectangle points to measure distances to
-        vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
-
-        // closes point on innder rectangle of the layer with rounded corners        
-        vec2 pointOnRectangle = clamp(measuredPoint, layer.cornerRadius.xx, layer.bounds.zw - layer.cornerRadius);
-        
-        // this is a signed distance field from fragment to inner rectangle of the layer with rounded corners
-        float distanceToRect = distance(measuredPoint, pointOnRectangle);
+        float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, layer.cornerRadius, vec2(0.0));
         float distanceToTest = distanceToRect - layer.cornerRadius;
 
         if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
@@ -43,15 +30,19 @@ void main()
 
         // this line must not be inside the distant testing if
         float antialiasingMask = clamp(-distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
-
-        if (distanceToTest <= 0.0) {
-            outColor = vec4(layer.backgroundColor.rgb, layer.backgroundColor.a * antialiasingMask);
-        } else {
-            outColor = vec4(0);
-        }
+        outColor = vec4(layer.backgroundColor.rgb, layer.backgroundColor.a * antialiasingMask);
     }
     else 
     {
-        outColor = layer.backgroundColor;
+        float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, vec2(0.5));
+        float distanceToTest = distanceToRect;
+
+        // if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
+        //     distanceToTest += layer.borderWidth * 0.5;
+        // }
+
+        // this line must not be inside the distant testing if
+        float antialiasingMask = 1.0 - clamp(distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
+        outColor = vec4(layer.backgroundColor.rgb, layer.backgroundColor.a * antialiasingMask);
     }
 }

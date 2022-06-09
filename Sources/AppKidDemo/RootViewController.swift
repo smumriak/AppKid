@@ -56,8 +56,8 @@ class RootViewController: ViewController {
     let blueSubview: View = {
         let result = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
         result.tag = 4
-        result.backgroundColor = .blue
-        result.layer.borderColor = .magenta
+        result.backgroundColor = #colorLiteral(red: 0.17254901960784313, green: 0.6274509803921569, blue: 0.9098039215686274, alpha: 1.0)
+        result.layer.borderColor = .darkGray
         result.layer.borderWidth = 2.0
         result.layer.cornerRadius = 10.0
 
