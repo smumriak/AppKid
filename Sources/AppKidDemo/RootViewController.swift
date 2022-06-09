@@ -79,13 +79,8 @@ class RootViewController: ViewController {
     lazy var spawnWindowButton: Button = {
         let result = Button(with: CGRect(x: 0.0, y: 0.0, width: 140.0, height: 44.0))
 
-        result.backgroundColor = .clear
-
         result.set(title: "Spawn Window", for: .normal)
-
-        result.set(textColor: .magenta, for: .normal)
-        result.set(textColor: .magenta, for: .selected)
-        result.set(textColor: .magenta, for: .highlighted)
+        result.set(textColor: .black, for: .normal)
 
         result.add(target: self, action: RootViewController.spawnButtonDidTap, for: .mouseUpInside)
 
@@ -95,13 +90,9 @@ class RootViewController: ViewController {
     lazy var spawn100WindowsButton: Button = {
         let result = Button(with: CGRect(x: view.bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0))
 
-        result.backgroundColor = .clear
-
         result.set(title: "Spawn 100 Windows", for: .normal)
+        result.set(textColor: .black, for: .normal)
 
-        result.set(textColor: .magenta, for: .normal)
-        result.set(textColor: .magenta, for: .selected)
-        result.set(textColor: .magenta, for: .highlighted)
 
         result.add(target: self, action: RootViewController.spawn100WindowsButtonDidTap, for: .mouseUpInside)
 
@@ -111,13 +102,9 @@ class RootViewController: ViewController {
     lazy var closeCurrentWindow: Button = {
         let result = Button(with: CGRect(x: 100.0, y: 144.0, width: 140.0, height: 44.0))
 
-        result.backgroundColor = .clear
-
         result.set(title: "Close Current", for: .normal)
+        result.set(textColor: .black, for: .normal)
 
-        result.set(textColor: .magenta, for: .normal)
-        result.set(textColor: .magenta, for: .selected)
-        result.set(textColor: .magenta, for: .highlighted)
 
         result.add(target: self, action: RootViewController.closeCurrentWindowButtonDidTap, for: .mouseUpInside)
 
@@ -127,13 +114,8 @@ class RootViewController: ViewController {
     lazy var closeOtherWindows: Button = {
         let result = Button(with: CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0))
 
-        result.backgroundColor = .clear
-
         result.set(title: "Close Other", for: .normal)
-
-        result.set(textColor: .magenta, for: .normal)
-        result.set(textColor: .magenta, for: .selected)
-        result.set(textColor: .magenta, for: .highlighted)
+        result.set(textColor: .black, for: .normal)
 
         result.add(target: self, action: RootViewController.closeOtherWindowsButtonDidTap, for: .mouseUpInside)
 

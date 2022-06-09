@@ -52,6 +52,8 @@ open class Button: Control {
         layer.borderColor = .lightGray
         layer.borderWidth = 2.0
         layer.cornerRadius = frame.size.height * 0.5
+
+        backgroundColor = .white
     }
 
     open func set(title: String?, for state: State) {

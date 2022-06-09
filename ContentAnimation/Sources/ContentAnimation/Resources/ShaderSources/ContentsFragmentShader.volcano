@@ -38,6 +38,10 @@ void main()
         // this is a signed distance field from fragment to inner rectangle of the layer with rounded corners
         float distanceToRect = distance(measuredPoint, pointOnRectangle);
         float distanceToTest = distanceToRect - layer.cornerRadius;
+        
+        if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
+            distanceToTest += layer.borderWidth * 0.5;
+        }
 
         // this line must not be inside the distant testing if
         float antialiasingMask = clamp(-distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
