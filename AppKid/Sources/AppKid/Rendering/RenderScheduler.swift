@@ -37,7 +37,7 @@ internal class RenderScheduler {
         submitSemaphore = try Semaphore(device: renderStack.device)
         submitTimelineSemaphore = try TimelineSemaphore(device: renderStack.device, initialValue: 0)
 
-        let activity: CFRunLoopActivity = [.afterWaiting]
+        let activity: CFRunLoopActivity = [.beforeWaiting]
         let observer = CFRunLoopObserverCreateWithHandler(kCFAllocatorDefault, activity.rawValue, true, CFIndex.max) { [unowned self] observer, activity in
             self.sendRenderRequests()
         }
