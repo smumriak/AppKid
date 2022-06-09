@@ -17,7 +17,6 @@ import TinyFoundation
 public let kCFStringEncodingASCII: UInt32 = 0x0600
 
 internal var isVolcanoRenderingEnabled = false
-internal var isRenderingAsync = false
 
 public extension RunLoop.Mode {
     static let tracking: RunLoop.Mode = RunLoop.Mode("kAppKidTrackingRunLoopMode")
@@ -95,37 +94,6 @@ open class Application: Responder {
         self.displayServer.flush()
     }
 
-    // internal lazy var volcanoRenderTimerAsync = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned self] _ in
-    //     Task(priority: .userInitiated) { @MainActor in
-    //         let renderers = windowsByNumber.values
-    //             .lazy
-    //             .filter {
-    //                 $0.nativeWindow.syncRequested == false && $0.isMapped == true
-    //             }
-    //             .compactMap {
-    //                 self.volcanoRenderers[$0.windowNumber]
-    //             }
-
-    //         if renderers.isEmpty {
-    //             return
-    //         }
-            
-    //         do {
-    //             try await withThrowingTaskGroup(of: Void.self) { @MainActor taskGroup in
-    //                 renderers.forEach { renderer in
-    //                     taskGroup.addTask {
-    //                         try await renderer.asyncRender()
-    //                     }
-    //                 }
-
-    //                 while let _ = try await taskGroup.next() {}
-    //             }
-    //         } catch {
-    //             fatalError("Failed to render with error: \(error)")
-    //         }
-    //     }
-    // }
-
     // MARK: - Initialization
 
     deinit {
@@ -140,7 +108,7 @@ open class Application: Responder {
             let renderStack: VolcanoRenderStack = VolcanoRenderStack.global
             CABackingStoreContext.setupGlobalContext(device: renderStack.device, accessQueues: [renderStack.queues.graphics, renderStack.queues.transfer])
             isVolcanoRenderingEnabled = true
-            renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetCurrent(), async: false)
+            renderScheduler = try RenderScheduler(renderStack: renderStack, runLoop: CFRunLoopGetCurrent())
         } catch {
             debugPrint("Could not start vulkan rendering. Falling back to software rendering. Error: \(error)")
         }
