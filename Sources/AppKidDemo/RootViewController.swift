@@ -22,8 +22,8 @@ class RootViewController: ViewController {
         result.backgroundColor.alpha = 0.5
         result.masksToBounds = true
         result.layer.cornerRadius = 20.0
-        result.layer.borderColor = .black
-        result.layer.borderWidth = 1.0
+        result.layer.borderColor = .lightGray
+        result.layer.borderWidth = 2.0
 
         return result
     }()
@@ -35,8 +35,8 @@ class RootViewController: ViewController {
         result.backgroundColor = CGColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.85)
         result.masksToBounds = false
         result.layer.cornerRadius = 12.0
-        result.layer.borderColor = .black
-        result.layer.borderWidth = 1.0
+        result.layer.borderColor = .lightGray
+        result.layer.borderWidth = 2.0
 
         return result
     }()
@@ -45,10 +45,10 @@ class RootViewController: ViewController {
         let result = View(with: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
 
         result.tag = 3
-        result.backgroundColor = .gray
+        result.backgroundColor = .lightGray
         result.layer.cornerRadius = 6.0
-        result.layer.borderColor = .black
-        result.layer.borderWidth = 1.0
+        result.layer.borderColor = .lightGray
+        result.layer.borderWidth = 2.0
 
         return result
     }()
@@ -58,7 +58,7 @@ class RootViewController: ViewController {
         result.tag = 4
         result.backgroundColor = .blue
         result.layer.borderColor = .magenta
-        result.layer.borderWidth = 1.0
+        result.layer.borderWidth = 2.0
         result.layer.cornerRadius = 10.0
 
         return result

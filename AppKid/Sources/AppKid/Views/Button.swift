@@ -49,8 +49,8 @@ open class Button: Control {
 
         add(subview: titleLabel)
 
-        layer.borderColor = .black
-        layer.borderWidth = 1.0
+        layer.borderColor = .lightGray
+        layer.borderWidth = 2.0
         layer.cornerRadius = frame.size.height * 0.5
     }
 
