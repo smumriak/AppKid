@@ -89,3 +89,9 @@ public final class Image: NSObject {
         cgImage = CGImage(dataProvider: dataProvider)
     }
 }
+
+extension Image: _ExpressibleByImageLiteral {
+    public convenience init(imageLiteralResourceName: String) {
+        self.init(named: imageLiteralResourceName)!
+    }
+}

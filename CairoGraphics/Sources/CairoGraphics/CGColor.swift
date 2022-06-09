@@ -55,6 +55,8 @@ public struct CGColor {
         cairoPattern = RetainablePointer(withRetained: cairo_pattern_create_rgba(Double(red), Double(green), Double(blue), Double(alpha))!)
     }
 
+
+
     internal fileprivate(set) var cairoPattern: RetainablePointer<cairo_pattern_t>
 }
 
@@ -103,3 +105,9 @@ internal extension CGColor {
 }
 
 extension CGColor: PublicInitializable {}
+
+extension CGColor: _ExpressibleByColorLiteral {
+      public init(_colorLiteralRed: Float, green: Float, blue: Float, alpha: Float) {
+          self.init(red: CGFloat(_colorLiteralRed), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(alpha))
+      }
+}
