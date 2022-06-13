@@ -144,11 +144,22 @@ class RootViewController: ViewController {
         return result
     }()
 
-    var lol: Int = 0
+    lazy var timerLabel: Label = {
+        let result = Label(frame: CGRect(x: 8.0, y: spawnWindowButton.bounds.size.height + 8.0, width: 140, height: 22.0))
+
+        result.textAlignment = .left
+        result.backgroundColor = .clear
+        result.textColor = .black
+        result.font = .systemFont(ofSize: 12)
+
+        return result
+    }()
+
+    var tickCount: Int = 0
 
     lazy var textTimer = Timer(timeInterval: 1.0, repeats: true) { [unowned self] _ in
-        spawnWindowButton.setTitle("\(lol)", for: .normal)
-        lol += 1
+        timerLabel.text = "Time alive: \(tickCount)s"
+        tickCount += 1
     }
 
     lazy var transformTimer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [unowned greenSubview, unowned redSubview, unowned graySubview] _ in
@@ -172,31 +183,10 @@ class RootViewController: ViewController {
         return result
     }()
 
-    lazy var sensorTimer = Timer(timeInterval: 1.0, repeats: true) { [unowned sensorLabel] _ in
-        do {
-            let sensorOutputPipe = Pipe()
-            let sensorQuerryProcess = Process()
-            sensorQuerryProcess.executableURL = URL(fileURLWithPath: "/usr/bin/nvidia-smi")
-            sensorQuerryProcess.arguments = ["--query-gpu=temperature.gpu", "--format=csv,noheader", "--id=0"]
-            sensorQuerryProcess.standardOutput = sensorOutputPipe
-
-            try sensorQuerryProcess.run()
-            let outputData = sensorOutputPipe.fileHandleForReading.readDataToEndOfFile()
-
-            if let output = String(data: outputData, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) {
-                sensorLabel.text = output + " °C"
-            } else {
-            }
-        } catch {
-            debugPrint("Sensor error: ", error)
-        }
-    }
-
     deinit {
         textTimer.invalidate()
         transformTimer.invalidate()
         // borderWidthTimer.invalidate()
-        // sensorTimer.invalidate()
     }
 
     override init() {
@@ -216,6 +206,7 @@ class RootViewController: ViewController {
         scrollView.addSubview(inputTextLabel)
         scrollView.addSubview(sensorLabel)
         view.addSubview(spawnWindowButton)
+        view.addSubview(timerLabel)
         view.addSubview(spawn100WindowsButton)
         view.addSubview(closeCurrentWindow)
         view.addSubview(closeOtherWindows)
@@ -225,7 +216,6 @@ class RootViewController: ViewController {
         RunLoop.current.add(transformTimer, forMode: .common)
         RunLoop.current.add(textTimer, forMode: .common)
         // RunLoop.current.add(borderWidthTimer, forMode: .common)
-        // RunLoop.current.add(sensorTimer, forMode: .common)
     }
 
     override func viewWillAppear(_ animated: Bool) {

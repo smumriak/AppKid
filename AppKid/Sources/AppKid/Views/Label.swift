@@ -15,6 +15,12 @@ import ContentAnimation
     import class CairoGraphics.CGContext
 #endif
 
+public enum TextAlignment: Int {
+    case left
+    case right
+    case center
+}
+
 open class Label: View {
     open var text: String? = nil {
         didSet {
@@ -39,6 +45,16 @@ open class Label: View {
         }
     }
 
+    open var textAlignment: TextAlignment = .center {
+        didSet {
+            switch textAlignment {
+                case .left: layout.layout.alignment = .left
+                case .center: layout.layout.alignment = .center
+                case .right: layout.layout.alignment = .right
+            }
+        }
+    }
+
     internal var layout = LabelTextLayout()
 
     // MARK: - Initialization
@@ -51,6 +67,7 @@ open class Label: View {
         layout.text = text
         layout.textColor = textColor
         layout.font = font
+        layout.layout.alignment = .center
     }
 
     open override var frame: CGRect {

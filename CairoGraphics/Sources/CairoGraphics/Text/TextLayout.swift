@@ -209,8 +209,8 @@ public class FontOptions: HandleStorage<SmartPointer<cairo_font_options_t>> {
 @_spi(AppKid) open class LabelTextLayout {
     fileprivate var hasChanged = false
 
-    var layout: TextLayout
-    var textContext: TextContext
+    public private(set) var layout: TextLayout
+    public private(set) var textContext: TextContext
 
     open var font: Font = .systemFont(ofSize: 17) {
         didSet {
