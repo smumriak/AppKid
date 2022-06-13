@@ -36,7 +36,7 @@ open class ViewController: Responder {
     open var isViewLoaded: Bool { return viewIfLoaded != nil }
 
     open func loadView() {
-        view = View(with: .zero)
+        view = View(frame: .zero)
     }
 
     private func loadViewPrivate() {

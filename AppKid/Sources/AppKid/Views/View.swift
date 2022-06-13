@@ -159,7 +159,7 @@ open class View: Responder, CALayerActionDelegate {
     
     // MARK: - Init
     
-    public init(with frame: CGRect) {
+    public init(frame: CGRect) {
         layer = CALayer()
         layer.bounds = CGRect(origin: .zero, size: frame.size)
         layer.position = CGPoint(x: frame.midX, y: frame.midY)

@@ -25,7 +25,7 @@ public class ImageView: View, CALayerDisplayDelegate {
             frame.size = image.size
         }
 
-        super.init(with: frame)
+        super.init(frame: frame)
 
         setNeedsDisplay()
     }

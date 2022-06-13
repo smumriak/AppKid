@@ -43,8 +43,8 @@ open class Label: View {
 
     // MARK: - Initialization
 
-    public override init(with frame: CGRect) {
-        super.init(with: frame)
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
 
         userInteractionEnabled = false
         

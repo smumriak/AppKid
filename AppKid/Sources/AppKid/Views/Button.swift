@@ -36,16 +36,16 @@ open class Button: Control {
         }
     }
 
-    public override init(with frame: CGRect) {
+    public override init(frame: CGRect) {
         var labelFrame = frame
         labelFrame.origin = .zero
         labelFrame = labelFrame.insetBy(dx: 8.0, dy: 8.0)
-        let titleLabel = Label(with: labelFrame)
+        let titleLabel = Label(frame: labelFrame)
         titleLabel.backgroundColor = .clear
 
         self.titleLabel = titleLabel
 
-        super.init(with: frame)
+        super.init(frame: frame)
 
         add(subview: titleLabel)
 

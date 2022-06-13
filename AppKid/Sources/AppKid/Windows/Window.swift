@@ -115,7 +115,7 @@ open class Window: View {
             globalWindowCounter += 1
         } while application.windowsByNumber[windowNumber] != nil
 
-        super.init(with: frame)
+        super.init(frame: frame)
 
         application.windowsByNumber[windowNumber] = self
         

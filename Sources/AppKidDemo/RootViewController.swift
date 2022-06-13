@@ -15,7 +15,7 @@ fileprivate let testString = "And if you gaze long into an abyss, the abyss also
 
 class RootViewController: ViewController {
     let greenSubview: View = {
-        let result = View(with: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
+        let result = View(frame: CGRect(x: 20.0, y: 20.0, width: 100.0, height: 100.0))
 
         result.tag = 1
         result.backgroundColor = .green
@@ -29,7 +29,7 @@ class RootViewController: ViewController {
     }()
 
     let greenSubview2: View = {
-        let result = View(with: CGRect(x: 120.0, y: 20.0, width: 100.0, height: 100.0))
+        let result = View(frame: CGRect(x: 120.0, y: 20.0, width: 100.0, height: 100.0))
 
         result.tag = 1
         result.backgroundColor = .green
@@ -41,7 +41,7 @@ class RootViewController: ViewController {
     }()
 
     let redSubview: View = {
-        let result = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
+        let result = View(frame: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
 
         result.tag = 2
         result.backgroundColor = CGColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.85)
@@ -54,7 +54,7 @@ class RootViewController: ViewController {
     }()
 
     let graySubview: View = {
-        let result = View(with: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
+        let result = View(frame: CGRect(x: 20.0, y: 20.0, width: 20.0, height: 20.0))
 
         result.tag = 3
         result.backgroundColor = .lightGray
@@ -66,7 +66,7 @@ class RootViewController: ViewController {
     }()
 
     let blueSubview: View = {
-        let result = View(with: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
+        let result = View(frame: CGRect(x: 300.0, y: 200.0, width: 20.0, height: 80.0))
         result.tag = 4
         result.backgroundColor = #colorLiteral(red: 0.17254901960784313, green: 0.6274509803921569, blue: 0.9098039215686274, alpha: 1.0)
         result.layer.borderColor = .darkGray
@@ -77,7 +77,7 @@ class RootViewController: ViewController {
     }()
 
     let inputTextLabel: Label = {
-        let result = Label(with: .zero)
+        let result = Label(frame: .zero)
 
 //        result.text = testString
         result.text = ""
@@ -89,7 +89,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var spawnWindowButton: Button = {
-        let result = Button(with: CGRect(x: 0.0, y: 0.0, width: 140.0, height: 44.0))
+        let result = Button(frame: CGRect(x: 0.0, y: 0.0, width: 140.0, height: 44.0))
 
         result.set(title: "Spawn Window", for: .normal)
         result.set(textColor: .black, for: .normal)
@@ -100,7 +100,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var spawn100WindowsButton: Button = {
-        let result = Button(with: CGRect(x: view.bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0))
+        let result = Button(frame: CGRect(x: view.bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0))
 
         result.set(title: "Spawn 100 Windows", for: .normal)
         result.set(textColor: .black, for: .normal)
@@ -112,7 +112,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var closeCurrentWindow: Button = {
-        let result = Button(with: CGRect(x: 100.0, y: 144.0, width: 140.0, height: 44.0))
+        let result = Button(frame: CGRect(x: 100.0, y: 144.0, width: 140.0, height: 44.0))
 
         result.set(title: "Close Current", for: .normal)
         result.set(textColor: .black, for: .normal)
@@ -123,7 +123,7 @@ class RootViewController: ViewController {
     }()
 
     lazy var closeOtherWindows: Button = {
-        let result = Button(with: CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0))
+        let result = Button(frame: CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0))
 
         result.set(title: "Close Other", for: .normal)
         result.set(textColor: .black, for: .normal)
@@ -134,7 +134,7 @@ class RootViewController: ViewController {
     }()
 
     let scrollView: ScrollView = {
-        let result = ScrollView(with: .zero)
+        let result = ScrollView(frame: .zero)
 
         result.backgroundColor = .clear
 
@@ -162,7 +162,7 @@ class RootViewController: ViewController {
     }
 
     let sensorLabel: Label = {
-        let result = Label(with: .zero)
+        let result = Label(frame: .zero)
 
         result.text = ""
         result.textColor = .purple
