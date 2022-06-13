@@ -16,20 +16,97 @@ enum ShaderStage {
     case fragment
 }
 
-enum QualifierType: String, CaseIterable {
-    case uniform = "@uniform"
+protocol RawQualifier {
+    var rawQualifier: String { get }
+    static var order: UInt { get }
+}
+
+extension RawQualifier {
+    var order: UInt { return Self.order }
+}
+
+extension Array where Element == RawQualifier {
+    var qualifierString: String {
+        return sorted {
+            $0.order < $1.order
+        }
+        .map {
+            $0.rawQualifier
+        }
+        .joined(separator: " ")
+    }
+}
+
+extension Array where Element: RawQualifier {
+    var qualifierString: String {
+        return (self as [RawQualifier]).qualifierString
+    }
+}
+
+protocol Qualifier: RawRepresentable, CaseIterable, RawQualifier where RawValue == String {
+    static var allCasesRaw: [RawValue] { get }
+}
+
+extension Qualifier {
+    var rawQualifier: String {
+        String(rawValue.dropFirst())
+    }
+
+    static var allCasesRaw: [String] {
+        allCases.map { $0.rawValue }
+    }
+}
+
+enum InvariantQualifier: String, Qualifier {
+    case invariant = "@invariant"
+
+    static var order: UInt { 0 }
+}
+
+enum InterpolationQualifier: String, Qualifier {
+    case flat = "@flat"
+    case noperspective = "@noperspective"
+    case smooth = "@smooth"
+
+    static var order: UInt { 1 }
+}
+
+enum StorageQualifier: String, Qualifier {
     case input = "@in"
     case output = "@out"
 
-    static var allCasesRaw: [String] = QualifierType.allCases.map { $0.rawValue }
+    static var order: UInt { 99 }
+}
 
-    var name: String {
-        switch self {
-            case .uniform: return "uniform"
-            case .input: return "in"
-            case .output: return "out"
+struct LayoutQualifier: RawQualifier {
+    let location: Int64?
+    let binding: Int64?
+    let precision: String?
+
+    var rawQualifier: String {
+        let locationAttribute: String? = location.map {
+            "location = \($0)"
+        }
+
+        let bindingAttribute: String? = binding.map {
+            "binding = \($0)"
+        }
+
+        let attributes = [
+            locationAttribute,
+            bindingAttribute,
+            precision,
+        ].compactMap { $0 }
+
+        if attributes.isEmpty {
+            return ""
+        } else {
+            let attributesString = attributes.joined(separator: " ")
+            return "layout(\(attributesString))"
         }
     }
+
+    static var order: UInt { 2 }
 }
 
 enum FieldType {
@@ -211,15 +288,21 @@ struct Field {
     let type: FieldType
     let location: Int64
 
-    func constructDeclaration(for stage: ShaderStage, qualifierType: QualifierType, pretty: Bool) -> String {
+    func constructDeclaration(for stage: ShaderStage, storageQualifier: StorageQualifier, additionalQualifiers: [any RawQualifier], pretty: Bool) -> String {
         switch stage {
             case .vertex:
-                if qualifierType == .input {
-                    return "layout(location = \(location)) \(qualifierType.name) \(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
-                } else {
-                    return (pretty ? "\t" : "") + "\(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
+                switch storageQualifier {
+                    case .input:
+                        var qualifiers: [any RawQualifier] = additionalQualifiers + [storageQualifier]
+                        qualifiers.append(LayoutQualifier(location: location, binding: nil, precision: nil))
+                        return qualifiers.qualifierString + " \(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
+                        
+                    case .output:
+                        return (pretty ? "\t" : "") + "\(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
                 }
-            case .fragment: return (pretty ? "\t" : "") + "\(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
+
+            case .fragment:
+                return (pretty ? "\t" : "") + "\(type.name) \(name)\(type.variableNameArrayCountSuffix ?? "");"
         }
     }
 }
@@ -264,17 +347,17 @@ struct VolcanoSL: ParsableCommand {
 
         let lookupURLs = [currentDirectoryURL] + include.map { URL(fileURLWithPath: $0, isDirectory: true) }
 
-        var currentLocations: [QualifierType: Int64] = [:]
+        var currentLocations: [StorageQualifier: Int64] = [:]
 
         let parsedShaderLines: [String] = try shaderLines.flatMap { line -> [String] in
             switch line {
-                case line where line.starts(withAnyIn: QualifierType.allCasesRaw):
+                case line where line.starts(withAnyIn: StorageQualifier.allCasesRaw):
                     guard let shaderStage = shaderStage else {
                         fatalError("Not known shader stage")
                     }
                     
                     let importGenerationContext = try parseImportLine(from: line, stage: shaderStage, lookupURLs: lookupURLs, currentLocations: currentLocations, pretty: pretty)
-                    currentLocations[importGenerationContext.qualifierType] = importGenerationContext.currentLocation
+                    currentLocations[importGenerationContext.storageQualifier] = importGenerationContext.currentLocation
 
                     if pretty {
                         return importGenerationContext.results
@@ -353,13 +436,15 @@ class ImportGenerationContext {
     var currentLocation: Int64
     var results: [String] = []
     let stage: ShaderStage
-    let qualifierType: QualifierType
+    let storageQualifier: StorageQualifier
+    let additionalQualifiers: [any RawQualifier]
     let pretty: Bool
 
-    init(typeName: String, stage: ShaderStage, qualifierType: QualifierType, currentLocation: Int64, pretty: Bool) {
+    init(typeName: String, stage: ShaderStage, storageQualifier: StorageQualifier, additionalQualifiers: [any RawQualifier], currentLocation: Int64, pretty: Bool) {
         self.typeName = typeName
         self.stage = stage
-        self.qualifierType = qualifierType
+        self.storageQualifier = storageQualifier
+        self.additionalQualifiers = additionalQualifiers
         self.currentLocation = currentLocation
         self.pretty = pretty
     }
@@ -380,30 +465,38 @@ func headerURL(for typeName: String, lookupURLs: [URL]) -> URL? {
     return nil
 }
 
-func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [URL], currentLocations: [QualifierType: Int64], pretty: Bool) throws -> ImportGenerationContext {
+func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [URL], currentLocations: [StorageQualifier: Int64], pretty: Bool) throws -> ImportGenerationContext {
     let importComponents = shaderLine.components(separatedBy: .whitespaces)
 
-    if importComponents.count != 3 {
+    if importComponents.count < 3 {
         fatalError("Malformed import statement")
     }
 
-    guard let qualifierType = QualifierType(rawValue: importComponents[0]) else {
+    guard let storageQualifier = StorageQualifier(rawValue: importComponents[0]) else {
         fatalError("Unsupported qualifier")
     }
 
-    let currentLocation: Int64 = currentLocations[qualifierType] ?? 0
+    let additionalQualifiers: [any RawQualifier] = importComponents[1..<2].compactMap {
+        return InterpolationQualifier(rawValue: $0) ?? InvariantQualifier(rawValue: $0)
+    }
+
+    let currentLocation: Int64 = currentLocations[storageQualifier] ?? 0
 
     let index = clang_createIndex(0, 0)
     if index == nil {
         fatalError("can't create index")
     }
 
-    let typeName = importComponents[1]
-    let variableName = importComponents[2].filter { $0 != ";" }
+    let typeName = importComponents[importComponents.count - 2]
+    let variableName = importComponents[importComponents.count - 1].filter { $0 != ";" }
 
     if let standardFieldType = FieldType(name: typeName) {
-        let importGenerationContext = ImportGenerationContext(typeName: typeName, stage: stage, qualifierType: qualifierType, currentLocation: currentLocation + standardFieldType.locationStride, pretty: pretty)
-        importGenerationContext.results.append("layout(location = \(currentLocation)) \(qualifierType.name) \(standardFieldType.name) \(variableName)\(standardFieldType.variableNameArrayCountSuffix ?? "");")
+        let importGenerationContext = ImportGenerationContext(typeName: typeName, stage: stage, storageQualifier: storageQualifier, additionalQualifiers: additionalQualifiers, currentLocation: currentLocation + standardFieldType.locationStride, pretty: pretty)
+
+        var qualifiers: [any RawQualifier] = additionalQualifiers + [storageQualifier]
+        qualifiers.append(LayoutQualifier(location: currentLocation, binding: nil, precision: nil))
+
+        importGenerationContext.results.append(qualifiers.qualifierString + " \(standardFieldType.name) \(variableName)\(standardFieldType.variableNameArrayCountSuffix ?? "");")
 
         return importGenerationContext
     }
@@ -456,15 +549,23 @@ func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [U
         fatalError("The type could not be found")
     }
 
-    let importGenerationContext = ImportGenerationContext(typeName: typeName, stage: stage, qualifierType: qualifierType, currentLocation: currentLocation, pretty: pretty)
+    let importGenerationContext = ImportGenerationContext(typeName: typeName, stage: stage, storageQualifier: storageQualifier, additionalQualifiers: additionalQualifiers, currentLocation: currentLocation, pretty: pretty)
+
+    var qualifiers: [any RawQualifier] = additionalQualifiers + [storageQualifier]
+    qualifiers.append(LayoutQualifier(location: currentLocation, binding: nil, precision: nil))
 
     switch stage {
         case .vertex:
-            if qualifierType != .input {
-                importGenerationContext.results.append("layout(location = \(currentLocation)) \(qualifierType.name) \(typeName) {")
+            switch storageQualifier {
+                case .input:
+                    break
+
+                case .output:
+                    importGenerationContext.results.append(qualifiers.qualifierString + " \(typeName) {")
             }
+
         case .fragment:
-            importGenerationContext.results.append("layout(location = \(currentLocation)) \(qualifierType.name) \(typeName) {")
+            importGenerationContext.results.append(qualifiers.qualifierString + " \(typeName) {")
     }
 
     let importGenerationVisitor: CXCursorVisitor = { cursor, parent, data in
@@ -496,7 +597,7 @@ func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [U
         let field = Field(name: variableName, type: fieldType, location: importGenerationContext.currentLocation)
         importGenerationContext.currentLocation += fieldType.locationStride
 
-        importGenerationContext.results.append(field.constructDeclaration(for: importGenerationContext.stage, qualifierType: importGenerationContext.qualifierType, pretty: importGenerationContext.pretty))
+        importGenerationContext.results.append(field.constructDeclaration(for: importGenerationContext.stage, storageQualifier: importGenerationContext.storageQualifier, additionalQualifiers: importGenerationContext.additionalQualifiers, pretty: importGenerationContext.pretty))
         
         return .continue
     }
@@ -505,7 +606,7 @@ func parseImportLine(from shaderLine: String, stage: ShaderStage, lookupURLs: [U
 
     switch stage {
         case .vertex:
-            if qualifierType != .input {
+            if storageQualifier != .input {
                 importGenerationContext.results.append("} \(variableName);")
             }
         case .fragment:
