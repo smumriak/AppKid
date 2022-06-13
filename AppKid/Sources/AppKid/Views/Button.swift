@@ -68,7 +68,7 @@ open class Button: Control {
         updateText()
     }
 
-    open func set(textColor: CGColor?, for state: State) {
+    open func setTextColor(_ textColor: CGColor?, for state: State) {
         state.deconstructed.forEach {
             if let textColor = textColor {
                 stateToTextColor[$0] = textColor
