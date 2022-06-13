@@ -32,6 +32,19 @@ void main()
         } else {
             outColor = vec4(0.0);
         }
+
+        // vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
+        // float distanceToRectExternal = distanceToRoundedRect(measuredPoint, layer.bounds, layer.cornerRadius, vec2(0.0)) - layer.cornerRadius;
+        // float distanceToRectInternal = distanceToRoundedRect(measuredPoint, layer.bounds, layer.cornerRadius, layer.borderWidth.xx) - layer.cornerRadius;
+
+        // float antialiasingMaskExternal = clamp(0.5 - distanceToRectExternal, 0.0, 1.0) - 1.0;
+        // float antialiasingMaskInternal = clamp(0.5 - distanceToRectInternal, 0.0, 1.0);
+
+        // // float a = antialiasingMaskExternal;
+        // // float a = antialiasingMaskInternal;
+        // float a = mix(1.0, antialiasingMaskExternal, distanceToRectInternal);
+        // outColor = vec4(a.xxx, 0.0);
+        // // outColor = vec4(layer.borderColor.rgb, layer.borderColor.a * a);
     }
     else 
     {

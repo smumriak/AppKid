@@ -28,6 +28,18 @@ class RootViewController: ViewController {
         return result
     }()
 
+    let greenSubview2: View = {
+        let result = View(with: CGRect(x: 120.0, y: 20.0, width: 100.0, height: 100.0))
+
+        result.tag = 1
+        result.backgroundColor = .green
+        // result.layer.cornerRadius = 20.0
+        result.layer.borderColor = .lightGray
+        result.layer.borderWidth = 2.0
+
+        return result
+    }()
+
     let redSubview: View = {
         let result = View(with: CGRect(x: 20.0, y: 20.0, width: 60.0, height: 60.0))
 
@@ -92,7 +104,7 @@ class RootViewController: ViewController {
 
         result.set(title: "Spawn 100 Windows", for: .normal)
         result.set(textColor: .black, for: .normal)
-
+        result.titleLabel?.font = .systemFont(ofSize: 13)
 
         result.add(target: self, action: RootViewController.spawn100WindowsButtonDidTap, for: .mouseUpInside)
 
@@ -104,7 +116,6 @@ class RootViewController: ViewController {
 
         result.set(title: "Close Current", for: .normal)
         result.set(textColor: .black, for: .normal)
-
 
         result.add(target: self, action: RootViewController.closeCurrentWindowButtonDidTap, for: .mouseUpInside)
 
@@ -198,6 +209,7 @@ class RootViewController: ViewController {
         view.add(subview: scrollView)
 
         scrollView.add(subview: greenSubview)
+        // scrollView.add(subview: greenSubview2)
         greenSubview.add(subview: redSubview)
         redSubview.add(subview: graySubview)
         scrollView.add(subview: blueSubview)
@@ -207,6 +219,8 @@ class RootViewController: ViewController {
         view.add(subview: spawn100WindowsButton)
         view.add(subview: closeCurrentWindow)
         view.add(subview: closeOtherWindows)
+
+        // greenSubview.transform = greenSubview.transform.rotated(by: .pi / 20)
 
         RunLoop.current.add(transformTimer, forMode: .common)
         RunLoop.current.add(textTimer, forMode: .common)
@@ -221,6 +235,8 @@ class RootViewController: ViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        greenSubview.center.x = view.bounds.midX
+        greenSubview2.center.x = greenSubview.center.x - greenSubview.bounds.width
         redSubview.center = CGPoint(x: greenSubview.bounds.midX, y: greenSubview.bounds.midY)
         graySubview.center = CGPoint(x: redSubview.bounds.midX, y: redSubview.bounds.midY)
 
@@ -234,18 +250,21 @@ class RootViewController: ViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        inputTextLabel.frame = view.bounds
+        let bounds = view.bounds
+
+        inputTextLabel.frame = bounds
 
         let sensorLabelHeight: CGFloat = 48.0
-        sensorLabel.center = CGPoint(x: view.bounds.midX, y: view.bounds.maxY - sensorLabelHeight / 2.0)
-        sensorLabel.bounds = CGRect(x: 0.0, y: 0.0, width: view.bounds.width, height: sensorLabelHeight)
+        sensorLabel.center = CGPoint(x: bounds.midX, y: bounds.maxY - sensorLabelHeight / 2.0)
+        sensorLabel.bounds = CGRect(x: 0.0, y: 0.0, width: bounds.width, height: sensorLabelHeight)
 
-        scrollView.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
-        scrollView.bounds.size = view.bounds.size
-        scrollView.contentSize = CGSize(width: view.bounds.width, height: view.bounds.height * 2)
+        scrollView.center = CGPoint(x: bounds.midX, y: bounds.midY)
+        scrollView.bounds.size = bounds.size
+        scrollView.contentSize = CGSize(width: bounds.width, height: bounds.height * 2)
 
-        closeOtherWindows.frame = CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0)
-        spawn100WindowsButton.frame = CGRect(x: view.bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0)
+        closeOtherWindows.frame = CGRect(x: 0.0, y: bounds.height - 44.0, width: 140.0, height: 44.0)
+        spawn100WindowsButton.frame = CGRect(x: bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0)
+        closeCurrentWindow.center = CGPoint(x: bounds.midX, y: bounds.midY)
     }
 
     weak var draggedView: View? = nil

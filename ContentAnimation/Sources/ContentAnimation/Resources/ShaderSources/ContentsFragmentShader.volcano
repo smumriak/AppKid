@@ -31,7 +31,6 @@ void main()
             distanceToTest += layer.borderWidth * 0.5;
         }
 
-        // this line must not be inside the distant testing if
         float antialiasingMask = 1.0;//clamp(-distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
 
         if (distanceToTest <= 0.0) {
@@ -40,6 +39,9 @@ void main()
         } else {
             outColor = vec4(0);
         }
+
+        // float antialiasingMask = clamp(0.5 - distanceToTest, 0.0, 1.0);
+        // outColor = vec4(color.rgb, color.a * antialiasingMask);
     }
     else 
     {

@@ -1,5 +1,5 @@
 //
-//  BackgroundFragmentShader.volcano
+//  BackgroundStraightFragmentShader.volcano
 //  AppKid
 //
 //  Created by Serhii Mumriak on 10.06.2021.
@@ -27,20 +27,20 @@ void main()
             distanceToTest += layer.borderWidth * 0.5;
         }
 
-        // this line must not be inside the distant testing if
         float antialiasingMask = clamp(-distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
+        // float antialiasingMask = clamp(0.5 - distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
         outColor = vec4(layer.backgroundColor.rgb, layer.backgroundColor.a * antialiasingMask);
     }
     else 
     {
         float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, vec2(0.5));
+        // float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, vec2(0.0));
         float distanceToTest = distanceToRect;
 
         // if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
         //     distanceToTest += layer.borderWidth * 0.5;
         // }
 
-        // this line must not be inside the distant testing if
         float antialiasingMask = 1.0 - clamp(distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
         outColor = vec4(layer.backgroundColor.rgb, layer.backgroundColor.a * antialiasingMask);
     }
