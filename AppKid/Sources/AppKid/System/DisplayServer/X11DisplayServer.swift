@@ -163,7 +163,7 @@ extension X11DisplayServer {
         var attributes = XSetWindowAttributes()
 
         // attributesMask |= UInt(CWBorderPixel)
-        // attributes.border_pixel = 0
+        // attributes.border_pixel =  XBlackPixel(display.handle, XDefaultScreen(display.handle))
 
         // attributesMask |= UInt(CWBackPixel)
         // attributes.background_pixel = XWhitePixel(display.handle, XDefaultScreen(display.handle))
@@ -181,6 +181,7 @@ extension X11DisplayServer {
 
         attributesMask |= UInt(CWColormap)
         attributes.colormap = colorMap
+        attributes.bit_gravity = StaticGravity
 
         let windowIdentifier = XCreateWindow(display.handle,
                                              rootWindow.windowIdentifier,

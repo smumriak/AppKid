@@ -158,11 +158,13 @@ internal class VolcanoSwapchainRenderer {
             try setupSwapchain()
         }
 
-        // trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
+        //smumriak: trying to recreate swapchain only once per render request. if it fails for the second time - frame is skipped assuming there will be new render request following. maybe not the best thing to do because it's like a hidden logic. will re-evaluate
         var skipRecreation = false
 
-        // stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
+        //smumriak: stupid nvidia driver on X11. the resize event is processed by the driver much earlier than x11 sends resize events to application. this always results in invalid swapchain on first frame after x11 have already resized it's framebuffer, but have not sent the event to application. bad interprocess communication and lack of synchronization results in application-side hacks i.e. swapchain has to be recreated even before the actual window is resized and it's contents have been layed out
 
+        //smumriak: stupidity of X11 and different window managers sometimes keeps me awake at night. the code below works ok-ish on Nvidia GPU with X11 under Gnome. by ok-ish i mean there's no any artifacts rendered during resize and there's no flickering of any kind. the very same code does not work this well with Mesa driver on Intel GPU: when window is resized to bigger size there is a visible artifact presented on the right and bottom borders of the window. first it's a black line, but if you resize fast enough to make compositor render more stuff - you would see parts of framebuffer from other window, people on the internet call that "palinopsia". this thing does not happen on jetson nano with KDE. it's possible to eliminate this thing via setting a background color on X11 window (which for some reason is called "background pixel"), but it by itself introduces a flickering of the whole window during window resize on all of tested platforms. this is arguably worse. also signal, bitward and chrome itself have exactly same problem of "palinopsia" on resize. yay
+        
         var index: Int?
         var swapchainTexture: Texture?
 
