@@ -235,7 +235,7 @@ open class Window: View {
 
             rootViewController.view.frame = bounds
 
-            add(subview: rootViewController.view)
+            addSubview(rootViewController.view)
 
             rootViewController.endAppearanceTransition()
         }

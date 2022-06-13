@@ -206,19 +206,19 @@ class RootViewController: ViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.add(subview: scrollView)
+        view.addSubview(scrollView)
 
-        scrollView.add(subview: greenSubview)
-        // scrollView.add(subview: greenSubview2)
-        greenSubview.add(subview: redSubview)
-        redSubview.add(subview: graySubview)
-        scrollView.add(subview: blueSubview)
-        scrollView.add(subview: inputTextLabel)
-        scrollView.add(subview: sensorLabel)
-        view.add(subview: spawnWindowButton)
-        view.add(subview: spawn100WindowsButton)
-        view.add(subview: closeCurrentWindow)
-        view.add(subview: closeOtherWindows)
+        scrollView.addSubview(greenSubview)
+        // scrollView.addSubview(greenSubview2)
+        greenSubview.addSubview(redSubview)
+        redSubview.addSubview(graySubview)
+        scrollView.addSubview(blueSubview)
+        scrollView.addSubview(inputTextLabel)
+        scrollView.addSubview(sensorLabel)
+        view.addSubview(spawnWindowButton)
+        view.addSubview(spawn100WindowsButton)
+        view.addSubview(closeCurrentWindow)
+        view.addSubview(closeOtherWindows)
 
         // greenSubview.transform = greenSubview.transform.rotated(by: .pi / 20)
 

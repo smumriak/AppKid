@@ -38,7 +38,7 @@ class PlainViewController: ViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.add(subview: logoImageView)
+        view.addSubview(logoImageView)
 
         RunLoop.current.add(transformTimer, forMode: .common)
     }

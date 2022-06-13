@@ -47,7 +47,7 @@ open class Button: Control {
 
         super.init(frame: frame)
 
-        add(subview: titleLabel)
+        addSubview(titleLabel)
 
         layer.borderColor = .lightGray
         layer.borderWidth = 2.0

@@ -173,11 +173,11 @@ open class View: Responder, CALayerActionDelegate {
 
     // MARK: - View Hierarchy Manipulation
 
-    open func add(subview: View) {
-        insert(subview: subview, at: subviews.count)
+    open func addSubview(_ subview: View) {
+        insertSubview(subview, at: subviews.count)
     }
     
-    open func insert(subview: View, at index: Array<View>.Index) {
+    open func insertSubview(_ subview: View, at index: Array<View>.Index) {
         if subview.superview == self {
             return
         }
