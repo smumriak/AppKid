@@ -3,22 +3,22 @@
 AppKid is an implementation of Application Development Framework heavily inspired by Apple's AppKit and UIKit. It was started as a way to have convenient SDK to build UI applications for X11 enabled GNU/Linux environment. It is written completely in swift, using Vulkan as rendering backend and relies on X11 for window management and user input events.
 
 ```swift
-import Foundation
 import AppKid
+import Foundation
 
 class RootViewController: ViewController {
-	override func viewDidLoad() {
+    override func viewDidLoad() {
         super.viewDidLoad()
-		let label = Label(with: CGRect(x: 0.0, y: 0.0, width: 200.0, height: 200.0))
-		label.text = "Hello World"
-		label.center = CGPoint(x: 320.0, y: 240.0)
-		view.add(subview: label)
-	}
+        let label = Label(frame: CGRect(x: 0.0, y: 0.0, width: 640.0, height: 44.0))
+        label.text = "Hello World"
+        view.addSubview(label)
+        label.center = CGPoint(x: 320.0, y: 240.0)
+    }
 }
 
 @main
 final class AppDelegate: NSObject, ApplicationDelegate {
-    func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]? = nil) -> Bool {
+    func application(_: Application, didFinishLaunchingWithOptions _: [Application.LaunchOptionsKey: Any]? = nil) -> Bool {
         let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 640.0, height: 480.0))
         window.title = "Hello World"
         window.rootViewController = RootViewController()
