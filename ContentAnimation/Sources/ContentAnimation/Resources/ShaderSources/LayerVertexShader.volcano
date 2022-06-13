@@ -7,7 +7,6 @@
 
 #version 450
 #pragma shader_stage(vertex)
-#extension GL_ARB_separate_shader_objects : enable
 
 // two triangles: t0 and t1. starting with top left vertice
 // t0.0 - top left, t0.1 - top right, t0.2 - bottom right
