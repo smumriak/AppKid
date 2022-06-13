@@ -91,8 +91,8 @@ class RootViewController: ViewController {
     lazy var spawnWindowButton: Button = {
         let result = Button(frame: CGRect(x: 0.0, y: 0.0, width: 140.0, height: 44.0))
 
-        result.setTitle( "Spawn Window", for: .normal)
-        result.setTextColor( .black, for: .normal)
+        result.setTitle("Spawn Window", for: .normal)
+        result.setTextColor(.black, for: .normal)
 
         result.add(target: self, action: RootViewController.spawnButtonDidTap, for: .mouseUpInside)
 
@@ -102,8 +102,8 @@ class RootViewController: ViewController {
     lazy var spawn100WindowsButton: Button = {
         let result = Button(frame: CGRect(x: view.bounds.width - 140.0, y: 0.0, width: 140.0, height: 44.0))
 
-        result.setTitle( "Spawn 100 Windows", for: .normal)
-        result.setTextColor( .black, for: .normal)
+        result.setTitle("Spawn 100 Windows", for: .normal)
+        result.setTextColor(.black, for: .normal)
         result.titleLabel?.font = .systemFont(ofSize: 13)
 
         result.add(target: self, action: RootViewController.spawn100WindowsButtonDidTap, for: .mouseUpInside)
@@ -114,8 +114,8 @@ class RootViewController: ViewController {
     lazy var closeCurrentWindow: Button = {
         let result = Button(frame: CGRect(x: 100.0, y: 144.0, width: 140.0, height: 44.0))
 
-        result.setTitle( "Close Current", for: .normal)
-        result.setTextColor( .black, for: .normal)
+        result.setTitle("Close Current", for: .normal)
+        result.setTextColor(.black, for: .normal)
 
         result.add(target: self, action: RootViewController.closeCurrentWindowButtonDidTap, for: .mouseUpInside)
 
@@ -125,8 +125,8 @@ class RootViewController: ViewController {
     lazy var closeOtherWindows: Button = {
         let result = Button(frame: CGRect(x: 0.0, y: view.bounds.height - 44.0, width: 140.0, height: 44.0))
 
-        result.setTitle( "Close Other", for: .normal)
-        result.setTextColor( .black, for: .normal)
+        result.setTitle("Close Other", for: .normal)
+        result.setTextColor(.black, for: .normal)
 
         result.add(target: self, action: RootViewController.closeOtherWindowsButtonDidTap, for: .mouseUpInside)
 
@@ -147,7 +147,7 @@ class RootViewController: ViewController {
     var lol: Int = 0
 
     lazy var textTimer = Timer(timeInterval: 1.0, repeats: true) { [unowned self] _ in
-        spawnWindowButton.setTitle( "\(lol)", for: .normal)
+        spawnWindowButton.setTitle("\(lol)", for: .normal)
         lol += 1
     }
 
