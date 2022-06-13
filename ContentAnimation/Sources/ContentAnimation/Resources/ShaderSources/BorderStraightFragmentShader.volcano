@@ -1,0 +1,34 @@
+//
+//  BorderStraightFragmentShader.volcano
+//  ContentAnimation
+//
+//  Created by Serhii Mumriak on 13.06.2022.//
+
+#version 450
+#pragma shader_stage(fragment)
+
+#include "Rectangle.h"
+
+@in vec2 textureCoordinates;
+@in LayerRenderDescriptor layer;
+
+@out vec4 outColor;
+
+void main() 
+{
+    vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
+    float distanceToRectExternal = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, vec2(0.5));
+    float distanceToRectInternal = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, layer.borderWidth.xx);
+    float distanceToTest = distanceToRectInternal;
+
+    // this line must not be inside the distant testing if
+    float antialiasingMaskExternal = 1.0 - clamp(distanceToRectExternal / fwidth(distanceToRectExternal), 0.0, 1.0);
+    float antialiasingMaskInternal = clamp(distanceToRectInternal / fwidth(distanceToRectInternal), 0.0, 1.0);
+
+    // outColor = vec4(a2.xxx, 1.0);
+    if (distanceToRectInternal > 0.0) {
+        outColor = vec4(layer.borderColor.rgb, layer.borderColor.a * antialiasingMaskExternal * antialiasingMaskInternal);
+    } else {
+        outColor = vec4(0.0);
+    }
+}

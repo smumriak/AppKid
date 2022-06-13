@@ -6,6 +6,7 @@
 //
 
 internal let kMultisamplingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
+internal let kShadersSubdirectoryName = "ShaderBinaries"
 
 import Foundation
 import CoreFoundation
@@ -159,21 +160,7 @@ internal class DescriptorSetContainer {
         renderTargetsCache = RenderTargetsCache(renderPass: renderPass)
         let descriptorSetsLayouts = try DescriptorSetsLayouts(device: device)
 
-        let backgroundPipelineAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
-        let backgroundPipelineNotAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
-        let borderPipelineAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
-        let borderPipelineNotAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
-        let contentsPipelineAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: true)
-        let contentsPipelineNotAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: false)
-
-        let pipelines = RenderContext.Pipelines(
-            backgroundAntiAliased: backgroundPipelineAntiAliased,
-            backgroundNotAntiAliased: backgroundPipelineNotAntiAliased,
-            borderAntiAliased: borderPipelineAntiAliased,
-            borderNotAntiAliased: borderPipelineNotAntiAliased,
-            contentsAntiAliased: contentsPipelineAntiAliased,
-            contentsNotAntiAliased: contentsPipelineNotAntiAliased
-        )
+        let pipelines = try RenderContext.Pipelines(renderPass: renderPass, descriptorSetsLayouts: descriptorSetsLayouts)
 
         renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         self.commandPool = commandPool
@@ -207,21 +194,7 @@ internal class DescriptorSetContainer {
             renderPass = try device.createMainRenderPass(pixelFormat: target.pixelFormat)
             let descriptorSetsLayouts = renderContext.descriptorSetsLayouts
 
-            let backgroundPipelineAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
-            let backgroundPipelineNotAntiAliased = try renderPass.createBackgroundPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
-            let borderPipelineAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: true)
-            let borderPipelineNotAntiAliased = try renderPass.createBorderPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection], antiAliased: false)
-            let contentsPipelineAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: true)
-            let contentsPipelineNotAntiAliased = try renderPass.createContentsPipeline(descriptorSetLayouts: [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler], antiAliased: false)
-
-            let pipelines = RenderContext.Pipelines(
-                backgroundAntiAliased: backgroundPipelineAntiAliased,
-                backgroundNotAntiAliased: backgroundPipelineNotAntiAliased,
-                borderAntiAliased: borderPipelineAntiAliased,
-                borderNotAntiAliased: borderPipelineNotAntiAliased,
-                contentsAntiAliased: contentsPipelineAntiAliased,
-                contentsNotAntiAliased: contentsPipelineNotAntiAliased
-            )
+            let pipelines = try RenderContext.Pipelines(renderPass: renderPass, descriptorSetsLayouts: descriptorSetsLayouts)
 
             renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         }
@@ -358,7 +331,7 @@ internal class DescriptorSetContainer {
 
                 if let backgroundColor = layer.backgroundColor, backgroundColor.alpha != 0 {
                     renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-                    renderContext.add(.background(antiAliased: true))
+                    renderContext.add(.background(antiAliased: true, rounded: layer.cornerRadius > 0.0))
                 }
         
                 let drawableContents: TextureDrawable?
@@ -388,7 +361,7 @@ internal class DescriptorSetContainer {
 
                 if let layerTexture = layer.texture {
                     renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-                    renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false))
+                    renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false, rounded: layer.cornerRadius > 0.0))
                 }
 
                 if let next = current.sublayers?.first {
@@ -411,7 +384,7 @@ internal class DescriptorSetContainer {
                     } else {
                         if previous.layer.borderWidth > 0 && previous.layer.borderColor != nil {
                             renderContext.add(.bindVertexBuffer(index: previous.layerIndex))
-                            renderContext.add(.border(antiAliased: true))
+                            renderContext.add(.border(antiAliased: true, rounded: layer.cornerRadius > 0.0))
                         }
                     }
                 } else {
@@ -474,7 +447,7 @@ internal class DescriptorSetContainer {
 
         if let backgroundColor = layer.backgroundColor, backgroundColor.alpha != 0 {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.background(antiAliased: true))
+            renderContext.add(.background(antiAliased: true, rounded: layer.cornerRadius > 0.0))
         }
         
         let drawableContents: TextureDrawable?
@@ -504,7 +477,7 @@ internal class DescriptorSetContainer {
 
         if let layerTexture = layer.texture {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false))
+            renderContext.add(.contents(texture: layerTexture, layerIndex: currentLayerIndex, antiAliased: false, rounded: layer.cornerRadius > 0.0))
         }
 
         try layer.sublayers?.forEach {
@@ -514,7 +487,7 @@ internal class DescriptorSetContainer {
 
         if layer.borderWidth > 0, let borderColor = layer.borderColor, borderColor.alpha != 0 {
             renderContext.add(.bindVertexBuffer(index: currentLayerIndex))
-            renderContext.add(.border(antiAliased: true))
+            renderContext.add(.border(antiAliased: true, rounded: layer.cornerRadius > 0.0))
         }
     }
 }
@@ -638,57 +611,6 @@ internal extension RenderPass {
         ]
 
         return descriptor
-    }
-
-    func createBackgroundPipeline(subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout], antiAliased: Bool = false) throws -> GraphicsPipeline {
-        #if os(Linux)
-            let bundle = Bundle.module
-        #else
-            let bundle = Bundle.main
-        #endif
-
-        let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
-        let fragmentShader = try device.shader(named: "BackgroundFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
-
-        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts, antiAliased: antiAliased)
-        descriptor.vertexShader = vertexShader
-        descriptor.fragmentShader = fragmentShader
-
-        return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
-    }
-
-    func createBorderPipeline(subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout], antiAliased: Bool = false) throws -> GraphicsPipeline {
-        #if os(Linux)
-            let bundle = Bundle.module
-        #else
-            let bundle = Bundle.main
-        #endif
-
-        let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
-        let fragmentShader = try device.shader(named: "BorderFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
-
-        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts, antiAliased: antiAliased)
-        descriptor.vertexShader = vertexShader
-        descriptor.fragmentShader = fragmentShader
-
-        return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
-    }
-
-    func createContentsPipeline(subpassIndex: Int = 0, descriptorSetLayouts: [DescriptorSetLayout], antiAliased: Bool = false) throws -> GraphicsPipeline {
-        #if os(Linux)
-            let bundle = Bundle.module
-        #else
-            let bundle = Bundle.main
-        #endif
-
-        let vertexShader = try device.shader(named: "LayerVertexShader", in: bundle, subdirectory: "ShaderBinaries")
-        let fragmentShader = try device.shader(named: "ContentsFragmentShader", in: bundle, subdirectory: "ShaderBinaries")
-
-        let descriptor = sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts, antiAliased: antiAliased)
-        descriptor.vertexShader = vertexShader
-        descriptor.fragmentShader = fragmentShader
-
-        return try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
     }
 }
 

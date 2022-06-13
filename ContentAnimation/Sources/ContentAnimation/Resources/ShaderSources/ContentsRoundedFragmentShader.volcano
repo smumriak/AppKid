@@ -1,0 +1,43 @@
+//
+//  ContentsRoundedFragmentShader.volcano
+//  ContentAnimation
+//
+//  Created by Serhii Mumriak on 10.06.2021.
+//
+
+#version 450
+#pragma shader_stage(fragment)
+
+#include "Rectangle.h"
+
+layout(set = 1, binding = 0) uniform sampler2D textureSampler;
+
+@in vec2 textureCoordinates;
+@in LayerRenderDescriptor layer;
+
+@out vec4 outColor;
+
+void main() 
+{
+    vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
+    vec4 color = texture(textureSampler, textureCoordinates);
+
+    float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, layer.cornerRadius, vec2(0.0));
+    float distanceToTest = distanceToRect - layer.cornerRadius;
+    
+    if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
+        distanceToTest += layer.borderWidth * 0.5;
+    }
+
+    float antialiasingMask = 1.0;//clamp(-distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
+
+    if (distanceToTest <= 0.0) {
+        vec4 color = texture(textureSampler, textureCoordinates);
+        outColor = vec4(color.rgb, color.a * antialiasingMask);
+    } else {
+        outColor = vec4(0);
+    }
+
+    // float antialiasingMask = clamp(0.5 - distanceToTest, 0.0, 1.0);
+    // outColor = vec4(color.rgb, color.a * antialiasingMask);
+}

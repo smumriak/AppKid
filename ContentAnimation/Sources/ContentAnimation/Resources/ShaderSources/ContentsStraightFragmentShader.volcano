@@ -1,0 +1,34 @@
+//
+//  ContentsStraightFragmentShader.volcano
+//  ContentAnimation
+//
+//  Created by Serhii Mumriak on 13.06.2022.//
+
+#version 450
+#pragma shader_stage(fragment)
+
+#include "Rectangle.h"
+
+layout(set = 1, binding = 0) uniform sampler2D textureSampler;
+
+@in vec2 textureCoordinates;
+@in LayerRenderDescriptor layer;
+
+@out vec4 outColor;
+
+void main() 
+{
+    vec2 measuredPoint = textureCoordinates * layer.bounds.zw;
+    vec4 color = texture(textureSampler, textureCoordinates);
+
+    float distanceToRect = distanceToRoundedRect(measuredPoint, layer.bounds, 0.0, vec2(0.5));
+    float distanceToTest = distanceToRect;
+
+    // if (layer.borderWidth > 0.0 && layer.borderColor.a == 1.0) {
+    //     distanceToTest += layer.borderWidth * 0.5;
+    // }
+
+    // this line must not be inside the distant testing if
+    float antialiasingMask = 1.0 - clamp(distanceToTest / fwidth(distanceToTest), 0.0, 1.0);
+    outColor = vec4(color.rgb, color.a * antialiasingMask);
+}

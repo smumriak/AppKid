@@ -1,6 +1,6 @@
 //
 //  Rectangle.h
-//  AppKid
+//  ContentAnimation
 //
 //  Created by Serhii Mumriak on 11.06.2021.
 //

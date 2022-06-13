@@ -247,12 +247,77 @@ import LayerRenderingData
 
 extension RenderContext {
     struct Pipelines {
-        let backgroundAntiAliased: GraphicsPipeline
-        let backgroundNotAntiAliased: GraphicsPipeline
-        let borderAntiAliased: GraphicsPipeline
-        let borderNotAntiAliased: GraphicsPipeline
-        let contentsAntiAliased: GraphicsPipeline
-        let contentsNotAntiAliased: GraphicsPipeline
+        struct Key: Hashable {
+            let type: PipelineType
+            let antiAliased: Bool
+            let rounded: Bool
+        }
+
+        let store: [Key: GraphicsPipeline]
+
+        enum PipelineType: CaseIterable {
+            case background
+            case border
+            case contents
+
+            var fragmentShaderBaseName: String {
+                switch self {
+                    case .background: return "Background"
+                    case .border: return "Border"
+                    case .contents: return "Contents"
+                }
+            }
+        }
+
+        func pipeline(withType type: PipelineType, antiAliased: Bool, rounded: Bool) -> GraphicsPipeline {
+            let key = Key(type: type, antiAliased: antiAliased, rounded: rounded)
+
+            return store[key]!
+        }
+
+        init(renderPass: RenderPass, subpassIndex: Int = 0, descriptorSetsLayouts: DescriptorSetsLayouts) throws {
+            let vertexShaderName = "LayerVertexShader"
+            let fragmentShaderNameSuffix = "FragmentShader"
+
+            #if os(Linux)
+                let bundle = Bundle.module
+            #else
+                let bundle = Bundle.main
+            #endif
+
+            let device = renderPass.device
+
+            var store: [Key: GraphicsPipeline] = [:]
+
+            for type in PipelineType.allCases {
+                let descriptorSetLayouts: [DescriptorSetLayout]
+
+                switch type {
+                    case .background: descriptorSetLayouts = [descriptorSetsLayouts.modelViewProjection]
+                    case .border: descriptorSetLayouts = [descriptorSetsLayouts.modelViewProjection]
+                    case .contents: descriptorSetLayouts = [descriptorSetsLayouts.modelViewProjection, descriptorSetsLayouts.contentsSampler]
+                }
+
+                for antiAliased in [true, false] {
+                    for rounded in [true, false] {
+                        let roundedName = rounded ? "Rounded" : "Straight"
+
+                        let fragmentShaderName = type.fragmentShaderBaseName + roundedName + fragmentShaderNameSuffix
+
+                        let descriptor = renderPass.sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts, antiAliased: antiAliased)
+                        descriptor.vertexShader = try device.shader(named: vertexShaderName, in: bundle, subdirectory: kShadersSubdirectoryName)
+                        descriptor.fragmentShader = try device.shader(named: fragmentShaderName, in: bundle, subdirectory: kShadersSubdirectoryName)
+
+                        let key = Key(type: type, antiAliased: antiAliased, rounded: rounded)
+                        let value = try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
+
+                        store[key] = value
+                    }
+                }
+            }
+
+            self.store = store
+        }
     }
 }
 
@@ -270,13 +335,13 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func background(antiAliased: Bool) -> RenderOperation {
-        return BackgroundRenderOperation(antiAliased: antiAliased)
+    static func background(antiAliased: Bool, rounded: Bool) -> RenderOperation {
+        return BackgroundRenderOperation(antiAliased: antiAliased, rounded: rounded)
     }
 
     @inlinable @inline(__always)
-    static func border(antiAliased: Bool) -> RenderOperation {
-        return BorderRenderOperation(antiAliased: antiAliased)
+    static func border(antiAliased: Bool, rounded: Bool) -> RenderOperation {
+        return BorderRenderOperation(antiAliased: antiAliased, rounded: rounded)
     }
 
     @inlinable @inline(__always)
@@ -315,8 +380,8 @@ internal class RenderOperation {
     }
 
     @inlinable @inline(__always)
-    static func contents(texture: Texture, layerIndex: UInt, antiAliased: Bool) -> RenderOperation {
-        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex, antiAliased: antiAliased)
+    static func contents(texture: Texture, layerIndex: UInt, antiAliased: Bool, rounded: Bool) -> RenderOperation {
+        return ContentsRenderOperation(texture: texture, layerIndex: layerIndex, antiAliased: antiAliased, rounded: rounded)
     }
 
     @inlinable @inline(__always)
@@ -443,14 +508,16 @@ internal class ResetFenceRenderOperation: RenderOperation {
 
 internal class BackgroundRenderOperation: RenderOperation {
     internal let antiAliased: Bool
+    internal let rounded: Bool
 
-    init(antiAliased: Bool = false) {
+    init(antiAliased: Bool = false, rounded: Bool) {
         self.antiAliased = antiAliased
+        self.rounded = rounded
     }
-
+    
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let backgroundPipeline = antiAliased ? context.pipelines.backgroundAntiAliased : context.pipelines.backgroundNotAntiAliased
+        let backgroundPipeline = context.pipelines.pipeline(withType: .background, antiAliased: antiAliased, rounded: rounded)
         try commandBuffer.bind(pipeline: backgroundPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: backgroundPipeline)
@@ -461,14 +528,16 @@ internal class BackgroundRenderOperation: RenderOperation {
 
 internal class BorderRenderOperation: RenderOperation {
     internal let antiAliased: Bool
+    internal let rounded: Bool
 
-    init(antiAliased: Bool = false) {
+    init(antiAliased: Bool = false, rounded: Bool) {
         self.antiAliased = antiAliased
+        self.rounded = rounded
     }
 
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let borderPipeline = antiAliased ? context.pipelines.borderAntiAliased : context.pipelines.borderNotAntiAliased
+        let borderPipeline = context.pipelines.pipeline(withType: .border, antiAliased: antiAliased, rounded: rounded)
         try commandBuffer.bind(pipeline: borderPipeline)
 
         try commandBuffer.bind(descriptorSets: [context.modelViewProjectionDescriptorSet], for: borderPipeline)
@@ -547,16 +616,18 @@ internal class ContentsRenderOperation: RenderOperation {
     internal let texture: Texture
     internal let layerIndex: UInt
     internal let antiAliased: Bool
+    internal let rounded: Bool
 
-    init(texture: Texture, layerIndex: UInt, antiAliased: Bool) {
+    init(texture: Texture, layerIndex: UInt, antiAliased: Bool, rounded: Bool) {
         self.texture = texture
         self.layerIndex = layerIndex
         self.antiAliased = antiAliased
+        self.rounded = rounded
     }
 
     override func perform(in context: RenderContext) throws {
         let commandBuffer = context.commandBuffer
-        let contentsPipeline = antiAliased ? context.pipelines.contentsAntiAliased : context.pipelines.contentsNotAntiAliased
+        let contentsPipeline = context.pipelines.pipeline(withType: .contents, antiAliased: antiAliased, rounded: rounded)
         try commandBuffer.bind(pipeline: contentsPipeline)
 
         let contentsDescriptorSet = try context.contentsDescriptorSet(for: texture, layerIndex: layerIndex)
