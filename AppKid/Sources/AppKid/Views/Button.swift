@@ -56,7 +56,7 @@ open class Button: Control {
         backgroundColor = .white
     }
 
-    open func set(title: String?, for state: State) {
+    open func setTitle(_ title: String?, for state: State) {
         state.deconstructed.forEach {
             if let title = title {
                 stateToTitle[$0] = title
