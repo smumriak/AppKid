@@ -29,7 +29,7 @@ final class AppDelegate: NSObject, ApplicationDelegate {
 
 # AppKidDemo
 
-AppKidDemo is an application written in swift that aims to provide simple and convenient interface to control PWM fans on the given computer.
+AppKidDemo is a simple application written in swift that provides a simple sample environment for AppKid development
 
 ## Getting Started
 #### Dependencies and environment setup
