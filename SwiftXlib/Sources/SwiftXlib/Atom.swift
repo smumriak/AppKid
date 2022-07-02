@@ -38,7 +38,6 @@ public enum KnownAtomName: String, CaseIterable, AtomName {
     case name = "_NET_WM_NAME"
     case visibleName = "_NET_WM_VISIBLE_NAME"
     case iconName = "_NET_WM_ICON_NAME"
-    case visibleIconName = "_NET_WM_VISIBLE_ICON_NAME"
     case desktopNumber = "_NET_WM_DESKTOP"
     case windowType = "_NET_WM_WINDOW_TYPE"
     case state = "_NET_WM_STATE"
@@ -74,8 +73,6 @@ public enum KnownAtomName: String, CaseIterable, AtomName {
     case moveresize = "_NET_WM_MOVERESIZE"
     case restackWindow = "_NET_RESTACK_WINDOW"
     case requestFrameExtents = "_NET_REQUEST_FRAME_EXTENTS"
-
-    case fullPlacement = "_NET_WM_FULL_PLACEMENT"
 
     case stateModal = "_NET_WM_STATE_MODAL"
     case stateSticky = "_NET_WM_STATE_STICKY"
