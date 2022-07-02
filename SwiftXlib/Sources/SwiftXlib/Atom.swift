@@ -72,7 +72,6 @@ public enum KnownAtomName: String, CaseIterable, AtomName {
     case moveresizeWindow = "_NET_MOVERESIZE_WINDOW"
     case moveresize = "_NET_WM_MOVERESIZE"
     case restackWindow = "_NET_RESTACK_WINDOW"
-    case requestFrameExtents = "_NET_REQUEST_FRAME_EXTENTS"
 
     case stateModal = "_NET_WM_STATE_MODAL"
     case stateSticky = "_NET_WM_STATE_STICKY"
@@ -112,8 +111,6 @@ public enum KnownAtomName: String, CaseIterable, AtomName {
     case actionTransitionToFullscreen = "_NET_WM_ACTION_FULLSCREEN"
     case actionChangeDesktop = "_NET_WM_ACTION_CHANGE_DESKTOP"
     case actionClose = "_NET_WM_ACTION_CLOSE"
-    case actionMoveAbove = "_NET_WM_ACTION_ABOVE"
-    case actionMoveBelow = "_NET_WM_ACTION_BELOW"
 
     case syncCounter = "_NET_WM_SYNC_REQUEST_COUNTER"
     // case syncFences = "_NET_WM_SYNC_FENCES"
