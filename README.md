@@ -40,10 +40,10 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 	export PATH=/opt/swift/usr/bin:"${PATH}"` where `/opt/swift` is a path to your swift toolchai
 	```
 - Install Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#linux)
-	Something like this:
+	Something like this (LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via SupportingFiles):
 	```bash
-	wget -qO - http://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-	sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-bionic.list http://packages.lunarg.com/vulkan/lunarg-vulkan-bionic.list
+    wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
+	sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list https://raw.githubusercontent.com/smumriak/AppKid/main/Supporting%20Files/lunarg-vulkan-focal.list
 	sudo apt update
 	sudo apt install vulkan-sdk
 	```
@@ -52,8 +52,16 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 	sudo apt install -y \
 		libx11-dev \
 		libxi-dev \
+		libwayland-dev \
 		libcairo2-dev \
-		libpango1.0-dev
+		libpango1.0-dev \
+		libglib2.0-dev \
+		libclang-13-dev 
+	```
+- Install provided package config file for libclang on your system (because llvm does not provide one):
+	```bash
+	sudo mkdir -p /usr/local/lib/pkgconfig
+	sudo cp "SupportingFiles/clang.pc /usr/local/lib/pkgconfig/clang.pc"
 	```
 ##### macOS
 - Install Xcode via AppStore or [developer.apple.com](https://developer.apple.com/download/more/)
@@ -65,11 +73,11 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 Something like this
 - Install the Vulkan pkg-config file to your system so build tools could resolve C flags for Vulkan SDK:
 	```bash
-	sudo cp "Supporting Files/vulkan.pc" /usr/local/lib/pkgconfig/vulkan.pc
+	sudo cp "SupportingFiles/vulkan.pc" /usr/local/lib/pkgconfig/vulkan.pc
 	```
 - Add a launchctl agent that will update environment variables so Xcode could find all the pkg-config files needed to properly build projects:
 	```bash
-	cp "Supporting Files/environment.plist" Library/LaunchAgents/environment.plist
+	cp "SupportingFiles/environment.plist" Library/LaunchAgents/environment.plist
 
 	launchctl load -w ~/Library/LaunchAgents/environment.plist
 	```

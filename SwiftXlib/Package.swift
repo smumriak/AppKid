@@ -25,7 +25,7 @@ let package = Package(
             name: "CXlib",
             pkgConfig: "x11 xext xi xcb",
             providers: [
-                .apt(["libx11-dev libxext-dev libxi-dev libwayland-dev libxcb1-dev"]),
+                .apt(["libx11-dev libxext-dev libxi-dev libxcb1-dev"]),
                 .brew(["xquartz"]),
             ]
         ),

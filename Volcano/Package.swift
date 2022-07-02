@@ -49,14 +49,14 @@ let package = Package(
             name: "CVulkan",
             pkgConfig: "vulkan",
             providers: [
-                .apt(["vulkan-sdk"]),
+                .apt(["vulkan-sdk libwayland-dev libx11-dev"]),
             ]
         ),
         .systemLibrary(
             name: "CClang",
             pkgConfig: "clang",
             providers: [
-                .apt(["libclang-dev"]),
+                .apt(["libclang-13-dev"]),
             ]
         ),
         .target(
