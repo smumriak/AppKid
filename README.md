@@ -32,22 +32,35 @@ final class AppDelegate: NSObject, ApplicationDelegate {
 AppKidDemo is a simple application written in swift that provides a simple sample environment for AppKid development
 
 ## Getting Started
-#### Dependencies and environment setup
-##### Ubuntu
-- Install swift via [swift.org](https://swift.org/getting-started/#installing-swift)
-- Update your global `$PATH` variable: `sudo nano /etc/profile.d/10swift_path.sh`, paste this:
-	```bash
-	export PATH=/opt/swift/usr/bin:"${PATH}"` where `/opt/swift` is a path to your swift toolchai
-	```
-- Install Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#linux)
-	Something like this (LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via SupportingFiles):
+### Dependencies and environment setup
+#### **Ubuntu**
+- Install swift 
+	- Via [swift.org](https://swift.org/getting-started/#installing-swift)
+	- Update your global `$PATH` variable:
+		```bash
+		sudo nano /etc/profile.d/10swift_path.sh
+		```
+		paste this:
+		```bash
+		export PATH=/opt/swift/usr/bin:"${PATH}"`
+		```
+		where `/opt/swift` is a path to your swift toolchain
+	
+	- Alternatively install swiftlang via [swiftlang builds](https://www.swiftlang.xyz/) (does not require changing `$PATH` variable):
+		```bash
+		sudo apt install -y curl
+		curl -s https://archive.swiftlang.xyz/install.sh | sudo bash
+		sudo apt install swiftlang
+		```
+- Install Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#linux).
+	LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via SupportingFiles. Something like this:
 	```bash
     wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
 	sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list https://raw.githubusercontent.com/smumriak/AppKid/main/Supporting%20Files/lunarg-vulkan-focal.list
 	sudo apt update
 	sudo apt install vulkan-sdk
 	```
-- Get other project dependencies:
+- Install other project dependencies:
 	```bash
 	sudo apt install -y \
 		libx11-dev \
@@ -63,7 +76,8 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 	sudo mkdir -p /usr/local/lib/pkgconfig
 	sudo cp "SupportingFiles/clang.pc /usr/local/lib/pkgconfig/clang.pc"
 	```
-##### macOS
+
+#### **macOS**
 - Install Xcode via AppStore or [developer.apple.com](https://developer.apple.com/download/more/)
 - Install XQuartz:
 	```bash
@@ -85,9 +99,9 @@ Something like this
 	```bash
 	export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib:$PKG_CONFIG_PATH"
 	```
-##### Any Other Linux distros
-Installation is pretty much the same as on Ubuntu, just using your local package manager. Specific stuff is in swift and Vulkan SDK installation, but if you are running something that is not Debian based - you can probably do the installation yourself.
-##### Windows
+#### **Any Other Linux distros**
+Installation is pretty much the same as on Ubuntu, just using your local package manager. Specific stuff is in swift and Vulkan SDK installation, but if you are running something that is not Debian based - you can probably do the installation yourself (instructions for rpm-based distros will be added in future).
+#### **Windows**
 Well, not there. Sorry about that.
 ## Development
 I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can just open `Packge.swift` in Xcode and it will be pretty much the same user experience.
