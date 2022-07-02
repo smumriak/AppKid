@@ -56,7 +56,7 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 	LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via SupportingFiles. Something like this:
 	```bash
     wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
-	sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list https://raw.githubusercontent.com/smumriak/AppKid/main/Supporting%20Files/lunarg-vulkan-focal.list
+	sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-focal.list https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/lunarg-vulkan-focal.list
 	sudo apt update
 	sudo apt install vulkan-sdk
 	```
@@ -74,7 +74,7 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 - Install provided package config file for libclang on your system (because llvm does not provide one):
 	```bash
 	sudo mkdir -p /usr/local/lib/pkgconfig
-	sudo cp "SupportingFiles/clang.pc /usr/local/lib/pkgconfig/clang.pc"
+	sudo wget -qO "https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc /usr/local/lib/pkgconfig/clang.pc"
 	```
 
 #### **macOS**
