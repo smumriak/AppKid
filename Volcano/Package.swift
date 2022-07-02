@@ -56,7 +56,7 @@ let package = Package(
             name: "CClang",
             pkgConfig: "clang",
             providers: [
-                .apt(["libclang-13-dev"]),
+                .apt(["libclang-12-dev"]),
             ]
         ),
         .target(

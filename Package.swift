@@ -401,7 +401,7 @@ extension Target {
         path: "Volcano/Sources/CClang",
         pkgConfig: "clang",
         providers: [
-            .apt(["libclang-13-dev"]),
+            .apt(["libclang-12-dev"]),
         ]
     )
     static let volcano: Target = .target(

@@ -69,7 +69,7 @@ AppKidDemo is a simple application written in swift that provides a simple sampl
 		libcairo2-dev \
 		libpango1.0-dev \
 		libglib2.0-dev \
-		libclang-13-dev 
+		libclang-12-dev 
 	```
 - Install provided package config file for libclang on your system (because llvm does not provide one):
 	```bash
