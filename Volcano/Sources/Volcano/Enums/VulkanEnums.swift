@@ -1246,6 +1246,8 @@ public extension VkQueryType {
     static let accelerationStructureCompactedSizeNv: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_NV
     static let performanceQueryIntel: VkQueryType = .VK_QUERY_TYPE_PERFORMANCE_QUERY_INTEL
     static let primitivesGeneratedExt: VkQueryType = .VK_QUERY_TYPE_PRIMITIVES_GENERATED_EXT
+    static let accelerationStructureSerializationBottomLevelPointersKhr: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SERIALIZATION_BOTTOM_LEVEL_POINTERS_KHR
+    static let accelerationStructureSizeKhr: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_SIZE_KHR
 }
 
 public typealias VkQueueGlobalPriorityKHR = CVulkan.VkQueueGlobalPriorityKHR
@@ -1330,6 +1332,7 @@ public extension VkResult {
     static let operationNotDeferredKhr: VkResult = .VK_OPERATION_NOT_DEFERRED_KHR
     static let pipelineCompileRequiredExt: VkResult = .VK_PIPELINE_COMPILE_REQUIRED_EXT
     static let errorPipelineCompileRequiredExt: VkResult = .VK_ERROR_PIPELINE_COMPILE_REQUIRED_EXT
+    static let errorCompressionExhaustedExt: VkResult = .VK_ERROR_COMPRESSION_EXHAUSTED_EXT
 }
 
 public typealias VkSamplerAddressMode = CVulkan.VkSamplerAddressMode
@@ -2193,6 +2196,9 @@ public extension VkStructureType {
     static let physicalDeviceGraphicsPipelineLibraryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT
     static let physicalDeviceGraphicsPipelineLibraryPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT
     static let graphicsPipelineLibraryCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT
+    static let physicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAmd: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD
+    static let physicalDeviceFragmentShaderBarycentricFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR
+    static let physicalDeviceFragmentShaderBarycentricPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR
     static let physicalDeviceShaderSubgroupUniformControlFlowFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_SUBGROUP_UNIFORM_CONTROL_FLOW_FEATURES_KHR
     static let physicalDeviceZeroInitializeWorkgroupMemoryFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ZERO_INITIALIZE_WORKGROUP_MEMORY_FEATURES_KHR
     static let physicalDeviceFragmentShadingRateEnumsPropertiesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_ENUMS_PROPERTIES_NV
@@ -2218,6 +2224,11 @@ public extension VkStructureType {
     static let imageBlit2Khr: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2_KHR
     static let bufferImageCopy2Khr: VkStructureType = .VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2_KHR
     static let imageResolve2Khr: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_RESOLVE_2_KHR
+    static let physicalDeviceImageCompressionControlFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT
+    static let imageCompressionControlExt: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT
+    static let subresourceLayout2Ext: VkStructureType = .VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT
+    static let imageSubresource2Ext: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT
+    static let imageCompressionPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT
     static let physicalDevice4444FormatsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_4444_FORMATS_FEATURES_EXT
     static let physicalDeviceRasterizationOrderAttachmentAccessFeaturesArm: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_ARM
     static let physicalDeviceRgba10X6FormatsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT
@@ -2253,11 +2264,15 @@ public extension VkStructureType {
     static let physicalDeviceInvocationMaskFeaturesHuawei: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_INVOCATION_MASK_FEATURES_HUAWEI
     static let memoryGetRemoteAddressInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_GET_REMOTE_ADDRESS_INFO_NV
     static let physicalDeviceExternalMemoryRdmaFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_RDMA_FEATURES_NV
+    static let pipelinePropertiesIdentifierExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT
+    static let physicalDevicePipelinePropertiesFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT
+    static let pipelineInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_INFO_EXT
     static let physicalDeviceExtendedDynamicState2FeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT
     static let screenSurfaceCreateInfoQnx: VkStructureType = .VK_STRUCTURE_TYPE_SCREEN_SURFACE_CREATE_INFO_QNX
     static let physicalDeviceColorWriteEnableFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT
     static let pipelineColorWriteCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COLOR_WRITE_CREATE_INFO_EXT
     static let physicalDevicePrimitivesGeneratedQueryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRIMITIVES_GENERATED_QUERY_FEATURES_EXT
+    static let physicalDeviceRayTracingMaintenance1FeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR
     static let physicalDeviceGlobalPriorityQueryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_EXT
     static let queueFamilyGlobalPriorityPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_EXT
     static let physicalDeviceImageViewMinLodFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_VIEW_MIN_LOD_FEATURES_EXT
@@ -2279,6 +2294,11 @@ public extension VkStructureType {
     static let physicalDeviceFragmentDensityMapOffsetPropertiesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_OFFSET_PROPERTIES_QCOM
     static let subpassFragmentDensityMapOffsetEndInfoQcom: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_FRAGMENT_DENSITY_MAP_OFFSET_END_INFO_QCOM
     static let physicalDeviceLinearColorAttachmentFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINEAR_COLOR_ATTACHMENT_FEATURES_NV
+    static let physicalDeviceImageCompressionControlSwapchainFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT
+    static let physicalDeviceSubpassMergeFeedbackFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT
+    static let renderPassCreationControlExt: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT
+    static let renderPassCreationFeedbackCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT
+    static let renderPassSubpassFeedbackCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT
 }
 
 public typealias VkSubpassContents = CVulkan.VkSubpassContents
@@ -2286,6 +2306,25 @@ public typealias VkSubpassContents = CVulkan.VkSubpassContents
 public extension VkSubpassContents {
     static let inline: VkSubpassContents = .VK_SUBPASS_CONTENTS_INLINE
     static let secondaryCommandBuffers: VkSubpassContents = .VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
+}
+
+public typealias VkSubpassMergeStatusEXT = CVulkan.VkSubpassMergeStatusEXT
+
+public extension VkSubpassMergeStatusEXT {
+    static let merged: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_MERGED_EXT
+    static let disallowed: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_DISALLOWED_EXT
+    static let notMergedSideEffects: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SIDE_EFFECTS_EXT
+    static let notMergedSamplesMismatch: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SAMPLES_MISMATCH_EXT
+    static let notMergedViewsMismatch: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_VIEWS_MISMATCH_EXT
+    static let notMergedAliasing: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_ALIASING_EXT
+    static let notMergedDependencies: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPENDENCIES_EXT
+    static let notMergedIncompatibleInputAttachment: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INCOMPATIBLE_INPUT_ATTACHMENT_EXT
+    static let notMergedTooManyAttachments: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_TOO_MANY_ATTACHMENTS_EXT
+    static let notMergedInsufficientStorage: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_INSUFFICIENT_STORAGE_EXT
+    static let notMergedDepthStencilCount: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_DEPTH_STENCIL_COUNT_EXT
+    static let notMergedResolveAttachmentReuse: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_RESOLVE_ATTACHMENT_REUSE_EXT
+    static let notMergedSingleSubpass: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_SINGLE_SUBPASS_EXT
+    static let notMergedUnspecified: VkSubpassMergeStatusEXT = .VK_SUBPASS_MERGE_STATUS_NOT_MERGED_UNSPECIFIED_EXT
 }
 
 public typealias VkSystemAllocationScope = CVulkan.VkSystemAllocationScope

@@ -52,6 +52,8 @@ AK_EXISTING_OPTIONS(VkGeometryFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkGeometryInstanceFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkGraphicsPipelineLibraryFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkImageAspectFlagBits);
+AK_EXISTING_OPTIONS(VkImageCompressionFixedRateFlagBitsEXT);
+AK_EXISTING_OPTIONS(VkImageCompressionFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkImageCreateFlagBits);
 AK_EXISTING_OPTIONS(VkImageUsageFlagBits);
 AK_EXISTING_OPTIONS(VkImageViewCreateFlagBits);

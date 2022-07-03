@@ -243,6 +243,7 @@ public extension VkDeviceDiagnosticsConfigFlagBitsNV {
     static let enableShaderDebugInfo: VkDeviceDiagnosticsConfigFlagBitsNV = .VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV
     static let enableResourceTracking: VkDeviceDiagnosticsConfigFlagBitsNV = .VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV
     static let enableAutomaticCheckpoints: VkDeviceDiagnosticsConfigFlagBitsNV = .VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV
+    static let enableShaderErrorReporting: VkDeviceDiagnosticsConfigFlagBitsNV = .VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV
 }
 
 public typealias VkDeviceGroupPresentModeFlagBitsKHR = CVulkan.VkDeviceGroupPresentModeFlagBitsKHR
@@ -491,6 +492,44 @@ public extension VkImageAspectFlagBits {
     static let memoryPlane1Ext: VkImageAspectFlagBits = .VK_IMAGE_ASPECT_MEMORY_PLANE_1_BIT_EXT
     static let memoryPlane2Ext: VkImageAspectFlagBits = .VK_IMAGE_ASPECT_MEMORY_PLANE_2_BIT_EXT
     static let memoryPlane3Ext: VkImageAspectFlagBits = .VK_IMAGE_ASPECT_MEMORY_PLANE_3_BIT_EXT
+}
+
+public typealias VkImageCompressionFixedRateFlagBitsEXT = CVulkan.VkImageCompressionFixedRateFlagBitsEXT
+
+public extension VkImageCompressionFixedRateFlagBitsEXT {
+    static let oneBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_1BPC_BIT_EXT
+    static let twoBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_2BPC_BIT_EXT
+    static let threeBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_3BPC_BIT_EXT
+    static let fourBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_4BPC_BIT_EXT
+    static let fiveBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_5BPC_BIT_EXT
+    static let sixBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_6BPC_BIT_EXT
+    static let sevenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_7BPC_BIT_EXT
+    static let eightBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_8BPC_BIT_EXT
+    static let nineBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_9BPC_BIT_EXT
+    static let tenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_10BPC_BIT_EXT
+    static let elevenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_11BPC_BIT_EXT
+    static let twelveBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_12BPC_BIT_EXT
+    static let thirteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_13BPC_BIT_EXT
+    static let fourteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_14BPC_BIT_EXT
+    static let fifteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_15BPC_BIT_EXT
+    static let sixteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_16BPC_BIT_EXT
+    static let seventeenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_17BPC_BIT_EXT
+    static let eighteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_18BPC_BIT_EXT
+    static let nineteenBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_19BPC_BIT_EXT
+    static let twentyBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_20BPC_BIT_EXT
+    static let twentyOneBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_21BPC_BIT_EXT
+    static let twentyTwoBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_22BPC_BIT_EXT
+    static let twentyThreeBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_23BPC_BIT_EXT
+    static let twentyFourBpc: VkImageCompressionFixedRateFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_24BPC_BIT_EXT
+}
+
+public typealias VkImageCompressionFlagBitsEXT = CVulkan.VkImageCompressionFlagBitsEXT
+
+public extension VkImageCompressionFlagBitsEXT {
+    static let `default`: VkImageCompressionFlagBitsEXT = []
+    static let fixedRateDefault: VkImageCompressionFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_DEFAULT_EXT
+    static let fixedRateExplicit: VkImageCompressionFlagBitsEXT = .VK_IMAGE_COMPRESSION_FIXED_RATE_EXPLICIT_EXT
+    static let disabled: VkImageCompressionFlagBitsEXT = .VK_IMAGE_COMPRESSION_DISABLED_EXT
 }
 
 public typealias VkImageCreateFlagBits = CVulkan.VkImageCreateFlagBits

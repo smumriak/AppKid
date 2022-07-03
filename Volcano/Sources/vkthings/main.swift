@@ -301,6 +301,14 @@ struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
 struct EnumerationDefinition: Codable, Equatable, DynamicNodeDecoding {
     struct Case: Codable, Equatable {
         let name: String
+        let value: String?
+        let bitPosition: String?
+
+        enum CodingKeys: String, CodingKey {
+            case name
+            case value
+            case bitPosition = "bitpos"
+        }
     }
 
     enum Subtype: String, Codable, Equatable {
@@ -480,7 +488,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     }
 
                     if var enumeration = parsedEnumerations[extends] {
-                        var addedCase = ParsedEnum.Case(name: $0.name)
+                        var addedCase = ParsedEnum.Case(name: $0.name, value: nil)
 
                         if let protectingDefine = $0.protectingDefine {
                             addedCase.cDefines.append(protectingDefine)
@@ -498,7 +506,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     }
 
                     if var optionSet = parsedOptionSets[extends] {
-                        var addedCase = ParsedEnum.Case(name: $0.name)
+                        var addedCase = ParsedEnum.Case(name: $0.name, value: nil)
 
                         if let protectingDefine = $0.protectingDefine {
                             addedCase.cDefines.append(protectingDefine)
@@ -600,7 +608,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     }
 
                     if var enumeration = parsedEnumerations[extends] {
-                        var addedCase = ParsedEnum.Case(name: $0.name)
+                        var addedCase = ParsedEnum.Case(name: $0.name, value: nil)
 
                         $0.protectingDefine.map {
                             if enumeration.cDefines.contains($0) == false {
@@ -626,7 +634,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     }
 
                     if var optionSet = parsedOptionSets[extends] {
-                        var addedCase = ParsedEnum.Case(name: $0.name)
+                        var addedCase = ParsedEnum.Case(name: $0.name, value: nil)
 
                         $0.protectingDefine.map {
                             if optionSet.cDefines.contains($0) == false {
@@ -1026,6 +1034,10 @@ extension ParsedEnum.Case {
             return []
         }
 
+        // if isOptionSet == true, let value = value, value == "0" {
+        //     return []
+        // }
+
         var result = name
             .replacingOccurrences(of: "_1D", with: "_ONE_DIMENSION")
             .replacingOccurrences(of: "_2D", with: "_TWO_DIMENSIONS")
@@ -1109,7 +1121,15 @@ extension ParsedEnum.Case {
             "#if \($0)"
         }
 
-        resultingArray += [(swiftDefines.isEmpty ? "" : "    ") + "static let \(result): \(enumerationName) = .\(name)"]
+        let adjustedName: String
+
+        if isOptionSet == true, let value = value, value == "0" {
+            adjustedName = "[]"
+        } else {
+            adjustedName = ".\(name)"
+        }
+
+        resultingArray += [(swiftDefines.isEmpty ? "" : "    ") + "static let \(result): \(enumerationName) = \(adjustedName)"]
 
         resultingArray += swiftDefines.map { _ in
             "#endif"
@@ -1122,6 +1142,7 @@ extension ParsedEnum.Case {
 struct ParsedEnum: VulkanType {
     struct Case {
         let name: String
+        let value: String?
         var cDefines: [String] = []
         var swiftDefines: [String] = []
     }
@@ -1138,9 +1159,9 @@ struct ParsedEnum: VulkanType {
         isOptionSet = enumerationDefinition.subtype == .bitmask
 
         name = enumerationDefinition.name
-
+ 
         cases = enumerationDefinition.cases.map {
-            Case(name: $0.name)
+            Case(name: $0.name, value: $0.value)
         }
     }
 

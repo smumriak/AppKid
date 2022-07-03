@@ -101,6 +101,7 @@ AK_EXISTING_ENUM(VkSharingMode);
 AK_EXISTING_ENUM(VkStencilOp);
 AK_EXISTING_ENUM(VkStructureType);
 AK_EXISTING_ENUM(VkSubpassContents);
+AK_EXISTING_ENUM(VkSubpassMergeStatusEXT);
 AK_EXISTING_ENUM(VkSystemAllocationScope);
 AK_EXISTING_ENUM(VkTessellationDomainOrigin);
 AK_EXISTING_ENUM(VkTimeDomainEXT);

@@ -1098,6 +1098,18 @@ extension VkImageBlit2: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_BLIT_2
 }
 
+public typealias VkImageCompressionControlEXT = CVulkan.VkImageCompressionControlEXT
+
+extension VkImageCompressionControlEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_CONTROL_EXT
+}
+
+public typealias VkImageCompressionPropertiesEXT = CVulkan.VkImageCompressionPropertiesEXT
+
+extension VkImageCompressionPropertiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_COMPRESSION_PROPERTIES_EXT
+}
+
 public typealias VkImageCopy2 = CVulkan.VkImageCopy2
 
 extension VkImageCopy2: VulkanInStructure {
@@ -1180,6 +1192,12 @@ public typealias VkImageStencilUsageCreateInfo = CVulkan.VkImageStencilUsageCrea
 
 extension VkImageStencilUsageCreateInfo: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_STENCIL_USAGE_CREATE_INFO
+}
+
+public typealias VkImageSubresource2EXT = CVulkan.VkImageSubresource2EXT
+
+extension VkImageSubresource2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_SUBRESOURCE_2_EXT
 }
 
 public typealias VkImageSwapchainCreateInfoKHR = CVulkan.VkImageSwapchainCreateInfoKHR
@@ -1850,10 +1868,16 @@ extension VkPhysicalDeviceFragmentDensityMapPropertiesEXT: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_DENSITY_MAP_PROPERTIES_EXT
 }
 
-public typealias VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV = CVulkan.VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV
+public typealias VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR = CVulkan.VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR
 
-extension VkPhysicalDeviceFragmentShaderBarycentricFeaturesNV: VulkanOutStructure {
-    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_NV
+extension VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_FEATURES_KHR
+}
+
+public typealias VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR = CVulkan.VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR
+
+extension VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADER_BARYCENTRIC_PROPERTIES_KHR
 }
 
 public typealias VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT = CVulkan.VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT
@@ -1932,6 +1956,18 @@ public typealias VkPhysicalDeviceImage2DViewOf3DFeaturesEXT = CVulkan.VkPhysical
 
 extension VkPhysicalDeviceImage2DViewOf3DFeaturesEXT: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT
+}
+
+public typealias VkPhysicalDeviceImageCompressionControlFeaturesEXT = CVulkan.VkPhysicalDeviceImageCompressionControlFeaturesEXT
+
+extension VkPhysicalDeviceImageCompressionControlFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_FEATURES_EXT
+}
+
+public typealias VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT = CVulkan.VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT
+
+extension VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_COMPRESSION_CONTROL_SWAPCHAIN_FEATURES_EXT
 }
 
 public typealias VkPhysicalDeviceImageDrmFormatModifierInfoEXT = CVulkan.VkPhysicalDeviceImageDrmFormatModifierInfoEXT
@@ -2138,6 +2174,12 @@ extension VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR: VulkanOutStru
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR
 }
 
+public typealias VkPhysicalDevicePipelinePropertiesFeaturesEXT = CVulkan.VkPhysicalDevicePipelinePropertiesFeaturesEXT
+
+extension VkPhysicalDevicePipelinePropertiesFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROPERTIES_FEATURES_EXT
+}
+
 public typealias VkPhysicalDevicePointClippingProperties = CVulkan.VkPhysicalDevicePointClippingProperties
 
 extension VkPhysicalDevicePointClippingProperties: VulkanOutStructure {
@@ -2236,6 +2278,12 @@ public typealias VkPhysicalDeviceRayQueryFeaturesKHR = CVulkan.VkPhysicalDeviceR
 
 extension VkPhysicalDeviceRayQueryFeaturesKHR: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR
+}
+
+public typealias VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR = CVulkan.VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR
+
+extension VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_MAINTENANCE_1_FEATURES_KHR
 }
 
 public typealias VkPhysicalDeviceRayTracingMotionBlurFeaturesNV = CVulkan.VkPhysicalDeviceRayTracingMotionBlurFeaturesNV
@@ -2358,6 +2406,12 @@ extension VkPhysicalDeviceShaderDrawParametersFeatures: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DRAW_PARAMETERS_FEATURES
 }
 
+public typealias VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD = CVulkan.VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD
+
+extension VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_EARLY_AND_LATE_FRAGMENT_TESTS_FEATURES_AMD
+}
+
 public typealias VkPhysicalDeviceShaderFloat16Int8Features = CVulkan.VkPhysicalDeviceShaderFloat16Int8Features
 
 extension VkPhysicalDeviceShaderFloat16Int8Features: VulkanOutStructure {
@@ -2458,6 +2512,12 @@ public typealias VkPhysicalDeviceSubgroupSizeControlProperties = CVulkan.VkPhysi
 
 extension VkPhysicalDeviceSubgroupSizeControlProperties: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_SIZE_CONTROL_PROPERTIES
+}
+
+public typealias VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT = CVulkan.VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT
+
+extension VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBPASS_MERGE_FEEDBACK_FEATURES_EXT
 }
 
 public typealias VkPhysicalDeviceSubpassShadingFeaturesHUAWEI = CVulkan.VkPhysicalDeviceSubpassShadingFeaturesHUAWEI
@@ -2766,6 +2826,12 @@ extension VkPipelineMultisampleStateCreateInfo: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
 }
 
+public typealias VkPipelinePropertiesIdentifierEXT = CVulkan.VkPipelinePropertiesIdentifierEXT
+
+extension VkPipelinePropertiesIdentifierEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_PROPERTIES_IDENTIFIER_EXT
+}
+
 public typealias VkPipelineRasterizationConservativeStateCreateInfoEXT = CVulkan.VkPipelineRasterizationConservativeStateCreateInfoEXT
 
 extension VkPipelineRasterizationConservativeStateCreateInfoEXT: VulkanInStructure {
@@ -3036,6 +3102,18 @@ extension VkRenderPassCreateInfo2: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2
 }
 
+public typealias VkRenderPassCreationControlEXT = CVulkan.VkRenderPassCreationControlEXT
+
+extension VkRenderPassCreationControlEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_CONTROL_EXT
+}
+
+public typealias VkRenderPassCreationFeedbackCreateInfoEXT = CVulkan.VkRenderPassCreationFeedbackCreateInfoEXT
+
+extension VkRenderPassCreationFeedbackCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_CREATION_FEEDBACK_CREATE_INFO_EXT
+}
+
 public typealias VkRenderPassFragmentDensityMapCreateInfoEXT = CVulkan.VkRenderPassFragmentDensityMapCreateInfoEXT
 
 extension VkRenderPassFragmentDensityMapCreateInfoEXT: VulkanInStructure {
@@ -3058,6 +3136,12 @@ public typealias VkRenderPassSampleLocationsBeginInfoEXT = CVulkan.VkRenderPassS
 
 extension VkRenderPassSampleLocationsBeginInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT
+}
+
+public typealias VkRenderPassSubpassFeedbackCreateInfoEXT = CVulkan.VkRenderPassSubpassFeedbackCreateInfoEXT
+
+extension VkRenderPassSubpassFeedbackCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RENDER_PASS_SUBPASS_FEEDBACK_CREATE_INFO_EXT
 }
 
 public typealias VkRenderPassTransformBeginInfoQCOM = CVulkan.VkRenderPassTransformBeginInfoQCOM
@@ -3272,6 +3356,12 @@ public typealias VkSubpassShadingPipelineCreateInfoHUAWEI = CVulkan.VkSubpassSha
 
 extension VkSubpassShadingPipelineCreateInfoHUAWEI: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBPASS_SHADING_PIPELINE_CREATE_INFO_HUAWEI
+}
+
+public typealias VkSubresourceLayout2EXT = CVulkan.VkSubresourceLayout2EXT
+
+extension VkSubresourceLayout2EXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SUBRESOURCE_LAYOUT_2_EXT
 }
 
 public typealias VkSurfaceCapabilities2EXT = CVulkan.VkSurfaceCapabilities2EXT
