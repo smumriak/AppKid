@@ -44,7 +44,7 @@ internal class DescriptorSetsLayouts {
     }
 }
 
-open class CARenderer: NSObject {
+open class CARenderer {
     internal var frameTime: CFTimeInterval = 0.0
     internal let queues: VolcanoRenderStack.Queues
     internal var renderContext: RenderContext
@@ -87,8 +87,6 @@ open class CARenderer: NSObject {
         
         commandPool = try renderStack.queues.graphics.createCommandPool(flags: .resetCommandBuffer)
         commandBuffer = try commandPool.createCommandBuffer()
-
-        super.init()
     }
 
     // MARK: - Public interface

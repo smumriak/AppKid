@@ -13,13 +13,11 @@ import CairoGraphics
     import class CairoGraphics.CGContext
 #endif
 
-internal final class SoftwareRenderer: NSObject {
+internal final class SoftwareRenderer {
     let context: CGContext
 
     init(context: CGContext) {
         self.context = context
-
-        super.init()
     }
 
     func render(window: Window) {

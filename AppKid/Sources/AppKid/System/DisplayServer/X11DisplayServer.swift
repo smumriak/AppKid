@@ -43,9 +43,9 @@ internal extension ProcessInfo {
     }
 }
 
-internal final class X11DisplayServer: NSObject, DisplayServer {
+internal final class X11DisplayServer: DisplayServer {
     var context = X11DisplayServerContext()
-    var eventQueueNotificationObserver: NSObjectProtocol?
+    var eventQueueNotificationObserver: AnyObject?
 
     var nativeIdentifierToWindowNumber: [XID: Int] = [:]
 
@@ -132,8 +132,6 @@ internal final class X11DisplayServer: NSObject, DisplayServer {
         }
 
         rootWindow = X11NativeWindow(display: display, screen: screen, windowIdentifier: screen.pointee.root, title: "root")
-
-        super.init()
 
         if let forceScaleFactorString = ProcessInfo.forceScaleFactor, let forceScaleFactor = CGFloat(forceScaleFactorString) {
             context.scale = CGFloat(forceScaleFactor)

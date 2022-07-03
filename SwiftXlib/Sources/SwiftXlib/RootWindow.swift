@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CXlib
 
-public class RootWindow: NSObject, WindowProtocol {
+public class RootWindow: WindowProtocol {
     public unowned let display: Display
     public unowned let screen: Screen
     public let rootWindow: RootWindow? = nil
@@ -24,7 +24,5 @@ public class RootWindow: NSObject, WindowProtocol {
         self.display = display
         self.screen = screen
         self.windowIdentifier = XDefaultRootWindow(display.handle)
-
-        super.init()
     }
 }

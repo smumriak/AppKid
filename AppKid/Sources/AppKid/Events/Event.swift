@@ -202,7 +202,7 @@ public extension Event {
     }
 }
 
-public class Event: NSObject {
+public class Event {
     public internal(set) var type: EventType = .none
     public internal(set) var subType: EventSubtype = .none
     public internal(set) var modifierFlags: ModifierFlags = .none
@@ -245,8 +245,6 @@ public class Event: NSObject {
         self.modifierFlags = modifierFlags
         self.windowNumber = windowNumber
         self.window = Application.shared.window(number: windowNumber)
-
-        super.init()
     }
     
     public convenience init(withMouseEventType type: EventType, location: CGPoint, modifierFlags: ModifierFlags, timestamp: TimeInterval, windowNumber: Int, eventNumber: Int, clickCount: Int, pressure: CGFloat) throws {

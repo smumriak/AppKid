@@ -13,7 +13,7 @@ import CairoGraphics
     import class CairoGraphics.CGImage
 #endif
 
-public final class Image: NSObject {
+public final class Image {
     public internal(set) var cgImage: CGImage?
     public internal(set) var images: [Image]?
 

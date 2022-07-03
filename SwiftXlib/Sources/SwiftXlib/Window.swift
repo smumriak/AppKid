@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CXlib
 
-public class Window: NSObject, WindowProtocol {
+public class Window: WindowProtocol {
     public let display: Display
     public let screen: Screen
     public let rootWindow: RootWindow?
@@ -38,8 +38,6 @@ public class Window: NSObject, WindowProtocol {
         self.rootWindow = rootWindow
         self.windowIdentifier = windowIdentifier
         self.destroyOnDeinit = destroyOnDeinit
-
-        super.init()
     }
 
     public convenience init(rootWindow: RootWindow, windowIdentifier: CXlib.Window, setupSyncCounters: Bool = true) {

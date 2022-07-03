@@ -7,7 +7,7 @@
 
 import Foundation
 
-open class Responder: NSObject {
+open class Responder {
     open var nextResponder: Responder? { return nil }
 
     internal func responderWindow() -> Window? { return nil }
@@ -82,8 +82,8 @@ internal extension Responder {
     ]
 }
 
-public extension Responder {
-    static func == (lhs: Responder, rhs: Responder) -> Bool {
+extension Responder: Equatable {
+    public static func == (lhs: Responder, rhs: Responder) -> Bool {
         return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }
 }

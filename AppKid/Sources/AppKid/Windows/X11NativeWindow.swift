@@ -16,7 +16,7 @@ protocol NativeWindow: AnyObject {
     var opacity: CGFloat { get set }
 }
 
-public final class X11NativeWindow: NSObject, NativeWindow {
+public final class X11NativeWindow: NativeWindow {
     public fileprivate(set) var display: SwiftXlib.Display
     public fileprivate(set) var screen: UnsafeMutablePointer<CXlib.Screen>
     public fileprivate(set) var windowIdentifier: CXlib.Window
@@ -115,8 +115,6 @@ public final class X11NativeWindow: NSObject, NativeWindow {
         self.title = title
         
         self.window = SwiftXlib.Window(rootWindow: display.rootWindow, windowIdentifier: windowIdentifier)
-
-        super.init()
     }
 
     func updateListeningEvents(displayServer: X11DisplayServer) {

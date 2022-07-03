@@ -113,7 +113,7 @@ internal class DescriptorSetContainer {
     }
 }
 
-@_spi(AppKid) public class VolcanoRenderer: NSObject {
+@_spi(AppKid) public class VolcanoRenderer {
     enum Error: Swift.Error {
         case noLayer
         case noRenderTarget
@@ -165,8 +165,6 @@ internal class DescriptorSetContainer {
 
         renderContext = try RenderContext(renderStack: renderStack, pipelines: pipelines, descriptorSetsLayouts: descriptorSetsLayouts)
         self.commandPool = commandPool
-
-        super.init()
     }
 
     // MARK: - Public interface

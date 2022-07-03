@@ -25,7 +25,7 @@ internal struct RetainCount {
 
 internal var globalRetainCount = RetainCount()
 
-public protocol SmartPointerProtocol {
+public protocol SmartPointerProtocol: Hashable {
     associatedtype Pointee
     typealias Pointer_t = UnsafeMutablePointer<Pointee>
     
@@ -92,6 +92,14 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
 
     public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
         return UnsafeMutableRawPointer(pointer).assumingMemoryBound(to: type)
+    }
+
+    public static func == (lhs: SmartPointer<Pointee>, rhs: SmartPointer<Pointee>) -> Bool {
+        return lhs.pointer == rhs.pointer
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(pointer)
     }
 }
 

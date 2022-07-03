@@ -32,7 +32,7 @@ open class PhysicalDeviceEntity<Entity>: HandleStorage<Entity> where Entity: Sma
     }
 }
 
-open class DeviceEntity<Entity>: HandleStorage<Entity>, DeviceEntityProtocol where Entity: SmartPointerProtocol {
+open class DeviceEntity<Entity>: HandleStorage<Entity>, DeviceEntityProtocol where Entity: SmartPointerProtocol & Hashable {
     public internal(set) var device: Device
 
     @inlinable @inline(__always)

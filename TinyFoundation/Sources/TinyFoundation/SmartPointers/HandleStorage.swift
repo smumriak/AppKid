@@ -18,7 +18,7 @@ public protocol SmartPointerHandleStorageProtocol: HandleStorageProtocol {
     var handlePointer: SmartPointerHandle_t { get }
 }
 
-open class HandleStorage<Handle>: NSObject, HandleStorageProtocol, SmartPointerHandleStorageProtocol where Handle: SmartPointerProtocol {
+open class HandleStorage<Handle>: HandleStorageProtocol, SmartPointerHandleStorageProtocol where Handle: SmartPointerProtocol {
     public var handle: Handle.Pointer_t {
         handlePointer.pointer
     }
@@ -27,8 +27,14 @@ open class HandleStorage<Handle>: NSObject, HandleStorageProtocol, SmartPointerH
 
     public init(handlePointer: Handle) {
         self.handlePointer = handlePointer
+    }
 
-        super.init()
+    public static func == (lhs: HandleStorage<Handle>, rhs: HandleStorage<Handle>) -> Bool {
+        return lhs.handlePointer == rhs.handlePointer
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(handlePointer)
     }
 }
 

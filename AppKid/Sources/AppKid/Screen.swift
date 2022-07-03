@@ -7,5 +7,5 @@
 
 import Foundation
 
-open class Screen: NSObject {
+open class Screen {
 }

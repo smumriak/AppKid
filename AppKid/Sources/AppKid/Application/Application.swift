@@ -23,7 +23,7 @@ public extension RunLoop.Mode {
     static let modal: RunLoop.Mode = RunLoop.Mode("kAppKidModalRunLoopMode")
 }
 
-public protocol ApplicationDelegate: NSObjectProtocol, PublicInitializable {
+public protocol ApplicationDelegate: AnyObject, PublicInitializable {
     func application(_ application: Application, willFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func application(_ application: Application, didFinishLaunchingWithOptions launchOptions: [Application.LaunchOptionsKey: Any]?) -> Bool
     func applicationShouldTerminateAfterLastWindowClosed(_ application: Application) -> Bool

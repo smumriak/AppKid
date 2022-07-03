@@ -9,7 +9,7 @@ import Foundation
 import CGlib
 import TinyFoundation
 
-// public class SwiftGMainLoop: NSObject {
+// public class SwiftGMainLoop {
 //     public let context: SwiftGMainContext
 
 //     deinit {
@@ -37,7 +37,7 @@ import TinyFoundation
 //     }
 // }
 
-internal class SwiftGMainLoopRunLoopSource: NSObject {
+internal class SwiftGMainLoopRunLoopSource {
     private let context: SwiftGMainContext
     private let epollFileDescriptorPort: FileDescriptorPort
     private var observedGlibFileDescriptors: [GPollFD] = []
@@ -54,8 +54,6 @@ internal class SwiftGMainLoopRunLoopSource: NSObject {
 
         self.epollFileDescriptorPort = epollFileDescriptorPort
         epollFileDescriptorPort.enableNotificationType([.read])
-
-        super.init()
 
         epollFileDescriptorPort.setDelegate(self)
 
