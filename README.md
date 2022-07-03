@@ -1,8 +1,10 @@
-# AppKid
+# **AppKid**
 
-AppKid is an implementation of Application Development Framework heavily inspired by Apple's AppKit and UIKit. It was started as a way to have convenient SDK to build UI applications for X11 enabled GNU/Linux environment. It is written completely in swift, using Vulkan as rendering backend and relies on X11 for window management and user input events.
+**AppKid** is an open-source Application Development Framework heavily inspired by Apple's AppKit and UIKit. It was started as a way to have convenient SDK to build UI applications for X11 enabled GNU/Linux environment. It is written completely in swift, using Vulkan as rendering backend and relies on X11 for window management and user input events.
 
-<img src="https://user-images.githubusercontent.com/4306641/177026217-ce10cb8a-5370-4b6b-8520-ce70ee75e057.png?raw=true" alt="Hello World with AppKid" width="80%" height="80%">
+<p align="center">
+	<img src="https://user-images.githubusercontent.com/4306641/177050935-93acbfca-3e1a-4e00-bdf2-fbbac5ad3ed9.png?raw=true" alt="Hello World with AppKid">
+</p>
 
 ```swift
 import AppKid
@@ -11,17 +13,17 @@ import Foundation
 class RootViewController: ViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        let label = Label(frame: CGRect(x: 0.0, y: 0.0, width: 640.0, height: 44.0))
+        let label = Label(frame: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 44.0))
         label.text = "Hello World"
         view.addSubview(label)
-        label.center = CGPoint(x: 320.0, y: 240.0)
+        label.center = CGPoint(x: 160.0, y: 120.0)
     }
 }
 
 @main
-final class AppDelegate: NSObject, ApplicationDelegate {
+final class AppDelegate: ApplicationDelegate {
     func application(_: Application, didFinishLaunchingWithOptions _: [Application.LaunchOptionsKey: Any]? = nil) -> Bool {
-        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 640.0, height: 480.0))
+        let window = Window(contentRect: CGRect(x: 0.0, y: 0.0, width: 320.0, height: 240.0))
         window.title = "Hello World"
         window.rootViewController = RootViewController()
         return true
@@ -29,43 +31,42 @@ final class AppDelegate: NSObject, ApplicationDelegate {
 }
 ```
 
-# AppKidDemo
+## Getting started with **AppKid** in your project
+**AppKid** depends on mulitple opensource projects. Below are the instructrions on how to set those up for Debian-based Linux distributions. RPM-Based instructions will be added some time later.
 
-AppKidDemo is a simple application written in swift that provides a sample environment for AppKid development
-
-https://user-images.githubusercontent.com/4306641/177026612-370dbd73-b414-4551-9341-9bd580389d53.mp4
-
-https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-ad9c-5b29251fdfa0.mp4
-
-## Getting Started
-### Dependencies and environment setup
-#### **Debian-based Linux (Debian/\*Ubuntu/ElementaryOS/PopOS/etc)**
-- Install swift 
-	- Via [swift.org](https://swift.org/getting-started/#installing-swift)
-	- Update your global `$PATH` variable:
+- <details>
+	<summary>Swift language</summary>
+	
+	- Get tarball package from [swift.org](https://swift.org/getting-started/#installing-swift), unpack it to some system directory like `/opt/swift` and update global `$PATH` variable
 		```bash
 		sudo nano /etc/profile.d/10swift_path.sh
 		```
-		paste this:
+		paste this
 		```bash
 		export PATH=/opt/swift/usr/bin:"${PATH}"`
 		```
 		where `/opt/swift` is a path to your swift toolchain
 	
-	- Alternatively install swiftlang via [swiftlang builds](https://www.swiftlang.xyz/) (does not require changing `$PATH` variable):
+	- Alternatively install swiftlang package via [swiftlang builds](https://www.swiftlang.xyz/) (does not require extenting `$PATH` variable)
 		```bash
 		wget -qO - https://archive.swiftlang.xyz/install.sh | sudo bash
-		sudo apt install swiftlang
+		sudo apt install swiftlang -y
 		```
-- Install Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#linux).
-	LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via SupportingFiles. Something like this:
+  </details>
+- <details>
+    <summary>Vulkan SDK</summary>
+
+	LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via `SupportingFiles`
 	```bash
     wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
 	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/lunarg-vulkan-focal.list -O /etc/apt/sources.list.d/lunarg-vulkan-focal.list
 	sudo apt update
-	sudo apt install vulkan-sdk
+	sudo apt install vulkan-sdk -y
 	```
-- Install other project dependencies:
+  </details>
+- <details>
+	<summary>System libraries</summary>
+
 	```bash
 	sudo apt install -y \
 		libx11-dev \
@@ -73,14 +74,56 @@ https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-a
 		libwayland-dev \
 		libcairo2-dev \
 		libpango1.0-dev \
-		libglib2.0-dev \
+		libglib2.0-dev
+	```
+  </details>
+- <details>
+	<summary>libclang</summary>
+
+	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang. If you have no intention to modify internal AppKid shaders you can skip this step.
+	
+	Install libclang itself
+	```bash
+	sudo apt install -y \
 		libclang-12-dev 
 	```
-- Install provided package config file for libclang on your system (because llvm does not provide one):
+	Install provided package config file for libclang because llvm does not provide one:
 	```bash
 	sudo mkdir -p /usr/local/lib/pkgconfig
 	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
 	```
+  </details>
+After the necessary dependencies were set up just add this package in your SwiftPM manifest file as a dependency and add **AppKid** product as a dependency to your target:
+```swift
+// swift-tools-version: 5.5
+import PackageDescription
+
+let package = Package(
+  name: "MyApp",
+  dependencies: [
+    .package(
+	  url: "https://github.com/smumriak/AppKid", 
+	  branch: "main"
+	),
+  ],
+  targets: [
+    .executableTarget(
+      name: "MyApp",
+      dependencies: [
+        .product(name: "AppKid", package: "AppKid")
+      ])
+  ]
+)
+```
+
+## **Contributing**
+## AppKidDemo
+
+AppKidDemo is a simple application written in swift that provides a sample environment for AppKid development
+
+https://user-images.githubusercontent.com/4306641/177026612-370dbd73-b414-4551-9341-9bd580389d53.mp4
+
+https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-ad9c-5b29251fdfa0.mp4
 
 #### **macOS**
 - Install Xcode via AppStore or [developer.apple.com](https://developer.apple.com/download/more/)
@@ -112,11 +155,6 @@ https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-a
 		glib \
 		pango
 	```
-
-#### **Any Other Linux distros**
-Installation is pretty much the same as on any Debian-based Linux, just using your local package manager. Specific stuff is in swift and Vulkan SDK installation, but if you are running something that is not Debian-based - you can probably do the installation yourself (instructions for rpm-based distros will be added in future).
-#### **Windows**
-Well, not there. Sorry about that.
 ## Development
 ~~I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can also open `Packge.swift` in Xcode and it will be pretty much the same user experience.~~
 
