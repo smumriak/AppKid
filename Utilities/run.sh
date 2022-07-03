@@ -3,4 +3,4 @@ clear
 
 export APPKID_LOCAL_BUILD=1
 
-swift run AppKidDemo --build-path .build/AppKidDemo
+swift run --product AppKidDemo --build-path .build/AppKidDemo

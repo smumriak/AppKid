@@ -10,18 +10,13 @@ import CoreFoundation
 import CairoGraphics
 import TinyFoundation
 
-open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
+open class CAValuesContainer: DefaultKeyValueCodable {
     @_spi(AppKid) open var values: [AnyHashable: Any] = [:]
-
-    public override init() {
-        super.init()
-    }
 
     open class func defaultValue(forKey key: String) -> Any? {
         return nil
     }
 
-//    override
     open func value(forKey key: String) -> Any? {
         if key.isEmpty {
             return nil
@@ -30,7 +25,6 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
         return values[key]
     }
 
-//    override
     open func value(forKeyPath keyPath: String) -> Any? {
         if keyPath.isEmpty {
             return nil
@@ -51,7 +45,6 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
         }
     }
 
-//    override
     open func setValue(_ value: Any?, forKey key: String) {
         if key.isEmpty {
             return
@@ -64,7 +57,6 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
         didChangeValue(forKey: key)
     }
 
-//    override
     open func setValue(_ value: Any?, forKeyPath keyPath: String) {
         if keyPath.isEmpty {
             return
@@ -89,9 +81,13 @@ open class CAValuesContainer: NSObject, DefaultKeyValueCodable {
         }
     }
 
-//    override
     open func willChangeValue(forKey key: String) {}
 
-//    override
     open func didChangeValue(forKey key: String) {}
+}
+
+extension CAValuesContainer: Equatable {
+    public static func == (lhs: CAValuesContainer, rhs: CAValuesContainer) -> Bool {
+        return ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
+    }
 }

@@ -20,6 +20,7 @@ import LayerRenderingData
 #if os(macOS)
     import struct CairoGraphics.CGColor
     import class CairoGraphics.CGImage
+    import class CairoGraphics.CGContext
 #endif
 
 public func measure(_ label: String, _ block: () throws -> Void) rethrows {

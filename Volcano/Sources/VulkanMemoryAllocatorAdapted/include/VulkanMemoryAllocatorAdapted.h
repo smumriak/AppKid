@@ -21,6 +21,6 @@ AK_EXISTING_ENUM(VmaMemoryUsage);
 #endif
 
 #include "../../CVulkan/CVulkan_umbrella.h"
-#include <VulkanMemoryAllocatorAdaptor.h>
+#include "VulkanMemoryAllocatorAdaptor.h"
 
 #endif
