@@ -16,9 +16,10 @@ public extension NSLocking {
     }
 }
 
-@propertyWrapper public struct Synchronized<Value> {
+@propertyWrapper
+public struct Synchronized<Value> {
     private var value: Value
-    private let lock = NSLock()
+    private let lock = NSRecursiveLock()
 
     public init(wrappedValue value: Value) {
         self.value = value
@@ -31,5 +32,9 @@ public extension NSLocking {
         set {
             lock.synchronized { value = newValue }
         }
+    }
+
+    public func synchronized<T>(_ body: () throws -> T) rethrows -> T {
+        return try lock.synchronized(body)
     }
 }
