@@ -36,12 +36,4 @@ internal extension X11DisplayServer {
             return gdk_monitor_get_scale_factor(gtkMonitor)
         }
     }
-
-    func getMutterDisplayScale(for window: Window) -> CGFloat? {
-        // try? DylibWrapper.perform(on: "libmutter-6.so.0") {
-        //     meta_display_get_monitor_scale
-        // }
-
-        return 0
-    }
 }
