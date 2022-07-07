@@ -78,20 +78,16 @@ final class AppDelegate: ApplicationDelegate {
 	```
   </details>
 - <details>
-	<summary>libclang</summary>
+	<summary>libpython3.8 for debugger support</summary>
 
-	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang. If you have no intention to modify internal AppKid shaders you can skip this step.
-	
-	Install libclang itself
+	> **NOTE:** If you have no intention of debugging Swift code you skip this step
+
+	Swifts LLDB is built using libpython3.8. On modern system you will probably meet libpython3.9 or higher. Just make a symbolic link from new version to old version. Tho this is not ideal and will break with every major distribution update for you
 	```bash
-	sudo apt install -y \
-		libclang-12-dev 
+	cd /usr/lib/x86_64-linux-gnu
+	sudo ln -sf libpython3.10.so libpython3.8.so.1.0
 	```
-	Install provided package config file for libclang because llvm does not provide one:
-	```bash
-	sudo mkdir -p /usr/local/lib/pkgconfig
-	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
-	```
+	where `libpython3.10.so` is currently installed version and libpython3.8.so.1.0 is filename against which Swifts LLDB was built.
   </details>
 After the necessary dependencies were set up just add this package in your SwiftPM manifest file as a dependency and add **AppKid** product as a dependency to your target:
 ```swift
@@ -117,28 +113,51 @@ let package = Package(
 ```
 
 ## **Contributing**
-## AppKidDemo
+Contributions are very welcome. Before you dive in it is recommended to [setup your local development environment](#development).
 
-AppKidDemo is a simple application written in swift that provides a sample environment for AppKid development
+You can use provided sample applicatio called **AppKidDemo**, it is located in this repository and is one of the products. **AppKidDemo** is written in swift and provides a sample environment for **AppKid** development. 
 
 https://user-images.githubusercontent.com/4306641/177026612-370dbd73-b414-4551-9341-9bd580389d53.mp4
 
 https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-ad9c-5b29251fdfa0.mp4
 
+## Development
+Before jumping straight into writing code there is some development setup required. Below are instructions on how to setup development environment for Debian-based Linux or for macOS
+#### Debian-based Linux
+- Follow steps from [Getting started with **AppKid** in your project](#getting-started-with-appkid-in-your-project) to get the dependencies installed
+- <details>
+	<summary>libclang for shaders preprocessing</summary>
+
+	> **NOTE:** If you have no intention to modify internal **AppKid** shaders you can skip this step
+
+	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang.
+	
+	Install libclang itself
+	```bash
+	sudo apt install -y \
+		libclang-12-dev 
+	```
+	Install provided package config file for libclang because llvm does not provide one:
+	```bash
+	sudo mkdir -p /usr/local/lib/pkgconfig
+	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
+	```
+  </details>
+
 #### **macOS**
-- Install Xcode via AppStore or [developer.apple.com](https://developer.apple.com/download/more/)
-- Install XQuartz:
-	```bash
-	brew install xquartz
-	```
-- Install Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#mac)
-- Add a launchctl agent that will update environment variables so Xcode could find all the pkg-config files needed to properly build projects:
-	```bash
-	mkdir -p ~/Library/LaunchAgents
-	curl -s https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/environment.plist -o ~/Library/LaunchAgents/environment.plist
-	launchctl load -w ~/Library/LaunchAgents/environment.plist
-	```
-- Update your global `$PKG_CONFIG_PATH` variable so command line tools would have proper pkg-config search path: 
+- Xcode via [AppStore](https://apps.apple.com/us/app/xcode/id497799835) or [developer.apple.com](https://developer.apple.com/download/more/)
+- <details>
+    <summary>XQuartz</summary>
+	
+    ```bash
+    brew install xquartz
+    ```
+	</details>
+- Vulkan SDK via [lunarg.com](https://vulkan.lunarg.com/sdk/home#mac)
+- <details>
+    <summary>PKG_CONFIG_PATH global variable</summary>
+
+	Update global `PKG_CONFIG_PATH` variable so command line tools would have proper pkg-config search path:
 	```bash
 	sudo nano /etc/profile
 	````
@@ -146,8 +165,17 @@ https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-a
 	```bash
 	export PKG_CONFIG_PATH="/opt/X11/lib/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib:$PKG_CONFIG_PATH"
 	```
+    Add a launchctl agent that will update environment variables per user session so Xcode could find all the pkg-config files needed to properly build projects:
+	```bash
+	mkdir -p ~/Library/LaunchAgents
+	curl -s https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/environment.plist -o ~/Library/LaunchAgents/environment.plist
+	launchctl load -w ~/Library/LaunchAgents/environment.plist
+	```
 	> **NOTE:** This file is not backed up by TimeMachine, so you probably want to extend this environment variable for command line tools in some other way
-- Install other project dependencies:
+
+	</details>
+- <details>
+    <summary>Install other project dependencies:</summary>
 	```bash
 	brew install \
 		pkg-config \
@@ -155,12 +183,13 @@ https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-a
 		glib \
 		pango
 	```
-## Development
+	</details>
+
 ~~I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can also open `Packge.swift` in Xcode and it will be pretty much the same user experience.~~
 
 The generate-xcodeproj from swift package manager is [deprecated](https://forums.swift.org/t/rfc-deprecating-generate-xcodeproj/42159). It does not receive updates anymore and is throwing a fatal error when it meets a plugin definition in `Package.swift` file. Opening `Package.swift` itself does not work really well anymore either as it's just not showing any of the local submodules in Xcode sources tree. 
 
-For everyone's convenience there is a VSCode configuration provided. Just load the repo directory in VSCode (or VSCodium if you don't like the telemetry thing). You can install following plugins tom improve development experience: 
+For everyone's convenience there is a VSCode configuration provided. Just load the repo directory in VSCode (or VSCodium if you don't like the telemetry thing). You can install following plugins to improve development experience: 
 - [Swift](https://marketplace.visualstudio.com/items?itemName=sswg.swift-lang)
 - [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 - [Camel Case Navigation](https://marketplace.visualstudio.com/items?itemName=maptz.camelcasenavigation)
