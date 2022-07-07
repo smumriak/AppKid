@@ -176,6 +176,7 @@ Before jumping straight into writing code there is some development setup requir
 	</details>
 - <details>
     <summary>Install other project dependencies:</summary>
+
 	```bash
 	brew install \
 		pkg-config \
@@ -185,11 +186,30 @@ Before jumping straight into writing code there is some development setup requir
 	```
 	</details>
 
-~~I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can also open `Packge.swift` in Xcode and it will be pretty much the same user experience.~~
+### Building and running
+All projects in this repository are using [Swift Package Manager](https://www.swift.org/package-manager/) exclusivelly. This means that building top level product is as easy as this
+> **NOTE:** Since this is a monorepo for multiple projects at the moment it is recommended to use dedicated build directories by adding --build-path argument to swift commands
+
+> **WARNING:** Running of apps built with **AppKid** on macOS is not possible and there's no plan to make it so
+
+```bash
+swift build --product AppKid
+```
+Same with running
+```bash
+swift run --product AppKid
+```
+There are additional scripts under `Utilities` directory with pre-defined building, running, cleaning and other commands.
+> **WARNING:** Building on macOS is broken at the moment because of the issue of using vulkan-sdk as C library in pure swift project
+
+### IDE
+On Linux the recommended way to write code is to use [VSCode](https://code.visualstudio.com/) or [VSCodium](https://vscodium.com/) IDE. This way you'll get preconfigured LLDB configuration to build and run the **AppKidDemo**, full integration with Swift SourceKit LSP for syntax highlight, symbol navigation, automcompletion just like in Xcode and much more. It's just convenient.
+
+On macOS there is a choice between [VSCode](https://code.visualstudio.com/)/[VSCodium](https://vscodium.com/) and [Xcode](https://developer.apple.com/xcode/).~~I recommend generating the Xcode project via `swift package generate-xcodeproj` and opening it because indexing and build target generation is just faster this way, but you can also open `Packge.swift` in Xcode and it will be pretty much the same user experience.~~
 
 The generate-xcodeproj from swift package manager is [deprecated](https://forums.swift.org/t/rfc-deprecating-generate-xcodeproj/42159). It does not receive updates anymore and is throwing a fatal error when it meets a plugin definition in `Package.swift` file. Opening `Package.swift` itself does not work really well anymore either as it's just not showing any of the local submodules in Xcode sources tree. 
 
-For everyone's convenience there is a VSCode configuration provided. Just load the repo directory in VSCode (or VSCodium if you don't like the telemetry thing). You can install following plugins to improve development experience: 
+There is a carefully crafter VSCode/VSCoium configuration provided in the root of the reporisotory, including launch configuration and a bunch of tasks for things like regenerating Vulkan entities interface conformance from Vulkan spec or rebuilding ContentAnimation shaders. For the best experience in VSCode/VSCodium it is highly recommended to install following extensions: 
 - [Swift](https://marketplace.visualstudio.com/items?itemName=sswg.swift-lang)
 - [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 - [Camel Case Navigation](https://marketplace.visualstudio.com/items?itemName=maptz.camelcasenavigation)
@@ -198,6 +218,23 @@ For everyone's convenience there is a VSCode configuration provided. Just load t
 - [change-case](https://marketplace.visualstudio.com/items?itemName=wmaurer.change-case)
 - [Shader languages support](https://marketplace.visualstudio.com/items?itemName=slevesque.shader)
 
-## Building and running
-On macOS running from Xcode is not really supported, only building and linking to get copiler checks and all that kind of stuff.
-On Linux machine : `swift build` to build, `swift run` to run or use provided VSCode setup.
+## License
+The code in this repository is distributed under Apache-2.0. Please check [Contributing](#contributing) before creating a pull request
+
+## Acknowledgements
+**AppKid** is making use of the following opensource projects:
+- [Swift Collections](https://github.com/mirror/libX11), Apache-2.0 license
+- [cglm](https://github.com/recp/cglm), MIT license
+- [Swift Argument Parser](https://github.com/apple/swift-argument-parser), Apache-2.0 license
+- [XLMCoder](https://github.com/MaxDesiatov/XMLCoder.git), MIT license
+- [swift-tools-support-core](https://github.com/apple/swift-tools-support-core), Apache-2.0 license
+- [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator), MIT license
+- [stb](https://github.com/nothings/stb), MIT license
+- [Vulkan SDK](https://www.lunarg.com/vulkan-sdk/), Apache-2.0 license 
+- libXlib, X11 variation of MIT license
+- libwayland, MIT "Expat" license
+- libCairo, LGPL-2.1 license
+- libPango, LGPL-2.1 license
+- libGlib, LGPL-2.1 license
+- libclang, Apache-2.0 license with LLVM Exceptions
+
