@@ -63,7 +63,6 @@ let package = Package(
                 .volcano,
             ],
             resources: [
-                .copy("Resources/AppIcon.png"),
                 .copy("Resources/fan.png"),
             ]
         ),
