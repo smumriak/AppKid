@@ -119,12 +119,13 @@ public final class X11NativeWindow: NativeWindow {
 
     func updateListeningEvents(displayServer: X11DisplayServer) {
         if kEnableXInput2 {
-            // what you see below is very unsafe code in swift, but it's more or less usual implicit cast for C code. XInput2 is poorly designed C API with a lot of inconsistent or plain dumb solutions. so what's happening? the code creates XIEventMask structs which require stupid buffer or UInt8 as an input that provides "mask" for the event type. In our case even type mask has to be more than 8 bits. 32 to be precise. so we literallly cast 32 bit uint pointer value to 8 bit uint pointer. hope this does not break in future releases of swift (ha-ha, it will). after "selecting" the needed events by mask the code deallocates the data for those mask buffers
+            // smumriak: what you see below is very unsafe code in swift, but it's more or less usual implicit cast for C code (without using unsafeBitCast). XInput2 is an old and poorly designed C API that aimed to be extensible (at the time), yet it came up very inconsistent. XISelectEvents function expects an input of evemnt masks array which contains some number of descriptors represented by type XIEventMask. each of these descriptors contains identifier of the device and a *pointer* to CUnsignedChar containing the actual event mask to be used for filtering of the events from given device. XI_*MASK values are going up to 26 bits in length (despite the fact there are 32 events, i.e. mask needs a at least 32 bits. we are facing the problem of "pointer to array containing structs, each containing pointer to some other memory". Volcano has DSL built specifically to solve this problem, but it's quite limited to Volcano itself. Instead, code here does good old heap allocation of 32bit integers, cast pointer to be poining to 8bit integer, pass it to XISelectEvents function and deallocate previously allocated pointers. hope this does not break in future releases of swift
+
             var eventMasks: [XIEventMask] = displayServer.context.inputDevices
                 .map { device in
-                    let maskPointer = UnsafeMutablePointer<UInt32>.allocate(capacity: 1)
+                    let maskPointer = UnsafeMutablePointer<CUnsignedInt>.allocate(capacity: 1)
                     maskPointer.initialize(to: UInt32(device.type.mask.rawValue))
-                    let reboundMaskPointer = UnsafeMutableRawPointer(maskPointer).bindMemory(to: UInt8.self, capacity: 4)
+                    let reboundMaskPointer = UnsafeMutableRawPointer(maskPointer).bindMemory(to: CUnsignedChar.self, capacity: 4)
 
                     return XIEventMask(deviceid: device.identifier, mask_len: 4, mask: reboundMaskPointer)
                 }
