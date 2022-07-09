@@ -288,7 +288,7 @@
             "label": "build",
             "dependsOn": [
                 "clearShell",
-                "buildShaders",
+                // "buildShaders",
                 "buildProject"
             ],
             "dependsOrder": "sequence",
