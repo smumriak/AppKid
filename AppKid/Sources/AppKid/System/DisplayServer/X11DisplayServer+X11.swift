@@ -116,7 +116,6 @@ internal extension X11DisplayServer {
                     event = try Event(x11Event: x11Event, timestamp: timestamp, displayServer: self)
                 }
             } catch {
-//            debugPrint("Failed to parse X11 Event with error: \(error)")
                 event = Event.ignoredDisplayServerEvent()
             }
 

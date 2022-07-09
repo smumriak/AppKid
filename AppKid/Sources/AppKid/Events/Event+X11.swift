@@ -11,9 +11,9 @@ import CoreFoundation
 import CXlib
 import CairoGraphics
 
-fileprivate extension XEvent {
-    var eventTypeFromXEvent: Event.EventType {
-        switch x11EventType {
+internal extension XEvent {
+    var appKidEventType: Event.EventType {
+        switch eventType {
             case .keyPress, .keyRelease:
                 return keyboardEventType
 
@@ -52,7 +52,7 @@ fileprivate extension XEvent {
         if let x11ModifierKeySymbol = X11ModifierKeySymbol(rawValue: keySymbol), x11ModifierKeySymbol.isValidRawValue {
             return .flagsChanged
         } else {
-            switch x11EventType {
+            switch eventType {
                 case .keyPress: return .keyDown
                 case .keyRelease: return .keyUp
                 default: return .none
@@ -91,7 +91,7 @@ fileprivate extension XEvent {
     }
 }
 
-fileprivate extension XButtonEvent {
+internal extension XButtonEvent {
     var modifierFlags: Event.ModifierFlags {
         var result: Event.ModifierFlags = []
 
@@ -111,15 +111,15 @@ fileprivate extension XButtonEvent {
 internal extension Event {
     @_transparent
     convenience init(x11Event: XEvent, timestamp: TimeInterval, displayServer: X11DisplayServer) throws {
-        let type = x11Event.eventTypeFromXEvent
+        let type = x11Event.appKidEventType
         
         if type == .none {
-            let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
+            let eventString = x11Event.eventType.map { String(reflecting: $0) } ?? "unknown"
             throw Error.nativeEventIgnored(description: "X11 event type: \(eventString)")
         }
 
         guard let windowNumber = displayServer.nativeIdentifierToWindowNumber[x11Event.xany.window] else {
-            let eventString = x11Event.x11EventType.map { String(reflecting: $0) } ?? "unknown"
+            let eventString = x11Event.eventType.map { String(reflecting: $0) } ?? "unknown"
             throw Error.noWindow(description: "X11 event type: \(eventString). Foreign window ID: \(x11Event.xany.window)")
         }
 
@@ -133,20 +133,20 @@ internal extension Event {
                 buttonNumber = Int(buttonEvent.button)
             
             case .appKidDefined:
-                switch x11Event.xany.type {
-                    case MapNotify:
+                switch x11Event.eventType {
+                    case .mapNotify:
                         self.init(withAppKidEventSubType: .windowMapped, windowNumber: windowNumber)
 
-                    case UnmapNotify:
+                    case .unmapNotify:
                         self.init(withAppKidEventSubType: .windowUnmapped, windowNumber: windowNumber)
                 
-                    case Expose:
+                    case .expose:
                         self.init(withAppKidEventSubType: .windowExposed, windowNumber: windowNumber)
                 
-                    case ClientMessage:
+                    case .clientMessage:
                         self.init(clientMessageEvent: x11Event.xclient, timestamp: timestamp, displayServer: displayServer, windowNumber: windowNumber)
 
-                    case ConfigureNotify:
+                    case .configureNotify:
                         let configureEvent = x11Event.xconfigure
 
                         self.init(withAppKidEventSubType: .configurationChanged, windowNumber: windowNumber)

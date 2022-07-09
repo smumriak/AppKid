@@ -14,7 +14,7 @@ internal extension XEvent {
         return type == GenericEvent && xcookie.extension == `extension`
     }
 
-    var x11EventType: XlibEventType? {
+    var eventType: XlibEventType? {
         return XlibEventType(rawValue: type)
     }
 }
