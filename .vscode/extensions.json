@@ -4,8 +4,9 @@
         "vadimcn.vscode-lldb",
         "maptz.camelcasenavigation",
         "vknabel.vscode-swiftformat",
-        "ArturoDent.launch-config",
+        "arturodent.launch-config",
         "wmaurer.change-case",
-        "slevesque.shader"
+        "slevesque.shader",
+        "psioniq.psi-header"
     ]
 }

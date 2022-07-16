@@ -217,6 +217,7 @@ There is a carefully crafter VSCode/VSCoium configuration provided in the root o
 - [Launch Configs](https://marketplace.visualstudio.com/items?itemName=ArturoDent.launch-config)
 - [change-case](https://marketplace.visualstudio.com/items?itemName=wmaurer.change-case)
 - [Shader languages support](https://marketplace.visualstudio.com/items?itemName=slevesque.shader)
+- [psioniq File Header](https://marketplace.visualstudio.com/items?itemName=psioniq.psi-header)
 
 ## License
 The code in this repository is distributed under Apache-2.0. Please check [Contributing](#contributing) before creating a pull request

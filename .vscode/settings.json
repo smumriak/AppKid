@@ -69,4 +69,33 @@
     "search.exclude": {
         "**/.build": true
     },
+    "psi-header.config": {
+        "forceToTop": true,
+        "blankLinesAfter": 1,
+    },
+    "psi-header.changes-tracking": {
+        "isActive": false,
+        "autoHeader": "autoSave"
+    },
+    "psi-header.lang-config": [
+        {
+            "language": "*",
+            "begin": "//",
+            "prefix": "//  ",
+            "end": "//",
+            "forceToTop": true,
+            "rootDirFileName": "Package.swift",
+        }
+    ],
+    "psi-header.templates": [
+        {
+            "language": "*",
+            "template": [
+                "<<filename>>",
+                "<<projectname>>",
+                "",
+                "Created by <<author>> on <<filecreated('DD.MM.YYYY')>>"
+            ]
+        }
+    ],
 }
