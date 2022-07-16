@@ -16,6 +16,7 @@ struct LayerRenderDescriptor {
   vec2s position;          // +8 bytes
   vec2s anchorPoint;       // +8 bytes
   vec4s bounds;            // +16 bytes
+  vec4s textureRect;       // +16 bytes
   vec4s backgroundColor;   // +16 bytes
   vec4s borderColor;       // +16 bytes
   float borderWidth;       // +4 bytes
@@ -26,9 +27,8 @@ struct LayerRenderDescriptor {
   float shadowRadius;      // +4 bytes
   float shadowOpacity;     // +4 bytes
 
-  // Totoal before padding: 232 bytes
+  // Totoal before padding: 252 bytes
 
   float padding0; // + 4 bytes
-  vec4s padding1; // +16 bytes
                        // Total: 256 bytes
 };

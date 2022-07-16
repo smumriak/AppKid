@@ -314,6 +314,7 @@ internal class DescriptorSetContainer {
                                                        position: position.vec2,
                                                        anchorPoint: current.anchorPoint.vec2,
                                                        bounds: bounds.vec4,
+                                                       textureRect: .zero,
                                                        backgroundColor: current.backgroundColor?.vec4 ?? .zero,
                                                        borderColor: current.borderColor?.vec4 ?? .zero,
                                                        borderWidth: Float(current.borderWidth),
@@ -323,8 +324,7 @@ internal class DescriptorSetContainer {
                                                        shadowColor: current.shadowColor?.vec4 ?? .zero,
                                                        shadowRadius: Float(current.shadowRadius),
                                                        shadowOpacity: Float(current.shadowOpacity),
-                                                       padding0: .zero,
-                                                       padding1: .zero)
+                                                       padding0: .zero)
 
                 renderContext.descriptors.append(descriptor)
 
@@ -430,6 +430,7 @@ internal class DescriptorSetContainer {
                                                position: position.vec2,
                                                anchorPoint: layer.anchorPoint.vec2,
                                                bounds: bounds.vec4,
+                                               textureRect: .zero,
                                                backgroundColor: layer.backgroundColor?.vec4 ?? .zero,
                                                borderColor: layer.borderColor?.vec4 ?? .zero,
                                                borderWidth: Float(layer.borderWidth),
@@ -439,8 +440,7 @@ internal class DescriptorSetContainer {
                                                shadowColor: layer.shadowColor?.vec4 ?? .zero,
                                                shadowRadius: Float(layer.shadowRadius),
                                                shadowOpacity: Float(layer.shadowOpacity),
-                                               padding0: .zero,
-                                               padding1: .zero)
+                                               padding0: .zero)
 
         renderContext.descriptors.append(descriptor)
 

@@ -46,6 +46,7 @@ void main()
     layer.position = position;
     layer.anchorPoint = anchorPoint;
     layer.bounds = bounds;
+    layer.textureRect = textureRect;
     layer.backgroundColor = backgroundColor;
     layer.borderColor = borderColor;
     layer.borderWidth = borderWidth;
