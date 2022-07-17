@@ -12,7 +12,7 @@
 
 #include "../../../CCore/include/CCore.h"
 
-typedef AK_OPTIONS(int32_t, XlibEventTypeMask) {
+typedef AK_OPTIONS(long, XlibEventTypeMask) {
     XlibEventTypeMaskNoEvent = NoEventMask,
     XlibEventTypeMaskKeyPress = KeyPressMask,
     XlibEventTypeMaskKeyRelease = KeyReleaseMask,

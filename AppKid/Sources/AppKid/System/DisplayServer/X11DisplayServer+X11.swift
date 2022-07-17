@@ -122,9 +122,11 @@ internal extension X11DisplayServer {
             switch event.type {
                 case _ where event.isAnyMouseDownEvent && context.currentPressedMouseButton == .none:
                     context.currentPressedMouseButton = event.xInput2Button
+                    event.window?.nativeWindow.updateListeningEvents()
 
                 case _ where event.isAnyMouseUpEvent && context.currentPressedMouseButton == event.xInput2Button:
                     context.currentPressedMouseButton = .none
+                    event.window?.nativeWindow.updateListeningEvents()
 
                 default:
                     break
@@ -157,13 +159,17 @@ internal extension X11DisplayServer {
                     CInt($0)
                 }
 
-                let deviceType: XInput2Device.DeviceType = {
-                    if deviceInfo.use == XISlavePointer {
-                        return .pointer
-                    } else {
-                        return .keyboard
-                    }
-                }()
+                let deviceType: XInput2Device.DeviceType
+                switch deviceInfo.use {
+                    case XIMasterPointer, XISlavePointer:
+                        deviceType = .pointer
+
+                    case XIMasterKeyboard, XISlaveKeyboard:
+                        deviceType = .keyboard
+
+                    default:
+                        fatalError("This code should never be executed")
+                }
 
                 return XInput2Device(identifier: deviceInfo.deviceid, valuatorsCount: valuatorsCount ?? 0, type: deviceType)
             }

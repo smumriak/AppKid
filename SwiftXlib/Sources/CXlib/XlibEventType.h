@@ -12,7 +12,7 @@
 
 #include "../../../CCore/include/CCore.h"
 
-typedef AK_ENUM(int32_t, XlibEventType) {
+typedef AK_ENUM(int, XlibEventType) {
     XlibEventTypeKeyPress = KeyPress,
     XlibEventTypeKeyRelease = KeyRelease,
     XlibEventTypeButtonPress = ButtonPress,

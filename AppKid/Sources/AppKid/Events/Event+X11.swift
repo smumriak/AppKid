@@ -124,14 +124,6 @@ internal extension Event {
         }
 
         switch type {
-            case _ where type.isAnyMouse:
-                let buttonEvent = x11Event.xbutton
-
-                let location = CGPoint(x: CGFloat(buttonEvent.x), y: CGFloat(buttonEvent.y)) / displayServer.context.scale
-                try self.init(withMouseEventType: type, location: location, modifierFlags: buttonEvent.modifierFlags, timestamp: timestamp, windowNumber: windowNumber, eventNumber: 0, clickCount: 0, pressure: 0.0)
-
-                buttonNumber = Int(buttonEvent.button)
-            
             case .appKidDefined:
                 switch x11Event.eventType {
                     case .mapNotify:

@@ -83,6 +83,15 @@ open class Window: View {
         }
     }
 
+    open var ignoresMouseEvents: Bool {
+        get {
+            return nativeWindow.ignoresMouseEvents
+        }
+        set {
+            nativeWindow.ignoresMouseEvents = newValue
+        }
+    }
+
     open override var masksToBounds: Bool {
         get { return true }
         set {}

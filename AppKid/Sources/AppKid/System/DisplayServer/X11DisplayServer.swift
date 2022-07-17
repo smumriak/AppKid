@@ -142,6 +142,7 @@ internal final class X11DisplayServer: DisplayServer {
         }
 
         rootWindow.displayScale = context.scale
+        rootWindow.displayServer = self
     }
 
     func flush() {
@@ -194,6 +195,7 @@ extension X11DisplayServer {
 
         let result = X11NativeWindow(display: display, screen: screen, windowIdentifier: windowIdentifier, title: title)
         result.displayScale = context.scale
+        result.displayServer = self
 
         XStoreName(display.pointer, windowIdentifier, title)
 
@@ -221,8 +223,8 @@ extension X11DisplayServer {
                 
         result.window.set(property: display.knownAtom(.bypassCompositor), type: XA_CARDINAL, format: .thirtyTwo, value: value)
 
-        result.updateListeningEvents(displayServer: self)
-        result.map(displayServer: self)
+        result.updateListeningEvents()
+        result.map()
 
         if let inputMethod = inputMethod, let inputStyle = inputStyle {
             result.inputContext = XCreateInputContext(inputMethod, inputStyle, result.windowIdentifier)
