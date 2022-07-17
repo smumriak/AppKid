@@ -70,7 +70,6 @@ let package = Package(
             ],
             swiftSettings: [
                 .unsafeFlags(["-emit-module"]),
-                .define("VOLCANO_EXPERIMENTAL_DSL"),
                 .define("VOLCANO_PLATFORM_LINUX", .when(platforms: [.linux])),
                 .define("VOLCANO_PLATFORM_MACOS", .when(platforms: [.macOS])),
                 .define("VOLCANO_PLATFORM_IOS", .when(platforms: [.iOS])),

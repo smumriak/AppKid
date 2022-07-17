@@ -38,82 +38,35 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
     }
 
     public func submit(with descriptor: SubmitDescriptor) throws {
-        #if VOLCANO_EXPERIMENTAL_DSL
-            try LVBuilder<VkSubmitInfo> {
-                (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
-                (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
-                \.pWaitDstStageMask <- descriptor.waitStages
-                (\.commandBufferCount, \.pCommandBuffers) <- descriptor.commandBuffers
+        try LVBuilder<VkSubmitInfo> {
+            (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
+            (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
+            \.pWaitDstStageMask <- descriptor.waitStages
+            (\.commandBufferCount, \.pCommandBuffers) <- descriptor.commandBuffers
 
-                if descriptor.hasTimeline {
-                    next(VkTimelineSemaphoreSubmitInfo.self) {
-                        (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
-                        (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
-                    }
-                }
-
-                // <-Chain {
-                //     if descriptor.hasTimeline {
-                //         LVBuilder<VkTimelineSemaphoreSubmitInfo> {
-                //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
-                //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
-                //         }
-                //     }
-                // }
-            }
-            .withUnsafeResultPointer { info in
-                try lock.synchronized {
-                    try vulkanInvoke {
-                        vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
-                    }
+            if descriptor.hasTimeline {
+                next(VkTimelineSemaphoreSubmitInfo.self) {
+                    (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
+                    (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
                 }
             }
-        #else
-            try descriptor.commandBuffers.optionalHandles().withUnsafeBufferPointer { commandBuffers in
-                try descriptor.waitSemaphores.optionalHandles().withUnsafeBufferPointer { waitSemaphores in
-                    try descriptor.waitSemaphoreValues.withUnsafeBufferPointer { waitSemaphoreValues in
-                        try descriptor.waitStages.withUnsafeBufferPointer { waitStages in
-                            try descriptor.signalSemaphores.optionalHandles().withUnsafeBufferPointer { signalSemaphores in
-                                try descriptor.signalSemaphoreValues.withUnsafeBufferPointer { signalSemaphoreValues in
-                                    var info: VkSubmitInfo = .new()
 
-                                    info.waitSemaphoreCount = CUnsignedInt(waitSemaphores.count)
-                                    info.pWaitSemaphores = waitSemaphores.baseAddress!
-
-                                    info.signalSemaphoreCount = CUnsignedInt(signalSemaphores.count)
-                                    info.pSignalSemaphores = signalSemaphores.baseAddress!
-
-                                    info.pWaitDstStageMask = waitStages.baseAddress!
-
-                                    info.commandBufferCount = CUnsignedInt(commandBuffers.count)
-                                    info.pCommandBuffers = commandBuffers.baseAddress!
-
-                                    let chain = VulkanStructureChain(root: info)
-
-                                    if descriptor.hasTimeline {
-                                        var timelineInfo: VkTimelineSemaphoreSubmitInfo = .new()
-                                        timelineInfo.waitSemaphoreValueCount = CUnsignedInt(waitSemaphoreValues.count)
-                                        timelineInfo.pWaitSemaphoreValues = waitSemaphoreValues.baseAddress!
-                                        timelineInfo.signalSemaphoreValueCount = CUnsignedInt(signalSemaphoreValues.count)
-                                        timelineInfo.pSignalSemaphoreValues = signalSemaphoreValues.baseAddress!
-
-                                        chain.append(timelineInfo)
-                                    }
-
-                                    try lock.synchronized {
-                                        try chain.withUnsafeChainPointer { info in
-                                            try vulkanInvoke {
-                                                vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+            // <-Chain {
+            //     if descriptor.hasTimeline {
+            //         LVBuilder<VkTimelineSemaphoreSubmitInfo> {
+            //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
+            //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
+            //         }
+            //     }
+            // }
+        }
+        .withUnsafeResultPointer { info in
+            try lock.synchronized {
+                try vulkanInvoke {
+                    vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
                 }
             }
-        #endif
+        }
     }
 
     public func present(swapchains: [Swapchain],

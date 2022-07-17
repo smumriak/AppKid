@@ -82,271 +82,109 @@ public class GraphicsPipelineDescriptor {
     public init() {}
 }
 
-internal extension GraphicsPipelineDescriptor {
+extension GraphicsPipelineDescriptor {
     @_transparent
-    func withVertexStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineViewportStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineViewportStateCreateInfo.new()
+    @LVBuilder<VkGraphicsPipelineCreateInfo>
+    func createBuilder(_ layout: SmartPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
+        \.pViewportState <- viewportState
+        \.pVertexInputState <- vertexInputState
+        \.pInputAssemblyState <- inputAssemblyState
+        \.pRasterizationState <- rasterizationState
+        \.pMultisampleState <- multisampleState
+        \.pColorBlendState <- colorBlendState
+        \.pDynamicState <- dynamicState
 
+        (\.stageCount, \.pStages) <- shaders
+                
+        \.layout <- layout
+        \.renderPass <- renderPass
+        \.subpass <- subpassIndex
+
+        \.basePipelineHandle <- nil
+        \.basePipelineIndex <- -1
+    }
+
+    @_transparent
+    @LVBuilder<VkPipelineViewportStateCreateInfo>
+    var viewportState: LVBuilder<VkPipelineViewportStateCreateInfo> {
         switch viewportStateDefinition {
             case .static(let viewports, let scissors):
-                return try viewports.withUnsafeBufferPointer { viewports in
-                    return try scissors.withUnsafeBufferPointer { scissors in
-                        info.viewportCount = CUnsignedInt(viewports.count)
-                        info.pViewports = viewports.baseAddress!
-                        info.scissorCount = CUnsignedInt(scissors.count)
-                        info.pScissors = scissors.baseAddress!
+                (\.viewportCount, \.pViewports) <- viewports
+                (\.scissorCount, \.pScissors) <- scissors
 
-                        return try withUnsafePointer(to: &info) { info in
-                            return try body(info)
-                        }
-                    }
-                }
-            
             case .dynamic(let viewportsCount, let scissorsCount):
-                info.viewportCount = CUnsignedInt(viewportsCount)
-                info.pViewports = nil
-                info.scissorCount = CUnsignedInt(scissorsCount)
-                info.pScissors = nil
-
-                return try withUnsafePointer(to: &info) { info in
-                    return try body(info)
-                }
+                (\.viewportCount, \.pViewports) <- viewportsCount
+                (\.scissorCount, \.pScissors) <- scissorsCount
         }
     }
 
     @_transparent
-    func withVertexInputCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineVertexInputStateCreateInfo>) throws -> (T)) rethrows -> T {
-        return try vertexInputBindingDescriptions.withUnsafeBufferPointer { vertexInputBindingDescriptions in
-            return try inputAttributeDescrioptions.withUnsafeBufferPointer { inputAttributeDescrioptions in
-                var info = VkPipelineVertexInputStateCreateInfo.new()
-
-                info.vertexBindingDescriptionCount = CUnsignedInt(vertexInputBindingDescriptions.count)
-                info.pVertexBindingDescriptions = vertexInputBindingDescriptions.baseAddress!
-
-                info.vertexAttributeDescriptionCount = CUnsignedInt(inputAttributeDescrioptions.count)
-                info.pVertexAttributeDescriptions = inputAttributeDescrioptions.baseAddress!
-
-                return try withUnsafePointer(to: &info) { info in
-                    return try body(info)
-                }
-            }
-        }
+    @LVBuilder<VkPipelineVertexInputStateCreateInfo>
+    var vertexInputState: LVBuilder<VkPipelineVertexInputStateCreateInfo> {
+        (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
+        (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
     }
 
     @_transparent
-    func withInputAssemblyCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineInputAssemblyStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineInputAssemblyStateCreateInfo.new()
-        info.topology = inputPrimitiveTopology
-        info.primitiveRestartEnabled = primitiveRestartEnabled
-
-        return try withUnsafePointer(to: &info) { info in
-            return try body(info)
-        }
+    @LVBuilder<VkPipelineInputAssemblyStateCreateInfo>
+    var inputAssemblyState: LVBuilder<VkPipelineInputAssemblyStateCreateInfo> {
+        \.topology <- inputPrimitiveTopology
+        \.primitiveRestartEnabled <- primitiveRestartEnabled
     }
 
     @_transparent
-    func withRasterizationStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineRasterizationStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkPipelineRasterizationStateCreateInfo.new()
-        info.depthClampEnabled = false
-        info.discardEnabled = false
-        info.polygonMode = .fill
-        info.cullModeFlags = []
-        info.frontFace = .counterClockwise
-        info.depthBiasEnabled = false
-        info.depthBiasConstantFactor = 0.0
-        info.depthBiasClamp = 0.0
-        info.depthBiasSlopeFactor = 0.0
-        info.lineWidth = 1.0
-
-        return try withUnsafePointer(to: &info) { info in
-            return try body(info)
-        }
-    }
-    
-    @_transparent
-    func withMultisampleStateCreateInfoPointer<T>(_ body: (UnsafePointer<VkPipelineMultisampleStateCreateInfo>) throws -> (T)) rethrows -> T {
-        return try sampleMasks.withUnsafeBufferPointer { sampleMasks in
-            var info = VkPipelineMultisampleStateCreateInfo.new()
-            info.sampleShadingEnabled = sampleShadingEnabled
-            info.rasterizationSamples = rasterizationSamples
-            info.minSampleShading = minSampleShading
-            info.pSampleMask = sampleMasks.isEmpty ? nil : sampleMasks.baseAddress!
-            info.alphaToCoverageEnabled = alphaToCoverageEnabled
-            info.alphaToOneEnabled = alphaToOneEnabled
-
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
-        }
+    @LVBuilder<VkPipelineRasterizationStateCreateInfo>
+    var rasterizationState: LVBuilder<VkPipelineRasterizationStateCreateInfo> {
+        \.depthClampEnabled <- false
+        \.discardEnabled <- false
+        \.polygonMode <- .fill
+        \.cullModeFlags <- []
+        \.frontFace <- .counterClockwise
+        \.depthBiasEnabled <- false
+        \.depthBiasConstantFactor <- 0.0
+        \.depthBiasClamp <- 0.0
+        \.depthBiasSlopeFactor <- 0.0
+        \.lineWidth <- 1.0
     }
 
     @_transparent
-    func withColorBlendStateCreateInfo<T>(_ body: (UnsafePointer<VkPipelineColorBlendStateCreateInfo>) throws -> (T)) rethrows -> T {
-        return try colorBlendAttachments.withUnsafeBufferPointer { colorBlendAttachments in
-            var info = VkPipelineColorBlendStateCreateInfo.new()
-            info.logicOperationEnabled = logicOperationEnabled
-            info.logicOperation = logicOperation
-            info.attachmentCount = CUnsignedInt(colorBlendAttachments.count)
-            info.pAttachments = colorBlendAttachments.baseAddress!
-            info.blendConstants = blendConstants
-
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
+    @LVBuilder<VkPipelineMultisampleStateCreateInfo>
+    var multisampleState: LVBuilder<VkPipelineMultisampleStateCreateInfo> {
+        \.sampleShadingEnabled <- sampleShadingEnabled
+        \.rasterizationSamples <- rasterizationSamples
+        \.minSampleShading <- minSampleShading
+        if sampleMasks.isEmpty == false {
+            \.pSampleMask <- sampleMasks
         }
+        \.alphaToCoverageEnabled <- alphaToCoverageEnabled
+        \.alphaToOneEnabled <- alphaToOneEnabled
     }
 
     @_transparent
-    func withDynamicStateCreateInfo<T>(_ body: (UnsafePointer<VkPipelineDynamicStateCreateInfo>) throws -> (T)) rethrows -> T {
-        var dynamicStates = self.dynamicStates
-
-        dynamicStates += viewportStateDefinition.dynamicStates
-
-        let filteredDynamicStates = Array(Set(dynamicStates))
-        
-        return try filteredDynamicStates.withUnsafeBufferPointer { dynamicStates in
-            var info = VkPipelineDynamicStateCreateInfo.new()
-            info.dynamicStateCount = CUnsignedInt(dynamicStates.count)
-            info.pDynamicStates = dynamicStates.baseAddress!
-
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
-        }
+    @LVBuilder<VkPipelineColorBlendStateCreateInfo>
+    var colorBlendState: LVBuilder<VkPipelineColorBlendStateCreateInfo> {
+        \.logicOperationEnabled <- logicOperationEnabled
+        \.logicOperation <- logicOperation
+        (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
+        \.blendConstants <- blendConstants
     }
 
     @_transparent
-    func withStageCreateInfosBufferPointer<T>(_ body: (UnsafeBufferPointer<VkPipelineShaderStageCreateInfo>) throws -> (T)) rethrows -> T {
-        var infos: [VkPipelineShaderStageCreateInfo] = []
+    @LVBuilder<VkPipelineDynamicStateCreateInfo>
+    var dynamicState: LVBuilder<VkPipelineDynamicStateCreateInfo> {
+        (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
+    }
 
-        let shaders: [(shader: Shader?, stage: VkShaderStageFlagBits)] = [
-            (vertexShader, .vertex),
-            (tessellationControlShader, .tessellationControl),
-            (tessellationEvaluationShader, .tessellationEvaluation),
-            (geometryShader, .geometry),
-            (fragmentShader, .fragment),
-        ]
-
-        infos += shaders.compactMap {
-            if let shader = $0.shader {
-                return shader.createStageInfo(for: $0.1)
-            } else {
-                return nil
-            }
-        }
-
-        return try infos.withUnsafeBufferPointer { infos in
-            return try body(infos)
-        }
+    @_transparent
+    @LVBuilderArray<VkPipelineShaderStageCreateInfo>
+    var shaders: LVBuilderArray<VkPipelineShaderStageCreateInfo> {
+        vertexShader?.builder(for: .vertex)
+        tessellationControlShader?.builder(for: .tessellationControl)
+        tessellationEvaluationShader?.builder(for: .tessellationEvaluation)
+        geometryShader?.builder(for: .geometry)
+        fragmentShader?.builder(for: .fragment)
     }
 }
-
-#if VOLCANO_EXPERIMENTAL_DSL
-    extension GraphicsPipelineDescriptor {
-        @_transparent
-        @LVBuilder<VkGraphicsPipelineCreateInfo>
-        func createBuilder(_ layout: SmartPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
-            \.pViewportState <- viewportState
-            \.pVertexInputState <- vertexInputState
-            \.pInputAssemblyState <- inputAssemblyState
-            \.pRasterizationState <- rasterizationState
-            \.pMultisampleState <- multisampleState
-            \.pColorBlendState <- colorBlendState
-            \.pDynamicState <- dynamicState
-
-            (\.stageCount, \.pStages) <- shaders
-                
-            \.layout <- layout
-            \.renderPass <- renderPass
-            \.subpass <- subpassIndex
-
-            \.basePipelineHandle <- nil
-            \.basePipelineIndex <- -1
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineViewportStateCreateInfo>
-        var viewportState: LVBuilder<VkPipelineViewportStateCreateInfo> {
-            switch viewportStateDefinition {
-                case .static(let viewports, let scissors):
-                    (\.viewportCount, \.pViewports) <- viewports
-                    (\.scissorCount, \.pScissors) <- scissors
-
-                case .dynamic(let viewportsCount, let scissorsCount):
-                    (\.viewportCount, \.pViewports) <- viewportsCount
-                    (\.scissorCount, \.pScissors) <- scissorsCount
-            }
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineVertexInputStateCreateInfo>
-        var vertexInputState: LVBuilder<VkPipelineVertexInputStateCreateInfo> {
-            (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
-            (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineInputAssemblyStateCreateInfo>
-        var inputAssemblyState: LVBuilder<VkPipelineInputAssemblyStateCreateInfo> {
-            \.topology <- inputPrimitiveTopology
-            \.primitiveRestartEnabled <- primitiveRestartEnabled
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineRasterizationStateCreateInfo>
-        var rasterizationState: LVBuilder<VkPipelineRasterizationStateCreateInfo> {
-            \.depthClampEnabled <- false
-            \.discardEnabled <- false
-            \.polygonMode <- .fill
-            \.cullModeFlags <- []
-            \.frontFace <- .counterClockwise
-            \.depthBiasEnabled <- false
-            \.depthBiasConstantFactor <- 0.0
-            \.depthBiasClamp <- 0.0
-            \.depthBiasSlopeFactor <- 0.0
-            \.lineWidth <- 1.0
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineMultisampleStateCreateInfo>
-        var multisampleState: LVBuilder<VkPipelineMultisampleStateCreateInfo> {
-            \.sampleShadingEnabled <- sampleShadingEnabled
-            \.rasterizationSamples <- rasterizationSamples
-            \.minSampleShading <- minSampleShading
-            if sampleMasks.isEmpty == false {
-                \.pSampleMask <- sampleMasks
-            }
-            \.alphaToCoverageEnabled <- alphaToCoverageEnabled
-            \.alphaToOneEnabled <- alphaToOneEnabled
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineColorBlendStateCreateInfo>
-        var colorBlendState: LVBuilder<VkPipelineColorBlendStateCreateInfo> {
-            \.logicOperationEnabled <- logicOperationEnabled
-            \.logicOperation <- logicOperation
-            (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
-            \.blendConstants <- blendConstants
-        }
-
-        @_transparent
-        @LVBuilder<VkPipelineDynamicStateCreateInfo>
-        var dynamicState: LVBuilder<VkPipelineDynamicStateCreateInfo> {
-            (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
-        }
-
-        @_transparent
-        @LVBuilderArray<VkPipelineShaderStageCreateInfo>
-        var shaders: LVBuilderArray<VkPipelineShaderStageCreateInfo> {
-            vertexShader?.builder(for: .vertex)
-            tessellationControlShader?.builder(for: .tessellationControl)
-            tessellationEvaluationShader?.builder(for: .tessellationEvaluation)
-            geometryShader?.builder(for: .geometry)
-            fragmentShader?.builder(for: .fragment)
-        }
-    }
-
-#endif
 
 internal protocol PipelineStatePiece {
     var dynamicStates: [VkDynamicState] { get }
