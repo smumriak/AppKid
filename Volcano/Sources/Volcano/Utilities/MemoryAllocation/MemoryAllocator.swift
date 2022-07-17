@@ -10,7 +10,7 @@ import CVulkan
 
 public protocol MemoryAllocateDescriptor {
     associatedtype Result: DeviceEntityProtocol
-    associatedtype Info: EntityInfo where Info.Result: MemoryBacked, Info.Parent == VkDevice.Pointee
+    associatedtype Info: SimpleEntityInfo where Info.Result: MemoryBacked, Info.Parent == VkDevice.Pointee
 
     var requiredMemoryProperties: VkMemoryPropertyFlagBits { get }
     var preferredMemoryProperties: VkMemoryPropertyFlagBits { get }

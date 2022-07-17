@@ -25,10 +25,10 @@ let queue = device.allQueues.first(where: { $0.type.contains(.graphics) })!
         let texture = textures[index]
         let fragmentShader = try device.shader(named: "FragmentShader")
         let vertexShader = try device.shader(named: "VertexShader")
-        let pipelineDescriptor = GraphicsPipelineDescriptor()
+        let pipelineDescriptor = GraphicsPipelineDescriptor(renderPass: renderpass, subpassIndex: subpassIndex)
         pipelineDescriptor.vertexShader = vertexShader
         pipelineDescriptor.fragmentShader = fragmentShader
-        let pipeline = try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: self, subpassIndex: subpassIndex)
+        let pipeline = try GraphicsPipeline(device: device, descriptor: descriptor)
 
 let submitDescriptor = try SubmitDescriptor(commandBuffers: [commandBuffer], fence: fence)
 try submitDescriptor.add(.wait(semaphore, stages: .colorAttachmentOutput))

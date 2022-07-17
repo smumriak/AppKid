@@ -15,18 +15,17 @@ public class GraphicsPipelineDescriptor {
     public var geometryShader: Shader?
     public var fragmentShader: Shader?
 
-    // MARK: - Pipelie Layout
-
+    // MARK: - Pipeline Layout
+    
+    // smumriak:TODO: maybe allowing clients to pass already created layout here and creating one if they did not is the way to go for future
+    // public var layout: SmartPointer<VkPipelineLayout_T>?
     public var descriptorSetLayouts: [DescriptorSetLayout] = []
     public var pushConstants: [VkPushConstantRange] = []
 
     // MARK: - Viewport State
 
-    internal var _viewportStateDefinition: ViewportStateDefinition!
-    public var viewportStateDefinition: ViewportStateDefinition {
-        get { _viewportStateDefinition }
-        set { _viewportStateDefinition = newValue }
-    }
+    @IvarBacked
+    public var viewportStateDefinition: ViewportStateDefinition
 
     public var depthAttachmentPixelFormat: VkFormat = .undefined
     public var stencilAttachmentPixelFormat: VkFormat = .undefined
@@ -73,6 +72,12 @@ public class GraphicsPipelineDescriptor {
     // MARK: - Dynamic state
 
     public var dynamicStates: [VkDynamicState] = []
+
+    // MARK: - Render Pass
+
+    @IvarBacked
+    public var renderPass: RenderPass
+    public var subpassIndex: Int = 0
     
     public init() {}
 }
@@ -239,8 +244,29 @@ internal extension GraphicsPipelineDescriptor {
 #if VOLCANO_EXPERIMENTAL_DSL
     extension GraphicsPipelineDescriptor {
         @_transparent
-        @VkBuilder<VkPipelineViewportStateCreateInfo>
-        var viewportState: VkBuilder<VkPipelineViewportStateCreateInfo> {
+        @LVBuilder<VkGraphicsPipelineCreateInfo>
+        func createBuilder(_ layout: SmartPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
+            \.pViewportState <- viewportState
+            \.pVertexInputState <- vertexInputState
+            \.pInputAssemblyState <- inputAssemblyState
+            \.pRasterizationState <- rasterizationState
+            \.pMultisampleState <- multisampleState
+            \.pColorBlendState <- colorBlendState
+            \.pDynamicState <- dynamicState
+
+            (\.stageCount, \.pStages) <- shaders
+                
+            \.layout <- layout
+            \.renderPass <- renderPass
+            \.subpass <- subpassIndex
+
+            \.basePipelineHandle <- nil
+            \.basePipelineIndex <- -1
+        }
+
+        @_transparent
+        @LVBuilder<VkPipelineViewportStateCreateInfo>
+        var viewportState: LVBuilder<VkPipelineViewportStateCreateInfo> {
             switch viewportStateDefinition {
                 case .static(let viewports, let scissors):
                     (\.viewportCount, \.pViewports) <- viewports
@@ -253,22 +279,22 @@ internal extension GraphicsPipelineDescriptor {
         }
 
         @_transparent
-        @VkBuilder<VkPipelineVertexInputStateCreateInfo>
-        var vertexInputState: VkBuilder<VkPipelineVertexInputStateCreateInfo> {
+        @LVBuilder<VkPipelineVertexInputStateCreateInfo>
+        var vertexInputState: LVBuilder<VkPipelineVertexInputStateCreateInfo> {
             (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
             (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
         }
 
         @_transparent
-        @VkBuilder<VkPipelineInputAssemblyStateCreateInfo>
-        var inputAssemblyState: VkBuilder<VkPipelineInputAssemblyStateCreateInfo> {
+        @LVBuilder<VkPipelineInputAssemblyStateCreateInfo>
+        var inputAssemblyState: LVBuilder<VkPipelineInputAssemblyStateCreateInfo> {
             \.topology <- inputPrimitiveTopology
             \.primitiveRestartEnabled <- primitiveRestartEnabled
         }
 
         @_transparent
-        @VkBuilder<VkPipelineRasterizationStateCreateInfo>
-        var rasterizationState: VkBuilder<VkPipelineRasterizationStateCreateInfo> {
+        @LVBuilder<VkPipelineRasterizationStateCreateInfo>
+        var rasterizationState: LVBuilder<VkPipelineRasterizationStateCreateInfo> {
             \.depthClampEnabled <- false
             \.discardEnabled <- false
             \.polygonMode <- .fill
@@ -282,8 +308,8 @@ internal extension GraphicsPipelineDescriptor {
         }
 
         @_transparent
-        @VkBuilder<VkPipelineMultisampleStateCreateInfo>
-        var multisampleState: VkBuilder<VkPipelineMultisampleStateCreateInfo> {
+        @LVBuilder<VkPipelineMultisampleStateCreateInfo>
+        var multisampleState: LVBuilder<VkPipelineMultisampleStateCreateInfo> {
             \.sampleShadingEnabled <- sampleShadingEnabled
             \.rasterizationSamples <- rasterizationSamples
             \.minSampleShading <- minSampleShading
@@ -295,8 +321,8 @@ internal extension GraphicsPipelineDescriptor {
         }
 
         @_transparent
-        @VkBuilder<VkPipelineColorBlendStateCreateInfo>
-        var colorBlendState: VkBuilder<VkPipelineColorBlendStateCreateInfo> {
+        @LVBuilder<VkPipelineColorBlendStateCreateInfo>
+        var colorBlendState: LVBuilder<VkPipelineColorBlendStateCreateInfo> {
             \.logicOperationEnabled <- logicOperationEnabled
             \.logicOperation <- logicOperation
             (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
@@ -304,14 +330,14 @@ internal extension GraphicsPipelineDescriptor {
         }
 
         @_transparent
-        @VkBuilder<VkPipelineDynamicStateCreateInfo>
-        var dynamicState: VkBuilder<VkPipelineDynamicStateCreateInfo> {
+        @LVBuilder<VkPipelineDynamicStateCreateInfo>
+        var dynamicState: LVBuilder<VkPipelineDynamicStateCreateInfo> {
             (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
         }
 
         @_transparent
-        @VkArrayBuilder<VkPipelineShaderStageCreateInfo>
-        var shaders: VkArrayBuilder<VkPipelineShaderStageCreateInfo> {
+        @LVBuilderArray<VkPipelineShaderStageCreateInfo>
+        var shaders: LVBuilderArray<VkPipelineShaderStageCreateInfo> {
             vertexShader?.builder(for: .vertex)
             tessellationControlShader?.builder(for: .tessellationControl)
             tessellationEvaluationShader?.builder(for: .tessellationEvaluation)

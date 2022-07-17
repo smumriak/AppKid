@@ -39,14 +39,14 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
 
     public func submit(with descriptor: SubmitDescriptor) throws {
         #if VOLCANO_EXPERIMENTAL_DSL
-            try VkBuilder<VkSubmitInfo> {
+            try LVBuilder<VkSubmitInfo> {
                 (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
                 (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
                 \.pWaitDstStageMask <- descriptor.waitStages
                 (\.commandBufferCount, \.pCommandBuffers) <- descriptor.commandBuffers
 
                 if descriptor.hasTimeline {
-                    <-VkBuilder<VkTimelineSemaphoreSubmitInfo> {
+                    next(VkTimelineSemaphoreSubmitInfo.self) {
                         (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
                         (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
                     }
@@ -54,7 +54,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
 
                 // <-Chain {
                 //     if descriptor.hasTimeline {
-                //         VkBuilder<VkTimelineSemaphoreSubmitInfo> {
+                //         LVBuilder<VkTimelineSemaphoreSubmitInfo> {
                 //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
                 //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
                 //         }

@@ -23,7 +23,7 @@ public prefix func <- <Struct: VulkanStructure>(@VkChainBuilder content: () -> (
     Chain(content)
 }
 
-public class Chain<Struct: VulkanChainableStructure>: Path<Struct> {
+public class Chain<Struct: VulkanChainableStructure>: LVPath<Struct> {
     @usableFromInline
     internal let builder: VkChainBuilder
 
@@ -36,7 +36,7 @@ public class Chain<Struct: VulkanChainableStructure>: Path<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<Path<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         assert(result[keyPath: \.pNext] == nil)
         return try builder.withUnsafeChainPointer {
             result[keyPath: \.pNext] = $0
@@ -50,7 +50,7 @@ public class VkChainBuilder {
     public typealias Expression = AnyNext
     public typealias Component = [AnyNext]
 
-    static func buildExpression<Struct: VulkanChainableStructure>(_ expression: VkBuilder<Struct>) -> Component {
+    static func buildExpression<Struct: VulkanChainableStructure>(_ expression: LVBuilder<Struct>) -> Component {
         return [AnyNext(expression)]
     }
 
@@ -130,7 +130,7 @@ public class AnyNext {
     @usableFromInline
     internal let builder: AnyBuilder
 
-    public init<Struct: VulkanChainableStructure>(_ builder: VkBuilder<Struct>) {
+    public init<Struct: VulkanChainableStructure>(_ builder: LVBuilder<Struct>) {
         self.builder = builder
     }
 
@@ -158,7 +158,7 @@ public protocol AnyBuilder {
     func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R
 }
 
-extension VkBuilder: AnyBuilder {
+extension LVBuilder: AnyBuilder {
     @inlinable @inline(__always)
     public func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R {
         return try withUnsafeMutableResultPointer {

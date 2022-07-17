@@ -103,7 +103,7 @@ public extension VkBuffer_T {
     static let vmaBindFunctionPrivate: VMABindFunction = vmaBindBufferMemory
 }
 
-public extension EntityInfo {
+public extension SimpleEntityInfo {
     typealias VMACreateFunction = (_ allocator: VmaAllocator, _ info: UnsafePointer<Self>, _ allocationCreateInfo: UnsafePointer<VmaAllocationCreateInfo>, _ result: UnsafeMutablePointer<UnsafeMutablePointer<Self.Result>?>, _ allocation: UnsafeMutablePointer<VmaAllocation?>, _ allocationInfo: UnsafeMutablePointer<VmaAllocationInfo>) -> (VkResult)
     static var vmaCreateFunction: VMACreateFunction {
         switch self {

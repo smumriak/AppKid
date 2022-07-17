@@ -23,50 +23,28 @@ public final class GraphicsPipeline: Pipeline {
     public internal(set) var subpassIndex: Int
     public internal(set) var descriptorSetLayouts: [DescriptorSetLayout]
 
-    public init(device: Device, descriptor pipelineDescriptor: GraphicsPipelineDescriptor, renderPass: RenderPass, subpassIndex: Int) throws {
+    fileprivate init(device: Device, handlePointer: SmartPointer<VkPipeline_T>, layout: SmartPointer<VkPipelineLayout_T>, renderPass: RenderPass, subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) throws {
+        self.renderPass = renderPass
+        self.subpassIndex = subpassIndex
+        self.descriptorSetLayouts = descriptorSetLayouts
+
+        try super.init(device: device, handlePointer: handlePointer, layout: layout)
+    }
+
+    public convenience init(device: Device, descriptor: GraphicsPipelineDescriptor, cache: VkPipelineCache? = nil) throws {
         #if VOLCANO_EXPERIMENTAL_DSL
 
-            let layout: SmartPointer<VkPipelineLayout_T> = try VkBuilder<VkPipelineLayoutCreateInfo> {
-                (\.setLayoutCount, \.pSetLayouts) <- pipelineDescriptor.descriptorSetLayouts.optionalHandles()
-                (\.pushConstantRangeCount, \.pPushConstantRanges) <- pipelineDescriptor.pushConstants
-            }
-            .createEntity(using: device)
-
-            let builder = VkBuilder<VkGraphicsPipelineCreateInfo> {
-                \.pViewportState <- pipelineDescriptor.viewportState
-                \.pVertexInputState <- pipelineDescriptor.vertexInputState
-                \.pInputAssemblyState <- pipelineDescriptor.inputAssemblyState
-                \.pRasterizationState <- pipelineDescriptor.rasterizationState
-                \.pMultisampleState <- pipelineDescriptor.multisampleState
-                \.pColorBlendState <- pipelineDescriptor.colorBlendState
-                \.pDynamicState <- pipelineDescriptor.dynamicState
-
-                (\.stageCount, \.pStages) <- pipelineDescriptor.shaders
-                
-                \.layout <- layout
-                \.renderPass <- renderPass
-                \.subpass <- subpassIndex
-
-                \.basePipelineHandle <- nil
-                \.basePipelineIndex <- -1
+            let layout = try device.buildEntity(VkPipelineLayoutCreateInfo.self) {
+                (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts.optionalHandles()
+                (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
             }
 
-            let handlePointer: SmartPointer<VkPipeline_T> = try builder.withUnsafeResultPointer { info in
-                var handle: UnsafeMutablePointer<VkPipeline_T>?
-                try vulkanInvoke {
-                    vkCreateGraphicsPipelines(device.handle, nil, 1, info, nil, &handle)
-                }
-
-                return SmartPointer(with: handle!) { [device] in
-                    vkDestroyPipeline(device.handle, $0, nil)
-                }
-            }
-
+            let handlePointer = try device.buildEntity(cache: nil, descriptor.createBuilder(layout))
         #else
 
-            let layout: SmartPointer<VkPipelineLayout_T> = try pipelineDescriptor.descriptorSetLayouts.optionalHandles()
+            let layout: SmartPointer<VkPipelineLayout_T> = try descriptor.descriptorSetLayouts.optionalHandles()
                 .withUnsafeBufferPointer { descriptorSetLayouts in
-                    return try pipelineDescriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
+                    return try descriptor.pushConstants.withUnsafeBufferPointer { pushConstants in
                         var info = VkPipelineLayoutCreateInfo.new()
                         info.setLayoutCount = CUnsignedInt(descriptorSetLayouts.count)
                         info.pSetLayouts = descriptorSetLayouts.baseAddress!
@@ -79,14 +57,14 @@ public final class GraphicsPipeline: Pipeline {
                 }
 
             let handlePointer: SmartPointer<VkPipeline_T> =
-                try pipelineDescriptor.withVertexStateCreateInfoPointer { viewportStateInfo in
-                    return try pipelineDescriptor.withVertexInputCreateInfoPointer { vertexInputInfo in
-                        return try pipelineDescriptor.withInputAssemblyCreateInfoPointer { inputAssemblyInfo in
-                            return try pipelineDescriptor.withRasterizationStateCreateInfoPointer { rasterizationStateInfo in
-                                return try pipelineDescriptor.withMultisampleStateCreateInfoPointer { multisampleStateInfo in
-                                    return try pipelineDescriptor.withColorBlendStateCreateInfo { colorBlendStateCreateInfo in
-                                        return try pipelineDescriptor.withDynamicStateCreateInfo { dynamicStateInfo in
-                                            return try pipelineDescriptor.withStageCreateInfosBufferPointer { stageInfos in
+                try descriptor.withVertexStateCreateInfoPointer { viewportStateInfo in
+                    return try descriptor.withVertexInputCreateInfoPointer { vertexInputInfo in
+                        return try descriptor.withInputAssemblyCreateInfoPointer { inputAssemblyInfo in
+                            return try descriptor.withRasterizationStateCreateInfoPointer { rasterizationStateInfo in
+                                return try descriptor.withMultisampleStateCreateInfoPointer { multisampleStateInfo in
+                                    return try descriptor.withColorBlendStateCreateInfo { colorBlendStateCreateInfo in
+                                        return try descriptor.withDynamicStateCreateInfo { dynamicStateInfo in
+                                            return try descriptor.withStageCreateInfosBufferPointer { stageInfos in
                                                 var info = VkGraphicsPipelineCreateInfo.new()
 
                                                 info.pViewportState = viewportStateInfo
@@ -101,8 +79,8 @@ public final class GraphicsPipeline: Pipeline {
                                                 info.pStages = stageInfos.baseAddress!
 
                                                 info.layout = layout.pointer
-                                                info.renderPass = renderPass.handle
-                                                info.subpass = CUnsignedInt(subpassIndex)
+                                                info.renderPass = descriptor.renderPass.handle
+                                                info.subpass = CUnsignedInt(descriptor.subpassIndex)
 
                                                 info.basePipelineHandle = nil
                                                 info.basePipelineIndex = -1
@@ -126,10 +104,29 @@ public final class GraphicsPipeline: Pipeline {
                 
         #endif
 
-        self.renderPass = renderPass
-        self.subpassIndex = subpassIndex
-        self.descriptorSetLayouts = pipelineDescriptor.descriptorSetLayouts
+        try self.init(device: device, handlePointer: handlePointer, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
+    }
+}
 
-        try super.init(device: device, handlePointer: handlePointer, layout: layout)
+public extension Device {
+    func createPipelines(from descriptors: [GraphicsPipelineDescriptor], cache: VkPipelineCache? = nil) throws -> [GraphicsPipeline] {
+        let layouts = try descriptors.map { descriptor in
+            try buildEntity(VkPipelineLayoutCreateInfo.self) {
+                (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts.optionalHandles()
+                (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
+            }
+        }
+
+        let handlePointers = try buildEntities(VkGraphicsPipelineCreateInfo.self, cache: cache) {
+            for i in 0..<descriptors.count {
+                descriptors[i].createBuilder(layouts[i])
+            }
+        }
+
+        return try handlePointers.enumerated().map {
+            let descriptor = descriptors[$0]
+            let layout = layouts[$0]
+            return try GraphicsPipeline(device: self, handlePointer: $1, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
+        }
     }
 }

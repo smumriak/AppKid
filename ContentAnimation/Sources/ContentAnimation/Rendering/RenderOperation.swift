@@ -309,7 +309,7 @@ extension RenderContext {
                         descriptor.fragmentShader = try device.shader(named: fragmentShaderName, in: bundle, subdirectory: kShadersSubdirectoryName)
 
                         let key = Key(type: type, antiAliased: antiAliased, rounded: rounded)
-                        let value = try GraphicsPipeline(device: device, descriptor: descriptor, renderPass: renderPass, subpassIndex: subpassIndex)
+                        let value = try GraphicsPipeline(device: device, descriptor: descriptor)
 
                         store[key] = value
                     }

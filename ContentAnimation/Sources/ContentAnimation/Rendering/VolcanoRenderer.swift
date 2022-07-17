@@ -559,6 +559,9 @@ internal extension VkPipelineColorBlendAttachmentState {
 internal extension RenderPass {
     func sharedGraphicsPipelineDescriptor(subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout], antiAliased: Bool) -> GraphicsPipelineDescriptor {
         let descriptor = GraphicsPipelineDescriptor()
+
+        descriptor.renderPass = self
+        descriptor.subpassIndex = subpassIndex
     
         descriptor.descriptorSetLayouts = descriptorSetLayouts
         descriptor.viewportStateDefinition = .dynamic(viewportsCount: 1, scissorsCount: 1)

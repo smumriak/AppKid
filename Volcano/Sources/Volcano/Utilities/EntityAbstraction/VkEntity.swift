@@ -19,6 +19,7 @@ extension VkFence_T: VkEntity {}
 extension VkSwapchainKHR_T: VkEntity {}
 extension VkImageView_T: VkEntity {}
 extension VkPipelineLayout_T: VkEntity {}
+extension VkPipeline_T: VkEntity {}
 extension VkRenderPass_T: VkEntity {}
 extension VkFramebuffer_T: VkEntity {}
 extension VkSemaphore_T: VkEntity {}

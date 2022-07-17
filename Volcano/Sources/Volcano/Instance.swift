@@ -71,7 +71,7 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
                 extensions.insert(.debugUtilsExt)
             #endif
 
-            let handlePointer: SmartPointer<VkInstance_T> = try VkBuilder<VkInstanceCreateInfo> {
+            let handlePointer: SmartPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
                 (\.enabledLayerCount, \.ppEnabledLayerNames) <- layers
                 \.pApplicationInfo <- {
                     \.apiVersion <- vulkanVersion
