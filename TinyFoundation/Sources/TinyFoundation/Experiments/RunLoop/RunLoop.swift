@@ -7,6 +7,15 @@
 
 import Foundation
 
+#if os(Linux) || os(Android) || os(OpenBSD)
+//    import Glibc or something
+#elseif os(Windows)
+//    import whatever
+#elseif os(macOS)
+    import Darwin
+#endif
+
+
 open class RunLoop1 {
     @Synchronized @_spi(AppKid) public static var runLoops: [ObjectIdentifier: RunLoop1] = [:]
 
@@ -129,6 +138,8 @@ public protocol RunLoopItem {}
         typealias HandleType = CInt
     #elseif os(Windows)
         typealias HandleType = HANDLE
+    #elseif os(macOS)
+        typealias HandleType = mach_port_t
     #endif
 
     var handle: HandleType { get }
@@ -178,10 +189,12 @@ public protocol RunLoopItem {}
 private let kDeinitHook: AnyHashable = kDeinitHook
 
 @_spi(AppKid) extension Thread {
-    @_transparent
-    static var main: Thread {
-        return .mainThread
-    }
+    #if !os(macOS)
+        @_transparent
+        static var main: Thread {
+            return .mainThread
+        }
+    #endif
 
     class DeinitHook {
         public typealias Callback = () -> ()
