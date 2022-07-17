@@ -48,7 +48,7 @@
       },
       {
         "package": "XMLCoder",
-        "repositoryURL": "https://github.com/MaxDesiatov/XMLCoder.git",
+        "repositoryURL": "https://github.com/CoreOffice/XMLCoder.git",
         "state": {
           "branch": null,
           "revision": "f30119af03996939cc4f54e0bf0dda9f88a84da5",

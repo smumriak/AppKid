@@ -41,7 +41,7 @@ let package = Package(
         simpleGLMDependency,
         swiftXlibDependency,
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
-        .package(url: "https://github.com/MaxDesiatov/XMLCoder.git", from: "0.13.1"),
+        .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
     ],
     targets: [

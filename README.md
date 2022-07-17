@@ -227,7 +227,7 @@ The code in this repository is distributed under Apache-2.0. Please check [Contr
 - [Swift Collections](https://github.com/mirror/libX11), Apache-2.0 license
 - [cglm](https://github.com/recp/cglm), MIT license
 - [Swift Argument Parser](https://github.com/apple/swift-argument-parser), Apache-2.0 license
-- [XLMCoder](https://github.com/MaxDesiatov/XMLCoder.git), MIT license
+- [XLMCoder](https://github.com/CoreOffice/XMLCoder.git), MIT license
 - [swift-tools-support-core](https://github.com/apple/swift-tools-support-core), Apache-2.0 license
 - [Vulkan Memory Allocator](https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator), MIT license
 - [stb](https://github.com/nothings/stb), MIT license
