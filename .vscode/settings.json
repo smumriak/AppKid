@@ -11,6 +11,9 @@
         "debug"
     ],
     "swift.buildPath": ".build/AppKidDemo",
+    "swift.testEnvironmentVariables": {
+        "APPKID_LOCAL_BUILD": "1"
+    },
     "swiftformat.configSearchPaths": [
         ".swiftformat"
     ],
