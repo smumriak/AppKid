@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "cglm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/recp/cglm",
+      "state" : {
+        "branch" : "master",
+        "revision" : "7df8ffa7fe6457ab78e6bbb0f7fd5ccc8fdbeca1"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections",
+      "state" : {
+        "revision" : "48254824bb4248676bf7ce56014ff57b142b77eb",
+        "version" : "1.0.2"
+      }
+    }
+  ],
+  "version" : 2
+}

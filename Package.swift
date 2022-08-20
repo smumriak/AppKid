@@ -1,4 +1,4 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.6
 //
 //  Package.swift
 //  AppKidDemo
@@ -47,7 +47,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
-        .package(name: "cglm", url: "https://github.com/recp/cglm", .branch("master")),
+        .package(url: "https://github.com/recp/cglm", branch: "master"),
         .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
