@@ -310,6 +310,16 @@ open class Application: Responder {
             terminate()
         }
     }
+
+    // MARK: - Responder
+
+    open override var nextResponder: Responder? {
+        if let delegate = delegate as? Responder {
+            return delegate
+        } else {
+            return super.nextResponder
+        }
+    }
 }
 
 public extension Application {
