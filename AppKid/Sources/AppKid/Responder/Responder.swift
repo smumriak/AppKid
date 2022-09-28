@@ -79,6 +79,22 @@ open class Responder {
     open var canBecomeFirstResponder: Bool { return false }
     open var canResignFirstResponder: Bool { return true }
 
+    internal func canPerformAction<ActionType: ResponderAction>(_ action: ActionType, withSender sender: Any?) -> Bool {
+        return ActionType.canBePeformed(on: self)
+    }
+
+    open func canPeformAction<ActionType: ResponderAction>(_ actionType: ActionType.Type, withSender: Any?) -> Bool {
+        return actionType.canBePeformed(on: self)
+    }
+
+    open func target(forAction action: any ResponderAction, withSender sender: Any?) -> Any? {
+        if canPerformAction(action, withSender: sender) {
+            return self
+        } else {
+            return nextResponder?.target(forAction: action, withSender: sender)
+        }
+    }
+
     @discardableResult
     open func becomeFirstResponder() -> Bool {
         if canBecomeFirstResponder {
