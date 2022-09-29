@@ -205,133 +205,133 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
 }
 
 internal extension SmartPointer where Pointee: DataLoader {
-    func loadData<Result: VulkanOutStructure>(using loader: Pointer_t.OwnData_f<Result>) throws -> Result {
+    func loadData<Result: VulkanOutStructure>(using loader: Pointer.OwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }
 
-    func loadData<Result: PublicInitializable>(using loader: Pointer_t.OwnData_f<Result>) throws -> Result {
+    func loadData<Result: PublicInitializable>(using loader: Pointer.OwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer_t.OwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer.OwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try pointer.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer_t.OwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer.OwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try pointer.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure>(using loader: Pointer_t.FailableOwnData_f<Result>) throws -> Result {
+    func loadData<Result: VulkanOutStructure>(using loader: Pointer.FailableOwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }
 
-    func loadData<Result: PublicInitializable>(using loader: Pointer_t.FailableOwnData_f<Result>) throws -> Result {
+    func loadData<Result: PublicInitializable>(using loader: Pointer.FailableOwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer_t.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try pointer.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer_t.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Pointer.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try pointer.loadData(with: info, using: loader)
     }
 
-    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.ChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.ChildData_f<Child, Result>) throws -> Result {
         return try pointer.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.ChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.ChildData_f<Child, Result>) throws -> Result {
         return try pointer.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.FailableChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.FailableChildData_f<Child, Result>) throws -> Result {
         return try pointer.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.FailableChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.FailableChildData_f<Child, Result>) throws -> Result {
         return try pointer.loadData(for: childPointer, using: loader)
     }
 
-    func loadDataArray<Result: PublicInitializable>(using loader: Pointer_t.OwnDataArray_f<Result>) throws -> [Result] {
+    func loadDataArray<Result: PublicInitializable>(using loader: Pointer.OwnDataArray_f<Result>) throws -> [Result] {
         return try pointer.loadDataArray(using: loader)
     }
 
-    func loadDataArray<Result: PublicInitializable>(using loader: Pointer_t.FailableOwnDataArray_f<Result>) throws -> [Result] {
+    func loadDataArray<Result: PublicInitializable>(using loader: Pointer.FailableOwnDataArray_f<Result>) throws -> [Result] {
         return try pointer.loadDataArray(using: loader)
     }
 
-    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.ChildDataArray_f<Child, Result>) throws -> [Result] {
+    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.ChildDataArray_f<Child, Result>) throws -> [Result] {
         return try pointer.loadDataArray(for: childPointer, using: loader)
     }
 
-    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer_t.FailableChildDataArray_f<Child, Result>) throws -> [Result] {
+    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Pointer.FailableChildDataArray_f<Child, Result>) throws -> [Result] {
         return try pointer.loadDataArray(for: childPointer, using: loader)
     }
 }
 
 internal extension SharedPointerStorage where Handle.Pointee: DataLoader {
-    func loadData<Result: VulkanOutStructure>(using loader: Handle.Pointer_t.OwnData_f<Result>) throws -> Result {
+    func loadData<Result: VulkanOutStructure>(using loader: Handle.Pointer.OwnData_f<Result>) throws -> Result {
         return try handle.loadData(using: loader)
     }
 
-    func loadData<Result: PublicInitializable>(using loader: Handle.Pointer_t.OwnData_f<Result>) throws -> Result {
+    func loadData<Result: PublicInitializable>(using loader: Handle.Pointer.OwnData_f<Result>) throws -> Result {
         return try handle.loadData(using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer_t.OwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer.OwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try handle.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer_t.OwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer.OwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try handle.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure>(using loader: Handle.Pointer_t.FailableOwnData_f<Result>) throws -> Result {
+    func loadData<Result: VulkanOutStructure>(using loader: Handle.Pointer.FailableOwnData_f<Result>) throws -> Result {
         return try handle.loadData(using: loader)
     }
 
-    func loadData<Result: PublicInitializable>(using loader: Handle.Pointer_t.FailableOwnData_f<Result>) throws -> Result {
+    func loadData<Result: PublicInitializable>(using loader: Handle.Pointer.FailableOwnData_f<Result>) throws -> Result {
         return try handle.loadData(using: loader)
     }
 
-    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.ChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.ChildData_f<Child, Result>) throws -> Result {
         return try handle.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.ChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.ChildData_f<Child, Result>) throws -> Result {
         return try handle.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer_t.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: VulkanOutStructure, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try handle.loadData(with: info, using: loader)
     }
 
-    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer_t.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
+    func loadData<Result: PublicInitializable, Info: VulkanInStructure>(with info: UnsafePointer<Info>, using loader: Handle.Pointer.FailableOwnDataWithInfo_f<Result, Info>) throws -> Result {
         return try handle.loadData(with: info, using: loader)
     }
 
-    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.FailableChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: VulkanOutStructure>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.FailableChildData_f<Child, Result>) throws -> Result {
         return try handle.loadData(for: childPointer, using: loader)
     }
 
-    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.FailableChildData_f<Child, Result>) throws -> Result {
+    func loadData<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.FailableChildData_f<Child, Result>) throws -> Result {
         return try handle.loadData(for: childPointer, using: loader)
     }
 
-    func loadDataArray<Result: PublicInitializable>(using loader: Handle.Pointer_t.OwnDataArray_f<Result>) throws -> [Result] {
+    func loadDataArray<Result: PublicInitializable>(using loader: Handle.Pointer.OwnDataArray_f<Result>) throws -> [Result] {
         return try handle.loadDataArray(using: loader)
     }
 
-    func loadDataArray<Result: PublicInitializable>(using loader: Handle.Pointer_t.FailableOwnDataArray_f<Result>) throws -> [Result] {
+    func loadDataArray<Result: PublicInitializable>(using loader: Handle.Pointer.FailableOwnDataArray_f<Result>) throws -> [Result] {
         return try handle.loadDataArray(using: loader)
     }
 
-    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.ChildDataArray_f<Child, Result>) throws -> [Result] {
+    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.ChildDataArray_f<Child, Result>) throws -> [Result] {
         return try handle.loadDataArray(for: childPointer, using: loader)
     }
 
-    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer_t.FailableChildDataArray_f<Child, Result>) throws -> [Result] {
+    func loadDataArray<Child, Result: PublicInitializable>(for childPointer: UnsafeMutablePointer<Child>, using loader: Handle.Pointer.FailableChildDataArray_f<Child, Result>) throws -> [Result] {
         return try handle.loadDataArray(for: childPointer, using: loader)
     }
 }

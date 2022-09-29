@@ -34,9 +34,9 @@ public protocol SharedPointer1: Hashable {
 
 public protocol SmartPointer: Hashable {
     associatedtype Pointee
-    typealias Pointer_t = UnsafeMutablePointer<Pointee>
+    typealias Pointer = UnsafeMutablePointer<Pointee>
     
-    var pointer: Pointer_t { get }
+    var pointer: Pointer { get }
 }
 
 public extension SmartPointer {
@@ -47,7 +47,7 @@ public extension SmartPointer {
     }
 
     @_transparent
-    var optionalPointer: Pointer_t? { pointer }
+    var optionalPointer: Pointer? { pointer }
 }
 
 public extension SmartPointer {
@@ -66,9 +66,9 @@ public class SharedPointer<Pointee>: SmartPointer {
     public enum Deleter {
         case none
         case system
-        case custom((Pointer_t) -> ())
+        case custom((Pointer) -> ())
         
-        func callAsFunction(_ pointer: Pointer_t) {
+        func callAsFunction(_ pointer: Pointer) {
             switch self {
                 case .none:
                     break
@@ -80,7 +80,7 @@ public class SharedPointer<Pointee>: SmartPointer {
         }
     }
 
-    public let pointer: Pointer_t
+    public let pointer: Pointer
     internal let deleter: Deleter
 
     deinit {
@@ -90,17 +90,17 @@ public class SharedPointer<Pointee>: SmartPointer {
     }
 
     public class func allocate(capacity: Int = 1) -> SharedPointer<Pointee> {
-        return SharedPointer<Pointee>(with: Pointer_t.allocate(capacity: capacity), deleter: .system)
+        return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: .system)
     }
 
-    public init(with pointer: Pointer_t, deleter: Deleter = .none) {
+    public init(with pointer: Pointer, deleter: Deleter = .none) {
         defer { globalRetainCount.increment() }
         
         self.pointer = pointer
         self.deleter = deleter
     }
 
-    public convenience init(with pointer: Pointer_t, deleter: @escaping (Pointer_t) -> ()) {
+    public convenience init(with pointer: Pointer, deleter: @escaping (Pointer) -> ()) {
         self.init(with: pointer, deleter: .custom(deleter))
     }
 
@@ -111,12 +111,12 @@ public class SharedPointer<Pointee>: SmartPointer {
 
 public extension Array where Element: SmartPointer {
     @_transparent
-    func mutablePointers() -> [Element.Pointer_t] {
+    func mutablePointers() -> [Element.Pointer] {
         return map { $0.pointer }
     }
 
     @_transparent
-    func optionalMutablePointers() -> [Element.Pointer_t?] {
+    func optionalMutablePointers() -> [Element.Pointer?] {
         return map { $0.pointer }
     }
 

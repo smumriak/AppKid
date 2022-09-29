@@ -78,7 +78,7 @@ public extension MemoryBacked {
         }
     }
 
-    typealias VMABindFunction = (_ allocator: VmaAllocator, _ allocation: VmaAllocation, _ bindable: SharedPointer<Self>.Pointer_t) -> (VkResult)
+    typealias VMABindFunction = (_ allocator: VmaAllocator, _ allocation: VmaAllocation, _ bindable: SharedPointer<Self>.Pointer) -> (VkResult)
     static var vmaBindFunction: VMABindFunction {
         switch self {
             case let SpecializedInfo as VkImage_T.Type:

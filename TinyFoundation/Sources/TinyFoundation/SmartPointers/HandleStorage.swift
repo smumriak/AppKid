@@ -15,7 +15,7 @@ public protocol HandleStorage: Hashable {
 
 public extension HandleStorage where Handle: SmartPointer {
     @_transparent
-    var pointer: Handle.Pointer_t { handle.pointer }
+    var pointer: Handle.Pointer { handle.pointer }
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.handle == rhs.handle
@@ -46,19 +46,19 @@ public extension Array where Element: HandleStorage {
 }
 
 public extension Array where Element: HandleStorage, Element.Handle: SmartPointer {
-    func pointers() -> [UnsafePointer<Element.Handle.Pointer_t.Pointee>] {
+    func pointers() -> [UnsafePointer<Element.Handle.Pointer.Pointee>] {
         return map { UnsafePointer($0.pointer) }
     }
 
-    func optionalPointers() -> [UnsafePointer<Element.Handle.Pointer_t.Pointee>?] {
+    func optionalPointers() -> [UnsafePointer<Element.Handle.Pointer.Pointee>?] {
         return map { UnsafePointer($0.pointer) }
     }
 
-    func mutablePointers() -> [Element.Handle.Pointer_t] {
+    func mutablePointers() -> [Element.Handle.Pointer] {
         return map { $0.pointer }
     }
 
-    func optionalMutablePointers() -> [Element.Handle.Pointer_t?] {
+    func optionalMutablePointers() -> [Element.Handle.Pointer?] {
         return map { $0.pointer }
     }
 

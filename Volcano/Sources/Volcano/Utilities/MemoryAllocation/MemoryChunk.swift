@@ -121,8 +121,8 @@ open class MemoryChunk: DeviceEntity<VkDeviceMemory_T> {
 }
 
 public protocol MemoryBacked {
-    static var requirementsFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
-    static var bindFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
 extension VkBuffer_T: MemoryBacked {
@@ -136,16 +136,16 @@ extension VkImage_T: MemoryBacked {
 }
 
 public protocol MemoryBindable: HandleStorage where Handle: SmartPointer, Handle.Pointee: MemoryBacked {
-    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
-    static var bindFunction: (_ device: VkDevice?, _ handle: Handle.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle.Pointer?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle.Pointer?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
 extension DeviceEntity: MemoryBindable where Handle.Pointee: MemoryBacked {
-    public static var requirementsFunction: (VkDevice?, Handle.Pointer_t?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
+    public static var requirementsFunction: (VkDevice?, Handle.Pointer?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
         return Handle.Pointee.requirementsFunction
     }
 
-    public static var bindFunction: (VkDevice?, Handle.Pointer_t?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
+    public static var bindFunction: (VkDevice?, Handle.Pointer?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
         return Handle.Pointee.bindFunction
     }
 }

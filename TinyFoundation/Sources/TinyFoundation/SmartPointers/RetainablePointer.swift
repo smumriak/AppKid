@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol RetainableCType: ReleasableCType {
-    static var retainFunc: (_ pointer: SharedPointer<Self>.Pointer_t?) -> (SharedPointer<Self>.Pointer_t?) { get }
+    static var retainFunc: (_ pointer: SharedPointer<Self>.Pointer?) -> (SharedPointer<Self>.Pointer?) { get }
 }
 
 public extension UnsafeMutablePointer where Pointee: RetainableCType {
@@ -21,11 +21,11 @@ public extension UnsafeMutablePointer where Pointee: RetainableCType {
 }
 
 public class RetainablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: RetainableCType {
-    public override init(with pointer: Pointer_t) {
+    public override init(with pointer: Pointer) {
         super.init(with: pointer.retain())
     }
 
-    public init(withRetained pointer: Pointer_t) {
+    public init(withRetained pointer: Pointer) {
         defer { globalRetainCount.increment() }
         
         super.init(with: pointer)
@@ -42,7 +42,7 @@ public struct Retainable<Pointee: RetainableCType> {
 
     public var pointer: StoragePointer
 
-    public var wrappedValue: StoragePointer.Pointer_t {
+    public var wrappedValue: StoragePointer.Pointer {
         get {
             pointer.pointer
         }
@@ -51,7 +51,7 @@ public struct Retainable<Pointee: RetainableCType> {
         }
     }
 
-    public init(wrappedValue: StoragePointer.Pointer_t) {
+    public init(wrappedValue: StoragePointer.Pointer) {
         self.pointer = StoragePointer(withRetained: wrappedValue)
     }
 

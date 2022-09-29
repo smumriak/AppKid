@@ -20,7 +20,7 @@ public extension UnsafeMutablePointer where Pointee: CopyableCType {
 }
 
 public final class CopyablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: CopyableCType {
-    public override init(with pointer: Pointer_t) {
+    public override init(with pointer: Pointer) {
         defer { globalRetainCount.increment() }
 
         super.init(with: pointer)
@@ -37,7 +37,7 @@ public struct Copyable<Pointee: CopyableCType> {
 
     public var pointer: StoragePointer
 
-    public var wrappedValue: StoragePointer.Pointer_t {
+    public var wrappedValue: StoragePointer.Pointer {
         get {
             pointer.pointer
         }
@@ -46,7 +46,7 @@ public struct Copyable<Pointee: CopyableCType> {
         }
     }
 
-    public init(wrappedValue: StoragePointer.Pointer_t) {
+    public init(wrappedValue: StoragePointer.Pointer) {
         self.pointer = StoragePointer(with: wrappedValue)
     }
 
