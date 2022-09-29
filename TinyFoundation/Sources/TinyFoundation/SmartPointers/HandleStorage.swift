@@ -18,6 +18,8 @@ public protocol SharedPointerHandleStorageProtocol: HandleStorageProtocol {
     var handlePointer: SharedPointerHandle_t { get }
 }
 
+public typealias SharedHandleStorage<Pointee> = HandleStorage<SharedPointer<Pointee>>
+
 open class HandleStorage<Handle: SmartPointer>: SharedPointerHandleStorageProtocol {
     public var handle: Handle.Pointer_t {
         handlePointer.pointer

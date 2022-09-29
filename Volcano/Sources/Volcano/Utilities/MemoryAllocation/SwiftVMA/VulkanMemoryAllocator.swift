@@ -8,8 +8,8 @@
 import TinyFoundation
 import VulkanMemoryAllocatorAdapted
 
-public class VulkanMemoryAllocator: HandleStorage<SharedPointer<VmaAllocator_T>>, MemoryAllocator {
-    public class Allocation: HandleStorage<SharedPointer<VmaAllocation_T>> {}
+public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryAllocator {
+    public typealias Allocation = SharedHandleStorage<VmaAllocation_T>
 
     public internal(set) unowned var device: Device
 

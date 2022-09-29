@@ -30,7 +30,7 @@ internal extension SharedPointer where Pointee == CXlib.Display {
     }
 }
 
-public class Display: HandleStorage<SharedPointer<CXlib.Display>> {
+public class Display: SharedHandleStorage<CXlib.Display> {
     public let xInput2ExtensionOpcode: CInt
 
     internal var atoms: [String: CXlib.Atom]

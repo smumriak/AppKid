@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class Queue: HandleStorage<SharedPointer<VkQueue_T>> {
+public final class Queue: SharedHandleStorage<VkQueue_T> {
     public internal(set) unowned var device: Device
     public let familyIndex: Int
     public let queueIndex: Int
