@@ -56,9 +56,9 @@ public class VMAMemoryChunk: MemoryChunk {
         try bindPrivate(to: bindable)
     }
 
-    private func bindPrivate<T1: MemoryBindable>(to bindable: T1) throws {
+    private func bindPrivate<T: MemoryBindable>(to bindable: T) throws {
         try vulkanInvoke {
-            T1.vmaBindFunction(allocator.handle, allocation.handle, bindable.handle as! UnsafeMutablePointer<T1.Handle_t.Pointee>)
+            T.vmaBindFunction(allocator.handle, allocation.handle, bindable.handle as! UnsafeMutablePointer<T.Handle.Pointee>)
         }
     }
 }
@@ -128,8 +128,8 @@ private extension VkBufferCreateInfo {
 }
 
 public extension MemoryBindable {
-    static var vmaBindFunction: Handle_t.Pointee.VMABindFunction {
-        return Handle_t.Pointee.vmaBindFunction
+    static var vmaBindFunction: Handle.Pointee.VMABindFunction {
+        return Handle.Pointee.vmaBindFunction
     }
 }
 

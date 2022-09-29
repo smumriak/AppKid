@@ -135,17 +135,17 @@ extension VkImage_T: MemoryBacked {
     public static let bindFunction = vkBindImageMemory
 }
 
-public protocol MemoryBindable: SharedPointerHandleStorageProtocol where Handle_t: UnsafeTypedPointerProtocol, Handle_t.Pointee: MemoryBacked {
-    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
-    static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+public protocol MemoryBindable: SharedPointerHandleStorageProtocol where Handle: UnsafeTypedPointerProtocol, Handle.Pointee: MemoryBacked {
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
-extension DeviceEntity: MemoryBindable where Handle_t.Pointee: MemoryBacked {
-    public static var requirementsFunction: (VkDevice?, Handle_t?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
-        return Handle_t.Pointee.requirementsFunction
+extension DeviceEntity: MemoryBindable where Handle.Pointee: MemoryBacked {
+    public static var requirementsFunction: (VkDevice?, Handle?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
+        return Handle.Pointee.requirementsFunction
     }
 
-    public static var bindFunction: (VkDevice?, Handle_t?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
-        return Handle_t.Pointee.bindFunction
+    public static var bindFunction: (VkDevice?, Handle?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
+        return Handle.Pointee.bindFunction
     }
 }
