@@ -53,7 +53,7 @@ public final class BufferDescriptor {
     }
 }
 
-public class Buffer: DeviceEntity<SharedPointer<VkBuffer_T>> {
+public class Buffer: DeviceEntity<VkBuffer_T> {
     public let size: VkDeviceSize
     public let usage: VkBufferUsageFlagBits
     public let sharingMode: VkSharingMode

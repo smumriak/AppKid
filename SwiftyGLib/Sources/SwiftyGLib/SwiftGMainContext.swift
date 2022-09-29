@@ -9,7 +9,7 @@ import Foundation
 import CGlib
 import TinyFoundation
 // Thread.current.threadDictionary
-public class SwiftGMainContext: SharedHandleStorage<_GMainContext> {
+public class SwiftGMainContext: SharedPointerStorage<_GMainContext> {
     internal static let mainContextThreadStoreKey = UUID()
     internal class ThreadStore {
         public let context: SwiftGMainContext

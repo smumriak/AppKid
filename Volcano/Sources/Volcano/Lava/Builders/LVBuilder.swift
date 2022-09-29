@@ -110,7 +110,7 @@ public struct LVBuilder<Struct: InitializableWithNew> {
     }
 }
 
-public extension HandleStorage where Handle.Pointee: EntityFactory {
+public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
     func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LVBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0)

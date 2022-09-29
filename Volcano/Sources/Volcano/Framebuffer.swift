@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Framebuffer: DeviceEntity<SharedPointer<VkFramebuffer_T>> {
+public final class Framebuffer: DeviceEntity<VkFramebuffer_T> {
     public fileprivate(set) var attachments: [ImageView]
 
     public init(device: Device, size: VkExtent2D, renderPass: RenderPass, attachments: [ImageView], layersCount: CUnsignedInt = 1) throws {

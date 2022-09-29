@@ -52,7 +52,7 @@ public protocol MemoryAllocator {
     init(device: Device) throws
 
     func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk)
-    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked
+    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorage, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked
 }
 
 public class DirectMemoryAllocator: MemoryAllocator {
@@ -66,7 +66,7 @@ public class DirectMemoryAllocator: MemoryAllocator {
         fatalError()
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorage, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
         let memoryTypes = device.physicalDevice.memoryTypes
 
         let memoryRequirements = try device.memoryRequirements(for: memoryBacked)

@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Image: DeviceEntity<SharedPointer<VkImage_T>> {
+public final class Image: DeviceEntity<VkImage_T> {
     public let format: VkFormat
 
     public init(device: Device, handle: SharedPointer<VkImage_T>, format: VkFormat) throws {

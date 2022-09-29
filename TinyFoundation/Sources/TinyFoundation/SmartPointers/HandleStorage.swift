@@ -1,5 +1,5 @@
 //
-//  HandleStorage.swift
+//  SharedPointerStorage.swift
 //  TinyFoundation
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -7,36 +7,35 @@
 
 import Foundation
 
-public protocol HandleStorageProtocol: Hashable {
+public protocol HandleStorage: Hashable {
     associatedtype Handle
 
     var handle: Handle { get }
 }
 
-public extension HandleStorageProtocol where Handle: SmartPointer {
+public extension HandleStorage where Handle: SmartPointer {
     @_transparent
     var pointer: Handle.Pointer_t { handle.pointer }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.handle == rhs.handle
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(handle)
+    }
 }
 
-public typealias SharedHandleStorage<Pointee> = HandleStorage<SharedPointer<Pointee>>
-
-open class HandleStorage<Handle: SmartPointer>: HandleStorageProtocol {
+open class SharedPointerStorage<Value>: HandleStorage {
+    public typealias Handle = SharedPointer<Value>
     public let handle: Handle
 
     public init(handle: Handle) {
         self.handle = handle
     }
-
-    public static func == (lhs: HandleStorage<Handle>, rhs: HandleStorage<Handle>) -> Bool {
-        return lhs.handle == rhs.handle
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(handle)
-    }
 }
 
-public extension Array where Element: HandleStorageProtocol {
+public extension Array where Element: HandleStorage {
     func handles() -> [Element.Handle] {
         return map { $0.handle }
     }
@@ -46,7 +45,7 @@ public extension Array where Element: HandleStorageProtocol {
     }
 }
 
-public extension Array where Element: HandleStorageProtocol, Element.Handle: SmartPointer {
+public extension Array where Element: HandleStorage, Element.Handle: SmartPointer {
     func pointers() -> [UnsafePointer<Element.Handle.Pointer_t.Pointee>] {
         return map { UnsafePointer($0.pointer) }
     }

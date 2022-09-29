@@ -270,7 +270,7 @@ internal extension SmartPointer where Pointee: DataLoader {
     }
 }
 
-internal extension HandleStorage where Handle.Pointee: DataLoader {
+internal extension SharedPointerStorage where Handle.Pointee: DataLoader {
     func loadData<Result: VulkanOutStructure>(using loader: Handle.Pointer_t.OwnData_f<Result>) throws -> Result {
         return try handle.loadData(using: loader)
     }

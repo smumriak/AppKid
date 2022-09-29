@@ -8,8 +8,8 @@
 import TinyFoundation
 import VulkanMemoryAllocatorAdapted
 
-public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryAllocator {
-    public typealias Allocation = SharedHandleStorage<VmaAllocation_T>
+public class VulkanMemoryAllocator: SharedPointerStorage<VmaAllocator_T>, MemoryAllocator {
+    public typealias Allocation = SharedPointerStorage<VmaAllocation_T>
 
     public internal(set) unowned var device: Device
 
@@ -73,7 +73,7 @@ public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryA
         return (result, memoryChunk)
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorage, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
         var allocationCreateInfo = VmaAllocationCreateInfo()
 
         var allocationHandle: VmaAllocation? = nil

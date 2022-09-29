@@ -11,7 +11,7 @@ import CVulkan
 @_marker
 public protocol EntityFactory {}
 
-public extension HandleStorage where Handle.Pointee: EntityFactory {
+public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
     func create<Info: SimpleEntityInfo>(with info: UnsafePointer<Info>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         var result: UnsafeMutablePointer<Info.Result>? = nil
 
@@ -39,7 +39,7 @@ public extension HandleStorage where Handle.Pointee: EntityFactory {
     }
 }
 
-public extension HandleStorage where Handle.Pointee: EntityFactory {
+public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
     func create<Info: PipelineEntityInfo>(with info: UnsafePointer<Info>, cache: VkPipelineCache? = nil, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         var result: UnsafeMutablePointer<Info.Result>? = nil
 

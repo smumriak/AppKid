@@ -14,7 +14,7 @@ public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Str
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SharedHandleStorage<Value>]) -> LVSmartMutablePointersArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SharedPointerStorage<Value>]) -> LVSmartMutablePointersArray<Struct, Value> {
     LVSmartMutablePointersArray(paths.0, paths.1, value.smartPointers())
 }
 

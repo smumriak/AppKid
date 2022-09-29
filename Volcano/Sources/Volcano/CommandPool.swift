@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class CommandPool: DeviceEntity<SharedPointer<VkCommandPool_T>> {
+public final class CommandPool: DeviceEntity<VkCommandPool_T> {
     public let queue: Queue
 
     public init(device: Device, queue: Queue, flags: VkCommandPoolCreateFlagBits = .resetCommandBuffer) throws {

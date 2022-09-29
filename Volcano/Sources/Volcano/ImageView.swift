@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class ImageView: DeviceEntity<SharedPointer<VkImageView_T>> {
+public final class ImageView: DeviceEntity<VkImageView_T> {
     public unowned let image: Image
     public let imageFormat: VkFormat
     public let subresourceRange: VkImageSubresourceRange

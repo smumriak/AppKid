@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>> {
+public final class CommandBuffer: DeviceEntity<VkCommandBuffer_T> {
     public func record(using body: () throws -> ()) throws {
         try begin()
         try body()

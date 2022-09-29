@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Sampler: DeviceEntity<SharedPointer<VkSampler_T>> {
+public final class Sampler: DeviceEntity<VkSampler_T> {
     public struct AddressModes {
         public var u: VkSamplerAddressMode
         public var v: VkSamplerAddressMode

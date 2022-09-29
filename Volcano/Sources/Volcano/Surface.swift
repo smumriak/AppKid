@@ -10,7 +10,7 @@ import TinyFoundation
 import CVulkan
 import CXlib
 
-public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
+public final class Surface: InstanceEntity<VkSurfaceKHR_T> {
     public let physicalDevice: PhysicalDevice
     public let supportedFormats: [VkSurfaceFormatKHR]
     public let selectedFormat: VkSurfaceFormatKHR

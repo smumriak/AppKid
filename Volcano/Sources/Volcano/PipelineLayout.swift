@@ -8,5 +8,5 @@
 import TinyFoundation
 import CVulkan
 
-public final class PipelineLayout: DeviceEntity<SharedPointer<VkPipelineLayout_T>> {
+public final class PipelineLayout: DeviceEntity<VkPipelineLayout_T> {
 }

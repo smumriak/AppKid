@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class DescriptorPool: DeviceEntity<SharedPointer<VkDescriptorPool_T>> {
+public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
     public let maxSets: UInt
     public init(device: Device, sizes: [VkDescriptorPoolSize], maxSets: UInt) throws {
         assert(!sizes.isEmpty)
@@ -47,7 +47,7 @@ public final class DescriptorPool: DeviceEntity<SharedPointer<VkDescriptorPool_T
     }
 }
 
-public final class DescriptorSetLayout: DeviceEntity<SharedPointer<VkDescriptorSetLayout_T>> {
+public final class DescriptorSetLayout: DeviceEntity<VkDescriptorSetLayout_T> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
         let handle: SharedPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
             var info = VkDescriptorSetLayoutCreateInfo.new()
@@ -61,7 +61,7 @@ public final class DescriptorSetLayout: DeviceEntity<SharedPointer<VkDescriptorS
     }
 }
 
-public final class DescriptorSet: HandleStorageProtocol, Hashable {
+public final class DescriptorSet: HandleStorage, Hashable {
     public let pool: DescriptorPool
     public let handle: VkDescriptorSet
 

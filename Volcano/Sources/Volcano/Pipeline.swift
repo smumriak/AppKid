@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public class Pipeline: DeviceEntity<SharedPointer<VkPipeline_T>> {
+public class Pipeline: DeviceEntity<VkPipeline_T> {
     public internal(set) var layout: SharedPointer<VkPipelineLayout_T>
 
     public init(device: Device, handle: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>) throws {

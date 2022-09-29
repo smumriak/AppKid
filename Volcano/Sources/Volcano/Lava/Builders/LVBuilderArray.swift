@@ -125,7 +125,7 @@ public struct LVBuilderArray<Struct: VulkanStructure> {
     }
 }
 
-public extension HandleStorage where Handle.Pointee: EntityFactory {
+public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
     func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, _ builder: LVBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0, cache: cache)

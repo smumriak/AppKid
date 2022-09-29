@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class Shader: DeviceEntity<SharedPointer<VkShaderModule_T>> {
+public final class Shader: DeviceEntity<VkShaderModule_T> {
     public static let defaultShaderEntryPointName = "main"
 
     public enum Error: Swift.Error {
