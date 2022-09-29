@@ -75,6 +75,8 @@ AK_EXISTING_ENUM(VkPhysicalDeviceType);
 AK_EXISTING_ENUM(VkPipelineBindPoint);
 AK_EXISTING_ENUM(VkPipelineCacheHeaderVersion);
 AK_EXISTING_ENUM(VkPipelineExecutableStatisticFormatKHR);
+AK_EXISTING_ENUM(VkPipelineRobustnessBufferBehaviorEXT);
+AK_EXISTING_ENUM(VkPipelineRobustnessImageBehaviorEXT);
 AK_EXISTING_ENUM(VkPointClippingBehavior);
 AK_EXISTING_ENUM(VkPolygonMode);
 AK_EXISTING_ENUM(VkPresentModeKHR);

@@ -204,6 +204,7 @@ public extension VkDependencyFlagBits {
     static let viewLocal: VkDependencyFlagBits = .VK_DEPENDENCY_VIEW_LOCAL_BIT
     static let viewLocalKhr: VkDependencyFlagBits = .VK_DEPENDENCY_VIEW_LOCAL_BIT_KHR
     static let deviceGroupKhr: VkDependencyFlagBits = .VK_DEPENDENCY_DEVICE_GROUP_BIT_KHR
+    static let feedbackLoopExt: VkDependencyFlagBits = .VK_DEPENDENCY_FEEDBACK_LOOP_BIT_EXT
 }
 
 public typealias VkDescriptorBindingFlagBits = CVulkan.VkDescriptorBindingFlagBits
@@ -276,6 +277,21 @@ public extension VkEventCreateFlagBits {
     static let deviceOnly: VkEventCreateFlagBits = .VK_EVENT_CREATE_DEVICE_ONLY_BIT
     static let deviceOnlyKhr: VkEventCreateFlagBits = .VK_EVENT_CREATE_DEVICE_ONLY_BIT_KHR
 }
+
+#if VOLCANO_PLATFORM_APPLE_METAL
+    public typealias VkExportMetalObjectTypeFlagBitsEXT = CVulkan.VkExportMetalObjectTypeFlagBitsEXT
+#endif
+
+#if VOLCANO_PLATFORM_APPLE_METAL
+    public extension VkExportMetalObjectTypeFlagBitsEXT {
+        static let metalDevice: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_DEVICE_BIT_EXT
+        static let metalCommandQueue: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_COMMAND_QUEUE_BIT_EXT
+        static let metalBuffer: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_BUFFER_BIT_EXT
+        static let metalTexture: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_TEXTURE_BIT_EXT
+        static let metalIosurface: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_IOSURFACE_BIT_EXT
+        static let metalSharedEvent: VkExportMetalObjectTypeFlagBitsEXT = .VK_EXPORT_METAL_OBJECT_TYPE_METAL_SHARED_EVENT_BIT_EXT
+    }
+#endif
 
 public typealias VkExternalFenceFeatureFlagBits = CVulkan.VkExternalFenceFeatureFlagBits
 
@@ -556,6 +572,7 @@ public extension VkImageCreateFlagBits {
     static let disjointKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_DISJOINT_BIT_KHR
     static let aliasKhr: VkImageCreateFlagBits = .VK_IMAGE_CREATE_ALIAS_BIT_KHR
     static let subsampledExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_SUBSAMPLED_BIT_EXT
+    static let multisampledRenderToSingleSampledExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT
     static let twoDimensionsViewCompatibleExt: VkImageCreateFlagBits = .VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT
     static let fragmentDensityMapOffsetQcom: VkImageCreateFlagBits = .VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM
 }
@@ -574,7 +591,10 @@ public extension VkImageUsageFlagBits {
     static let shadingRateImageNv: VkImageUsageFlagBits = .VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV
     static let fragmentDensityMapExt: VkImageUsageFlagBits = .VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT
     static let fragmentShadingRateAttachmentKhr: VkImageUsageFlagBits = .VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR
+    static let attachmentFeedbackLoopExt: VkImageUsageFlagBits = .VK_IMAGE_USAGE_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT
     static let invocationMaskHuawei: VkImageUsageFlagBits = .VK_IMAGE_USAGE_INVOCATION_MASK_BIT_HUAWEI
+    static let sampleWeightQcom: VkImageUsageFlagBits = .VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM
+    static let sampleBlockMatchQcom: VkImageUsageFlagBits = .VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM
 }
 
 public typealias VkImageViewCreateFlagBits = CVulkan.VkImageViewCreateFlagBits
@@ -703,6 +723,8 @@ public extension VkPipelineCreateFlagBits {
     static let retainLinkTimeOptimizationInfoExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RETAIN_LINK_TIME_OPTIMIZATION_INFO_BIT_EXT
     static let linkTimeOptimizationExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_LINK_TIME_OPTIMIZATION_BIT_EXT
     static let rayTracingAllowMotionNv: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_RAY_TRACING_ALLOW_MOTION_BIT_NV
+    static let colorAttachmentFeedbackLoopExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_COLOR_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT
+    static let depthStencilAttachmentFeedbackLoopExt: VkPipelineCreateFlagBits = .VK_PIPELINE_CREATE_DEPTH_STENCIL_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT
 }
 
 public typealias VkPipelineCreationFeedbackFlagBits = CVulkan.VkPipelineCreationFeedbackFlagBits
@@ -860,6 +882,8 @@ public typealias VkSamplerCreateFlagBits = CVulkan.VkSamplerCreateFlagBits
 public extension VkSamplerCreateFlagBits {
     static let subsampledExt: VkSamplerCreateFlagBits = .VK_SAMPLER_CREATE_SUBSAMPLED_BIT_EXT
     static let subsampledCoarseReconstructionExt: VkSamplerCreateFlagBits = .VK_SAMPLER_CREATE_SUBSAMPLED_COARSE_RECONSTRUCTION_BIT_EXT
+    static let nonSeamlessCubeMapExt: VkSamplerCreateFlagBits = .VK_SAMPLER_CREATE_NON_SEAMLESS_CUBE_MAP_BIT_EXT
+    static let imageProcessingQcom: VkSamplerCreateFlagBits = .VK_SAMPLER_CREATE_IMAGE_PROCESSING_BIT_QCOM
 }
 
 public typealias VkSemaphoreImportFlagBits = CVulkan.VkSemaphoreImportFlagBits

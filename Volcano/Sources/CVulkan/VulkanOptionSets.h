@@ -36,6 +36,9 @@ AK_EXISTING_OPTIONS(VkDeviceGroupPresentModeFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkDeviceQueueCreateFlagBits);
 AK_EXISTING_OPTIONS(VkDisplayPlaneAlphaFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkEventCreateFlagBits);
+#ifdef VK_USE_PLATFORM_METAL_EXT
+AK_EXISTING_OPTIONS(VkExportMetalObjectTypeFlagBitsEXT);
+#endif
 AK_EXISTING_OPTIONS(VkExternalFenceFeatureFlagBits);
 AK_EXISTING_OPTIONS(VkExternalFenceHandleTypeFlagBits);
 AK_EXISTING_OPTIONS(VkExternalMemoryFeatureFlagBits);
