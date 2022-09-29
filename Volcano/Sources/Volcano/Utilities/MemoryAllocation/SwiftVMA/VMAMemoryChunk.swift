@@ -58,7 +58,7 @@ public class VMAMemoryChunk: MemoryChunk {
 
     private func bindPrivate<T: MemoryBindable>(to bindable: T) throws {
         try vulkanInvoke {
-            T.vmaBindFunction(allocator.pointer, allocation.pointer, bindable.pointer as! UnsafeMutablePointer<T.Handle.Pointee>)
+            T.vmaBindFunction(allocator.pointer, allocation.pointer, bindable.pointer)
         }
     }
 }
