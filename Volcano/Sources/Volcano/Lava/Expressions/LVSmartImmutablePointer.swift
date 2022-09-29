@@ -9,12 +9,12 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: SmartPointer<Value>) -> LVSmartImmutablePointer<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: SharedPointer<Value>) -> LVSmartImmutablePointer<Struct, Value> {
     LVSmartImmutablePointer(path, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: HandleStorage<SmartPointer<Value>>) -> LVSmartImmutablePointer<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafePointer<Value>?>, value: HandleStorage<SharedPointer<Value>>) -> LVSmartImmutablePointer<Struct, Value> {
     LVSmartImmutablePointer(path, value.handlePointer)
 }
 
@@ -25,9 +25,9 @@ public class LVSmartImmutablePointer<Struct: InitializableWithNew, Value>: LVPat
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let pointer: SmartPointer<Value>?
+    internal let pointer: SharedPointer<Value>?
 
-    public init(_ valueKeyPath: ValueKeyPath, _ pointer: SmartPointer<Value>?) {
+    public init(_ valueKeyPath: ValueKeyPath, _ pointer: SharedPointer<Value>?) {
         self.valueKeyPath = valueKeyPath
         self.pointer = pointer
     }

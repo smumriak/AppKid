@@ -81,10 +81,10 @@ internal extension cairo_line_join_t {
     // smumriak: swift-atomics libabry can not be built on macOS. oh the irony
     @Synchronized private var useCount: UInt
 
-    public let surface: SmartPointer<cairo_surface_t>
+    public let surface: SharedPointer<cairo_surface_t>
     public let data: UnsafeMutableRawPointer
 
-    public init(surface: SmartPointer<cairo_surface_t>, useCount: UInt = 1) {
+    public init(surface: SharedPointer<cairo_surface_t>, useCount: UInt = 1) {
         self.surface = surface
         self.data = UnsafeMutableRawPointer(cairo_image_surface_get_data(surface.pointer))
         self.useCount = useCount

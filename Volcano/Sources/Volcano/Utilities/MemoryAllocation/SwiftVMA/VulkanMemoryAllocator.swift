@@ -8,8 +8,8 @@
 import TinyFoundation
 import VulkanMemoryAllocatorAdapted
 
-public class VulkanMemoryAllocator: HandleStorage<SmartPointer<VmaAllocator_T>>, MemoryAllocator {
-    public class Allocation: HandleStorage<SmartPointer<VmaAllocation_T>> {}
+public class VulkanMemoryAllocator: HandleStorage<SharedPointer<VmaAllocator_T>>, MemoryAllocator {
+    public class Allocation: HandleStorage<SharedPointer<VmaAllocation_T>> {}
 
     public internal(set) unowned var device: Device
 
@@ -36,7 +36,7 @@ public class VulkanMemoryAllocator: HandleStorage<SmartPointer<VmaAllocator_T>>,
             vmaCreateAllocator(&info, &handle)
         }
 
-        let handlePointer = SmartPointer(with: handle!, deleter: .custom {
+        let handlePointer = SharedPointer(with: handle!, deleter: .custom {
             vmaDestroyAllocator($0)
         })
 
@@ -56,11 +56,11 @@ public class VulkanMemoryAllocator: HandleStorage<SmartPointer<VmaAllocator_T>>,
             }
         }
 
-        let entityHandlePointer = SmartPointer(with: entityHandle!) { [unowned device] in
+        let entityHandlePointer = SharedPointer(with: entityHandle!) { [unowned device] in
             Descriptor.Info.deleteFunction(device.handle, $0, nil)
         }
 
-        let allocationHandlePointer = SmartPointer(with: allocationHandle!) { [unowned self] in
+        let allocationHandlePointer = SharedPointer(with: allocationHandle!) { [unowned self] in
             vmaFreeMemory(self.handle, $0)
         }
 
@@ -73,17 +73,17 @@ public class VulkanMemoryAllocator: HandleStorage<SmartPointer<VmaAllocator_T>>,
         return (result, memoryChunk)
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SmartPointerHandle_t, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result.SmartPointerHandle_t.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle_t, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result.SharedPointerHandle_t.Pointee: MemoryBacked {
         var allocationCreateInfo = VmaAllocationCreateInfo()
 
         var allocationHandle: VmaAllocation? = nil
         var allocationInfo: VmaAllocationInfo = VmaAllocationInfo()
 
         try vulkanInvoke {
-            Descriptor.Result.SmartPointerHandle_t.Pointee.vmaAllocFunction(handle, memoryBacked.pointer, &allocationCreateInfo, &allocationHandle, &allocationInfo)
+            Descriptor.Result.SharedPointerHandle_t.Pointee.vmaAllocFunction(handle, memoryBacked.pointer, &allocationCreateInfo, &allocationHandle, &allocationInfo)
         }
 
-        let allocationHandlePointer = SmartPointer(with: allocationHandle!) { [unowned self] in
+        let allocationHandlePointer = SharedPointer(with: allocationHandle!) { [unowned self] in
             vmaFreeMemory(self.handle, $0)
         }
 

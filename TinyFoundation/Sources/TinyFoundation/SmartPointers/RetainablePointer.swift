@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol RetainableCType: ReleasableCType {
-    static var retainFunc: (_ pointer: SmartPointer<Self>.Pointer_t?) -> (SmartPointer<Self>.Pointer_t?) { get }
+    static var retainFunc: (_ pointer: SharedPointer<Self>.Pointer_t?) -> (SharedPointer<Self>.Pointer_t?) { get }
 }
 
 public extension UnsafeMutablePointer where Pointee: RetainableCType {

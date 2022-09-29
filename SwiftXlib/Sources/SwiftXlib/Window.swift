@@ -186,11 +186,11 @@ public extension WindowProtocol {
         XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         return itemsBytesPointer.flatMap { itemsBytesPointer in
-            let itemsBytesSmartPointer = SmartPointer(with: itemsBytesPointer, deleter: .custom {
+            let itemsBytesSharedPointer = SharedPointer(with: itemsBytesPointer, deleter: .custom {
                 XFree(UnsafeMutableRawPointer($0))
             })
 
-            let itemsPointer = itemsBytesSmartPointer.assumingMemoryBound(to: T.self)
+            let itemsPointer = itemsBytesSharedPointer.assumingMemoryBound(to: T.self)
 
             let items: [T] = Array(UnsafeBufferPointer(start: itemsPointer, count: Int(numberOfItems)))
 
@@ -219,11 +219,11 @@ public extension WindowProtocol {
         XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         if let itemsBytesPointer = itemsBytesPointer {
-            let itemsBytesSmartPointer = SmartPointer(with: itemsBytesPointer, deleter: .custom {
+            let itemsBytesSharedPointer = SharedPointer(with: itemsBytesPointer, deleter: .custom {
                 XFree(UnsafeMutableRawPointer($0))
             })
 
-            let itemsPointer = itemsBytesSmartPointer.assumingMemoryBound(to: T.self)
+            let itemsPointer = itemsBytesSharedPointer.assumingMemoryBound(to: T.self)
 
             let items: [T] = Array(UnsafeBufferPointer(start: itemsPointer, count: Int(numberOfItems)))
 

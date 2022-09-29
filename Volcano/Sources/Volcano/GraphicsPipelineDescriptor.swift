@@ -18,7 +18,7 @@ public class GraphicsPipelineDescriptor {
     // MARK: - Pipeline Layout
     
     // smumriak:TODO: maybe allowing clients to pass already created layout here and creating one if they did not is the way to go for future
-    // public var layout: SmartPointer<VkPipelineLayout_T>?
+    // public var layout: SharedPointer<VkPipelineLayout_T>?
     public var descriptorSetLayouts: [DescriptorSetLayout] = []
     public var pushConstants: [VkPushConstantRange] = []
 
@@ -85,7 +85,7 @@ public class GraphicsPipelineDescriptor {
 extension GraphicsPipelineDescriptor {
     @_transparent
     @LVBuilder<VkGraphicsPipelineCreateInfo>
-    func createBuilder(_ layout: SmartPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
+    func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
         \.pViewportState <- viewportState
         \.pVertexInputState <- vertexInputState
         \.pInputAssemblyState <- inputAssemblyState

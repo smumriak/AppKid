@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class CommandBuffer: DeviceEntity<SmartPointer<VkCommandBuffer_T>> {
+public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>> {
     public func record(using body: () throws -> ()) throws {
         try begin()
         try body()
@@ -126,7 +126,7 @@ public final class CommandBuffer: DeviceEntity<SmartPointer<VkCommandBuffer_T>> 
         try bind(descriptorSets: descriptorSets, bindPoint: .graphics, pipelineLayout: pipeline.layout)
     }
 
-    public func bind(descriptorSets: [DescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
+    public func bind(descriptorSets: [DescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SharedPointer<VkPipelineLayout_T>) throws {
         try descriptorSets.optionalHandles()
             .withUnsafeBufferPointer { descriptorSets in
                 try vulkanInvoke {
@@ -139,7 +139,7 @@ public final class CommandBuffer: DeviceEntity<SmartPointer<VkCommandBuffer_T>> 
         try bind(descriptorSets: descriptorSets, bindPoint: .graphics, pipelineLayout: pipeline.layout)
     }
 
-    public func bind(descriptorSets: [VkDescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SmartPointer<VkPipelineLayout_T>) throws {
+    public func bind(descriptorSets: [VkDescriptorSet], bindPoint: VkPipelineBindPoint, pipelineLayout: SharedPointer<VkPipelineLayout_T>) throws {
         try descriptorSets.map { $0 as VkDescriptorSet? }
             .withUnsafeBufferPointer { descriptorSets in
                 try vulkanInvoke {

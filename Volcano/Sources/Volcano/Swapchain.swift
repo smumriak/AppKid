@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class Swapchain: DeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
+public final class Swapchain: DeviceEntity<SharedPointer<VkSwapchainKHR_T>> {
     public unowned let surface: Surface
     public var size: VkExtent2D
     public let imageFormat: VkFormat
@@ -39,7 +39,7 @@ public final class Swapchain: DeviceEntity<SmartPointer<VkSwapchainKHR_T>> {
         let imageCount = min(minImageCount, maxImageCount)
         let queueFamiliesIndices = [graphicsQueue, presentationQueue].familyIndices
 
-        let handlePointer: SmartPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
+        let handlePointer: SharedPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR.new()
             info.surface = surface.handle
             info.minImageCount = imageCount

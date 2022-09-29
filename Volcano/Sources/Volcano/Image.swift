@@ -8,16 +8,16 @@
 import TinyFoundation
 import CVulkan
 
-public final class Image: DeviceEntity<SmartPointer<VkImage_T>> {
+public final class Image: DeviceEntity<SharedPointer<VkImage_T>> {
     public let format: VkFormat
 
-    public init(device: Device, handlePointer: SmartPointer<VkImage_T>, format: VkFormat) throws {
+    public init(device: Device, handlePointer: SharedPointer<VkImage_T>, format: VkFormat) throws {
         self.format = format
         try super.init(device: device, handlePointer: handlePointer)
     }
 
     public convenience init(device: Device, swapchainImageHandle handle: VkImage, format: VkFormat) throws {
-        try self.init(device: device, handlePointer: SmartPointer(with: handle), format: format)
+        try self.init(device: device, handlePointer: SharedPointer(with: handle), format: format)
     }
     
     public convenience init(device: Device, descriptor: ImageDescriptor) throws {

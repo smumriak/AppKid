@@ -23,7 +23,7 @@ public class VMAMemoryChunk: MemoryChunk {
         self.allocator = allocator
         self.allocation = allocation
 
-        let handlePointer = SmartPointer(with: info.deviceMemory!, deleter: .none)
+        let handlePointer = SharedPointer(with: info.deviceMemory!, deleter: .none)
 
         try super.init(device: allocator.device, handlePointer: handlePointer, parent: nil, offset: info.offset, size: info.size, properties: memoryProperties)
     }
@@ -78,7 +78,7 @@ public extension MemoryBacked {
         }
     }
 
-    typealias VMABindFunction = (_ allocator: VmaAllocator, _ allocation: VmaAllocation, _ bindable: SmartPointer<Self>.Pointer_t) -> (VkResult)
+    typealias VMABindFunction = (_ allocator: VmaAllocator, _ allocation: VmaAllocation, _ bindable: SharedPointer<Self>.Pointer_t) -> (VkResult)
     static var vmaBindFunction: VMABindFunction {
         switch self {
             case let SpecializedInfo as VkImage_T.Type:

@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-internal extension SmartPointer where Pointee == VkDevice_T {
+internal extension SharedPointer where Pointee == VkDevice_T {
     func loadFunction<Function>(named name: String) throws -> Function {
         guard let result = cVulkanGetDeviceProcAddr(pointer, name) else {
             throw VulkanError.deviceFunctionNotFound(name)
@@ -22,7 +22,7 @@ internal extension SmartPointer where Pointee == VkDevice_T {
 extension VkDevice_T: EntityFactory {}
 extension VkDevice_T: DataLoader {}
 
-public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
+public final class Device: PhysicalDeviceEntity<SharedPointer<VkDevice_T>> {
     public internal(set) var queuesByFamilyIndex: [CUnsignedInt: [Queue]] = [:]
     public internal(set) lazy var allQueues: [Queue] = queuesByFamilyIndex.values.flatMap { $0 }.sorted { $0.type < $1.type }
     private var _memoryAllocator: MemoryAllocator? = nil
@@ -56,7 +56,7 @@ public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
         var timelineSemaphoreFeatures = VkPhysicalDeviceTimelineSemaphoreFeatures.new()
         timelineSemaphoreFeatures.timelineSemaphore = true.vkBool
 
-        let handlePointer: SmartPointer<VkDevice_T> =
+        let handlePointer: SharedPointer<VkDevice_T> =
             try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
                 return try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo.new()
@@ -110,7 +110,7 @@ public final class Device: PhysicalDeviceEntity<SmartPointer<VkDevice_T>> {
         }
     }
 
-    internal func memoryRequirements<T: SmartPointerProtocol>(for handle: T) throws -> VkMemoryRequirements where T.Pointee: MemoryBacked {
+    internal func memoryRequirements<T: SmartPointer>(for handle: T) throws -> VkMemoryRequirements where T.Pointee: MemoryBacked {
         var result = VkMemoryRequirements()
 
         try vulkanInvoke {
@@ -128,7 +128,7 @@ public extension Device {
 }
 
 public extension Device {
-    func allocateMemory(info: UnsafePointer<VkMemoryAllocateInfo>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SmartPointer<VkDeviceMemory_T> {
+    func allocateMemory(info: UnsafePointer<VkMemoryAllocateInfo>, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SharedPointer<VkDeviceMemory_T> {
         var memory: VkDeviceMemory? = nil
 
         try vulkanInvoke {
@@ -136,7 +136,7 @@ public extension Device {
         }
 
         // smumriak:TODO:Validate if this has to retain the thing. Maybe it needs to
-        return SmartPointer(with: memory!) { [unowned self] in
+        return SharedPointer(with: memory!) { [unowned self] in
             vkFreeMemory(self.handle, $0, callbacks)
         }
     }

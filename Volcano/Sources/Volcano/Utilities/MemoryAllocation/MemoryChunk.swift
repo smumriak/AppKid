@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 import VulkanMemoryAllocatorAdapted
 
-open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
+open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
     public let parent: MemoryChunk?
     public let offset: VkDeviceSize
     public let size: VkDeviceSize
@@ -22,7 +22,7 @@ open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
         }
     }
 
-    public init(device: Device, handlePointer: SmartPointer<VkDeviceMemory_T>, parent: MemoryChunk?, offset: VkDeviceSize, size: VkDeviceSize, properties: VkMemoryPropertyFlagBits) throws {
+    public init(device: Device, handlePointer: SharedPointer<VkDeviceMemory_T>, parent: MemoryChunk?, offset: VkDeviceSize, size: VkDeviceSize, properties: VkMemoryPropertyFlagBits) throws {
         self.parent = parent
         self.offset = offset
         self.size = size
@@ -121,8 +121,8 @@ open class MemoryChunk: DeviceEntity<SmartPointer<VkDeviceMemory_T>> {
 }
 
 public protocol MemoryBacked {
-    static var requirementsFunction: (_ device: VkDevice?, _ handle: SmartPointer<Self>.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
-    static var bindFunction: (_ device: VkDevice?, _ handle: SmartPointer<Self>.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: SharedPointer<Self>.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
 extension VkBuffer_T: MemoryBacked {
@@ -135,7 +135,7 @@ extension VkImage_T: MemoryBacked {
     public static let bindFunction = vkBindImageMemory
 }
 
-public protocol MemoryBindable: SmartPointerHandleStorageProtocol where Handle_t: UnsafeTypedPointerProtocol, Handle_t.Pointee: MemoryBacked {
+public protocol MemoryBindable: SharedPointerHandleStorageProtocol where Handle_t: UnsafeTypedPointerProtocol, Handle_t.Pointee: MemoryBacked {
     static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
     static var bindFunction: (_ device: VkDevice?, _ handle: Handle_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }

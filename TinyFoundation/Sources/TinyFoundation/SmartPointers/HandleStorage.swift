@@ -13,12 +13,12 @@ public protocol HandleStorageProtocol: Hashable {
     var handle: Handle_t { get }
 }
 
-public protocol SmartPointerHandleStorageProtocol: HandleStorageProtocol {
-    associatedtype SmartPointerHandle_t: SmartPointerProtocol
-    var handlePointer: SmartPointerHandle_t { get }
+public protocol SharedPointerHandleStorageProtocol: HandleStorageProtocol {
+    associatedtype SharedPointerHandle_t: SmartPointer
+    var handlePointer: SharedPointerHandle_t { get }
 }
 
-open class HandleStorage<Handle: SmartPointerProtocol>: SmartPointerHandleStorageProtocol {
+open class HandleStorage<Handle: SmartPointer>: SharedPointerHandleStorageProtocol {
     public var handle: Handle.Pointer_t {
         handlePointer.pointer
     }
@@ -48,24 +48,24 @@ public extension Array where Element: HandleStorageProtocol {
     }
 }
 
-public extension Array where Element: SmartPointerHandleStorageProtocol, Element.Handle_t == Element.SmartPointerHandle_t.Pointer_t {
-    func pointers() -> [UnsafePointer<Element.SmartPointerHandle_t.Pointer_t.Pointee>] {
+public extension Array where Element: SharedPointerHandleStorageProtocol, Element.Handle_t == Element.SharedPointerHandle_t.Pointer_t {
+    func pointers() -> [UnsafePointer<Element.SharedPointerHandle_t.Pointer_t.Pointee>] {
         return map { UnsafePointer($0.handle) }
     }
 
-    func optionalPointers() -> [UnsafePointer<Element.SmartPointerHandle_t.Pointer_t.Pointee>?] {
+    func optionalPointers() -> [UnsafePointer<Element.SharedPointerHandle_t.Pointer_t.Pointee>?] {
         return map { UnsafePointer($0.handle) }
     }
 
-    func mutablePointers() -> [Element.SmartPointerHandle_t.Pointer_t] {
+    func mutablePointers() -> [Element.SharedPointerHandle_t.Pointer_t] {
         return map { $0.handle }
     }
 
-    func optionalMutablePointers() -> [Element.SmartPointerHandle_t.Pointer_t?] {
+    func optionalMutablePointers() -> [Element.SharedPointerHandle_t.Pointer_t?] {
         return map { $0.handle }
     }
 
-    func smartPointers() -> [Element.SmartPointerHandle_t] {
+    func smartPointers() -> [Element.SharedPointerHandle_t] {
         return map { $0.handlePointer }
     }
 }

@@ -9,12 +9,12 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SmartPointer<Value>]) -> LVSmartMutablePointersArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SharedPointer<Value>]) -> LVSmartMutablePointersArray<Struct, Value> {
     LVSmartMutablePointersArray(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [HandleStorage<SmartPointer<Value>>]) -> LVSmartMutablePointersArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [HandleStorage<SharedPointer<Value>>]) -> LVSmartMutablePointersArray<Struct, Value> {
     LVSmartMutablePointersArray(paths.0, paths.1, value.smartPointers())
 }
 
@@ -29,9 +29,9 @@ public class LVSmartMutablePointersArray<Struct: InitializableWithNew, Value>: L
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: [SmartPointer<Value>]
+    internal let value: [SharedPointer<Value>]
         
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SmartPointer<Value>]) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SharedPointer<Value>]) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.value = value

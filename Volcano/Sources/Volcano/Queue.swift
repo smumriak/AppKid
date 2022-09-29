@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
+public final class Queue: HandleStorage<SharedPointer<VkQueue_T>> {
     public internal(set) unowned var device: Device
     public let familyIndex: Int
     public let queueIndex: Int
@@ -28,7 +28,7 @@ public final class Queue: HandleStorage<SmartPointer<VkQueue_T>> {
             vkGetDeviceQueue(device.handle, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
         }
 
-        super.init(handlePointer: SmartPointer(with: handle!))
+        super.init(handlePointer: SharedPointer(with: handle!))
     }
 
     public func waitForIdle() throws {

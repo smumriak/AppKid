@@ -53,13 +53,13 @@ public final class BufferDescriptor {
     }
 }
 
-public class Buffer: DeviceEntity<SmartPointer<VkBuffer_T>> {
+public class Buffer: DeviceEntity<SharedPointer<VkBuffer_T>> {
     public let size: VkDeviceSize
     public let usage: VkBufferUsageFlagBits
     public let sharingMode: VkSharingMode
     public let memoryChunk: MemoryChunk
 
-    public init(device: Device, handlePointer: SmartPointer<VkBuffer_T>, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode, memoryChunk: MemoryChunk, shouldBind: Bool = true) throws {
+    public init(device: Device, handlePointer: SharedPointer<VkBuffer_T>, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode, memoryChunk: MemoryChunk, shouldBind: Bool = true) throws {
         self.size = size
         self.usage = usage
         self.sharingMode = sharingMode
@@ -73,7 +73,7 @@ public class Buffer: DeviceEntity<SmartPointer<VkBuffer_T>> {
     }
 
     public init(device: Device, descriptor: BufferDescriptor, shouldBind: Bool = true) throws {
-        let handlePointer: SmartPointer<VkBuffer_T> = try descriptor.withUnsafeBufferCreateInfoPointer { info in
+        let handlePointer: SharedPointer<VkBuffer_T> = try descriptor.withUnsafeBufferCreateInfoPointer { info in
             return try device.create(with: info)
         }
 

@@ -204,7 +204,7 @@ extension UnsafeMutablePointer where Pointee: DataLoader {
     }
 }
 
-internal extension SmartPointerProtocol where Pointee: DataLoader {
+internal extension SmartPointer where Pointee: DataLoader {
     func loadData<Result: VulkanOutStructure>(using loader: Pointer_t.OwnData_f<Result>) throws -> Result {
         return try pointer.loadData(using: loader)
     }

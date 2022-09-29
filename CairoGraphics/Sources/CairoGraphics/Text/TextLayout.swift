@@ -10,7 +10,7 @@ import CPango
 import CCairo
 import TinyFoundation
 
-public class FontOptions: HandleStorage<SmartPointer<cairo_font_options_t>> {
+public class FontOptions: HandleStorage<SharedPointer<cairo_font_options_t>> {
     public init() {
         let handlePointer = CopyablePointer(with: cairo_font_options_create())
 
@@ -54,11 +54,11 @@ public class FontOptions: HandleStorage<SmartPointer<cairo_font_options_t>> {
     }
 }
 
-@_spi(AppKid) public class TextFontMap: HandleStorage<SmartPointer<PangoFontMap>> {
-    public static let `default` = TextFontMap(handlePointer: SmartPointer(with: pango_cairo_font_map_get_default(), deleter: .none))
+@_spi(AppKid) public class TextFontMap: HandleStorage<SharedPointer<PangoFontMap>> {
+    public static let `default` = TextFontMap(handlePointer: SharedPointer(with: pango_cairo_font_map_get_default(), deleter: .none))
 }
 
-@_spi(AppKid) public class TextContext: HandleStorage<SmartPointer<PangoContext>> {
+@_spi(AppKid) public class TextContext: HandleStorage<SharedPointer<PangoContext>> {
     public init(with fontMap: TextFontMap = .default) {
         let handlePointer = RetainablePointer(withRetained: pango_font_map_create_context(fontMap.handle)!)
 
@@ -80,7 +80,7 @@ public class FontOptions: HandleStorage<SmartPointer<cairo_font_options_t>> {
     }
 }
 
-@_spi(AppKid) public class TextLayout: HandleStorage<SmartPointer<PangoLayout>> {
+@_spi(AppKid) public class TextLayout: HandleStorage<SharedPointer<PangoLayout>> {
     public let context: TextContext
     public init(with context: TextContext) {
         self.context = context

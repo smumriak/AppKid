@@ -17,7 +17,7 @@ extension VkInstance_T: ReleasableCType {
     }
 }
 
-internal extension SmartPointer where Pointee == VkInstance_T {
+internal extension SharedPointer where Pointee == VkInstance_T {
     func loadFunction<Function>(named name: String) throws -> Function {
         guard let result = cVulkanGetInstanceProcAddr(pointer, name) else {
             throw VulkanError.instanceFunctionNotFound(name)
@@ -30,7 +30,7 @@ internal extension SmartPointer where Pointee == VkInstance_T {
 extension VkInstance_T: EntityFactory {}
 extension VkInstance_T: DataLoader {}
 
-public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
+public final class Instance: HandleStorage<SharedPointer<VkInstance_T>> {
     internal let vkGetPhysicalDeviceSurfaceSupportKHR: PFN_vkGetPhysicalDeviceSurfaceSupportKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilitiesKHR: PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR
     internal let vkGetPhysicalDeviceSurfaceCapabilities2KHR: PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
@@ -42,7 +42,7 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
         do {
             return try loadDataArray(using: vkEnumeratePhysicalDevices)
                 .compactMap { $0 }
-                .map { try PhysicalDevice(instance: self, handlePointer: SmartPointer(with: $0)) }
+                .map { try PhysicalDevice(instance: self, handlePointer: SharedPointer(with: $0)) }
                 .sorted(by: >)
         } catch {
             fatalError("Could not query vulkan devices with error: \(error)")
@@ -71,7 +71,7 @@ public final class Instance: HandleStorage<SmartPointer<VkInstance_T>> {
                 extensions.insert(.debugUtilsExt)
             #endif
 
-            let handlePointer: SmartPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
+            let handlePointer: SharedPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
                 (\.enabledLayerCount, \.ppEnabledLayerNames) <- layers
                 \.pApplicationInfo <- {
                     \.apiVersion <- vulkanVersion

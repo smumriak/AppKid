@@ -27,13 +27,13 @@ internal extension VkExtensionProperties {
 }
 
 extension Array where Element: VulkanExtension {
-    var cStrings: [SmartPointer<Int8>] {
+    var cStrings: [SharedPointer<Int8>] {
         return map { $0.rawValue }.cStrings
     }
 }
 
 extension Set where Element: VulkanExtension {
-    var cStrings: [SmartPointer<Int8>] {
+    var cStrings: [SharedPointer<Int8>] {
         return Array(self).cStrings
     }
 }

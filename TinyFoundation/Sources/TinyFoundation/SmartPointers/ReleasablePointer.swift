@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol ReleasableCType {
-    static var releaseFunc: (_ pointer: SmartPointer<Self>.Pointer_t?) -> () { get }
+    static var releaseFunc: (_ pointer: SharedPointer<Self>.Pointer_t?) -> () { get }
 }
 
 public extension UnsafeMutablePointer where Pointee: ReleasableCType {
@@ -19,12 +19,12 @@ public extension UnsafeMutablePointer where Pointee: ReleasableCType {
     }
 }
 
-public class ReleasablePointer<Pointee>: SmartPointer<Pointee> where Pointee: ReleasableCType {
+public class ReleasablePointer<Pointee>: SharedPointer<Pointee> where Pointee: ReleasableCType {
     public init(with pointer: Pointer_t) {
         super.init(with: pointer, deleter: .custom(Pointee.releaseFunc))
     }
 
-    public override class func allocate(capacity: Int = 1) -> SmartPointer<Pointee> {
+    public override class func allocate(capacity: Int = 1) -> SharedPointer<Pointee> {
         return ReleasablePointer<Pointee>(with: Pointer_t.allocate(capacity: capacity))
     }
 }

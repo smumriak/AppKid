@@ -9,7 +9,7 @@ import Foundation
 import TinyFoundation
 import CVulkan
 
-public final class Shader: DeviceEntity<SmartPointer<VkShaderModule_T>> {
+public final class Shader: DeviceEntity<SharedPointer<VkShaderModule_T>> {
     public static let defaultShaderEntryPointName = "main"
 
     public enum Error: Swift.Error {
@@ -45,7 +45,7 @@ public final class Shader: DeviceEntity<SmartPointer<VkShaderModule_T>> {
         var info = VkShaderModuleCreateInfo.new()
         info.codeSize = data.count
 
-        let handlePointer: SmartPointer<VkShaderModule_T> = try data.withUnsafeBytes {
+        let handlePointer: SharedPointer<VkShaderModule_T> = try data.withUnsafeBytes {
             info.pCode = $0.baseAddress!.assumingMemoryBound(to: CUnsignedInt.self)
 
             return try device.create(with: &info)

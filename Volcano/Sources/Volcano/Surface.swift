@@ -10,7 +10,7 @@ import TinyFoundation
 import CVulkan
 import CXlib
 
-public final class Surface: InstanceEntity<SmartPointer<VkSurfaceKHR_T>> {
+public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
     public let physicalDevice: PhysicalDevice
     public let supportedFormats: [VkSurfaceFormatKHR]
     public let selectedFormat: VkSurfaceFormatKHR
@@ -46,7 +46,7 @@ public final class Surface: InstanceEntity<SmartPointer<VkSurfaceKHR_T>> {
         #error("Wrong OS! (For now)")
     #endif
 
-    private init(physicalDevice: PhysicalDevice, handlePointer: SmartPointer<VkSurfaceKHR_T>, desiredFormat: VkSurfaceFormatKHR) throws {
+    private init(physicalDevice: PhysicalDevice, handlePointer: SharedPointer<VkSurfaceKHR_T>, desiredFormat: VkSurfaceFormatKHR) throws {
         self.physicalDevice = physicalDevice
 
         let supportedFormats = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)

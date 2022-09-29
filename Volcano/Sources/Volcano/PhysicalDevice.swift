@@ -13,7 +13,7 @@ import CXlib
 extension VkPhysicalDevice_T: EntityFactory {}
 extension VkPhysicalDevice_T: DataLoader {}
 
-public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_T>> {
+public final class PhysicalDevice: InstanceEntity<SharedPointer<VkPhysicalDevice_T>> {
     public let features: VkPhysicalDeviceFeatures
     // public let features11: VkPhysicalDeviceVulkan11Features
     // public let features12: VkPhysicalDeviceVulkan12Features
@@ -84,7 +84,7 @@ public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_
         return .one
     }()
 
-    internal override init(instance: Instance, handlePointer: SmartPointer<VkPhysicalDevice_T>) throws {
+    internal override init(instance: Instance, handlePointer: SharedPointer<VkPhysicalDevice_T>) throws {
         // var features11: VkPhysicalDeviceVulkan11Features = .new()
         // var features12: VkPhysicalDeviceVulkan12Features = .new()
 
@@ -120,7 +120,7 @@ public final class PhysicalDevice: InstanceEntity<SmartPointer<VkPhysicalDevice_
             vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, nil)
         }
 
-        let deviceExtensionsBuffer = SmartPointer<VkExtensionProperties>.allocate(capacity: Int(deviceExtensionCount))
+        let deviceExtensionsBuffer = SharedPointer<VkExtensionProperties>.allocate(capacity: Int(deviceExtensionCount))
 
         try vulkanInvoke {
             vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, deviceExtensionsBuffer.pointer)

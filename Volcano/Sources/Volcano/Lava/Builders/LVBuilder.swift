@@ -111,23 +111,23 @@ public struct LVBuilder<Struct: InitializableWithNew> {
 }
 
 public extension HandleStorage where Handle.Pointee: EntityFactory {
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LVBuilder<Info>) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LVBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0)
         }
     }
 
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try buildEntity(type, content())
     }
 
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, _ builder: LVBuilder<Info>) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, _ builder: LVBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0, cache: cache)
         }
     }
 
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SmartPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try buildEntity(type, cache: cache, content())
     }
 }

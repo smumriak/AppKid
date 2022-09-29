@@ -15,7 +15,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         typeInfo.semaphoreType = .timeline
         typeInfo.initialValue = initialValue
 
-        let handlePointer: SmartPointer<VkSemaphore_T> = try withUnsafePointer(to: &typeInfo) { typeInfo in
+        let handlePointer: SharedPointer<VkSemaphore_T> = try withUnsafePointer(to: &typeInfo) { typeInfo in
             var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: typeInfo, flags: 0)
 
             return try device.create(with: &info)

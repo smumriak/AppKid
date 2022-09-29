@@ -18,7 +18,7 @@ extension CXlib.Display: ReleasableCType {
     }
 }
 
-internal extension SmartPointer where Pointee == CXlib.Display {
+internal extension SharedPointer where Pointee == CXlib.Display {
     func queryKnownAtom(_ name: KnownAtomName) -> Atom {
         let result = XInternAtom(pointer, name.rawValue, 1)
 
@@ -30,7 +30,7 @@ internal extension SmartPointer where Pointee == CXlib.Display {
     }
 }
 
-public class Display: HandleStorage<SmartPointer<CXlib.Display>> {
+public class Display: HandleStorage<SharedPointer<CXlib.Display>> {
     public let xInput2ExtensionOpcode: CInt
 
     internal var atoms: [String: CXlib.Atom]

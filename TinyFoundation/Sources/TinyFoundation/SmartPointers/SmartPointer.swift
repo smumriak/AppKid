@@ -1,5 +1,5 @@
 //
-//  SmartPointer.swift
+//  SharedPointer.swift
 //  TinyFoundation
 //
 //  Created by Serhii Mumriak on 17.05.2020.
@@ -25,21 +25,21 @@ internal struct RetainCount {
 
 internal var globalRetainCount = RetainCount()
 
-public protocol SmartPointer1: Hashable {
+public protocol SharedPointer1: Hashable {
     associatedtype Pointee
     typealias Pointer = UnsafeMutablePointer<Pointee>
 
     var pointer: Pointer { get }
 }
 
-public protocol SmartPointerProtocol: Hashable {
+public protocol SmartPointer: Hashable {
     associatedtype Pointee
     typealias Pointer_t = UnsafeMutablePointer<Pointee>
     
     var pointer: Pointer_t { get }
 }
 
-public extension SmartPointerProtocol {
+public extension SmartPointer {
     @_transparent
     var pointee: Pointee {
         get { pointer.pointee }
@@ -50,7 +50,7 @@ public extension SmartPointerProtocol {
     var optionalPointer: Pointer_t? { pointer }
 }
 
-public extension SmartPointerProtocol {
+public extension SmartPointer {
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.pointer == rhs.pointer
     }
@@ -60,7 +60,7 @@ public extension SmartPointerProtocol {
     }
 }
 
-public class SmartPointer<Pointee>: SmartPointerProtocol {
+public class SharedPointer<Pointee>: SmartPointer {
     public typealias Pointee = Pointee
 
     public enum Deleter {
@@ -89,8 +89,8 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
         deleter(pointer)
     }
 
-    public class func allocate(capacity: Int = 1) -> SmartPointer<Pointee> {
-        return SmartPointer<Pointee>(with: Pointer_t.allocate(capacity: capacity), deleter: .system)
+    public class func allocate(capacity: Int = 1) -> SharedPointer<Pointee> {
+        return SharedPointer<Pointee>(with: Pointer_t.allocate(capacity: capacity), deleter: .system)
     }
 
     public init(with pointer: Pointer_t, deleter: Deleter = .none) {
@@ -109,7 +109,7 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     }
 }
 
-public extension Array where Element: SmartPointerProtocol {
+public extension Array where Element: SmartPointer {
     @_transparent
     func mutablePointers() -> [Element.Pointer_t] {
         return map { $0.pointer }

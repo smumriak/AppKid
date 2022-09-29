@@ -39,10 +39,10 @@ public func measure(_ label: String, _ block: () throws -> Void) rethrows {
 
 internal class DescriptorSetContainer {
     let device: Device
-    let layout: SmartPointer<VkDescriptorSetLayout_T>
+    let layout: SharedPointer<VkDescriptorSetLayout_T>
     let descriptorSet: VkDescriptorSet
 
-    init(bindings: [VkDescriptorSetLayoutBinding], pool: SmartPointer<VkDescriptorPool_T>, device: Device) throws {
+    init(bindings: [VkDescriptorSetLayoutBinding], pool: SharedPointer<VkDescriptorPool_T>, device: Device) throws {
         self.device = device
 
         layout = try bindings.withUnsafeBufferPointer { bindings in

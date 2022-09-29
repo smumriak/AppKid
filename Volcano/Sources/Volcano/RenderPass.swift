@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public class RenderPass: DeviceEntity<SmartPointer<VkRenderPass_T>> {
+public class RenderPass: DeviceEntity<SharedPointer<VkRenderPass_T>> {
     public init(device: Device, subpasses: [Subpass], dependencies: [Subpass.Dependency]) throws {
         let builder = RenderPassBuilder()
        
@@ -26,7 +26,7 @@ internal final class RenderPassBuilder {
     fileprivate(set) var dependencies: [VkSubpassDependency] = []
     internal var attachments: [Attachment] = []
 
-    func buid(device: Device) throws -> SmartPointer<VkRenderPass_T> {
+    func buid(device: Device) throws -> SharedPointer<VkRenderPass_T> {
         return try subpasses.withUnsafeSubpassDescriptionBufferPointer(renderPassBuilder: self) { subpasses in
             try attachments.map { $0.description }.withUnsafeBufferPointer { attachments in
                 try dependencies.withUnsafeBufferPointer { dependencies in

@@ -14,12 +14,12 @@ public func <- <Struct: InitializableWithNew>(paths: (WritableKeyPath<Struct, CU
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [SmartPointer<CChar>]) -> LVSmartImmutablePointersArray<Struct, CChar> {
+public func <- <Struct: InitializableWithNew>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<CChar>?>?>), value: [SharedPointer<CChar>]) -> LVSmartImmutablePointersArray<Struct, CChar> {
     LVSmartImmutablePointersArray(paths.0, paths.1, value)
 }
 
 @inlinable @inline(__always)
-public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>), value: [SmartPointer<Value>]) -> LVSmartImmutablePointersArray<Struct, Value> {
+public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>), value: [SharedPointer<Value>]) -> LVSmartImmutablePointersArray<Struct, Value> {
     LVSmartImmutablePointersArray(paths.0, paths.1, value)
 }
 
@@ -34,9 +34,9 @@ public class LVSmartImmutablePointersArray<Struct: InitializableWithNew, Value>:
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let value: [SmartPointer<Value>]
+    internal let value: [SharedPointer<Value>]
         
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SmartPointer<Value>]) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ value: [SharedPointer<Value>]) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.value = value

@@ -8,11 +8,11 @@
 import Foundation
 
 public extension Array where Element == String {
-    var cStrings: [SmartPointer<CChar>] {
-        let deleter = SmartPointer<Int8>.Deleter.custom { free($0) }
+    var cStrings: [SharedPointer<CChar>] {
+        let deleter = SharedPointer<Int8>.Deleter.custom { free($0) }
 
         return map {
-            SmartPointer<Int8>(with: strdup($0), deleter: deleter)
+            SharedPointer<Int8>(with: strdup($0), deleter: deleter)
         }
     }
 
@@ -30,11 +30,11 @@ public extension Array where Element == String {
 }
 
 public extension Set where Element == String {
-    var cStrings: [SmartPointer<Int8>] {
-        let deleter = SmartPointer<Int8>.Deleter.custom { free($0) }
+    var cStrings: [SharedPointer<Int8>] {
+        let deleter = SharedPointer<Int8>.Deleter.custom { free($0) }
 
         return map {
-            SmartPointer<Int8>(with: strdup($0), deleter: deleter)
+            SharedPointer<Int8>(with: strdup($0), deleter: deleter)
         }
     }
 }

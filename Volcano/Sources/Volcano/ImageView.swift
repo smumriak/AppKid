@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class ImageView: DeviceEntity<SmartPointer<VkImageView_T>> {
+public final class ImageView: DeviceEntity<SharedPointer<VkImageView_T>> {
     public unowned let image: Image
     public let imageFormat: VkFormat
     public let subresourceRange: VkImageSubresourceRange
@@ -20,7 +20,7 @@ public final class ImageView: DeviceEntity<SmartPointer<VkImageView_T>> {
         
         let device = image.device
 
-        let handlePointer: SmartPointer<VkImageView_T> = try descriptor.withUnsafeImageViewCreateInfoPointer(for: image) { info in
+        let handlePointer: SharedPointer<VkImageView_T> = try descriptor.withUnsafeImageViewCreateInfoPointer(for: image) { info in
             return try device.create(with: info)
         }
 

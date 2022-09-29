@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public final class CommandPool: DeviceEntity<SmartPointer<VkCommandPool_T>> {
+public final class CommandPool: DeviceEntity<SharedPointer<VkCommandPool_T>> {
     public let queue: Queue
 
     public init(device: Device, queue: Queue, flags: VkCommandPoolCreateFlagBits = .resetCommandBuffer) throws {
@@ -44,7 +44,7 @@ public final class CommandPool: DeviceEntity<SmartPointer<VkCommandPool_T>> {
         return try handles
             .compactMap { $0 }
             .map { handle in
-                let handlePointer = SmartPointer(with: handle) { [device, self] in
+                let handlePointer = SharedPointer(with: handle) { [device, self] in
                     var mutablePointer: VkCommandBuffer? = $0
                     vkFreeCommandBuffers(device.handle, self.handle, 1, &mutablePointer)
                 }

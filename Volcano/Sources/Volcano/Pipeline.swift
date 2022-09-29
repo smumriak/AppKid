@@ -8,10 +8,10 @@
 import TinyFoundation
 import CVulkan
 
-public class Pipeline: DeviceEntity<SmartPointer<VkPipeline_T>> {
-    public internal(set) var layout: SmartPointer<VkPipelineLayout_T>
+public class Pipeline: DeviceEntity<SharedPointer<VkPipeline_T>> {
+    public internal(set) var layout: SharedPointer<VkPipelineLayout_T>
 
-    public init(device: Device, handlePointer: SmartPointer<VkPipeline_T>, layout: SmartPointer<VkPipelineLayout_T>) throws {
+    public init(device: Device, handlePointer: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>) throws {
         self.layout = layout
 
         try super.init(device: device, handlePointer: handlePointer)
@@ -23,7 +23,7 @@ public final class GraphicsPipeline: Pipeline {
     public internal(set) var subpassIndex: Int
     public internal(set) var descriptorSetLayouts: [DescriptorSetLayout]
 
-    fileprivate init(device: Device, handlePointer: SmartPointer<VkPipeline_T>, layout: SmartPointer<VkPipelineLayout_T>, renderPass: RenderPass, subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) throws {
+    fileprivate init(device: Device, handlePointer: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>, renderPass: RenderPass, subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) throws {
         self.renderPass = renderPass
         self.subpassIndex = subpassIndex
         self.descriptorSetLayouts = descriptorSetLayouts
