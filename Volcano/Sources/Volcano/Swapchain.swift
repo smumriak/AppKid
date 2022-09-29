@@ -39,9 +39,9 @@ public final class Swapchain: DeviceEntity<SharedPointer<VkSwapchainKHR_T>> {
         let imageCount = min(minImageCount, maxImageCount)
         let queueFamiliesIndices = [graphicsQueue, presentationQueue].familyIndices
 
-        let handlePointer: SharedPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
+        let handle: SharedPointer<VkSwapchainKHR_T> = try queueFamiliesIndices.withUnsafeBufferPointer { queueFamiliesIndices in
             var info = VkSwapchainCreateInfoKHR.new()
-            info.surface = surface.handle
+            info.surface = surface.pointer
             info.minImageCount = imageCount
             info.imageFormat = surface.imageFormat
             info.imageColorSpace = surface.colorSpace
@@ -51,7 +51,7 @@ public final class Swapchain: DeviceEntity<SharedPointer<VkSwapchainKHR_T>> {
             info.preTransform = surface.capabilities.currentTransform
             info.compositeAlpha = compositeAlpha
             info.presentMode = presentMode
-            info.oldSwapchain = oldSwapchain?.handle
+            info.oldSwapchain = oldSwapchain?.pointer
 
             if graphicsQueue.familyIndex == presentationQueue.familyIndex {
                 info.imageSharingMode = .exclusive
@@ -65,9 +65,9 @@ public final class Swapchain: DeviceEntity<SharedPointer<VkSwapchainKHR_T>> {
             return try device.create(with: &info)
         }
 
-        self.rawImages = try device.loadDataArray(for: handlePointer.pointer, using: vkGetSwapchainImagesKHR).compactMap { $0 }
+        self.rawImages = try device.loadDataArray(for: handle.pointer, using: vkGetSwapchainImagesKHR).compactMap { $0 }
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     public func createTextures() throws -> [Texture] {
@@ -80,7 +80,7 @@ public final class Swapchain: DeviceEntity<SharedPointer<VkSwapchainKHR_T>> {
         var result: CUnsignedInt = 0
 
         try vulkanInvoke {
-            device.vkAcquireNextImageKHR(device.handle, handle, timeout, semaphore?.handle, fence?.handle, &result)
+            device.vkAcquireNextImageKHR(device.pointer, pointer, timeout, semaphore?.pointer, fence?.pointer, &result)
         }
 
         return Int(result)

@@ -15,9 +15,9 @@ public class RenderPass: DeviceEntity<SharedPointer<VkRenderPass_T>> {
         subpasses.forEach { builder.add(subpass: $0) }
         dependencies.forEach { builder.add(dependency: $0) }
 
-        let handlePointer = try builder.buid(device: device)
+        let handle = try builder.buid(device: device)
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }
 

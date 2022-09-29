@@ -29,7 +29,7 @@ public class SwiftGMainContext: SharedHandleStorage<_GMainContext> {
         if let threadStore = threadDictionary[mainContextThreadStoreKey] as? ThreadStore {
             return threadStore.context
         } else {
-            let context = SwiftGMainContext(handlePointer: RetainablePointer(with: g_main_context_default()))
+            let context = SwiftGMainContext(handle: RetainablePointer(with: g_main_context_default()))
             let source = SwiftGMainLoopRunLoopSource(context: context)
 
             source.schedule(in: .current, forMode: .common)
@@ -53,7 +53,7 @@ public class SwiftGMainContext: SharedHandleStorage<_GMainContext> {
                 return nil
             }
 
-            let context = SwiftGMainContext(handlePointer: RetainablePointer(with: contextReference))
+            let context = SwiftGMainContext(handle: RetainablePointer(with: contextReference))
             let source = SwiftGMainLoopRunLoopSource(context: context)
 
             source.schedule(in: .current, forMode: .common)

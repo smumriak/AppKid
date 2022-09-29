@@ -15,7 +15,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         typeInfo.semaphoreType = .timeline
         typeInfo.initialValue = initialValue
 
-        let handlePointer: SharedPointer<VkSemaphore_T> = try withUnsafePointer(to: &typeInfo) { typeInfo in
+        let handle: SharedPointer<VkSemaphore_T> = try withUnsafePointer(to: &typeInfo) { typeInfo in
             var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: typeInfo, flags: 0)
 
             return try device.create(with: &info)
@@ -23,7 +23,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
 
         _value = initialValue
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     internal let valueLock = NSRecursiveLock()
@@ -32,7 +32,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         get throws {
             return try valueLock.synchronized {
                 try vulkanInvoke {
-                    device.vkGetSemaphoreCounterValueKHR(device.handle, handle, &_value)
+                    device.vkGetSemaphoreCounterValueKHR(device.pointer, pointer, &_value)
                 }
 
                 return _value
@@ -50,7 +50,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         }()
 
         try [value].withUnsafeBufferPointer { values in
-            try [self].optionalHandles().withUnsafeBufferPointer { semaphores in
+            try [self].optionalMutablePointers().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = []
 
                 var info = VkSemaphoreWaitInfo.new()
@@ -60,7 +60,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
                 info.pValues = values.baseAddress!
                 
                 try vulkanInvoke {
-                    device.vkWaitSemaphoresKHR(device.handle, &info, timeout)
+                    device.vkWaitSemaphoresKHR(device.pointer, &info, timeout)
                 }
             }
         }
@@ -69,11 +69,11 @@ public final class TimelineSemaphore: AbstractSemaphore {
     public func signal(increment: UInt64 = 1) throws {
         try valueLock.synchronized {
             var info = VkSemaphoreSignalInfo.new()
-            info.semaphore = handle
+            info.semaphore = pointer
             info.value = _value + increment
 
             try vulkanInvoke {
-                device.vkSignalSemaphoreKHR(device.handle, &info)
+                device.vkSignalSemaphoreKHR(device.pointer, &info)
             }
 
             _value = info.value
@@ -85,7 +85,7 @@ extension Device {
     func wait(for semaphores: [TimelineSemaphore], values: [UInt64], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
         assert(semaphores.count == values.count)
         try values.withUnsafeBufferPointer { values in
-            try semaphores.optionalHandles().withUnsafeBufferPointer { semaphores in
+            try semaphores.optionalMutablePointers().withUnsafeBufferPointer { semaphores in
                 let flags: VkSemaphoreWaitFlagBits = waitForAll ? [] : .any
 
                 var info = VkSemaphoreWaitInfo.new()
@@ -95,7 +95,7 @@ extension Device {
                 info.pValues = values.baseAddress!
                 
                 try vulkanInvoke {
-                    self.vkWaitSemaphoresKHR(handle, &info, timeout)
+                    self.vkWaitSemaphoresKHR(pointer, &info, timeout)
                 }
             }
         }

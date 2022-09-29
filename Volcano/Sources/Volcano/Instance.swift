@@ -42,7 +42,7 @@ public final class Instance: SharedHandleStorage<VkInstance_T> {
         do {
             return try loadDataArray(using: vkEnumeratePhysicalDevices)
                 .compactMap { $0 }
-                .map { try PhysicalDevice(instance: self, handlePointer: SharedPointer(with: $0)) }
+                .map { try PhysicalDevice(instance: self, handle: SharedPointer(with: $0)) }
                 .sorted(by: >)
         } catch {
             fatalError("Could not query vulkan devices with error: \(error)")
@@ -71,7 +71,7 @@ public final class Instance: SharedHandleStorage<VkInstance_T> {
                 extensions.insert(.debugUtilsExt)
             #endif
 
-            let handlePointer: SharedPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
+            let handle: SharedPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
                 (\.enabledLayerCount, \.ppEnabledLayerNames) <- layers
                 \.pApplicationInfo <- {
                     \.apiVersion <- vulkanVersion
@@ -89,14 +89,14 @@ public final class Instance: SharedHandleStorage<VkInstance_T> {
                 return ReleasablePointer(with: instanceOptional!)
             }
             
-            vkGetPhysicalDeviceSurfaceSupportKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
-            vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
-            vkGetPhysicalDeviceSurfaceCapabilities2KHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilities2KHR")
-            vkGetPhysicalDeviceSurfaceFormatsKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")
-            vkGetPhysicalDeviceSurfacePresentModesKHR = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceSurfacePresentModesKHR")
-            vkGetPhysicalDeviceExternalFenceProperties = try handlePointer.loadFunction(named: "vkGetPhysicalDeviceExternalFenceProperties")
+            vkGetPhysicalDeviceSurfaceSupportKHR = try handle.loadFunction(named: "vkGetPhysicalDeviceSurfaceSupportKHR")
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR = try handle.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilitiesKHR")
+            vkGetPhysicalDeviceSurfaceCapabilities2KHR = try handle.loadFunction(named: "vkGetPhysicalDeviceSurfaceCapabilities2KHR")
+            vkGetPhysicalDeviceSurfaceFormatsKHR = try handle.loadFunction(named: "vkGetPhysicalDeviceSurfaceFormatsKHR")
+            vkGetPhysicalDeviceSurfacePresentModesKHR = try handle.loadFunction(named: "vkGetPhysicalDeviceSurfacePresentModesKHR")
+            vkGetPhysicalDeviceExternalFenceProperties = try handle.loadFunction(named: "vkGetPhysicalDeviceExternalFenceProperties")
 
-            super.init(handlePointer: handlePointer)
+            super.init(handle: handle)
         } catch {
             fatalError("Could not spawn vulkan instance with error: \(error)")
         }

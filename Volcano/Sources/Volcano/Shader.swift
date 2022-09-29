@@ -45,7 +45,7 @@ public final class Shader: DeviceEntity<SharedPointer<VkShaderModule_T>> {
         var info = VkShaderModuleCreateInfo.new()
         info.codeSize = data.count
 
-        let handlePointer: SharedPointer<VkShaderModule_T> = try data.withUnsafeBytes {
+        let handle: SharedPointer<VkShaderModule_T> = try data.withUnsafeBytes {
             info.pCode = $0.baseAddress!.assumingMemoryBound(to: CUnsignedInt.self)
 
             return try device.create(with: &info)
@@ -53,7 +53,7 @@ public final class Shader: DeviceEntity<SharedPointer<VkShaderModule_T>> {
 
         self.entryPoint = entryPoint
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }
 
@@ -66,7 +66,7 @@ public extension Shader {
         result.pNext = nil
         result.flags = flags.rawValue
         result.stage = stage
-        result.module = handle
+        result.module = pointer
         result.pName = UnsafePointer(Shader.defaultShaderEntryPointNamePointer)
         result.pSpecializationInfo = nil
 

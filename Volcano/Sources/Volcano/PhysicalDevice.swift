@@ -84,7 +84,7 @@ public final class PhysicalDevice: InstanceEntity<SharedPointer<VkPhysicalDevice
         return .one
     }()
 
-    internal override init(instance: Instance, handlePointer: SharedPointer<VkPhysicalDevice_T>) throws {
+    internal override init(instance: Instance, handle: SharedPointer<VkPhysicalDevice_T>) throws {
         // var features11: VkPhysicalDeviceVulkan11Features = .new()
         // var features12: VkPhysicalDeviceVulkan12Features = .new()
 
@@ -97,7 +97,7 @@ public final class PhysicalDevice: InstanceEntity<SharedPointer<VkPhysicalDevice
 
         try withUnsafeMutablePointer(to: &features2) { features2 in
             try vulkanInvoke {
-                vkGetPhysicalDeviceFeatures2(handlePointer.pointer, features2)
+                vkGetPhysicalDeviceFeatures2(handle.pointer, features2)
             }
         }
 
@@ -111,19 +111,19 @@ public final class PhysicalDevice: InstanceEntity<SharedPointer<VkPhysicalDevice
         self.features2 = features2
         features = features2.features
 
-        properties = try handlePointer.loadData(using: vkGetPhysicalDeviceProperties)
-        queueFamiliesProperties = try handlePointer.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)
-        memoryProperties = try handlePointer.loadData(using: vkGetPhysicalDeviceMemoryProperties)
+        properties = try handle.loadData(using: vkGetPhysicalDeviceProperties)
+        queueFamiliesProperties = try handle.loadDataArray(using: vkGetPhysicalDeviceQueueFamilyProperties)
+        memoryProperties = try handle.loadData(using: vkGetPhysicalDeviceMemoryProperties)
 
         var deviceExtensionCount: CUnsignedInt = 0
         try vulkanInvoke {
-            vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, nil)
+            vkEnumerateDeviceExtensionProperties(handle.pointer, nil, &deviceExtensionCount, nil)
         }
 
         let deviceExtensionsBuffer = SharedPointer<VkExtensionProperties>.allocate(capacity: Int(deviceExtensionCount))
 
         try vulkanInvoke {
-            vkEnumerateDeviceExtensionProperties(handlePointer.pointer, nil, &deviceExtensionCount, deviceExtensionsBuffer.pointer)
+            vkEnumerateDeviceExtensionProperties(handle.pointer, nil, &deviceExtensionCount, deviceExtensionsBuffer.pointer)
         }
 
         extensionProperties = UnsafeBufferPointer(start: deviceExtensionsBuffer.pointer, count: Int(deviceExtensionCount)).map { $0 }
@@ -144,7 +144,7 @@ public final class PhysicalDevice: InstanceEntity<SharedPointer<VkPhysicalDevice
 
         deviceType = properties.deviceType
 
-        try super.init(instance: instance, handlePointer: handlePointer)
+        try super.init(instance: instance, handle: handle)
     }
 
     #if os(Linux)

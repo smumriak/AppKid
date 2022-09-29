@@ -188,7 +188,7 @@ internal class GenericTexture: Texture, Hashable {
 
         // let image = try Image(device: device, descriptor: imageDescriptor)
         
-        // let memoryChunk = try device.memoryAllocator.allocate(for: image.handlePointer, descriptor: imageDescriptor)
+        // let memoryChunk = try device.memoryAllocator.allocate(for: image.handle, descriptor: imageDescriptor)
 
         try memoryChunk.bind(to: image)
 

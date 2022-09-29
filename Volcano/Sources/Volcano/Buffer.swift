@@ -59,13 +59,13 @@ public class Buffer: DeviceEntity<SharedPointer<VkBuffer_T>> {
     public let sharingMode: VkSharingMode
     public let memoryChunk: MemoryChunk
 
-    public init(device: Device, handlePointer: SharedPointer<VkBuffer_T>, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode, memoryChunk: MemoryChunk, shouldBind: Bool = true) throws {
+    public init(device: Device, handle: SharedPointer<VkBuffer_T>, size: VkDeviceSize, usage: VkBufferUsageFlagBits, sharingMode: VkSharingMode, memoryChunk: MemoryChunk, shouldBind: Bool = true) throws {
         self.size = size
         self.usage = usage
         self.sharingMode = sharingMode
         self.memoryChunk = memoryChunk
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
 
         if shouldBind {
             try memoryChunk.bind(to: self)
@@ -73,16 +73,16 @@ public class Buffer: DeviceEntity<SharedPointer<VkBuffer_T>> {
     }
 
     public init(device: Device, descriptor: BufferDescriptor, shouldBind: Bool = true) throws {
-        let handlePointer: SharedPointer<VkBuffer_T> = try descriptor.withUnsafeBufferCreateInfoPointer { info in
+        let handle: SharedPointer<VkBuffer_T> = try descriptor.withUnsafeBufferCreateInfoPointer { info in
             return try device.create(with: info)
         }
 
         self.size = descriptor.size
         self.usage = descriptor.usage
         self.sharingMode = descriptor.sharingMode
-        self.memoryChunk = try device.memoryAllocator.allocate(for: handlePointer, descriptor: descriptor)
+        self.memoryChunk = try device.memoryAllocator.allocate(for: handle, descriptor: descriptor)
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
 
         if shouldBind {
             try memoryChunk.bind(to: self)

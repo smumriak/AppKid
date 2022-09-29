@@ -11,9 +11,9 @@ import CVulkan
 open class InstanceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     public internal(set) var instance: Instance
 
-    public init(instance: Instance, handlePointer: Entity) throws {
+    public init(instance: Instance, handle: Entity) throws {
         self.instance = instance
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 }
 
@@ -23,10 +23,10 @@ open class PhysicalDeviceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     @inlinable @inline(__always)
     public var instance: Instance { physicalDevice.instance }
 
-    public init(physicalDevice: PhysicalDevice, handlePointer: Entity) throws {
+    public init(physicalDevice: PhysicalDevice, handle: Entity) throws {
         self.physicalDevice = physicalDevice
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 }
 
@@ -39,9 +39,9 @@ open class DeviceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     @inlinable @inline(__always)
     public var instance: Instance { device.instance }
 
-    public init(device: Device, handlePointer: Entity) throws {
+    public init(device: Device, handle: Entity) throws {
         self.device = device
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 }

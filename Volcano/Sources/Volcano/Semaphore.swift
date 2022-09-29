@@ -14,8 +14,8 @@ public class Semaphore: AbstractSemaphore {
     public init(device: Device) throws {
         var info = VkSemaphoreCreateInfo(sType: .semaphoreCreateInfo, pNext: nil, flags: 0)
 
-        let handlePointer = try device.create(with: &info)
+        let handle = try device.create(with: &info)
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }

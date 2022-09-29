@@ -18,9 +18,9 @@ public final class CommandPool: DeviceEntity<SharedPointer<VkCommandPool_T>> {
         info.flags = flags.rawValue
         info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
 
-        let handlePointer = try device.create(with: &info)
+        let handle = try device.create(with: &info)
         
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     public func createCommandBuffer(level: VkCommandBufferLevel = .primary) throws -> CommandBuffer {
@@ -30,26 +30,26 @@ public final class CommandPool: DeviceEntity<SharedPointer<VkCommandPool_T>> {
     public func createCommandBuffers(count: UInt = 1, level: VkCommandBufferLevel = .primary) throws -> [CommandBuffer] {
         var info = VkCommandBufferAllocateInfo.new()
         info.level = level
-        info.commandPool = handle
+        info.commandPool = pointer
         info.commandBufferCount = CUnsignedInt(count)
 
         var handles = Array<VkCommandBuffer?>(repeating: nil, count: Int(count))
 
         try handles.withUnsafeMutableBufferPointer { handles in
             try vulkanInvoke {
-                vkAllocateCommandBuffers(device.handle, &info, handles.baseAddress!)
+                vkAllocateCommandBuffers(device.pointer, &info, handles.baseAddress!)
             }
         }
 
         return try handles
             .compactMap { $0 }
             .map { handle in
-                let handlePointer = SharedPointer(with: handle) { [device, self] in
+                let handle = SharedPointer(with: handle) { [device, self] in
                     var mutablePointer: VkCommandBuffer? = $0
-                    vkFreeCommandBuffers(device.handle, self.handle, 1, &mutablePointer)
+                    vkFreeCommandBuffers(device.pointer, self.pointer, 1, &mutablePointer)
                 }
 
-                return try CommandBuffer(device: device, handlePointer: handlePointer)
+                return try CommandBuffer(device: device, handle: handle)
             }
     }
 }

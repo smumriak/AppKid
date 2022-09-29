@@ -20,14 +20,14 @@ public final class ImageView: DeviceEntity<SharedPointer<VkImageView_T>> {
         
         let device = image.device
 
-        let handlePointer: SharedPointer<VkImageView_T> = try descriptor.withUnsafeImageViewCreateInfoPointer(for: image) { info in
+        let handle: SharedPointer<VkImageView_T> = try descriptor.withUnsafeImageViewCreateInfoPointer(for: image) { info in
             return try device.create(with: info)
         }
 
         subresourceRange = descriptor.subresourceRange
         aspect = descriptor.aspect
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }
 
@@ -62,7 +62,7 @@ public class ImageViewDescriptor {
     internal func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
         var info = VkImageViewCreateInfo.new()
         info.flags = flags.rawValue
-        info.image = image.handle
+        info.image = image.pointer
         info.viewType = type
         info.format = format
         info.components = componentMapping

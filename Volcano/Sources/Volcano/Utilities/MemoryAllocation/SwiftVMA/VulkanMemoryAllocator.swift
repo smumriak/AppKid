@@ -20,27 +20,27 @@ public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryA
 
         var info = VmaAllocatorCreateInfo(
             flags: flags.rawValue,
-            physicalDevice: device.physicalDevice.handle,
-            device: device.handle,
+            physicalDevice: device.physicalDevice.pointer,
+            device: device.pointer,
             preferredLargeHeapBlockSize: 0,
             pAllocationCallbacks: nil,
             pDeviceMemoryCallbacks: nil,
             pHeapSizeLimit: nil,
             pVulkanFunctions: nil,
-            instance: device.instance.handle,
+            instance: device.instance.pointer,
             vulkanApiVersion: (1 << 22) | (0 << 12) | 0,
             pTypeExternalMemoryHandleTypes: nil)
 
-        var handle: VmaAllocator? = nil
+        var pointer: VmaAllocator? = nil
         try vulkanInvoke {
-            vmaCreateAllocator(&info, &handle)
+            vmaCreateAllocator(&info, &pointer)
         }
 
-        let handlePointer = SharedPointer(with: handle!, deleter: .custom {
+        let handle = SharedPointer(with: pointer!, deleter: .custom {
             vmaDestroyAllocator($0)
         })
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 
     public func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk) {
@@ -51,43 +51,43 @@ public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryA
         try descriptor.withUnsafeAllocationCreateInfoPointer { allocationCreateInfo in
             try descriptor.withUnsafeEntityCreateInfoPointer { entityCreateInfo in
                 try vulkanInvoke {
-                    Descriptor.Info.vmaCreateFunction(handle, entityCreateInfo, allocationCreateInfo, &entityHandle, &allocationHandle, &allocationInfo)
+                    Descriptor.Info.vmaCreateFunction(pointer, entityCreateInfo, allocationCreateInfo, &entityHandle, &allocationHandle, &allocationInfo)
                 }
             }
         }
 
         let entityHandlePointer = SharedPointer(with: entityHandle!) { [unowned device] in
-            Descriptor.Info.deleteFunction(device.handle, $0, nil)
+            Descriptor.Info.deleteFunction(device.pointer, $0, nil)
         }
 
         let allocationHandlePointer = SharedPointer(with: allocationHandle!) { [unowned self] in
-            vmaFreeMemory(self.handle, $0)
+            vmaFreeMemory(self.pointer, $0)
         }
 
-        let allocation = Allocation(handlePointer: allocationHandlePointer)
+        let allocation = Allocation(handle: allocationHandlePointer)
         
         let memoryChunk = try VMAMemoryChunk(allocator: self, allocation: allocation, info: allocationInfo, memoryProperties: descriptor.requiredMemoryProperties)
 
-        let result = try descriptor.createEntity(device: device, handlePointer: entityHandlePointer, memoryChunk: memoryChunk)
+        let result = try descriptor.createEntity(device: device, handle: entityHandlePointer, memoryChunk: memoryChunk)
 
         return (result, memoryChunk)
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
         var allocationCreateInfo = VmaAllocationCreateInfo()
 
         var allocationHandle: VmaAllocation? = nil
         var allocationInfo: VmaAllocationInfo = VmaAllocationInfo()
 
         try vulkanInvoke {
-            Descriptor.Result.SharedPointerHandle.Pointee.vmaAllocFunction(handle, memoryBacked.pointer, &allocationCreateInfo, &allocationHandle, &allocationInfo)
+            Descriptor.Result.Handle.Pointee.vmaAllocFunction(pointer, memoryBacked.pointer, &allocationCreateInfo, &allocationHandle, &allocationInfo)
         }
 
         let allocationHandlePointer = SharedPointer(with: allocationHandle!) { [unowned self] in
-            vmaFreeMemory(self.handle, $0)
+            vmaFreeMemory(self.pointer, $0)
         }
 
-        let allocation = Allocation(handlePointer: allocationHandlePointer)
+        let allocation = Allocation(handle: allocationHandlePointer)
 
         return try VMAMemoryChunk(allocator: self, allocation: allocation, info: allocationInfo, memoryProperties: descriptor.requiredMemoryProperties)
     }

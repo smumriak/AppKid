@@ -22,13 +22,13 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
         }
     }
 
-    public init(device: Device, handlePointer: SharedPointer<VkDeviceMemory_T>, parent: MemoryChunk?, offset: VkDeviceSize, size: VkDeviceSize, properties: VkMemoryPropertyFlagBits) throws {
+    public init(device: Device, handle: SharedPointer<VkDeviceMemory_T>, parent: MemoryChunk?, offset: VkDeviceSize, size: VkDeviceSize, properties: VkMemoryPropertyFlagBits) throws {
         self.parent = parent
         self.offset = offset
         self.size = size
         self.properties = properties
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     public convenience init(parent: MemoryChunk, offset: VkDeviceSize, size: VkDeviceSize) throws {
@@ -36,7 +36,7 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
             throw VulkanError.notEnoughParentMemory
         }
 
-        try self.init(device: parent.device, handlePointer: parent.handlePointer, parent: parent, offset: offset + parent.offset, size: size, properties: parent.properties)
+        try self.init(device: parent.device, handle: parent.handle, parent: parent, offset: offset + parent.offset, size: size, properties: parent.properties)
     }
 
     public convenience init(device: Device, size: VkDeviceSize, memoryIndex: CUnsignedInt, properties: VkMemoryPropertyFlagBits) throws {
@@ -44,9 +44,9 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
         memoryAllocationInfo.allocationSize = size
         memoryAllocationInfo.memoryTypeIndex = memoryIndex
 
-        let handlePointer = try device.allocateMemory(info: &memoryAllocationInfo)
+        let handle = try device.allocateMemory(info: &memoryAllocationInfo)
 
-        try self.init(device: device, handlePointer: handlePointer, parent: nil, offset: 0, size: size, properties: properties)
+        try self.init(device: device, handle: handle, parent: nil, offset: 0, size: size, properties: properties)
     }
     
     open func mapData(_ offset: VkDeviceSize = 0) throws -> UnsafeMutableRawPointer {
@@ -57,7 +57,7 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
         let remainingMemorySize = self.size - offset
 
         try vulkanInvoke {
-            vkMapMemory(device.handle, handle, self.offset + offset, remainingMemorySize, 0, &currentlyMappedPointer)
+            vkMapMemory(device.pointer, pointer, self.offset + offset, remainingMemorySize, 0, &currentlyMappedPointer)
         }
 
         return currentlyMappedPointer!
@@ -67,7 +67,7 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
         assert(currentlyMappedPointer != nil, "Memory chunk is not mapped")
 
         try vulkanInvoke {
-            vkUnmapMemory(device.handle, handle)
+            vkUnmapMemory(device.pointer, pointer)
         }
 
         currentlyMappedPointer = nil
@@ -115,7 +115,7 @@ open class MemoryChunk: DeviceEntity<SharedPointer<VkDeviceMemory_T>> {
 
     private func bindPrivate<T: MemoryBindable>(to bindable: T) throws {
         try vulkanInvoke {
-            T.bindFunction(device.handle, bindable.handle, handle, offset)
+            T.bindFunction(device.pointer, bindable.pointer, pointer, offset)
         }
     }
 }
@@ -135,17 +135,17 @@ extension VkImage_T: MemoryBacked {
     public static let bindFunction = vkBindImageMemory
 }
 
-public protocol MemoryBindable: SharedPointerHandleStorageProtocol where Handle: UnsafeTypedPointerProtocol, Handle.Pointee: MemoryBacked {
-    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
-    static var bindFunction: (_ device: VkDevice?, _ handle: Handle?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
+public protocol MemoryBindable: HandleStorageProtocol where Handle: SmartPointer, Handle.Pointee: MemoryBacked {
+    static var requirementsFunction: (_ device: VkDevice?, _ handle: Handle.Pointer_t?, _ result: UnsafeMutablePointer<VkMemoryRequirements>?) -> () { get }
+    static var bindFunction: (_ device: VkDevice?, _ handle: Handle.Pointer_t?, _ memory: VkDeviceMemory?, _ offset: VkDeviceSize) -> (VkResult) { get }
 }
 
 extension DeviceEntity: MemoryBindable where Handle.Pointee: MemoryBacked {
-    public static var requirementsFunction: (VkDevice?, Handle?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
+    public static var requirementsFunction: (VkDevice?, Handle.Pointer_t?, UnsafeMutablePointer<VkMemoryRequirements>?) -> () {
         return Handle.Pointee.requirementsFunction
     }
 
-    public static var bindFunction: (VkDevice?, Handle?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
+    public static var bindFunction: (VkDevice?, Handle.Pointer_t?, VkDeviceMemory?, VkDeviceSize) -> (VkResult) {
         return Handle.Pointee.bindFunction
     }
 }

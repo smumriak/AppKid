@@ -23,7 +23,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
 
     public func reset(flags: VkCommandBufferResetFlagBits = []) throws {
         try vulkanInvoke {
-            vkResetCommandBuffer(handle, flags.rawValue)
+            vkResetCommandBuffer(pointer, flags.rawValue)
         }
     }
 
@@ -34,40 +34,40 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
         info.pInheritanceInfo = nil
 
         try vulkanInvoke {
-            vkBeginCommandBuffer(handle, &info)
+            vkBeginCommandBuffer(pointer, &info)
         }
     }
 
     public func end() throws {
         try vulkanInvoke {
-            vkEndCommandBuffer(handle)
+            vkEndCommandBuffer(pointer)
         }
     }
 
     public func begin(renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
         try clearValues.withUnsafeBufferPointer { clearValues in
             var renderPassBeginInfo = VkRenderPassBeginInfo.new()
-            renderPassBeginInfo.renderPass = renderPass.handle
-            renderPassBeginInfo.framebuffer = framebuffer.handle
+            renderPassBeginInfo.renderPass = renderPass.pointer
+            renderPassBeginInfo.framebuffer = framebuffer.pointer
             renderPassBeginInfo.renderArea = renderArea
             renderPassBeginInfo.clearValueCount = CUnsignedInt(clearValues.count)
             renderPassBeginInfo.pClearValues = clearValues.baseAddress!
 
             try vulkanInvoke {
-                vkCmdBeginRenderPass(handle, &renderPassBeginInfo, subpassContents)
+                vkCmdBeginRenderPass(pointer, &renderPassBeginInfo, subpassContents)
             }
         }
     }
 
     public func endRenderPass() throws {
         try vulkanInvoke {
-            vkCmdEndRenderPass(handle)
+            vkCmdEndRenderPass(pointer)
         }
     }
 
     public func bind(pipeline: Pipeline, bindPoint: VkPipelineBindPoint) throws {
         try vulkanInvoke {
-            vkCmdBindPipeline(handle, bindPoint, pipeline.handle)
+            vkCmdBindPipeline(pointer, bindPoint, pipeline.pointer)
         }
     }
 
@@ -78,7 +78,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
     public func setViewports(_ viewports: [VkViewport]) throws {
         try viewports.withUnsafeBufferPointer { viewports in
             try vulkanInvoke {
-                vkCmdSetViewport(handle, 0, CUnsignedInt(viewports.count), viewports.baseAddress!)
+                vkCmdSetViewport(pointer, 0, CUnsignedInt(viewports.count), viewports.baseAddress!)
             }
         }
     }
@@ -86,7 +86,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
     public func setScissors(_ scissors: [VkRect2D]) throws {
         try scissors.withUnsafeBufferPointer { scissors in
             try vulkanInvoke {
-                vkCmdSetScissor(handle, 0, CUnsignedInt(scissors.count), scissors.baseAddress!)
+                vkCmdSetScissor(pointer, 0, CUnsignedInt(scissors.count), scissors.baseAddress!)
             }
         }
     }
@@ -108,18 +108,18 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
             offsets = inoutOffsets
         }
 
-        try buffers.map { $0.handle as VkBuffer? }
+        try buffers.map { $0.pointer as VkBuffer? }
             .withUnsafeBufferPointer { buffers in
                 try offsets.withUnsafeBufferPointer { offsets in
                     try vulkanInvoke {
-                        vkCmdBindVertexBuffers(handle, firstBinding, CUnsignedInt(count), buffers.baseAddress!, offsets.baseAddress!)
+                        vkCmdBindVertexBuffers(pointer, firstBinding, CUnsignedInt(count), buffers.baseAddress!, offsets.baseAddress!)
                     }
                 }
             }
     }
     
     public func bind(indexBuffer: Buffer, offset: VkDeviceSize = 0, type: VkIndexType) throws {
-        vkCmdBindIndexBuffer(handle, indexBuffer.handle, offset, type)
+        vkCmdBindIndexBuffer(pointer, indexBuffer.pointer, offset, type)
     }
 
     public func bind(descriptorSets: [DescriptorSet], for pipeline: GraphicsPipeline) throws {
@@ -130,7 +130,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
         try descriptorSets.optionalHandles()
             .withUnsafeBufferPointer { descriptorSets in
                 try vulkanInvoke {
-                    vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+                    vkCmdBindDescriptorSets(pointer, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
                 }
             }
     }
@@ -143,14 +143,14 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
         try descriptorSets.map { $0 as VkDescriptorSet? }
             .withUnsafeBufferPointer { descriptorSets in
                 try vulkanInvoke {
-                    vkCmdBindDescriptorSets(handle, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
+                    vkCmdBindDescriptorSets(pointer, bindPoint, pipelineLayout.pointer, 0, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!, 0, nil)
                 }
             }
     }
 
     public func draw(vertexCount: Int, firstVertex: Int = 0, instanceCount: Int = 1, firstInstance: Int = 0) throws {
         try vulkanInvoke {
-            vkCmdDraw(handle,
+            vkCmdDraw(pointer,
                       CUnsignedInt(vertexCount),
                       CUnsignedInt(instanceCount),
                       CUnsignedInt(firstVertex),
@@ -160,7 +160,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
 
     public func drawIndexed(indexCount: CUnsignedInt, instanceCount: CUnsignedInt = 1, firstIndex: CUnsignedInt = 0, vertexOffset: CInt = 0, firstInstance: CUnsignedInt = 0) throws {
         try vulkanInvoke {
-            vkCmdDrawIndexed(handle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance)
+            vkCmdDrawIndexed(pointer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance)
         }
     }
 
@@ -179,7 +179,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
         var bufferCopyRegion = VkBufferCopy(srcOffset: sourceOffset, dstOffset: destinationOffset, size: copySize)
 
         try vulkanInvoke {
-            vkCmdCopyBuffer(handle, sourceBuffer.handle, destinationBuffer.handle, 1, &bufferCopyRegion)
+            vkCmdCopyBuffer(pointer, sourceBuffer.pointer, destinationBuffer.pointer, 1, &bufferCopyRegion)
         }
     }
     
@@ -195,7 +195,7 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
         var bufferCopyRegion = VkBufferImageCopy(bufferOffset: bufferOffset, bufferRowLength: texelsPerRow, bufferImageHeight: height, imageSubresource: imageSubresource, imageOffset: textureRect.offset, imageExtent: textureRect.extent)
         
         try vulkanInvoke {
-            vkCmdCopyBufferToImage(handle, buffer.handle, texture.image.handle, texture.layout, 1, &bufferCopyRegion)
+            vkCmdCopyBufferToImage(pointer, buffer.pointer, texture.image.pointer, texture.layout, 1, &bufferCopyRegion)
         }
     }
 
@@ -246,10 +246,10 @@ public final class CommandBuffer: DeviceEntity<SharedPointer<VkCommandBuffer_T>>
 
         barrier.subresourceRange = texture.imageView.subresourceRange
 
-        barrier.image = texture.image.handle
+        barrier.image = texture.image.pointer
 
         try vulkanInvoke {
-            vkCmdPipelineBarrier(handle,
+            vkCmdPipelineBarrier(pointer,
                                  sourceStage.rawValue, destinationStage.rawValue,
                                  0,
                                  0, nil, // memory barriers

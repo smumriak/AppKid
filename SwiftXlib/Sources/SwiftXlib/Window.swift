@@ -20,15 +20,15 @@ public class Window: WindowProtocol {
         sendUnmapRequest()
 
         if syncCounter.basic != XSyncCounter(None) {
-            XSyncDestroyCounter(display.handle, syncCounter.basic)
+            XSyncDestroyCounter(display.pointer, syncCounter.basic)
         }
 
         if syncCounter.extended != XSyncCounter(None) {
-            XSyncDestroyCounter(display.handle, syncCounter.extended)
+            XSyncDestroyCounter(display.pointer, syncCounter.extended)
         }
         
         if destroyOnDeinit {
-            XDestroyWindow(display.handle, windowIdentifier)
+            XDestroyWindow(display.pointer, windowIdentifier)
         }
     }
 
@@ -49,10 +49,10 @@ public class Window: WindowProtocol {
 
         if setupSyncCounters {
             let syncValue = XSyncValue(hi: 0, lo: 0)
-            let basicSyncCounter = XSyncCreateCounter(display.handle, syncValue)
+            let basicSyncCounter = XSyncCreateCounter(display.pointer, syncValue)
 
             if rootWindow.supportsExtendedSyncCounter == true {
-                let extendedSyncCounter = XSyncCreateCounter(display.handle, syncValue)
+                let extendedSyncCounter = XSyncCreateCounter(display.pointer, syncValue)
                 syncCounter = (basicSyncCounter, extendedSyncCounter)
                 set(property: display.knownAtom(.syncCounter), type: XA_CARDINAL, format: .thirtyTwo, value: syncCounter)
             } else {
@@ -87,7 +87,7 @@ public class Window: WindowProtocol {
             XSyncValueAdd(&newValue, currentSyncCounterValue, XSyncValue(hi: 0, lo: 3), &overflow)
         }
 
-        XSyncSetCounter(display.handle, counter, newValue)
+        XSyncSetCounter(display.pointer, counter, newValue)
         currentSyncCounterValue = newValue
 
         display.flush()
@@ -113,7 +113,7 @@ public class Window: WindowProtocol {
 
         if counter == XSyncCounter(None) { return }
 
-        XSyncSetCounter(display.handle, counter, newValue)
+        XSyncSetCounter(display.pointer, counter, newValue)
         currentSyncCounterValue = newValue
 
         display.flush()
@@ -126,11 +126,11 @@ public class Window: WindowProtocol {
     }
 
     public func sendMapRequest() {
-        XMapWindow(display.handle, windowIdentifier)
+        XMapWindow(display.pointer, windowIdentifier)
     }
 
     public func sendUnmapRequest() {
-        XUnmapWindow(display.handle, windowIdentifier)
+        XUnmapWindow(display.pointer, windowIdentifier)
     }
 }
 
@@ -183,7 +183,7 @@ public extension WindowProtocol {
         var actualType: CXlib.Atom = CXlib.Atom(None)
         var actualFormat: CInt = 0
 
-        XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
+        XGetWindowProperty(display.pointer, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         return itemsBytesPointer.flatMap { itemsBytesPointer in
             let itemsBytesSharedPointer = SharedPointer(with: itemsBytesPointer, deleter: .custom {
@@ -205,7 +205,7 @@ public extension WindowProtocol {
         
         withUnsafeBytes(of: value) { bytes in
             let buffer = bytes.bindMemory(to: UInt8.self)
-            _ = XChangeProperty(display.handle, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(stride) / format.byteCount)
+            _ = XChangeProperty(display.pointer, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(stride) / format.byteCount)
         }
     }
 
@@ -216,7 +216,7 @@ public extension WindowProtocol {
         var actualType: CXlib.Atom = CXlib.Atom(None)
         var actualFormat: CInt = 0
 
-        XGetWindowProperty(display.handle, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
+        XGetWindowProperty(display.pointer, windowIdentifier, property, 0, Int.max, 0, type, &actualType, &actualFormat, &numberOfItems, &bytesAfterReturn, &itemsBytesPointer)
 
         if let itemsBytesPointer = itemsBytesPointer {
             let itemsBytesSharedPointer = SharedPointer(with: itemsBytesPointer, deleter: .custom {
@@ -236,7 +236,7 @@ public extension WindowProtocol {
     func set<T>(property: Atom, type: CXlib.Atom, format: PropertyFormat, mode: XlibPropertyChangeMode = .replace, value: [T]) {
         value.withUnsafeBytes { bytes in
             let buffer = bytes.bindMemory(to: UInt8.self)
-            _ = XChangeProperty(display.handle, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
+            _ = XChangeProperty(display.pointer, windowIdentifier, property, type, format.bitCount, mode.rawValue, buffer.baseAddress, CInt(value.count))
         }
     }
 }
@@ -244,7 +244,7 @@ public extension WindowProtocol {
 public extension WindowProtocol {
     var attributes: XWindowAttributes {
         var windowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display.handle, windowIdentifier, &windowAttributes) == 0 {
+        if XGetWindowAttributes(display.pointer, windowIdentifier, &windowAttributes) == 0 {
             fatalError("Can not get window attributes for window with ID: \(windowIdentifier)")
         }
         return windowAttributes
@@ -253,7 +253,7 @@ public extension WindowProtocol {
     func send<T: XEventProtocol>(event: T) {
         var eventCopy = event
         eventCopy.withTypeErasedEvent { event in
-            _ = XSendEvent(display.handle, XDefaultRootWindow(display.handle), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
+            _ = XSendEvent(display.pointer, XDefaultRootWindow(display.pointer), 0, SubstructureRedirectMask | SubstructureNotifyMask, event)
         }
     }
 }

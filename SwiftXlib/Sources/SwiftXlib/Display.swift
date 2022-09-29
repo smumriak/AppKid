@@ -41,16 +41,16 @@ public class Display: SharedHandleStorage<CXlib.Display> {
     public private(set) var screens: [Screen] = [Screen()]
 
     public init(_ display: String? = nil) throws {
-        guard let handle = XOpenDisplay(display) ?? XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
+        guard let pointer = XOpenDisplay(display) ?? XOpenDisplay(nil) ?? XOpenDisplay(":0") else {
             throw XlibError.failedToOpenDisplay
         }
 
-        let handlePointer = ReleasablePointer(with: handle)
+        let handle = ReleasablePointer(with: pointer)
 
         let knownAtomNames = KnownAtomName.allCases
 
         let knownAtoms = knownAtomNames.map {
-            ($0.rawValue, handlePointer.queryKnownAtom($0))
+            ($0.rawValue, handle.queryKnownAtom($0))
         }
 
         atoms = Dictionary(uniqueKeysWithValues: knownAtoms)
@@ -58,19 +58,19 @@ public class Display: SharedHandleStorage<CXlib.Display> {
         var event: CInt = 0
         var error: CInt = 0
 
-        if XSyncQueryExtension(handle, &event, &error) == 0 {
+        if XSyncQueryExtension(pointer, &event, &error) == 0 {
             throw XlibError.missingExtension(.sync)
         }
 
         var xSyncMajorVersion: CInt = 3
         var xSyncMinorVersion: CInt = 1
-        if XSyncInitialize(handle, &xSyncMajorVersion, &xSyncMinorVersion) == 0 {
+        if XSyncInitialize(pointer, &xSyncMajorVersion, &xSyncMinorVersion) == 0 {
             throw XlibError.missingExtension(.sync)
         }
 
         var xInput2ExtensionOpcode: CInt = 0
 
-        if XQueryExtension(handle, "XInputExtension".cString(using: .ascii), &xInput2ExtensionOpcode, &event, &error) == 0 {
+        if XQueryExtension(pointer, "XInputExtension".cString(using: .ascii), &xInput2ExtensionOpcode, &event, &error) == 0 {
             throw XlibError.missingExtension(.input2)
         }
 
@@ -78,22 +78,22 @@ public class Display: SharedHandleStorage<CXlib.Display> {
 
         var xInputMajorVersion: CInt = 2
         var xInputMinorVersion: CInt = 0
-        if XIQueryVersion(handle, &xInputMajorVersion, &xInputMinorVersion) == BadRequest {
+        if XIQueryVersion(pointer, &xInputMajorVersion, &xInputMinorVersion) == BadRequest {
             throw XlibError.missingExtension(.input2)
         }
 
-        self.connectionFileDescriptor = XConnectionNumber(handle)
+        self.connectionFileDescriptor = XConnectionNumber(pointer)
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 
     public func flush() {
-        XFlush(handle)
+        XFlush(pointer)
     }
 
     public func withLocked<T>(_ body: (Display) throws -> (T)) rethrows -> T {
-        XLockDisplay(handle)
-        defer { XUnlockDisplay(handle) }
+        XLockDisplay(pointer)
+        defer { XUnlockDisplay(pointer) }
 
         return try body(self)
     }
@@ -107,7 +107,7 @@ public class Display: SharedHandleStorage<CXlib.Display> {
             return result
         }
 
-        let result = XInternAtom(handle, name.rawValue, onlyIfExists ? 1 : 0)
+        let result = XInternAtom(pointer, name.rawValue, onlyIfExists ? 1 : 0)
 
         if result == CXlib.None {
             return nil

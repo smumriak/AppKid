@@ -144,8 +144,8 @@ import LayerRenderingData
 
         var imageInfo = VkDescriptorImageInfo()
         imageInfo.imageLayout = .shaderReadOnlyOptimal
-        imageInfo.imageView = texture.imageView.handle
-        imageInfo.sampler = contentsTextureSampler.handle
+        imageInfo.imageView = texture.imageView.pointer
+        imageInfo.sampler = contentsTextureSampler.pointer
 
         try withUnsafePointer(to: &imageInfo) { imageInfo in
             var writeInfo = VkWriteDescriptorSet.new()
@@ -160,7 +160,7 @@ import LayerRenderingData
 
             try withUnsafePointer(to: &writeInfo) { writeInfo in
                 try vulkanInvoke {
-                    vkUpdateDescriptorSets(renderStack.device.handle, 1, writeInfo, 0, nil)
+                    vkUpdateDescriptorSets(renderStack.device.pointer, 1, writeInfo, 0, nil)
                 }
             }
         }
@@ -192,7 +192,7 @@ import LayerRenderingData
         self.modelViewProjectionDescriptorSet = modelViewProjectionDescriptorSet
 
         var bufferInfo = VkDescriptorBufferInfo()
-        bufferInfo.buffer = modelViewProjectionBuffer.handle
+        bufferInfo.buffer = modelViewProjectionBuffer.pointer
         bufferInfo.offset = 0
         bufferInfo.range = VkDeviceSize(MemoryLayout<RenderContext.ModelViewProjection>.stride)
 
@@ -209,7 +209,7 @@ import LayerRenderingData
 
             try withUnsafePointer(to: &writeInfo) { writeInfo in
                 try vulkanInvoke {
-                    vkUpdateDescriptorSets(device.handle, 1, writeInfo, 0, nil)
+                    vkUpdateDescriptorSets(device.pointer, 1, writeInfo, 0, nil)
                 }
             }
         }

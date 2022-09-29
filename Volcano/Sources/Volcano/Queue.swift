@@ -25,15 +25,15 @@ public final class Queue: SharedHandleStorage<VkQueue_T> {
 
         var handle: VkQueue?
         try vulkanInvoke {
-            vkGetDeviceQueue(device.handle, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
+            vkGetDeviceQueue(device.pointer, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
         }
 
-        super.init(handlePointer: SharedPointer(with: handle!))
+        super.init(handle: SharedPointer(with: handle!))
     }
 
     public func waitForIdle() throws {
         try vulkanInvoke {
-            vkQueueWaitIdle(handle)
+            vkQueueWaitIdle(pointer)
         }
     }
 
@@ -63,7 +63,7 @@ public final class Queue: SharedHandleStorage<VkQueue_T> {
         .withUnsafeResultPointer { info in
             try lock.synchronized {
                 try vulkanInvoke {
-                    vkQueueSubmit(handle, 1, info, descriptor.fence?.handle)
+                    vkQueueSubmit(pointer, 1, info, descriptor.fence?.pointer)
                 }
             }
         }
@@ -72,8 +72,8 @@ public final class Queue: SharedHandleStorage<VkQueue_T> {
     public func present(swapchains: [Swapchain],
                         waitSemaphores: [Volcano.Semaphore] = [],
                         imageIndices: [CUnsignedInt]) throws {
-        let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.handle }
-        let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.handle }
+        let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.pointer }
+        let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.pointer }
 
         try imageIndices.withUnsafeBufferPointer { imageIndicesPointer in
             try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
@@ -91,7 +91,7 @@ public final class Queue: SharedHandleStorage<VkQueue_T> {
 
                     try lock.synchronized {
                         try vulkanInvoke {
-                            device.vkQueuePresentKHR(handle, &presentInfo)
+                            device.vkQueuePresentKHR(pointer, &presentInfo)
                         }
                     }
                 }

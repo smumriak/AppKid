@@ -15,7 +15,7 @@ public final class DescriptorPool: DeviceEntity<SharedPointer<VkDescriptorPool_T
 
         self.maxSets = maxSets
 
-        let handlePointer: SharedPointer<VkDescriptorPool_T> = try sizes.withUnsafeBufferPointer { sizes in
+        let handle: SharedPointer<VkDescriptorPool_T> = try sizes.withUnsafeBufferPointer { sizes in
             var info = VkDescriptorPoolCreateInfo.new()
             info.poolSizeCount = CUnsignedInt(sizes.count)
             info.pPoolSizes = sizes.baseAddress!
@@ -24,20 +24,20 @@ public final class DescriptorPool: DeviceEntity<SharedPointer<VkDescriptorPool_T
             return try device.create(with: &info)
         }
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     public func allocate(with layout: DescriptorSetLayout) throws -> DescriptorSet {
-        let result: VkDescriptorSet = try [layout].optionalHandles()
+        let result: VkDescriptorSet = try [layout].optionalMutablePointers()
             .withUnsafeBufferPointer { layouts in
                 var info = VkDescriptorSetAllocateInfo.new()
-                info.descriptorPool = handle
+                info.descriptorPool = pointer
                 info.descriptorSetCount = CUnsignedInt(layouts.count)
                 info.pSetLayouts = layouts.baseAddress!
                 var result: VkDescriptorSet? = nil
 
                 try vulkanInvoke {
-                    vkAllocateDescriptorSets(device.handle, &info, &result)
+                    vkAllocateDescriptorSets(device.pointer, &info, &result)
                 }
 
                 return result!
@@ -49,7 +49,7 @@ public final class DescriptorPool: DeviceEntity<SharedPointer<VkDescriptorPool_T
 
 public final class DescriptorSetLayout: DeviceEntity<SharedPointer<VkDescriptorSetLayout_T>> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
-        let handlePointer: SharedPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
+        let handle: SharedPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
             var info = VkDescriptorSetLayoutCreateInfo.new()
             info.bindingCount = CUnsignedInt(bindings.count)
             info.pBindings = bindings.baseAddress!
@@ -57,7 +57,7 @@ public final class DescriptorSetLayout: DeviceEntity<SharedPointer<VkDescriptorS
             return try device.create(with: &info)
         }
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }
 

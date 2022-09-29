@@ -82,8 +82,8 @@ public final class Sampler: DeviceEntity<SharedPointer<VkSampler_T>> {
 
         info.unnormalizedCoordinates = unnormalizedCoordinates.vkBool
 
-        let handlePointer = try device.create(with: &info)
+        let handle = try device.create(with: &info)
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }

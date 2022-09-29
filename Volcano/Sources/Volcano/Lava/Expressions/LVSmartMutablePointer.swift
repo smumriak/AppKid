@@ -15,7 +15,7 @@ public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struc
 
 @inlinable @inline(__always)
 public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: SharedHandleStorage<Value>) -> LVSmartMutablePointer<Struct, Value> {
-    LVSmartMutablePointer(path, value.handlePointer)
+    LVSmartMutablePointer(path, value.handle)
 }
 
 public class LVSmartMutablePointer<Struct: InitializableWithNew, Value>: LVPath<Struct> {

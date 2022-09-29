@@ -26,7 +26,7 @@ public final class X11NativeWindow: NativeWindow {
     var title: String = "" {
         didSet {
             title.withCString {
-                _ = XStoreName(display.handle, windowIdentifier, $0)
+                _ = XStoreName(display.pointer, windowIdentifier, $0)
             }
         }
     }
@@ -51,7 +51,7 @@ public final class X11NativeWindow: NativeWindow {
                     mask.formUnion(.pointerMotion)
                 }
 
-                XSelectInput(display.handle, windowIdentifier, Int(mask.rawValue))
+                XSelectInput(display.pointer, windowIdentifier, Int(mask.rawValue))
             }
         }
     }
@@ -98,7 +98,7 @@ public final class X11NativeWindow: NativeWindow {
             withUnsafePointer(to: value) {
                 $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout.size(ofValue: opacity)) {
                     let optional: UnsafePointer<UInt8>? = $0
-                    XChangeProperty(display.handle, windowIdentifier, display.knownAtom(.opacity), XA_CARDINAL, 32, PropModeReplace, optional, 1)
+                    XChangeProperty(display.pointer, windowIdentifier, display.knownAtom(.opacity), XA_CARDINAL, 32, PropModeReplace, optional, 1)
                 }
             }
         }
@@ -135,10 +135,10 @@ public final class X11NativeWindow: NativeWindow {
                 }
             }
 
-            XISelectEvents(display.handle, windowIdentifier, &eventMasks, CInt(eventMasks.count))
-            XSelectInput(display.handle, windowIdentifier, Int(XlibEventTypeMask.geometry.rawValue))
+            XISelectEvents(display.pointer, windowIdentifier, &eventMasks, CInt(eventMasks.count))
+            XSelectInput(display.pointer, windowIdentifier, Int(XlibEventTypeMask.geometry.rawValue))
         } else {
-            XSelectInput(display.handle, windowIdentifier, Int(XlibEventTypeMask.basic.rawValue))
+            XSelectInput(display.pointer, windowIdentifier, Int(XlibEventTypeMask.basic.rawValue))
         }
     }
 

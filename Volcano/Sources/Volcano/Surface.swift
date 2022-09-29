@@ -26,18 +26,18 @@ public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
             info.dpy = display
             info.window = window
 
-            let handlePointer = try physicalDevice.instance.create(with: &info)
+            let handle = try physicalDevice.instance.create(with: &info)
 
-            try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
+            try self.init(physicalDevice: physicalDevice, handle: handle, desiredFormat: desiredFormat)
         }
 
     #elseif os(macOS)
         internal convenience init(physicalDevice: PhysicalDevice, desiredFormat: VkSurfaceFormatKHR) throws {
             var info = VkMacOSSurfaceCreateInfoMVK.new()
 
-            let handlePointer = try physicalDevice.instance.create(with: &info)
+            let handle = try physicalDevice.instance.create(with: &info)
 
-            try self.init(physicalDevice: physicalDevice, handlePointer: handlePointer, desiredFormat: desiredFormat)
+            try self.init(physicalDevice: physicalDevice, handle: handle, desiredFormat: desiredFormat)
         }
 
     #elseif os(Windows)
@@ -46,10 +46,10 @@ public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
         #error("Wrong OS! (For now)")
     #endif
 
-    private init(physicalDevice: PhysicalDevice, handlePointer: SharedPointer<VkSurfaceKHR_T>, desiredFormat: VkSurfaceFormatKHR) throws {
+    private init(physicalDevice: PhysicalDevice, handle: SharedPointer<VkSurfaceKHR_T>, desiredFormat: VkSurfaceFormatKHR) throws {
         self.physicalDevice = physicalDevice
 
-        let supportedFormats = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
+        let supportedFormats = try physicalDevice.loadDataArray(for: handle.pointer, using: vkGetPhysicalDeviceSurfaceFormatsKHR)
         if supportedFormats.isEmpty {
             fatalError("No surface formates available")
         }
@@ -65,20 +65,20 @@ public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
         self.supportedFormats = supportedFormats
         
         var surfaceInfo: VkPhysicalDeviceSurfaceInfo2KHR = .new()
-        surfaceInfo.surface = handlePointer.pointer
+        surfaceInfo.surface = handle.pointer
 
         capabilities2 = try physicalDevice.loadData(with: &surfaceInfo, using: physicalDevice.instance.vkGetPhysicalDeviceSurfaceCapabilities2KHR)
         capabilities = capabilities2.surfaceCapabilities
 
-        presetModes = try physicalDevice.loadDataArray(for: handlePointer.pointer, using: physicalDevice.instance.vkGetPhysicalDeviceSurfacePresentModesKHR)
+        presetModes = try physicalDevice.loadDataArray(for: handle.pointer, using: physicalDevice.instance.vkGetPhysicalDeviceSurfacePresentModesKHR)
 
-        try super.init(instance: physicalDevice.instance, handlePointer: handlePointer)
+        try super.init(instance: physicalDevice.instance, handle: handle)
     }
 
     func supportsPresenting(onQueueFamilyIndex queueFamilyIndex: Int) throws -> Bool {
         var supportsPresentingVKBool: VkBool32 = false.vkBool
         try vulkanInvoke {
-            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queueFamilyIndex), handle, &supportsPresentingVKBool)
+            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.pointer, UInt32(queueFamilyIndex), pointer, &supportsPresentingVKBool)
         }
         return supportsPresentingVKBool.bool
     }
@@ -90,14 +90,14 @@ public final class Surface: InstanceEntity<SharedPointer<VkSurfaceKHR_T>> {
 
         var supportsPresentingVKBool: VkBool32 = false.vkBool
         try vulkanInvoke {
-            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.handle, UInt32(queue.familyIndex), handle, &supportsPresentingVKBool)
+            physicalDevice.instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.pointer, UInt32(queue.familyIndex), pointer, &supportsPresentingVKBool)
         }
         return supportsPresentingVKBool.bool
     }
 
     public func refreshCapabilities() throws {
         var surfaceInfo: VkPhysicalDeviceSurfaceInfo2KHR = .new()
-        surfaceInfo.surface = handlePointer.pointer
+        surfaceInfo.surface = handle.pointer
         
         capabilities2 = try physicalDevice.loadData(with: &surfaceInfo, using: physicalDevice.instance.vkGetPhysicalDeviceSurfaceCapabilities2KHR)
         capabilities = capabilities2.surfaceCapabilities

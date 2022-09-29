@@ -12,14 +12,14 @@ public final class Fence: DeviceEntity<SharedPointer<VkFence_T>> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {
         var info = VkFenceCreateInfo(sType: .fenceCreateInfo, pNext: nil, flags: flags.rawValue)
         
-        let handlePointer = try device.create(with: &info)
+        let handle = try device.create(with: &info)
         
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
     
     public var isSignaled: Bool {
         get throws {
-            let result = vkGetFenceStatus(device.handle, handle)
+            let result = vkGetFenceStatus(device.pointer, pointer)
         
             switch result {
                 case .success: return true
@@ -30,35 +30,35 @@ public final class Fence: DeviceEntity<SharedPointer<VkFence_T>> {
     }
     
     public func wait(timeout: UInt64 = .max) throws {
-        var handleOptional: VkFence? = handle
+        var handleOptional: VkFence? = pointer
 
         try vulkanInvoke {
-            vkWaitForFences(device.handle, 1, &handleOptional, true.vkBool, timeout)
+            vkWaitForFences(device.pointer, 1, &handleOptional, true.vkBool, timeout)
         }
     }
     
     public func reset() throws {
-        var handleOptional: VkFence? = handle
+        var handleOptional: VkFence? = pointer
 
         try vulkanInvoke {
-            vkResetFences(device.handle, 1, &handleOptional)
+            vkResetFences(device.pointer, 1, &handleOptional)
         }
     }
 }
 
 public extension Device {
     func wait(for fences: [Fence], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
-        try fences.optionalHandles().withUnsafeBufferPointer { fences in
+        try fences.optionalMutablePointers().withUnsafeBufferPointer { fences in
             try vulkanInvoke {
-                vkWaitForFences(handle, CUnsignedInt(fences.count), fences.baseAddress!, waitForAll.vkBool, timeout)
+                vkWaitForFences(pointer, CUnsignedInt(fences.count), fences.baseAddress!, waitForAll.vkBool, timeout)
             }
         }
     }
     
     func reset(fences: [Fence]) throws {
-        try fences.optionalHandles().withUnsafeBufferPointer { fences in
+        try fences.optionalMutablePointers().withUnsafeBufferPointer { fences in
             try vulkanInvoke {
-                vkResetFences(handle, CUnsignedInt(fences.count), fences.baseAddress!)
+                vkResetFences(pointer, CUnsignedInt(fences.count), fences.baseAddress!)
             }
         }
     }

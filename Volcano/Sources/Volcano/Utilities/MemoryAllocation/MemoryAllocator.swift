@@ -17,7 +17,7 @@ public protocol MemoryAllocateDescriptor {
 
     func withUnsafeEntityCreateInfoPointer<T>(_ body: (UnsafePointer<Info>) throws -> (T)) rethrows -> T
 
-    func createEntity(device: Device, handlePointer: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Result
+    func createEntity(device: Device, handle: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Result
 }
 
 extension ImageDescriptor: MemoryAllocateDescriptor {
@@ -28,8 +28,8 @@ extension ImageDescriptor: MemoryAllocateDescriptor {
         try withUnsafeImageCreateInfoPointer(body)
     }
 
-    public func createEntity(device: Device, handlePointer: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Image {
-        return try Image(device: device, handlePointer: handlePointer, format: format)
+    public func createEntity(device: Device, handle: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Image {
+        return try Image(device: device, handle: handle, format: format)
     }
 }
 
@@ -41,8 +41,8 @@ extension BufferDescriptor: MemoryAllocateDescriptor {
         try withUnsafeBufferCreateInfoPointer(body)
     }
 
-    public func createEntity(device: Device, handlePointer: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Buffer {
-        return try Buffer(device: device, handlePointer: handlePointer, size: size, usage: usage, sharingMode: sharingMode, memoryChunk: memoryChunk, shouldBind: true)
+    public func createEntity(device: Device, handle: SharedPointer<Info.Result>, memoryChunk: MemoryChunk) throws -> Buffer {
+        return try Buffer(device: device, handle: handle, size: size, usage: usage, sharingMode: sharingMode, memoryChunk: memoryChunk, shouldBind: true)
     }
 }
 
@@ -52,7 +52,7 @@ public protocol MemoryAllocator {
     init(device: Device) throws
 
     func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk)
-    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked
+    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked
 }
 
 public class DirectMemoryAllocator: MemoryAllocator {
@@ -66,7 +66,7 @@ public class DirectMemoryAllocator: MemoryAllocator {
         fatalError()
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorageProtocol, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
         let memoryTypes = device.physicalDevice.memoryTypes
 
         let memoryRequirements = try device.memoryRequirements(for: memoryBacked)

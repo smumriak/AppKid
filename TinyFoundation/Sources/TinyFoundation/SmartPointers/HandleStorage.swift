@@ -13,30 +13,26 @@ public protocol HandleStorageProtocol: Hashable {
     var handle: Handle { get }
 }
 
-public protocol SharedPointerHandleStorageProtocol: HandleStorageProtocol {
-    associatedtype SharedPointerHandle: SmartPointer
-    var handlePointer: SharedPointerHandle { get }
+public extension HandleStorageProtocol where Handle: SmartPointer {
+    @_transparent
+    var pointer: Handle.Pointer_t { handle.pointer }
 }
 
 public typealias SharedHandleStorage<Pointee> = HandleStorage<SharedPointer<Pointee>>
 
-open class HandleStorage<Handle: SmartPointer>: SharedPointerHandleStorageProtocol {
-    public var handle: Handle.Pointer_t {
-        handlePointer.pointer
-    }
+open class HandleStorage<Handle: SmartPointer>: HandleStorageProtocol {
+    public let handle: Handle
 
-    public let handlePointer: Handle
-
-    public init(handlePointer: Handle) {
-        self.handlePointer = handlePointer
+    public init(handle: Handle) {
+        self.handle = handle
     }
 
     public static func == (lhs: HandleStorage<Handle>, rhs: HandleStorage<Handle>) -> Bool {
-        return lhs.handlePointer == rhs.handlePointer
+        return lhs.handle == rhs.handle
     }
 
     public func hash(into hasher: inout Hasher) {
-        hasher.combine(handlePointer)
+        hasher.combine(handle)
     }
 }
 
@@ -50,24 +46,24 @@ public extension Array where Element: HandleStorageProtocol {
     }
 }
 
-public extension Array where Element: SharedPointerHandleStorageProtocol, Element.Handle == Element.SharedPointerHandle.Pointer_t {
-    func pointers() -> [UnsafePointer<Element.SharedPointerHandle.Pointer_t.Pointee>] {
-        return map { UnsafePointer($0.handle) }
+public extension Array where Element: HandleStorageProtocol, Element.Handle: SmartPointer {
+    func pointers() -> [UnsafePointer<Element.Handle.Pointer_t.Pointee>] {
+        return map { UnsafePointer($0.pointer) }
     }
 
-    func optionalPointers() -> [UnsafePointer<Element.SharedPointerHandle.Pointer_t.Pointee>?] {
-        return map { UnsafePointer($0.handle) }
+    func optionalPointers() -> [UnsafePointer<Element.Handle.Pointer_t.Pointee>?] {
+        return map { UnsafePointer($0.pointer) }
     }
 
-    func mutablePointers() -> [Element.SharedPointerHandle.Pointer_t] {
+    func mutablePointers() -> [Element.Handle.Pointer_t] {
+        return map { $0.pointer }
+    }
+
+    func optionalMutablePointers() -> [Element.Handle.Pointer_t?] {
+        return map { $0.pointer }
+    }
+
+    func smartPointers() -> [Element.Handle] {
         return map { $0.handle }
-    }
-
-    func optionalMutablePointers() -> [Element.SharedPointerHandle.Pointer_t?] {
-        return map { $0.handle }
-    }
-
-    func smartPointers() -> [Element.SharedPointerHandle] {
-        return map { $0.handlePointer }
     }
 }

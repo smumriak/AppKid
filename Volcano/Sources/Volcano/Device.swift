@@ -56,7 +56,7 @@ public final class Device: PhysicalDeviceEntity<SharedPointer<VkDevice_T>> {
         var timelineSemaphoreFeatures = VkPhysicalDeviceTimelineSemaphoreFeatures.new()
         timelineSemaphoreFeatures.timelineSemaphore = true.vkBool
 
-        let handlePointer: SharedPointer<VkDevice_T> =
+        let handle: SharedPointer<VkDevice_T> =
             try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
                 return try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
                     var info = VkDeviceCreateInfo.new()
@@ -78,16 +78,16 @@ public final class Device: PhysicalDeviceEntity<SharedPointer<VkDevice_T>> {
                 }
             }
 
-        vkCreateSwapchainKHR = try handlePointer.loadFunction(named: "vkCreateSwapchainKHR")
-        vkDestroySwapchainKHR = try handlePointer.loadFunction(named: "vkDestroySwapchainKHR")
-        vkGetSwapchainImagesKHR = try handlePointer.loadFunction(named: "vkGetSwapchainImagesKHR")
-        vkAcquireNextImageKHR = try handlePointer.loadFunction(named: "vkAcquireNextImageKHR")
-        vkQueuePresentKHR = try handlePointer.loadFunction(named: "vkQueuePresentKHR")
-        vkGetSemaphoreCounterValueKHR = try handlePointer.loadFunction(named: "vkGetSemaphoreCounterValueKHR")
-        vkWaitSemaphoresKHR = try handlePointer.loadFunction(named: "vkWaitSemaphoresKHR")
-        vkSignalSemaphoreKHR = try handlePointer.loadFunction(named: "vkSignalSemaphoreKHR")
+        vkCreateSwapchainKHR = try handle.loadFunction(named: "vkCreateSwapchainKHR")
+        vkDestroySwapchainKHR = try handle.loadFunction(named: "vkDestroySwapchainKHR")
+        vkGetSwapchainImagesKHR = try handle.loadFunction(named: "vkGetSwapchainImagesKHR")
+        vkAcquireNextImageKHR = try handle.loadFunction(named: "vkAcquireNextImageKHR")
+        vkQueuePresentKHR = try handle.loadFunction(named: "vkQueuePresentKHR")
+        vkGetSemaphoreCounterValueKHR = try handle.loadFunction(named: "vkGetSemaphoreCounterValueKHR")
+        vkWaitSemaphoresKHR = try handle.loadFunction(named: "vkWaitSemaphoresKHR")
+        vkSignalSemaphoreKHR = try handle.loadFunction(named: "vkSignalSemaphoreKHR")
 
-        try super.init(physicalDevice: physicalDevice, handlePointer: handlePointer)
+        try super.init(physicalDevice: physicalDevice, handle: handle)
 
         _memoryAllocator = try memoryAllocatorClass.init(device: self)
 
@@ -106,7 +106,7 @@ public final class Device: PhysicalDeviceEntity<SharedPointer<VkDevice_T>> {
     
     public func waitForIdle() throws {
         try vulkanInvoke {
-            vkDeviceWaitIdle(handle)
+            vkDeviceWaitIdle(pointer)
         }
     }
 
@@ -114,7 +114,7 @@ public final class Device: PhysicalDeviceEntity<SharedPointer<VkDevice_T>> {
         var result = VkMemoryRequirements()
 
         try vulkanInvoke {
-            T.Pointee.requirementsFunction(self.handle, handle.pointer, &result)
+            T.Pointee.requirementsFunction(self.pointer, handle.pointer, &result)
         }
         
         return result
@@ -132,12 +132,12 @@ public extension Device {
         var memory: VkDeviceMemory? = nil
 
         try vulkanInvoke {
-            vkAllocateMemory(handle, info, callbacks, &memory)
+            vkAllocateMemory(pointer, info, callbacks, &memory)
         }
 
         // smumriak:TODO:Validate if this has to retain the thing. Maybe it needs to
         return SharedPointer(with: memory!) { [unowned self] in
-            vkFreeMemory(self.handle, $0, callbacks)
+            vkFreeMemory(self.pointer, $0, callbacks)
         }
     }
 }

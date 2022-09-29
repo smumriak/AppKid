@@ -23,16 +23,16 @@ public class VMAMemoryChunk: MemoryChunk {
         self.allocator = allocator
         self.allocation = allocation
 
-        let handlePointer = SharedPointer(with: info.deviceMemory!, deleter: .none)
+        let handle = SharedPointer(with: info.deviceMemory!, deleter: .none)
 
-        try super.init(device: allocator.device, handlePointer: handlePointer, parent: nil, offset: info.offset, size: info.size, properties: memoryProperties)
+        try super.init(device: allocator.device, handle: handle, parent: nil, offset: info.offset, size: info.size, properties: memoryProperties)
     }
 
     public override func mapData(_ offset: VkDeviceSize = 0) throws -> UnsafeMutableRawPointer {
         assert(currentlyMappedVMAPointer == nil, "Memory chunk is already mapped")
 
         try vulkanInvoke {
-            vmaMapMemory(allocator.handle, allocation.handle, &currentlyMappedVMAPointer)
+            vmaMapMemory(allocator.pointer, allocation.pointer, &currentlyMappedVMAPointer)
         }
 
         return currentlyMappedVMAPointer!
@@ -42,7 +42,7 @@ public class VMAMemoryChunk: MemoryChunk {
         assert(currentlyMappedVMAPointer != nil, "Memory chunk is not mapped")
 
         try vulkanInvoke {
-            vmaUnmapMemory(allocator.handle, allocation.handle)
+            vmaUnmapMemory(allocator.pointer, allocation.pointer)
         }
 
         currentlyMappedVMAPointer = nil
@@ -58,7 +58,7 @@ public class VMAMemoryChunk: MemoryChunk {
 
     private func bindPrivate<T: MemoryBindable>(to bindable: T) throws {
         try vulkanInvoke {
-            T.vmaBindFunction(allocator.handle, allocation.handle, bindable.handle as! UnsafeMutablePointer<T.Handle.Pointee>)
+            T.vmaBindFunction(allocator.pointer, allocation.pointer, bindable.pointer as! UnsafeMutablePointer<T.Handle.Pointee>)
         }
     }
 }

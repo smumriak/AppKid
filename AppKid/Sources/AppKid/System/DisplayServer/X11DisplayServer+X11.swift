@@ -80,7 +80,7 @@ internal extension X11DisplayServer {
                 return
             }
 
-            guard XPending(display.handle) != 0 else {
+            guard XPending(display.pointer) != 0 else {
                 hasEvents = false
 
                 return
@@ -88,7 +88,7 @@ internal extension X11DisplayServer {
 
             var x11Event = CXlib.XEvent()
 
-            XNextEvent(display.handle, &x11Event)
+            XNextEvent(display.pointer, &x11Event)
 
             let application = Application.shared
 
@@ -98,11 +98,11 @@ internal extension X11DisplayServer {
 
             do {
                 if x11Event.isCookie(with: display.xInput2ExtensionOpcode) {
-                    if XGetEventData(display.handle, &x11Event.xcookie) == 0 {
+                    if XGetEventData(display.pointer, &x11Event.xcookie) == 0 {
                         event = Event.ignoredDisplayServerEvent()
                     } else {
                         defer {
-                            XFreeEventData(display.handle, &x11Event.xcookie)
+                            XFreeEventData(display.pointer, &x11Event.xcookie)
                         }
 
                         // smumriak:Hacking XInput2 event to have button number for motion events
@@ -136,7 +136,7 @@ internal extension X11DisplayServer {
 
     func updateInputDevices() {
         var count: CInt = 0
-        guard let devicesArrayPointer = XIQueryDevice(display.handle, XIAllDevices, &count) else {
+        guard let devicesArrayPointer = XIQueryDevice(display.pointer, XIAllDevices, &count) else {
             context.inputDevices = []
             return
         }

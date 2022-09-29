@@ -23,6 +23,6 @@ public class RootWindow: WindowProtocol {
     @_spi(AppKid) public init(display: Display, screen: Screen) {
         self.display = display
         self.screen = screen
-        self.windowIdentifier = XDefaultRootWindow(display.handle)
+        self.windowIdentifier = XDefaultRootWindow(display.pointer)
     }
 }

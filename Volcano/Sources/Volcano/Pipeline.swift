@@ -11,10 +11,10 @@ import CVulkan
 public class Pipeline: DeviceEntity<SharedPointer<VkPipeline_T>> {
     public internal(set) var layout: SharedPointer<VkPipelineLayout_T>
 
-    public init(device: Device, handlePointer: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>) throws {
+    public init(device: Device, handle: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>) throws {
         self.layout = layout
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }
 
@@ -23,23 +23,23 @@ public final class GraphicsPipeline: Pipeline {
     public internal(set) var subpassIndex: Int
     public internal(set) var descriptorSetLayouts: [DescriptorSetLayout]
 
-    fileprivate init(device: Device, handlePointer: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>, renderPass: RenderPass, subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) throws {
+    fileprivate init(device: Device, handle: SharedPointer<VkPipeline_T>, layout: SharedPointer<VkPipelineLayout_T>, renderPass: RenderPass, subpassIndex: Int, descriptorSetLayouts: [DescriptorSetLayout]) throws {
         self.renderPass = renderPass
         self.subpassIndex = subpassIndex
         self.descriptorSetLayouts = descriptorSetLayouts
 
-        try super.init(device: device, handlePointer: handlePointer, layout: layout)
+        try super.init(device: device, handle: handle, layout: layout)
     }
 
     public convenience init(device: Device, descriptor: GraphicsPipelineDescriptor, cache: VkPipelineCache? = nil) throws {
         let layout = try device.buildEntity(VkPipelineLayoutCreateInfo.self) {
-            (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts.optionalHandles()
+            (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts
             (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
         }
 
-        let handlePointer = try device.buildEntity(cache: nil, descriptor.createBuilder(layout))
+        let handle = try device.buildEntity(cache: nil, descriptor.createBuilder(layout))
 
-        try self.init(device: device, handlePointer: handlePointer, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
+        try self.init(device: device, handle: handle, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
     }
 }
 
@@ -47,21 +47,21 @@ public extension Device {
     func createPipelines(from descriptors: [GraphicsPipelineDescriptor], cache: VkPipelineCache? = nil) throws -> [GraphicsPipeline] {
         let layouts = try descriptors.map { descriptor in
             try buildEntity(VkPipelineLayoutCreateInfo.self) {
-                (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts.optionalHandles()
+                (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts
                 (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
             }
         }
 
-        let handlePointers = try buildEntities(VkGraphicsPipelineCreateInfo.self, cache: cache) {
+        let handles = try buildEntities(VkGraphicsPipelineCreateInfo.self, cache: cache) {
             for i in 0..<descriptors.count {
                 descriptors[i].createBuilder(layouts[i])
             }
         }
 
-        return try handlePointers.enumerated().map {
+        return try handles.enumerated().map {
             let descriptor = descriptors[$0]
             let layout = layouts[$0]
-            return try GraphicsPipeline(device: self, handlePointer: $1, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
+            return try GraphicsPipeline(device: self, handle: $1, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
         }
     }
 }

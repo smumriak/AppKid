@@ -11,21 +11,21 @@ import CVulkan
 public final class Image: DeviceEntity<SharedPointer<VkImage_T>> {
     public let format: VkFormat
 
-    public init(device: Device, handlePointer: SharedPointer<VkImage_T>, format: VkFormat) throws {
+    public init(device: Device, handle: SharedPointer<VkImage_T>, format: VkFormat) throws {
         self.format = format
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 
     public convenience init(device: Device, swapchainImageHandle handle: VkImage, format: VkFormat) throws {
-        try self.init(device: device, handlePointer: SharedPointer(with: handle), format: format)
+        try self.init(device: device, handle: SharedPointer(with: handle), format: format)
     }
     
     public convenience init(device: Device, descriptor: ImageDescriptor) throws {
-        let handlePointer = try descriptor.withUnsafeImageCreateInfoPointer { info in
+        let handle = try descriptor.withUnsafeImageCreateInfoPointer { info in
             try device.create(with: info)
         }
 
-        try self.init(device: device, handlePointer: handlePointer, format: descriptor.format)
+        try self.init(device: device, handle: handle, format: descriptor.format)
     }
 }
 

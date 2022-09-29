@@ -14,11 +14,11 @@ public final class Framebuffer: DeviceEntity<SharedPointer<VkFramebuffer_T>> {
     public init(device: Device, size: VkExtent2D, renderPass: RenderPass, attachments: [ImageView], layersCount: CUnsignedInt = 1) throws {
         self.attachments = attachments
 
-        let handlePointer: SharedPointer<VkFramebuffer_T> = try attachments
-            .map { $0.handle as VkImageView? }
+        let handle: SharedPointer<VkFramebuffer_T> = try attachments
+            .map { $0.pointer as VkImageView? }
             .withUnsafeBufferPointer { attachments in
                 var info = VkFramebufferCreateInfo.new()
-                info.renderPass = renderPass.handle
+                info.renderPass = renderPass.pointer
                 info.attachmentCount = CUnsignedInt(attachments.count)
                 info.pAttachments = attachments.baseAddress!
                 info.width = size.width
@@ -28,6 +28,6 @@ public final class Framebuffer: DeviceEntity<SharedPointer<VkFramebuffer_T>> {
                 return try device.create(with: &info)
             }
 
-        try super.init(device: device, handlePointer: handlePointer)
+        try super.init(device: device, handle: handle)
     }
 }

@@ -62,7 +62,7 @@ internal class DescriptorSetContainer {
             var result: VkDescriptorSet? = nil
 
             try vulkanInvoke {
-                vkAllocateDescriptorSets(device.handle, &info, &result)
+                vkAllocateDescriptorSets(device.pointer, &info, &result)
             }
 
             return result!

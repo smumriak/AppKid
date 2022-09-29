@@ -12,71 +12,71 @@ import TinyFoundation
 
 public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public init() {
-        let handlePointer = CopyablePointer(with: cairo_font_options_create())
+        let handle = CopyablePointer(with: cairo_font_options_create())
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 
     public var antialias: cairo_antialias_t {
         get {
-            cairo_font_options_get_antialias(handle)
+            cairo_font_options_get_antialias(pointer)
         }
         set {
-            cairo_font_options_set_antialias(handle, newValue)
+            cairo_font_options_set_antialias(pointer, newValue)
         }
     }
 
     public var hintStyle: cairo_hint_style_t {
         get {
-            cairo_font_options_get_hint_style(handle)
+            cairo_font_options_get_hint_style(pointer)
         }
         set {
-            cairo_font_options_set_hint_style(handle, newValue)
+            cairo_font_options_set_hint_style(pointer, newValue)
         }
     }
 
     public var hintMetrics: cairo_hint_metrics_t {
         get {
-            cairo_font_options_get_hint_metrics(handle)
+            cairo_font_options_get_hint_metrics(pointer)
         }
         set {
-            cairo_font_options_set_hint_metrics(handle, newValue)
+            cairo_font_options_set_hint_metrics(pointer, newValue)
         }
     }
 
     public var subpixelOrder: cairo_subpixel_order_t {
         get {
-            cairo_font_options_get_subpixel_order(handle)
+            cairo_font_options_get_subpixel_order(pointer)
         }
         set {
-            cairo_font_options_set_subpixel_order(handle, newValue)
+            cairo_font_options_set_subpixel_order(pointer, newValue)
         }
     }
 }
 
 @_spi(AppKid) public class TextFontMap: SharedHandleStorage<PangoFontMap> {
-    public static let `default` = TextFontMap(handlePointer: SharedPointer(with: pango_cairo_font_map_get_default(), deleter: .none))
+    public static let `default` = TextFontMap(handle: SharedPointer(with: pango_cairo_font_map_get_default(), deleter: .none))
 }
 
 @_spi(AppKid) public class TextContext: SharedHandleStorage<PangoContext> {
     public init(with fontMap: TextFontMap = .default) {
-        let handlePointer = RetainablePointer(withRetained: pango_font_map_create_context(fontMap.handle)!)
+        let handle = RetainablePointer(withRetained: pango_font_map_create_context(fontMap.pointer)!)
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: handle)
     }
 
     public var fontOptions: FontOptions? {
         didSet {
             if let fontOptions = fontOptions {
-                pango_cairo_context_set_font_options(handle, fontOptions.handle)
+                pango_cairo_context_set_font_options(pointer, fontOptions.pointer)
             } else {
-                pango_cairo_context_set_font_options(handle, nil)
+                pango_cairo_context_set_font_options(pointer, nil)
             }
         }
     }
 
     public func update(with context: CGContext) {
-        pango_cairo_update_context(context.context.pointer, handle)
+        pango_cairo_update_context(context.context.pointer, pointer)
     }
 }
 
@@ -84,69 +84,69 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public let context: TextContext
     public init(with context: TextContext) {
         self.context = context
-        let handlePointer = RetainablePointer(withRetained: pango_layout_new(context.handle)!)
+        let pointer = RetainablePointer(withRetained: pango_layout_new(context.pointer)!)
 
-        super.init(handlePointer: handlePointer)
+        super.init(handle: pointer)
     }
 
     public var fontDescription: UnsafePointer<PangoFontDescription> {
         get {
-            pango_layout_get_font_description(handle)
+            pango_layout_get_font_description(pointer)
         }
         set {
-            pango_layout_set_font_description(handle, newValue)
+            pango_layout_set_font_description(pointer, newValue)
         }
     }
 
     public var wrap: PangoWrapMode {
         get {
-            pango_layout_get_wrap(handle)
+            pango_layout_get_wrap(pointer)
         }
         set {
-            pango_layout_set_wrap(handle, newValue)
+            pango_layout_set_wrap(pointer, newValue)
         }
     }
 
     public var ellipsize: PangoEllipsizeMode {
         get {
-            pango_layout_get_ellipsize(handle)
+            pango_layout_get_ellipsize(pointer)
         }
         set {
-            pango_layout_set_ellipsize(handle, newValue)
+            pango_layout_set_ellipsize(pointer, newValue)
         }
     }
 
     public var alignment: PangoAlignment {
         get {
-            pango_layout_get_alignment(handle)
+            pango_layout_get_alignment(pointer)
         }
         set {
-            pango_layout_set_alignment(handle, newValue)
+            pango_layout_set_alignment(pointer, newValue)
         }
     }
 
     public var width: CInt {
         get {
-            pango_layout_get_width(handle)
+            pango_layout_get_width(pointer)
         }
         set {
-            pango_layout_set_width(handle, newValue)
+            pango_layout_set_width(pointer, newValue)
         }
     }
 
     public var height: CInt {
         get {
-            pango_layout_get_height(handle)
+            pango_layout_get_height(pointer)
         }
         set {
-            pango_layout_set_height(handle, newValue)
+            pango_layout_set_height(pointer, newValue)
         }
     }
 
     public var inkUnitRect: PangoRectangle {
         var result = PangoRectangle()
 
-        pango_layout_get_extents(handle, &result, nil)
+        pango_layout_get_extents(pointer, &result, nil)
 
         return result
     }
@@ -154,7 +154,7 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public var logicalUnitRect: PangoRectangle {
         var result = PangoRectangle()
 
-        pango_layout_get_extents(handle, nil, &result)
+        pango_layout_get_extents(pointer, nil, &result)
 
         return result
     }
@@ -162,7 +162,7 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public var inkPixelRect: PangoRectangle {
         var result = PangoRectangle()
 
-        pango_layout_get_pixel_extents(handle, &result, nil)
+        pango_layout_get_pixel_extents(pointer, &result, nil)
 
         return result
     }
@@ -170,14 +170,14 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public var logicalPixelRect: PangoRectangle {
         var result = PangoRectangle()
 
-        pango_layout_get_pixel_extents(handle, nil, &result)
+        pango_layout_get_pixel_extents(pointer, nil, &result)
 
         return result
     }
 
     public var text: String? {
         get {
-            guard let cString = pango_layout_get_text(handle) else {
+            guard let cString = pango_layout_get_text(pointer) else {
                 return nil
             }
 
@@ -185,9 +185,9 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
         }
         set {
             if let text = newValue {
-                pango_layout_set_text(handle, text.cString(using: .utf8), -1)
+                pango_layout_set_text(pointer, text.cString(using: .utf8), -1)
             } else {
-                pango_layout_set_text(handle, nil, 0)
+                pango_layout_set_text(pointer, nil, 0)
             }
         }
     }
@@ -195,14 +195,14 @@ public class FontOptions: SharedHandleStorage<cairo_font_options_t> {
     public var textColor: CGColor? = nil
 
     public func forceLayout() {
-        pango_layout_context_changed(handle)
+        pango_layout_context_changed(pointer)
     }
 
     public func draw(in context: CGContext) {
         if let textColor = textColor {
             cairo_set_source(context.context.pointer, textColor.cairoPattern.pointer)
         }
-        pango_cairo_show_layout(context.context.pointer, handle)
+        pango_cairo_show_layout(context.context.pointer, pointer)
     }
 }
 

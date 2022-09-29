@@ -89,15 +89,15 @@ internal final class X11DisplayServer: DisplayServer {
             fatalError("Can not create display with error: \(error)")
         }
 
-        screen = XDefaultScreenOfDisplay(display.handle)
+        screen = XDefaultScreenOfDisplay(display.pointer)
         applicationName = appName
 
         var rootWindowAttributes = XWindowAttributes()
-        if XGetWindowAttributes(display.handle, screen.pointee.root, &rootWindowAttributes) == 0 {
+        if XGetWindowAttributes(display.pointer, screen.pointee.root, &rootWindowAttributes) == 0 {
             fatalError("Can not get root window attributes")
         }
 
-        inputMethod = XOpenIM(display.handle, nil, nil, nil)
+        inputMethod = XOpenIM(display.pointer, nil, nil, nil)
 
         inputStyle = inputMethod.flatMap {
             var stylesOptional: UnsafeMutablePointer<XIMStyles>? = nil
@@ -161,10 +161,10 @@ extension X11DisplayServer {
         var attributes = XSetWindowAttributes()
 
         // attributesMask |= UInt(CWBorderPixel)
-        // attributes.border_pixel =  XBlackPixel(display.handle, XDefaultScreen(display.handle))
+        // attributes.border_pixel =  XBlackPixel(display.pointer, XDefaultScreen(display.pointer))
 
         // attributesMask |= UInt(CWBackPixel)
-        // attributes.background_pixel = XWhitePixel(display.handle, XDefaultScreen(display.handle))
+        // attributes.background_pixel = XWhitePixel(display.pointer, XDefaultScreen(display.pointer))
 
         // attributesMask |= UInt(CWBackPixmap)
         // attributes.background_pixmap = Pixmap(CXlib.None)
@@ -174,14 +174,14 @@ extension X11DisplayServer {
 
         let visual = XDefaultVisualOfScreen(screen)
         let depth = XDefaultDepthOfScreen(screen)
-        let colorMap = XCreateColormap(display.handle, rootWindow.windowIdentifier, visual, AllocNone)
-        defer { XFreeColormap(display.handle, colorMap) }
+        let colorMap = XCreateColormap(display.pointer, rootWindow.windowIdentifier, visual, AllocNone)
+        defer { XFreeColormap(display.pointer, colorMap) }
 
         attributesMask |= UInt(CWColormap)
         attributes.colormap = colorMap
         attributes.bit_gravity = StaticGravity
 
-        let windowIdentifier = XCreateWindow(display.handle,
+        let windowIdentifier = XCreateWindow(display.pointer,
                                              rootWindow.windowIdentifier,
                                              intRect.x, intRect.y,
                                              CUnsignedInt(intRect.width), CUnsignedInt(intRect.height),
@@ -195,7 +195,7 @@ extension X11DisplayServer {
         let result = X11NativeWindow(display: display, screen: screen, windowIdentifier: windowIdentifier, title: title)
         result.displayScale = context.scale
 
-        XStoreName(display.handle, windowIdentifier, title)
+        XStoreName(display.pointer, windowIdentifier, title)
 
         let classHint = XAllocClassHint()
         defer { XFree(classHint) }
@@ -205,7 +205,7 @@ extension X11DisplayServer {
             classHint?.pointee.res_name = mutableString
             classHint?.pointee.res_class = mutableString
 
-            XSetClassHint(display.handle, windowIdentifier, classHint)
+            XSetClassHint(display.pointer, windowIdentifier, classHint)
         }
 
         var atoms: [CXlib.Atom] = [
@@ -214,7 +214,7 @@ extension X11DisplayServer {
             display.knownAtom(.syncRequest),
         ]
         atoms.withUnsafeMutableBufferPointer {
-            let _ = XSetWMProtocols(display.handle, windowIdentifier, $0.baseAddress!, CInt($0.count))
+            let _ = XSetWMProtocols(display.pointer, windowIdentifier, $0.baseAddress!, CInt($0.count))
         }
 
         let value: Int = 2
