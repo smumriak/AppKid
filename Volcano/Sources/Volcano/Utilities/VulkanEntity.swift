@@ -8,10 +8,6 @@
 import TinyFoundation
 import CVulkan
 
-public protocol DeviceEntityProtocol: SharedPointerHandleStorageProtocol {
-    associatedtype Entity: SmartPointer
-}
-
 open class InstanceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     public internal(set) var instance: Instance
 
@@ -34,7 +30,7 @@ open class PhysicalDeviceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     }
 }
 
-open class DeviceEntity<Entity: SmartPointer>: HandleStorage<Entity>, DeviceEntityProtocol {
+open class DeviceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
     public internal(set) var device: Device
 
     @inlinable @inline(__always)

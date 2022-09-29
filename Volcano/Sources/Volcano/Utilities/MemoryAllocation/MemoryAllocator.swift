@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 
 public protocol MemoryAllocateDescriptor {
-    associatedtype Result: DeviceEntityProtocol
+    associatedtype Result
     associatedtype Info: SimpleEntityInfo where Info.Result: MemoryBacked, Info.Parent == VkDevice.Pointee
 
     var requiredMemoryProperties: VkMemoryPropertyFlagBits { get }
@@ -52,7 +52,7 @@ public protocol MemoryAllocator {
     init(device: Device) throws
 
     func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk)
-    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked
+    func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked
 }
 
 public class DirectMemoryAllocator: MemoryAllocator {
@@ -66,7 +66,7 @@ public class DirectMemoryAllocator: MemoryAllocator {
         fatalError()
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
         let memoryTypes = device.physicalDevice.memoryTypes
 
         let memoryRequirements = try device.memoryRequirements(for: memoryBacked)

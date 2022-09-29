@@ -73,7 +73,7 @@ public class VulkanMemoryAllocator: SharedHandleStorage<VmaAllocator_T>, MemoryA
         return (result, memoryChunk)
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.SharedPointerHandle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: SharedPointerHandleStorageProtocol, Descriptor.Result.SharedPointerHandle.Pointee: MemoryBacked {
         var allocationCreateInfo = VmaAllocationCreateInfo()
 
         var allocationHandle: VmaAllocation? = nil
