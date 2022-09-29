@@ -13,7 +13,7 @@ public func <- <Struct: InitializableWithNew, Value: RawRepresentable>(path: Wri
     LVFlags(path, value)
 }
 
-public class LVFlags<Struct: InitializableWithNew, Value: RawRepresentable>: LVPath<Struct> where Value.RawValue == VkFlags {
+public struct LVFlags<Struct: InitializableWithNew, Value: RawRepresentable>: LVPath where Value.RawValue == VkFlags {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, Value.RawValue>
 
     @usableFromInline
@@ -28,8 +28,8 @@ public class LVFlags<Struct: InitializableWithNew, Value: RawRepresentable>: LVP
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value.rawValue
-        return try super.withApplied(to: &result, tail: tail, body)
+        return try withAppliedDefault(to: &result, tail: tail, body)
     }
 }

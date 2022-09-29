@@ -13,7 +13,7 @@ public func <- <Struct: InitializableWithNew, Value, Count: BinaryInteger>(paths
     LVNilValueArray(paths.0, paths.1, count)
 }
 
-public class LVNilValueArray<Struct: InitializableWithNew, Value, Count: BinaryInteger>: LVPath<Struct> {
+public struct LVNilValueArray<Struct: InitializableWithNew, Value, Count: BinaryInteger>: LVPath {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -33,9 +33,9 @@ public class LVNilValueArray<Struct: InitializableWithNew, Value, Count: BinaryI
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: countKeyPath] = CUnsignedInt(count)
         result[keyPath: valueKeyPath] = nil
-        return try super.withApplied(to: &result, tail: tail, body)
+        return try withAppliedDefault(to: &result, tail: tail, body)
     }
 }

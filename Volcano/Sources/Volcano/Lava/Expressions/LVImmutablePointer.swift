@@ -18,7 +18,7 @@ public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struc
     LVImmutablePointer(path, value)
 }
 
-public class LVImmutablePointer<Struct: InitializableWithNew, Value>: LVPath<Struct> {
+public struct LVImmutablePointer<Struct: InitializableWithNew, Value>: LVPath {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
     @usableFromInline
@@ -38,8 +38,8 @@ public class LVImmutablePointer<Struct: InitializableWithNew, Value>: LVPath<Str
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer
-        return try super.withApplied(to: &result, tail: tail, body)
+        return try withAppliedDefault(to: &result, tail: tail, body)
     }
 }

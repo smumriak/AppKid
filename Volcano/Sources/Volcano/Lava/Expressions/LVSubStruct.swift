@@ -18,7 +18,7 @@ public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(p
     try LVSubStruct(path, content())
 }
 
-public class LVSubStruct<Struct: InitializableWithNew, SubStruct: InitializableWithNew>: LVPath<Struct> {
+public struct LVSubStruct<Struct: InitializableWithNew, SubStruct: InitializableWithNew>: LVPath {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<SubStruct>?>
 
     @usableFromInline
@@ -33,10 +33,10 @@ public class LVSubStruct<Struct: InitializableWithNew, SubStruct: InitializableW
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try builder.withUnsafeResultPointer {
             result[keyPath: valueKeyPath] = UnsafePointer($0)
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }

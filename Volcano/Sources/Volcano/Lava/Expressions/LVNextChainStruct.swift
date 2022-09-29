@@ -23,7 +23,7 @@ public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableSt
     try LVNextChainStruct(content())
 }
 
-public class LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanChainableStructure>: LVPath<Struct> {
+public struct LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanChainableStructure>: LVPath {
     @usableFromInline
     internal let builder: LVBuilder<Next>
 
@@ -36,11 +36,11 @@ public class LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanCha
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         assert(result[keyPath: \.pNext] == nil)
         return try builder.withUnsafeResultPointer {
             result[keyPath: \.pNext] = UnsafeRawPointer($0)
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }

@@ -13,7 +13,7 @@ public func <- <Struct: InitializableWithNew, Value: StringProtocol>(path: Writa
     LVString(path, String(value))
 }
 
-public class LVString<Struct: InitializableWithNew>: LVPath<Struct> {
+public struct LVString<Struct: InitializableWithNew>: LVPath {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<CChar>?>
 
     @usableFromInline
@@ -28,10 +28,10 @@ public class LVString<Struct: InitializableWithNew>: LVPath<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.withCString {
             result[keyPath: valueKeyPath] = $0
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }

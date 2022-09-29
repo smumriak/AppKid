@@ -23,7 +23,7 @@ public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, 
     LVSubArray(paths.0, paths.1, LVBuilderArray(value.compactMap { $0 }))
 }
 
-public class LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: LVPath<Struct> {
+public struct LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: LVPath {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<SubStruct>?>
 
@@ -43,12 +43,12 @@ public class LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: LV
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try builder.withUnsafeResultPointer {
             result[keyPath: countKeyPath] = CUnsignedInt($0.count)
             result[keyPath: valueKeyPath] = $0.baseAddress!
 
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }

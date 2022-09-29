@@ -10,14 +10,11 @@ import CVulkan
 
 @resultBuilder
 public struct LVBuilder<Struct: InitializableWithNew> {
-    public typealias Expression = LVPath<Struct>
-    public typealias Component = [LVPath<Struct>]
-
-    public static func buildExpression(_ expression: Expression) -> Component {
+    public static func buildExpression(_ expression: any LVPath<Struct>) -> [any LVPath<Struct>] {
         return [expression]
     }
 
-    public static func buildExpression(_ expression: Expression?) -> Component {
+    public static func buildExpression(_ expression: (any LVPath<Struct>)?) -> [any LVPath<Struct>] {
         if let expression = expression {
             return [expression]
         } else {
@@ -25,43 +22,43 @@ public struct LVBuilder<Struct: InitializableWithNew> {
         }
     }
 
-    public static func buildBlock() -> Component {
+    public static func buildBlock() -> [any LVPath<Struct>] {
         return []
     }
 
-    public static func buildBlock(_ paths: Component...) -> Component {
+    public static func buildBlock(_ paths: [any LVPath<Struct>]...) -> [any LVPath<Struct>] {
         return paths.flatMap { $0 }
     }
 
-    public static func buildBlock(_ paths: [Expression?]) -> Component {
+    public static func buildBlock(_ paths: [(any LVPath<Struct>)?]) -> [any LVPath<Struct>] {
         return paths.compactMap { $0 }
     }
 
-    public static func buildOptional(_ component: Component?) -> Component {
+    public static func buildOptional(_ component: [any LVPath<Struct>]?) -> [any LVPath<Struct>] {
         return component ?? []
     }
 
-    public static func buildEither(first: Component) -> Component {
+    public static func buildEither(first: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
         return first
     }
 
-    public static func buildEither(second: Component) -> Component {
+    public static func buildEither(second: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
         return second
     }
 
-    public static func buildArray(_ paths: [Component]) -> Component {
+    public static func buildArray(_ paths: [[any LVPath<Struct>]]) -> [any LVPath<Struct>] {
         return paths.flatMap { $0 }
     }
 
-    public static func buildFinalResult(_ paths: Component) -> Component {
+    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
         return paths
     }
 
-    public static func buildFinalResult(_ paths: Component) -> LVBuilder<Struct> {
+    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> LVBuilder<Struct> {
         return LVBuilder(paths)
     }
 
-    public static func buildFinalResult(@LVBuilder<Struct> _ content: () throws -> (Component)) rethrows -> Component {
+    public static func buildFinalResult(@LVBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows -> [any LVPath<Struct>] {
         return try content()
     }
 
@@ -70,14 +67,14 @@ public struct LVBuilder<Struct: InitializableWithNew> {
     }
 
     @usableFromInline
-    internal var paths: Component
+    internal var paths: [any LVPath<Struct>]
 
-    public init(@LVBuilder<Struct> _ content: () throws -> (Component)) rethrows {
+    public init(@LVBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows {
         try self.init(content())
     }
 
     @usableFromInline
-    internal init(_ paths: Component) {
+    internal init(_ paths: [any LVPath<Struct>]) {
         self.paths = paths
     }
 

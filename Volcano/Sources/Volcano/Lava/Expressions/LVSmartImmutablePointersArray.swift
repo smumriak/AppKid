@@ -23,7 +23,7 @@ public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Str
     LVSmartImmutablePointersArray(paths.0, paths.1, value)
 }
 
-public class LVSmartImmutablePointersArray<Struct: InitializableWithNew, Value>: LVPath<Struct> {
+public struct LVSmartImmutablePointersArray<Struct: InitializableWithNew, Value>: LVPath {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<UnsafePointer<Value>?>?>
 
@@ -43,11 +43,11 @@ public class LVSmartImmutablePointersArray<Struct: InitializableWithNew, Value>:
     }
     
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.optionalPointers().withUnsafeBufferPointer { value in
             result[keyPath: countKeyPath] = CUnsignedInt(value.count)
             result[keyPath: valueKeyPath] = value.baseAddress!
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }

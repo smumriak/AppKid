@@ -48,7 +48,7 @@ public func <- <Struct: InitializableWithNew, Value: BinaryFloatingPoint>(path: 
     LVValue(path, Double(value))
 }
 
-public class LVValue<Struct: InitializableWithNew, Value>: LVPath<Struct> {
+public struct LVValue<Struct: InitializableWithNew, Value>: LVPath {
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, Value>
 
     @usableFromInline
@@ -63,8 +63,8 @@ public class LVValue<Struct: InitializableWithNew, Value>: LVPath<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value
-        return try super.withApplied(to: &result, tail: tail, body)
+        return try withAppliedDefault(to: &result, tail: tail, body)
     }
 }

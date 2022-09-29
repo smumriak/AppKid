@@ -13,7 +13,7 @@ public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Str
     LVArray(paths.0, paths.1, value)
 }
 
-public class LVArray<Struct: InitializableWithNew, Value>: LVPath<Struct> {
+public struct LVArray<Struct: InitializableWithNew, Value>: LVPath {
     public typealias CountKeyPath = Swift.WritableKeyPath<Struct, CUnsignedInt>
     public typealias ValueKeyPath = Swift.WritableKeyPath<Struct, UnsafePointer<Value>?>
 
@@ -33,11 +33,11 @@ public class LVArray<Struct: InitializableWithNew, Value>: LVPath<Struct> {
     }
 
     @inlinable @inline(__always)
-    public override func withApplied<R>(to result: inout Struct, tail: ArraySlice<LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
         return try value.withUnsafeBufferPointer { value in
             result[keyPath: countKeyPath] = CUnsignedInt(value.count)
             result[keyPath: valueKeyPath] = value.baseAddress!
-            return try super.withApplied(to: &result, tail: tail, body)
+            return try withAppliedDefault(to: &result, tail: tail, body)
         }
     }
 }
