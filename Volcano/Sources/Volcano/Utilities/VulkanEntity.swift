@@ -35,8 +35,6 @@ open class PhysicalDeviceEntity<Entity: SmartPointer>: HandleStorage<Entity> {
 }
 
 open class DeviceEntity<Entity: SmartPointer>: HandleStorage<Entity>, DeviceEntityProtocol {
-    public typealias Entity = Entity
-
     public internal(set) var device: Device
 
     @inlinable @inline(__always)
