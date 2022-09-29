@@ -18,7 +18,7 @@ public protocol SmartPointerHandleStorageProtocol: HandleStorageProtocol {
     var handlePointer: SmartPointerHandle_t { get }
 }
 
-open class HandleStorage<Handle>: HandleStorageProtocol, SmartPointerHandleStorageProtocol where Handle: SmartPointerProtocol {
+open class HandleStorage<Handle: SmartPointerProtocol>: SmartPointerHandleStorageProtocol {
     public var handle: Handle.Pointer_t {
         handlePointer.pointer
     }

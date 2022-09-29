@@ -25,6 +25,13 @@ internal struct RetainCount {
 
 internal var globalRetainCount = RetainCount()
 
+public protocol SmartPointer1: Hashable {
+    associatedtype Pointee
+    typealias Pointer = UnsafeMutablePointer<Pointee>
+
+    var pointer: Pointer { get }
+}
+
 public protocol SmartPointerProtocol: Hashable {
     associatedtype Pointee
     typealias Pointer_t = UnsafeMutablePointer<Pointee>
@@ -34,27 +41,34 @@ public protocol SmartPointerProtocol: Hashable {
 
 public extension SmartPointerProtocol {
     @_transparent
-    var optionalPointer: Pointer_t? { return pointer }
+    var pointee: Pointee {
+        get { pointer.pointee }
+        set { pointer.pointee = newValue }
+    }
+
+    @_transparent
+    var optionalPointer: Pointer_t? { pointer }
 }
 
 public extension SmartPointerProtocol {
-    @_transparent
-    var pointee: Pointee {
-        get { return pointer.pointee }
-        set { pointer.pointee = newValue }
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.pointer == rhs.pointer
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(pointer)
     }
 }
 
 public class SmartPointer<Pointee>: SmartPointerProtocol {
-    public typealias Pointer_t = UnsafeMutablePointer<Pointee>
-    public typealias Deleter_f = (Pointer_t) -> ()
+    public typealias Pointee = Pointee
 
     public enum Deleter {
         case none
         case system
-        case custom(Deleter_f)
-
-        func invoke(with pointer: Pointer_t) {
+        case custom((Pointer_t) -> ())
+        
+        func callAsFunction(_ pointer: Pointer_t) {
             switch self {
                 case .none:
                     break
@@ -72,10 +86,10 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
     deinit {
         defer { globalRetainCount.decrement() }
         
-        deleter.invoke(with: pointer)
+        deleter(pointer)
     }
 
-    public static func allocate(capacity: Int = 1) -> SmartPointer<Pointee> {
+    public class func allocate(capacity: Int = 1) -> SmartPointer<Pointee> {
         return SmartPointer<Pointee>(with: Pointer_t.allocate(capacity: capacity), deleter: .system)
     }
 
@@ -86,20 +100,12 @@ public class SmartPointer<Pointee>: SmartPointerProtocol {
         self.deleter = deleter
     }
 
-    public convenience init(with pointer: Pointer_t, deleterFunction: @escaping Deleter_f) {
-        self.init(with: pointer, deleter: .custom(deleterFunction))
+    public convenience init(with pointer: Pointer_t, deleter: @escaping (Pointer_t) -> ()) {
+        self.init(with: pointer, deleter: .custom(deleter))
     }
 
     public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
         return UnsafeMutableRawPointer(pointer).assumingMemoryBound(to: type)
-    }
-
-    public static func == (lhs: SmartPointer<Pointee>, rhs: SmartPointer<Pointee>) -> Bool {
-        return lhs.pointer == rhs.pointer
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(pointer)
     }
 }
 
