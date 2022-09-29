@@ -9,29 +9,29 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @inline(__always)
-public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(builder: LVBuilder<NextStruct>) -> LVNextChainStruct<Struct, NextStruct> {
+public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(builder: LavaBuilder<NextStruct>) -> LVNextChainStruct<Struct, NextStruct> {
     LVNextChainStruct(builder)
 }
 
 @inlinable @inline(__always)
-public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@LVBuilder<NextStruct> _ content: () throws -> LVBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@LavaBuilder<NextStruct> _ content: () throws -> LavaBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
 @inlinable @inline(__always)
-public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @LVBuilder<NextStruct> _ content: () throws -> LVBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @LavaBuilder<NextStruct> _ content: () throws -> LavaBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
 public struct LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanChainableStructure>: LVPath {
     @usableFromInline
-    internal let builder: LVBuilder<Next>
+    internal let builder: LavaBuilder<Next>
 
-    public init(_ builder: LVBuilder<Next>) {
+    public init(_ builder: LavaBuilder<Next>) {
         self.builder = builder
     }
 
-    public init(@LVBuilder<Next> _ content: () -> (LVBuilder<Next>)) {
+    public init(@LavaBuilder<Next> _ content: () -> (LavaBuilder<Next>)) {
         self.builder = content()
     }
 

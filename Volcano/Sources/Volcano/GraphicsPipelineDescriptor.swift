@@ -84,8 +84,8 @@ public class GraphicsPipelineDescriptor {
 
 extension GraphicsPipelineDescriptor {
     @_transparent
-    @LVBuilder<VkGraphicsPipelineCreateInfo>
-    func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LVBuilder<VkGraphicsPipelineCreateInfo> {
+    @LavaBuilder<VkGraphicsPipelineCreateInfo>
+    func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LavaBuilder<VkGraphicsPipelineCreateInfo> {
         \.pViewportState <- viewportState
         \.pVertexInputState <- vertexInputState
         \.pInputAssemblyState <- inputAssemblyState
@@ -105,8 +105,8 @@ extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LVBuilder<VkPipelineViewportStateCreateInfo>
-    var viewportState: LVBuilder<VkPipelineViewportStateCreateInfo> {
+    @LavaBuilder<VkPipelineViewportStateCreateInfo>
+    var viewportState: LavaBuilder<VkPipelineViewportStateCreateInfo> {
         switch viewportStateDefinition {
             case .static(let viewports, let scissors):
                 (\.viewportCount, \.pViewports) <- viewports
@@ -119,22 +119,22 @@ extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LVBuilder<VkPipelineVertexInputStateCreateInfo>
-    var vertexInputState: LVBuilder<VkPipelineVertexInputStateCreateInfo> {
+    @LavaBuilder<VkPipelineVertexInputStateCreateInfo>
+    var vertexInputState: LavaBuilder<VkPipelineVertexInputStateCreateInfo> {
         (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
         (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
     }
 
     @_transparent
-    @LVBuilder<VkPipelineInputAssemblyStateCreateInfo>
-    var inputAssemblyState: LVBuilder<VkPipelineInputAssemblyStateCreateInfo> {
+    @LavaBuilder<VkPipelineInputAssemblyStateCreateInfo>
+    var inputAssemblyState: LavaBuilder<VkPipelineInputAssemblyStateCreateInfo> {
         \.topology <- inputPrimitiveTopology
         \.primitiveRestartEnabled <- primitiveRestartEnabled
     }
 
     @_transparent
-    @LVBuilder<VkPipelineRasterizationStateCreateInfo>
-    var rasterizationState: LVBuilder<VkPipelineRasterizationStateCreateInfo> {
+    @LavaBuilder<VkPipelineRasterizationStateCreateInfo>
+    var rasterizationState: LavaBuilder<VkPipelineRasterizationStateCreateInfo> {
         \.depthClampEnabled <- false
         \.discardEnabled <- false
         \.polygonMode <- .fill
@@ -148,8 +148,8 @@ extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LVBuilder<VkPipelineMultisampleStateCreateInfo>
-    var multisampleState: LVBuilder<VkPipelineMultisampleStateCreateInfo> {
+    @LavaBuilder<VkPipelineMultisampleStateCreateInfo>
+    var multisampleState: LavaBuilder<VkPipelineMultisampleStateCreateInfo> {
         \.sampleShadingEnabled <- sampleShadingEnabled
         \.rasterizationSamples <- rasterizationSamples
         \.minSampleShading <- minSampleShading
@@ -161,8 +161,8 @@ extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LVBuilder<VkPipelineColorBlendStateCreateInfo>
-    var colorBlendState: LVBuilder<VkPipelineColorBlendStateCreateInfo> {
+    @LavaBuilder<VkPipelineColorBlendStateCreateInfo>
+    var colorBlendState: LavaBuilder<VkPipelineColorBlendStateCreateInfo> {
         \.logicOperationEnabled <- logicOperationEnabled
         \.logicOperation <- logicOperation
         (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
@@ -170,14 +170,14 @@ extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LVBuilder<VkPipelineDynamicStateCreateInfo>
-    var dynamicState: LVBuilder<VkPipelineDynamicStateCreateInfo> {
+    @LavaBuilder<VkPipelineDynamicStateCreateInfo>
+    var dynamicState: LavaBuilder<VkPipelineDynamicStateCreateInfo> {
         (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
     }
 
     @_transparent
-    @LVBuilderArray<VkPipelineShaderStageCreateInfo>
-    var shaders: LVBuilderArray<VkPipelineShaderStageCreateInfo> {
+    @LavaBuilderArray<VkPipelineShaderStageCreateInfo>
+    var shaders: LavaBuilderArray<VkPipelineShaderStageCreateInfo> {
         vertexShader?.builder(for: .vertex)
         tessellationControlShader?.builder(for: .tessellationControl)
         tessellationEvaluationShader?.builder(for: .tessellationEvaluation)

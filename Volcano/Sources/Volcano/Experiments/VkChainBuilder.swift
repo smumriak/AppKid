@@ -50,7 +50,7 @@ public class VkChainBuilder {
     public typealias Expression = AnyNext
     public typealias Component = [AnyNext]
 
-    static func buildExpression<Struct: VulkanChainableStructure>(_ expression: LVBuilder<Struct>) -> Component {
+    static func buildExpression<Struct: VulkanChainableStructure>(_ expression: LavaBuilder<Struct>) -> Component {
         return [AnyNext(expression)]
     }
 
@@ -130,7 +130,7 @@ public class AnyNext {
     @usableFromInline
     internal let builder: AnyBuilder
 
-    public init<Struct: VulkanChainableStructure>(_ builder: LVBuilder<Struct>) {
+    public init<Struct: VulkanChainableStructure>(_ builder: LavaBuilder<Struct>) {
         self.builder = builder
     }
 
@@ -158,7 +158,7 @@ public protocol AnyBuilder {
     func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R
 }
 
-extension LVBuilder: AnyBuilder {
+extension LavaBuilder: AnyBuilder {
     @inlinable @inline(__always)
     public func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R {
         return try withUnsafeMutableResultPointer {

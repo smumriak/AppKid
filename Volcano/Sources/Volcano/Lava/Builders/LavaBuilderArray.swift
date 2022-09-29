@@ -1,5 +1,5 @@
 //
-//  LVBuilderArray.swift
+//  LavaBuilderArray.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 28.12.2021.
@@ -8,9 +8,9 @@
 import TinyFoundation
 import CVulkan
 
-internal extension LVBuilder {
+internal extension LavaBuilder {
     @inlinable @inline(__always)
-    func withApplied<R>(to result: inout [Struct], tail: ArraySlice<LVBuilder<Struct>>, _ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
+    func withApplied<R>(to result: inout [Struct], tail: ArraySlice<LavaBuilder<Struct>>, _ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
         return try withUnsafeResultPointer {
             result.append($0.pointee)
 
@@ -28,9 +28,9 @@ internal extension LVBuilder {
 }
 
 @resultBuilder
-public struct LVBuilderArray<Struct: VulkanStructure> {
-    public typealias Expression = LVBuilder<Struct>
-    public typealias Component = [LVBuilder<Struct>]
+public struct LavaBuilderArray<Struct: VulkanStructure> {
+    public typealias Expression = LavaBuilder<Struct>
+    public typealias Component = [LavaBuilder<Struct>]
 
     static func buildExpression() -> Component {
         return []
@@ -76,15 +76,15 @@ public struct LVBuilderArray<Struct: VulkanStructure> {
         return elements
     }
 
-    static func buildFinalResult(_ elements: Component) -> LVBuilderArray<Struct> {
-        return LVBuilderArray(elements)
+    static func buildFinalResult(_ elements: Component) -> LavaBuilderArray<Struct> {
+        return LavaBuilderArray(elements)
     }
 
-    static func buildFinalResult(@LVBuilderArray<Struct> _ content: () -> (Component)) -> LVBuilderArray<Struct> {
-        return LVBuilderArray(content())
+    static func buildFinalResult(@LavaBuilderArray<Struct> _ content: () -> (Component)) -> LavaBuilderArray<Struct> {
+        return LavaBuilderArray(content())
     }
 
-    static func buildFinalResult(@LVBuilderArray<Struct> _ content: () -> (LVBuilderArray<Struct>)) -> LVBuilderArray<Struct> {
+    static func buildFinalResult(@LavaBuilderArray<Struct> _ content: () -> (LavaBuilderArray<Struct>)) -> LavaBuilderArray<Struct> {
         return content()
     }
 
@@ -92,7 +92,7 @@ public struct LVBuilderArray<Struct: VulkanStructure> {
     internal var elements: Component
 
     @usableFromInline
-    internal init(@LVBuilderArray<Struct> _ content: () throws -> (Component)) rethrows {
+    internal init(@LavaBuilderArray<Struct> _ content: () throws -> (Component)) rethrows {
         self.elements = try content()
     }
 
@@ -126,13 +126,13 @@ public struct LVBuilderArray<Struct: VulkanStructure> {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, _ builder: LVBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, _ builder: LavaBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0, cache: cache)
         }
     }
 
-    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, @LVBuilderArray<Info> _ content: () throws -> (LVBuilderArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, @LavaBuilderArray<Info> _ content: () throws -> (LavaBuilderArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         try buildEntities(type, cache: cache, content())
     }
 }

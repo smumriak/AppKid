@@ -71,7 +71,7 @@ public final class Instance: SharedPointerStorage<VkInstance_T> {
                 extensions.insert(.debugUtilsExt)
             #endif
 
-            let handle: SharedPointer<VkInstance_T> = try LVBuilder<VkInstanceCreateInfo> {
+            let handle: SharedPointer<VkInstance_T> = try LavaBuilder<VkInstanceCreateInfo> {
                 (\.enabledLayerCount, \.ppEnabledLayerNames) <- layers
                 \.pApplicationInfo <- {
                     \.apiVersion <- vulkanVersion

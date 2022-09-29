@@ -1,5 +1,5 @@
 //
-//  LVBuilder.swift
+//  LavaBuilder.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 21.12.2021.
@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 
 @resultBuilder
-public struct LVBuilder<Struct: InitializableWithNew> {
+public struct LavaBuilder<Struct: InitializableWithNew> {
     public static func buildExpression(_ expression: any LVPath<Struct>) -> [any LVPath<Struct>] {
         return [expression]
     }
@@ -54,22 +54,22 @@ public struct LVBuilder<Struct: InitializableWithNew> {
         return paths
     }
 
-    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> LVBuilder<Struct> {
-        return LVBuilder(paths)
+    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> LavaBuilder<Struct> {
+        return LavaBuilder(paths)
     }
 
-    public static func buildFinalResult(@LVBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows -> [any LVPath<Struct>] {
+    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows -> [any LVPath<Struct>] {
         return try content()
     }
 
-    public static func buildFinalResult(@LVBuilder<Struct> _ content: () throws -> (LVBuilder<Struct>)) rethrows -> LVBuilder<Struct> {
+    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> (LavaBuilder<Struct>)) rethrows -> LavaBuilder<Struct> {
         return try content()
     }
 
     @usableFromInline
     internal var paths: [any LVPath<Struct>]
 
-    public init(@LVBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows {
+    public init(@LavaBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows {
         try self.init(content())
     }
 
@@ -108,23 +108,23 @@ public struct LVBuilder<Struct: InitializableWithNew> {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LVBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LavaBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0)
         }
     }
 
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, @LavaBuilder<Info> _ content: () throws -> (LavaBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try buildEntity(type, content())
     }
 
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, _ builder: LVBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, _ builder: LavaBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0, cache: cache)
         }
     }
 
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, @LVBuilder<Info> _ content: () throws -> (LVBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, @LavaBuilder<Info> _ content: () throws -> (LavaBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try buildEntity(type, cache: cache, content())
     }
 }

@@ -38,7 +38,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
     }
 
     public func submit(with descriptor: SubmitDescriptor) throws {
-        try LVBuilder<VkSubmitInfo> {
+        try LavaBuilder<VkSubmitInfo> {
             (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
             (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
             \.pWaitDstStageMask <- descriptor.waitStages
@@ -53,7 +53,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
 
             // <-Chain {
             //     if descriptor.hasTimeline {
-            //         LVBuilder<VkTimelineSemaphoreSubmitInfo> {
+            //         LavaBuilder<VkTimelineSemaphoreSubmitInfo> {
             //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
             //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
             //         }
