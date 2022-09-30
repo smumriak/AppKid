@@ -25,14 +25,7 @@ internal struct RetainCount {
 
 internal var globalRetainCount = RetainCount()
 
-public protocol SharedPointer1: Hashable {
-    associatedtype Pointee
-    typealias Pointer = UnsafeMutablePointer<Pointee>
-
-    var pointer: Pointer { get }
-}
-
-public protocol SmartPointer: Hashable {
+public protocol SmartPointer<Pointee>: Hashable {
     associatedtype Pointee
     typealias Pointer = UnsafeMutablePointer<Pointee>
     

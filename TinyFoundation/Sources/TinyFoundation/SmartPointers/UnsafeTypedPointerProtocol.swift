@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol UnsafeTypedPointerProtocol {
+public protocol UnsafeTypedPointerProtocol<Pointee> {
     associatedtype Pointee
     var pointee: Pointee { get }
 }

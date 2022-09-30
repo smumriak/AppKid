@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-public protocol MemoryAllocateDescriptor {
+public protocol MemoryAllocateDescriptor<Result, Info> {
     associatedtype Result
     associatedtype Info: SimpleEntityInfo where Info.Result: MemoryBacked, Info.Parent == VkDevice.Pointee
 

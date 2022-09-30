@@ -12,7 +12,7 @@ public typealias vec2s = cglm.vec2s
 public typealias vec3s = cglm.vec3s
 public typealias vec4s = cglm.vec4s
 
-public protocol Vector: Equatable {
+public protocol Vector<RawValue>: Equatable {
     associatedtype RawValue
 
     var raw: RawValue { get }

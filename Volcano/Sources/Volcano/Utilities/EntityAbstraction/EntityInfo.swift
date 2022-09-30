@@ -1,5 +1,5 @@
 //
-//  SimpleEntityInfo.swift
+//  EntityInfo.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 23.07.2020.
@@ -7,63 +7,88 @@
 
 import CVulkan
 
-public protocol EntityInfo: VulkanChainableStructure {
+public typealias AllocationCallbacks = UnsafePointer<VkAllocationCallbacks>
+
+public protocol EntityInfo<Parent, Result>: VulkanChainableStructure {
     associatedtype Parent: EntityFactory & VkEntity
     associatedtype Result: VkEntity
+
+    typealias ParentPointer = UnsafeMutablePointer<Parent>
+    typealias ResultPoitner = UnsafeMutablePointer<Result>
+    typealias PointerToSelf = UnsafePointer<Self>
+
+    associatedtype CreateFunction
+    associatedtype DeleteFunction
 }
 
-public protocol SimpleEntityInfo: EntityInfo {
-    typealias CreateFunction = (UnsafeMutablePointer<Parent>?, UnsafePointer<Self>?, UnsafePointer<VkAllocationCallbacks>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
+public protocol SimpleEntityInfo<Parent, Result>: EntityInfo where CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
+    typealias ConcreteCreateFunction = (_ parent: ParentPointer?,
+                                        _ pCreateInfo: PointerToSelf?,
+                                        _ pAllocator: AllocationCallbacks?,
+                                        _ pResult: UnsafeMutablePointer<ResultPoitner?>?) -> (VkResult)
     static var createFunction: CreateFunction { get }
 
-    typealias DeleteFunction = (UnsafeMutablePointer<Parent>?, UnsafeMutablePointer<Result>?, UnsafePointer<VkAllocationCallbacks>?) -> ()
+    typealias ConcreteDeleteFunction = (_ parent: ParentPointer?,
+                                        _ result: ResultPoitner?,
+                                        _ pAllocator: AllocationCallbacks?) -> ()
     static var deleteFunction: DeleteFunction { get }
 }
 
-public protocol PipelineEntityInfo: EntityInfo {
-    typealias CreateFunction = (UnsafeMutablePointer<Parent>?, VkPipelineCache?, CUnsignedInt, UnsafePointer<Self>?, UnsafePointer<VkAllocationCallbacks>?, UnsafeMutablePointer<UnsafeMutablePointer<Result>?>?) -> (VkResult)
+public protocol InstanceEntityInfo<Parent, Result>: EntityInfo where Parent == VkInstance.Pointee {}
+public typealias SimpleInstanceEntityInfo = SimpleEntityInfo & InstanceEntityInfo
+
+public protocol PhysicalDeviceEntityInfo<Parent, Result>: EntityInfo where Parent == VkPhysicalDevice.Pointee {}
+public typealias SimplePhysicalDeviceEntityInfo = SimpleEntityInfo & PhysicalDeviceEntityInfo
+
+public protocol DeviceEntityInfo<Parent, Result>: EntityInfo where Parent == VkDevice.Pointee {}
+public typealias SimpleDeviceEntityInfo = SimpleEntityInfo & DeviceEntityInfo
+
+public protocol PipelineEntityInfo<Parent, Result>: DeviceEntityInfo where Result == VkPipeline.Pointee, CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
+    typealias ConcreteCreateFunction = (_ device: VkDevice?,
+                                        _ pipelineCache: VkPipelineCache?,
+                                        _ createInfoCount: CUnsignedInt,
+                                        _ pCreateInfos: PointerToSelf?,
+                                        _ pAllocator: AllocationCallbacks?,
+                                        _ pPipelines: UnsafeMutablePointer<ResultPoitner?>?) -> (VkResult)
     static var createFunction: CreateFunction { get }
 
-    typealias DeleteFunction = (UnsafeMutablePointer<Parent>?, UnsafeMutablePointer<Result>?, UnsafePointer<VkAllocationCallbacks>?) -> ()
+    typealias ConcreteDeleteFunction = (_ device: VkDevice?,
+                                        _ pipeline: VkPipeline?,
+                                        _ pAllocator: AllocationCallbacks?) -> ()
     static var deleteFunction: DeleteFunction { get }
 }
 
 #if os(Linux)
-    extension VkXlibSurfaceCreateInfoKHR: SimpleEntityInfo {
-        public typealias Parent = VkInstance.Pointee
+    extension VkXlibSurfaceCreateInfoKHR: SimpleInstanceEntityInfo {
         public typealias Result = VkSurfaceKHR.Pointee
-        public static let createFunction: CreateFunction = vkCreateXlibSurfaceKHR
-        public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+        public static let createFunction = vkCreateXlibSurfaceKHR
+        public static let deleteFunction = vkDestroySurfaceKHR
     }
 
 #elseif os(macOS) || os(iOS)
-    // extension VkMetalSurfaceCreateInfoEXT: SimpleEntityInfo {
-    //     public typealias Parent = VkInstance.Pointee
+    // extension VkMetalSurfaceCreateInfoEXT: SimpleInstanceEntityInfo {
     //     public typealias Result = VkSurfaceKHR.Pointee
-    //     public static let createFunction: CreateFunction = vkCreateMetalSurfaceEXT
-    //     public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+    //     public static let createFunction  = vkCreateMetalSurfaceEXT
+    //     public static let deleteFunction  = vkDestroySurfaceKHR
     // }
 
     #if os(macOS)
-        extension VkMacOSSurfaceCreateInfoMVK: SimpleEntityInfo {
-            public typealias Parent = VkInstance.Pointee
+        extension VkMacOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo {
             public typealias Result = VkSurfaceKHR.Pointee
-            public static let createFunction: CreateFunction = vkCreateMacOSSurfaceMVK
-            public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+            public static let createFunction = vkCreateMacOSSurfaceMVK
+            public static let deleteFunction = vkDestroySurfaceKHR
         }
 
     #elseif os(iOS)
-        extension VkIOSSurfaceCreateInfoMVK: SimpleEntityInfo {
-            public typealias Parent = VkInstance.Pointee
+        extension VkIOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo {
             public typealias Result = VkSurfaceKHR.Pointee
-            public static let createFunction: CreateFunction = vkCreateIOSSurfaceMVK
-            public static let deleteFunction: DeleteFunction = vkDestroySurfaceKHR
+            public static let createFunction = vkCreateIOSSurfaceMVK
+            public static let deleteFunction = vkDestroySurfaceKHR
         }
     #endif
 #endif
 
-extension VkDeviceCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkPhysicalDevice.Pointee
+extension VkDeviceCreateInfo: SimplePhysicalDeviceEntityInfo {
     public typealias Result = VkDevice.Pointee
     public static let createFunction: CreateFunction = vkCreateDevice
     public static let deleteFunction: DeleteFunction = { physicalDevice, device, allocator in
@@ -71,142 +96,120 @@ extension VkDeviceCreateInfo: SimpleEntityInfo {
     }
 }
 
-extension VkShaderModuleCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkShaderModuleCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkShaderModule.Pointee
-    public static let createFunction: CreateFunction = vkCreateShaderModule
-    public static let deleteFunction: DeleteFunction = vkDestroyShaderModule
+    public static let createFunction = vkCreateShaderModule
+    public static let deleteFunction = vkDestroyShaderModule
 }
 
-extension VkCommandPoolCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkCommandPoolCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkCommandPool.Pointee
-    public static let createFunction: CreateFunction = vkCreateCommandPool
-    public static let deleteFunction: DeleteFunction = vkDestroyCommandPool
+    public static let createFunction = vkCreateCommandPool
+    public static let deleteFunction = vkDestroyCommandPool
 }
 
-extension VkFenceCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkFenceCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkFence.Pointee
-    public static let createFunction: CreateFunction = vkCreateFence
-    public static let deleteFunction: DeleteFunction = vkDestroyFence
+    public static let createFunction = vkCreateFence
+    public static let deleteFunction = vkDestroyFence
 }
 
-extension VkSwapchainCreateInfoKHR: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkSwapchainCreateInfoKHR: SimpleDeviceEntityInfo {
     public typealias Result = VkSwapchainKHR.Pointee
-    public static let createFunction: CreateFunction = vkCreateSwapchainKHR
-    public static let deleteFunction: DeleteFunction = vkDestroySwapchainKHR
+    public static let createFunction = vkCreateSwapchainKHR
+    public static let deleteFunction = vkDestroySwapchainKHR
 }
 
-extension VkImageViewCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkImageViewCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkImageView.Pointee
-    public static let createFunction: CreateFunction = vkCreateImageView
-    public static let deleteFunction: DeleteFunction = vkDestroyImageView
+    public static let createFunction = vkCreateImageView
+    public static let deleteFunction = vkDestroyImageView
 }
 
-extension VkPipelineLayoutCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkPipelineLayoutCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkPipelineLayout.Pointee
-    public static let createFunction: CreateFunction = vkCreatePipelineLayout
-    public static let deleteFunction: DeleteFunction = vkDestroyPipelineLayout
+    public static let createFunction = vkCreatePipelineLayout
+    public static let deleteFunction = vkDestroyPipelineLayout
 }
 
-extension VkRenderPassCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkRenderPassCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkRenderPass.Pointee
-    public static let createFunction: CreateFunction = vkCreateRenderPass
-    public static let deleteFunction: DeleteFunction = vkDestroyRenderPass
+    public static let createFunction = vkCreateRenderPass
+    public static let deleteFunction = vkDestroyRenderPass
 }
 
-extension VkFramebufferCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkFramebufferCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkFramebuffer.Pointee
-    public static let createFunction: CreateFunction = vkCreateFramebuffer
-    public static let deleteFunction: DeleteFunction = vkDestroyFramebuffer
+    public static let createFunction = vkCreateFramebuffer
+    public static let deleteFunction = vkDestroyFramebuffer
 }
 
-extension VkSemaphoreCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkSemaphoreCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkSemaphore.Pointee
-    public static let createFunction: CreateFunction = vkCreateSemaphore
-    public static let deleteFunction: DeleteFunction = vkDestroySemaphore
+    public static let createFunction = vkCreateSemaphore
+    public static let deleteFunction = vkDestroySemaphore
 }
 
-extension VkSamplerCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkSamplerCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkSampler.Pointee
-    public static let createFunction: CreateFunction = vkCreateSampler
-    public static let deleteFunction: DeleteFunction = vkDestroySampler
+    public static let createFunction = vkCreateSampler
+    public static let deleteFunction = vkDestroySampler
 }
 
-extension VkEventCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkEventCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkEvent.Pointee
-    public static let createFunction: CreateFunction = vkCreateEvent
-    public static let deleteFunction: DeleteFunction = vkDestroyEvent
+    public static let createFunction = vkCreateEvent
+    public static let deleteFunction = vkDestroyEvent
 }
 
-extension VkQueryPoolCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkQueryPoolCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkQueryPool.Pointee
-    public static let createFunction: CreateFunction = vkCreateQueryPool
-    public static let deleteFunction: DeleteFunction = vkDestroyQueryPool
+    public static let createFunction = vkCreateQueryPool
+    public static let deleteFunction = vkDestroyQueryPool
 }
 
-extension VkBufferCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkBufferCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkBuffer.Pointee
-    public static let createFunction: CreateFunction = vkCreateBuffer
-    public static let deleteFunction: DeleteFunction = vkDestroyBuffer
+    public static let createFunction = vkCreateBuffer
+    public static let deleteFunction = vkDestroyBuffer
 }
 
-extension VkBufferViewCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkBufferViewCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkBufferView.Pointee
-    public static let createFunction: CreateFunction = vkCreateBufferView
-    public static let deleteFunction: DeleteFunction = vkDestroyBufferView
+    public static let createFunction = vkCreateBufferView
+    public static let deleteFunction = vkDestroyBufferView
 }
 
-extension VkImageCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkImageCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkImage.Pointee
-    public static let createFunction: CreateFunction = vkCreateImage
-    public static let deleteFunction: DeleteFunction = vkDestroyImage
+    public static let createFunction = vkCreateImage
+    public static let deleteFunction = vkDestroyImage
 }
 
-extension VkDescriptorSetLayoutCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkDescriptorSetLayoutCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkDescriptorSetLayout.Pointee
-    public static let createFunction: CreateFunction = vkCreateDescriptorSetLayout
-    public static let deleteFunction: DeleteFunction = vkDestroyDescriptorSetLayout
+    public static let createFunction = vkCreateDescriptorSetLayout
+    public static let deleteFunction = vkDestroyDescriptorSetLayout
 }
 
-extension VkDescriptorPoolCreateInfo: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkDescriptorPoolCreateInfo: SimpleDeviceEntityInfo {
     public typealias Result = VkDescriptorPool.Pointee
-    public static let createFunction: CreateFunction = vkCreateDescriptorPool
-    public static let deleteFunction: DeleteFunction = vkDestroyDescriptorPool
+    public static let createFunction = vkCreateDescriptorPool
+    public static let deleteFunction = vkDestroyDescriptorPool
 }
 
-extension VkRenderPassCreateInfo2: SimpleEntityInfo {
-    public typealias Parent = VkDevice.Pointee
+extension VkRenderPassCreateInfo2: SimpleDeviceEntityInfo {
     public typealias Result = VkRenderPass.Pointee
-    public static let createFunction: CreateFunction = vkCreateRenderPass2
-    public static let deleteFunction: DeleteFunction = vkDestroyRenderPass
+    public static let createFunction = vkCreateRenderPass2
+    public static let deleteFunction = vkDestroyRenderPass
 }
 
 extension VkGraphicsPipelineCreateInfo: PipelineEntityInfo {
-    public typealias Parent = VkDevice.Pointee
-    public typealias Result = VkPipeline.Pointee
-    public static let createFunction: CreateFunction = vkCreateGraphicsPipelines
-    public static let deleteFunction: DeleteFunction = vkDestroyPipeline
+    public static let createFunction = vkCreateGraphicsPipelines
+    public static let deleteFunction = vkDestroyPipeline
 }
 
 extension VkComputePipelineCreateInfo: PipelineEntityInfo {
-    public typealias Parent = VkDevice.Pointee
-    public typealias Result = VkPipeline.Pointee
-    public static let createFunction: CreateFunction = vkCreateComputePipelines
-    public static let deleteFunction: DeleteFunction = vkDestroyPipeline
+    public static let createFunction = vkCreateComputePipelines
+    public static let deleteFunction = vkDestroyPipeline
 }

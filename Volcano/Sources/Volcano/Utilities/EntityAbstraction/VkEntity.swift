@@ -7,6 +7,7 @@
 
 import CVulkan
 
+@_marker
 public protocol VkEntity {}
 
 extension VkInstance_T: VkEntity {}

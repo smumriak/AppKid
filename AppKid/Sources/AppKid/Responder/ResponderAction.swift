@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 17.07.2022
 //
 
-public protocol ResponderAction {
+public protocol ResponderAction<ResponderActionHandler> {
     associatedtype ResponderActionHandler
 
     func perform(on responder: ResponderActionHandler, withSender sender: Any?)

@@ -12,7 +12,7 @@ public typealias mat2s = cglm.mat2s
 public typealias mat3s = cglm.mat3s
 public typealias mat4s = cglm.mat4s
 
-public protocol Matrix: Hashable {
+public protocol Matrix<RawValue>: Hashable {
     associatedtype RawValue
     associatedtype ColumnType
     associatedtype ColumnsValue
