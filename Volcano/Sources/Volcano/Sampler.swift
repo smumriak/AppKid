@@ -52,38 +52,35 @@ public final class Sampler: DeviceEntity<VkSampler_T> {
     }
 
     public init(device: Device, addressModes: AddressModes = .repeat, flags: VkSamplerCreateFlagBits = [], filters: Filters = .linear, mipMapMode: VkSamplerMipmapMode = .linear, levelOfDetails: LevelOfDetails = .none, borderColor: VkBorderColor = .intOpaqueBlack, maxAnisotropy: Float? = nil, compareOperation: VkCompareOp? = nil, unnormalizedCoordinates: Bool = false) throws {
-        var info = VkSamplerCreateInfo.new()
-        info.flags = flags.rawValue
-        
-        info.magFilter = filters.magnification
-        info.minFilter = filters.minification
+        try super.init(device: device) {
+            \.flags <- flags
 
-        info.mipmapMode = mipMapMode
+            \.magFilter <- filters.magnification
+            \.minFilter <- filters.minification
 
-        info.addressModeU = addressModes.u
-        info.addressModeV = addressModes.v
-        info.addressModeW = addressModes.w
+            \.mipmapMode <- mipMapMode
 
-        info.mipLodBias = levelOfDetails.bias
-        info.minLod = levelOfDetails.min
-        info.maxLod = levelOfDetails.max
+            \.addressModeU <- addressModes.u
+            \.addressModeV <- addressModes.v
+            \.addressModeW <- addressModes.w
 
-        info.borderColor = borderColor
+            \.mipLodBias <- levelOfDetails.bias
+            \.minLod <- levelOfDetails.min
+            \.maxLod <- levelOfDetails.max
 
-        if let maxAnisotropy = maxAnisotropy {
-            info.anisotropyEnable = true.vkBool
-            info.maxAnisotropy = maxAnisotropy
+            \.borderColor <- borderColor
+
+            if let maxAnisotropy {
+                \.anisotropyEnable <- true
+                \.maxAnisotropy <- maxAnisotropy
+            }
+
+            if let compareOperation {
+                \.compareEnable <- true
+                \.compareOp <- compareOperation
+            }
+
+            \.unnormalizedCoordinates <- unnormalizedCoordinates.vkBool
         }
-
-        if let compareOperation = compareOperation {
-            info.compareEnable = true.vkBool
-            info.compareOp = compareOperation
-        }
-
-        info.unnormalizedCoordinates = unnormalizedCoordinates.vkBool
-
-        let handle = try device.create(with: &info)
-
-        try super.init(device: device, handle: handle)
     }
 }

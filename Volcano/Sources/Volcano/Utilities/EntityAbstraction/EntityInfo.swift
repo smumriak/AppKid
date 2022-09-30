@@ -58,8 +58,33 @@ public protocol PipelineEntityInfo<Parent, Result>: DeviceEntityInfo where Resul
     static var deleteFunction: DeleteFunction { get }
 }
 
+public protocol CreateableFromSingleEntityInfo<Info>: VkEntity {
+    associatedtype Info: FirstEntityInfo where Info.Result == Self
+}
+
+public protocol CreateableFromTwoEntityInfos<Info, Info2>: CreateableFromSingleEntityInfo {
+    associatedtype Info2: SecondEntityInfo where Info2.Result == Self
+}
+
+public protocol CreateableFromThreeEntityInfos<Info, Info2, Info3>: CreateableFromTwoEntityInfos {
+    associatedtype Info3: ThirdEntityInfo where Info3.Result == Self
+}
+
+public protocol CreateableFromFourEntityInfos<Info, Info2, Info3, Info4>: CreateableFromThreeEntityInfos {
+    associatedtype Info4: FourthEntityInfo where Info4.Result == Self
+}
+
+public protocol FirstEntityInfo: EntityInfo where Result: CreateableFromSingleEntityInfo, Result.Info == Self {}
+public protocol SecondEntityInfo: EntityInfo where Result: CreateableFromTwoEntityInfos, Result.Info2 == Self {}
+public protocol ThirdEntityInfo: EntityInfo where Result: CreateableFromThreeEntityInfos, Result.Info3 == Self {}
+public protocol FourthEntityInfo: EntityInfo where Result: CreateableFromFourEntityInfos, Result.Info4 == Self {}
+
 #if os(Linux)
-    extension VkXlibSurfaceCreateInfoKHR: SimpleInstanceEntityInfo {
+    extension VkSurfaceKHR_T: CreateableFromSingleEntityInfo {
+        public typealias Info = VkXlibSurfaceCreateInfoKHR
+    }
+
+    extension VkXlibSurfaceCreateInfoKHR: SimpleInstanceEntityInfo, FirstEntityInfo {
         public typealias Result = VkSurfaceKHR.Pointee
         public static let createFunction = vkCreateXlibSurfaceKHR
         public static let deleteFunction = vkDestroySurfaceKHR
@@ -73,14 +98,22 @@ public protocol PipelineEntityInfo<Parent, Result>: DeviceEntityInfo where Resul
     // }
 
     #if os(macOS)
-        extension VkMacOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo {
+        extension VkSurfaceKHR.Pointee: CreateableFromSingleEntityInfo {
+            public typealias Info = VkMacOSSurfaceCreateInfoMVK
+        }
+
+        extension VkMacOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo, FirstEntityInfo {
             public typealias Result = VkSurfaceKHR.Pointee
             public static let createFunction = vkCreateMacOSSurfaceMVK
             public static let deleteFunction = vkDestroySurfaceKHR
         }
 
     #elseif os(iOS)
-        extension VkIOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo {
+        extension VkSurfaceKHR.Pointee: CreateableFromSingleEntityInfo {
+            public typealias Info = VkIOSSurfaceCreateInfoMVK
+        }
+
+        extension VkIOSSurfaceCreateInfoMVK: SimpleInstanceEntityInfo, FirstEntityInfo {
             public typealias Result = VkSurfaceKHR.Pointee
             public static let createFunction = vkCreateIOSSurfaceMVK
             public static let deleteFunction = vkDestroySurfaceKHR
@@ -88,7 +121,11 @@ public protocol PipelineEntityInfo<Parent, Result>: DeviceEntityInfo where Resul
     #endif
 #endif
 
-extension VkDeviceCreateInfo: SimplePhysicalDeviceEntityInfo {
+extension VkDevice_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkDeviceCreateInfo
+}
+
+extension VkDeviceCreateInfo: SimplePhysicalDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkDevice.Pointee
     public static let createFunction: CreateFunction = vkCreateDevice
     public static let deleteFunction: DeleteFunction = { physicalDevice, device, allocator in
@@ -96,120 +133,194 @@ extension VkDeviceCreateInfo: SimplePhysicalDeviceEntityInfo {
     }
 }
 
-extension VkShaderModuleCreateInfo: SimpleDeviceEntityInfo {
+extension VkShaderModule_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkShaderModuleCreateInfo
+}
+
+extension VkShaderModuleCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkShaderModule.Pointee
     public static let createFunction = vkCreateShaderModule
     public static let deleteFunction = vkDestroyShaderModule
 }
 
-extension VkCommandPoolCreateInfo: SimpleDeviceEntityInfo {
+extension VkCommandPool_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkCommandPoolCreateInfo
+}
+
+extension VkCommandPoolCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkCommandPool.Pointee
     public static let createFunction = vkCreateCommandPool
     public static let deleteFunction = vkDestroyCommandPool
 }
 
-extension VkFenceCreateInfo: SimpleDeviceEntityInfo {
+extension VkFence_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkFenceCreateInfo
+}
+
+extension VkFenceCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkFence.Pointee
     public static let createFunction = vkCreateFence
     public static let deleteFunction = vkDestroyFence
 }
 
-extension VkSwapchainCreateInfoKHR: SimpleDeviceEntityInfo {
+extension VkSwapchainKHR_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkSwapchainCreateInfoKHR
+}
+
+extension VkSwapchainCreateInfoKHR: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkSwapchainKHR.Pointee
     public static let createFunction = vkCreateSwapchainKHR
     public static let deleteFunction = vkDestroySwapchainKHR
 }
 
-extension VkImageViewCreateInfo: SimpleDeviceEntityInfo {
+extension VkImageView_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkImageViewCreateInfo
+}
+
+extension VkImageViewCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkImageView.Pointee
     public static let createFunction = vkCreateImageView
     public static let deleteFunction = vkDestroyImageView
 }
 
-extension VkPipelineLayoutCreateInfo: SimpleDeviceEntityInfo {
+extension VkPipelineLayout_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkPipelineLayoutCreateInfo
+}
+
+extension VkPipelineLayoutCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkPipelineLayout.Pointee
     public static let createFunction = vkCreatePipelineLayout
     public static let deleteFunction = vkDestroyPipelineLayout
 }
 
-extension VkRenderPassCreateInfo: SimpleDeviceEntityInfo {
+extension VkRenderPass_T: CreateableFromTwoEntityInfos {
+    public typealias Info = VkRenderPassCreateInfo
+    public typealias Info2 = VkRenderPassCreateInfo2
+}
+
+extension VkRenderPassCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public typealias Result = VkRenderPass.Pointee
     public static let createFunction = vkCreateRenderPass
     public static let deleteFunction = vkDestroyRenderPass
 }
 
-extension VkFramebufferCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkFramebuffer.Pointee
-    public static let createFunction = vkCreateFramebuffer
-    public static let deleteFunction = vkDestroyFramebuffer
-}
-
-extension VkSemaphoreCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkSemaphore.Pointee
-    public static let createFunction = vkCreateSemaphore
-    public static let deleteFunction = vkDestroySemaphore
-}
-
-extension VkSamplerCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkSampler.Pointee
-    public static let createFunction = vkCreateSampler
-    public static let deleteFunction = vkDestroySampler
-}
-
-extension VkEventCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkEvent.Pointee
-    public static let createFunction = vkCreateEvent
-    public static let deleteFunction = vkDestroyEvent
-}
-
-extension VkQueryPoolCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkQueryPool.Pointee
-    public static let createFunction = vkCreateQueryPool
-    public static let deleteFunction = vkDestroyQueryPool
-}
-
-extension VkBufferCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkBuffer.Pointee
-    public static let createFunction = vkCreateBuffer
-    public static let deleteFunction = vkDestroyBuffer
-}
-
-extension VkBufferViewCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkBufferView.Pointee
-    public static let createFunction = vkCreateBufferView
-    public static let deleteFunction = vkDestroyBufferView
-}
-
-extension VkImageCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkImage.Pointee
-    public static let createFunction = vkCreateImage
-    public static let deleteFunction = vkDestroyImage
-}
-
-extension VkDescriptorSetLayoutCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkDescriptorSetLayout.Pointee
-    public static let createFunction = vkCreateDescriptorSetLayout
-    public static let deleteFunction = vkDestroyDescriptorSetLayout
-}
-
-extension VkDescriptorPoolCreateInfo: SimpleDeviceEntityInfo {
-    public typealias Result = VkDescriptorPool.Pointee
-    public static let createFunction = vkCreateDescriptorPool
-    public static let deleteFunction = vkDestroyDescriptorPool
-}
-
-extension VkRenderPassCreateInfo2: SimpleDeviceEntityInfo {
+extension VkRenderPassCreateInfo2: SimpleDeviceEntityInfo, SecondEntityInfo {
     public typealias Result = VkRenderPass.Pointee
     public static let createFunction = vkCreateRenderPass2
     public static let deleteFunction = vkDestroyRenderPass
 }
 
-extension VkGraphicsPipelineCreateInfo: PipelineEntityInfo {
+extension VkFramebuffer_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkFramebufferCreateInfo
+}
+
+extension VkFramebufferCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkFramebuffer.Pointee
+    public static let createFunction = vkCreateFramebuffer
+    public static let deleteFunction = vkDestroyFramebuffer
+}
+
+extension VkSemaphore_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkSemaphoreCreateInfo
+}
+
+extension VkSemaphoreCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkSemaphore.Pointee
+    public static let createFunction = vkCreateSemaphore
+    public static let deleteFunction = vkDestroySemaphore
+}
+
+extension VkSampler_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkSamplerCreateInfo
+}
+
+extension VkSamplerCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkSampler.Pointee
+    public static let createFunction = vkCreateSampler
+    public static let deleteFunction = vkDestroySampler
+}
+
+extension VkEvent_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkEventCreateInfo
+}
+
+extension VkEventCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkEvent.Pointee
+    public static let createFunction = vkCreateEvent
+    public static let deleteFunction = vkDestroyEvent
+}
+
+extension VkQueryPool_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkQueryPoolCreateInfo
+}
+
+extension VkQueryPoolCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkQueryPool.Pointee
+    public static let createFunction = vkCreateQueryPool
+    public static let deleteFunction = vkDestroyQueryPool
+}
+
+extension VkBuffer_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkBufferCreateInfo
+}
+
+extension VkBufferCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkBuffer.Pointee
+    public static let createFunction = vkCreateBuffer
+    public static let deleteFunction = vkDestroyBuffer
+}
+
+extension VkBufferView_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkBufferViewCreateInfo
+}
+
+extension VkBufferViewCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkBufferView.Pointee
+    public static let createFunction = vkCreateBufferView
+    public static let deleteFunction = vkDestroyBufferView
+}
+
+extension VkImage_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkImageCreateInfo
+}
+
+extension VkImageCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkImage.Pointee
+    public static let createFunction = vkCreateImage
+    public static let deleteFunction = vkDestroyImage
+}
+
+extension VkDescriptorSetLayout_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkDescriptorSetLayoutCreateInfo
+}
+
+extension VkDescriptorSetLayoutCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkDescriptorSetLayout.Pointee
+    public static let createFunction = vkCreateDescriptorSetLayout
+    public static let deleteFunction = vkDestroyDescriptorSetLayout
+}
+
+extension VkDescriptorPool_T: CreateableFromSingleEntityInfo {
+    public typealias Info = VkDescriptorPoolCreateInfo
+}
+
+extension VkDescriptorPoolCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
+    public typealias Result = VkDescriptorPool.Pointee
+    public static let createFunction = vkCreateDescriptorPool
+    public static let deleteFunction = vkDestroyDescriptorPool
+}
+
+extension VkPipeline_T: CreateableFromTwoEntityInfos {
+    public typealias Info = VkGraphicsPipelineCreateInfo
+    public typealias Info2 = VkComputePipelineCreateInfo
+}
+
+extension VkGraphicsPipelineCreateInfo: PipelineEntityInfo, FirstEntityInfo {
     public static let createFunction = vkCreateGraphicsPipelines
     public static let deleteFunction = vkDestroyPipeline
 }
 
-extension VkComputePipelineCreateInfo: PipelineEntityInfo {
+extension VkComputePipelineCreateInfo: PipelineEntityInfo, SecondEntityInfo {
     public static let createFunction = vkCreateComputePipelines
     public static let deleteFunction = vkDestroyPipeline
 }

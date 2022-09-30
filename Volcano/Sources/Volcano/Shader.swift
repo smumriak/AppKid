@@ -42,6 +42,8 @@ public final class Shader: DeviceEntity<VkShaderModule_T> {
         if data.isEmpty {
             throw Error.noData
         }
+
+        // smumriak:FIXME: implement LVPath and LVPathOperator <WritableKeyPath<Struct, UnsafePointer<CUnsignedInt>?>> which consumes Data
         var info = VkShaderModuleCreateInfo.new()
         info.codeSize = data.count
 
@@ -60,6 +62,7 @@ public final class Shader: DeviceEntity<VkShaderModule_T> {
 public extension Shader {
     fileprivate static let defaultShaderEntryPointNamePointer = strdup(defaultShaderEntryPointName)
 
+    // smumriak:Do not delete this and keep in sync with builder implementation. This is to allow fallback to use infos directly. For Shader only
     func createStageInfo(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> VkPipelineShaderStageCreateInfo {
         var result = VkPipelineShaderStageCreateInfo.new()
         

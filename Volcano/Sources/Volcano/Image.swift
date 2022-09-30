@@ -49,30 +49,24 @@ public class ImageDescriptor {
         queueFamilyIndices = accessQueues.familyIndices
     }
 
+    @LavaBuilder<VkImageCreateInfo>
+    public var builder: LavaBuilder<VkImageCreateInfo> {
+        \.flagsBits <- flags
+        \.imageType <- imageType
+        \.format <- format
+        \.extent <- extent
+        \.mipLevels <- mipLevels
+        \.arrayLayers <- arrayLayers
+        \.samples <- samples
+        \.tiling <- tiling
+        \.usageFlagsBits <- usage
+        \.sharingMode <- sharingMode
+        (\.queueFamilyIndexCount, \.pQueueFamilyIndices) <- queueFamilyIndices
+        \.initialLayout <- initialLayout
+    }
+
     public func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
-        return try queueFamilyIndices.withUnsafeBufferPointer { queueFamilyIndices in
-            var info = VkImageCreateInfo.new()
-
-            info.flagsBits = flags
-            info.imageType = imageType
-            info.format = format
-            info.extent = extent
-            info.mipLevels = mipLevels
-            info.arrayLayers = arrayLayers
-            info.samples = samples
-            info.tiling = tiling
-            info.usageFlagsBits = usage
-            info.sharingMode = sharingMode
-            
-            info.queueFamilyIndexCount = CUnsignedInt(queueFamilyIndices.count)
-            info.pQueueFamilyIndices = queueFamilyIndices.baseAddress!
-
-            info.initialLayout = initialLayout
-
-            return try withUnsafePointer(to: &info) { info in
-                return try body(info)
-            }
-        }
+        try builder(body)
     }
 }
 

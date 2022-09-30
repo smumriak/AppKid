@@ -28,13 +28,13 @@ public final class CommandBuffer: DeviceEntity<VkCommandBuffer_T> {
     }
 
     public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
-        var info = VkCommandBufferBeginInfo.new()
-        info.pNext = nil
-        info.flags = flags.rawValue
-        info.pInheritanceInfo = nil
-
-        try vulkanInvoke {
-            vkBeginCommandBuffer(pointer, &info)
+        try LavaBuilder<VkCommandBufferBeginInfo> {
+            \.flags <- flags
+            \.pInheritanceInfo <- nil
+        }.withUnsafeResultPointer { info in
+            try vulkanInvoke {
+                vkBeginCommandBuffer(pointer, info)
+            }
         }
     }
 
@@ -45,16 +45,14 @@ public final class CommandBuffer: DeviceEntity<VkCommandBuffer_T> {
     }
 
     public func begin(renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
-        try clearValues.withUnsafeBufferPointer { clearValues in
-            var renderPassBeginInfo = VkRenderPassBeginInfo.new()
-            renderPassBeginInfo.renderPass = renderPass.pointer
-            renderPassBeginInfo.framebuffer = framebuffer.pointer
-            renderPassBeginInfo.renderArea = renderArea
-            renderPassBeginInfo.clearValueCount = CUnsignedInt(clearValues.count)
-            renderPassBeginInfo.pClearValues = clearValues.baseAddress!
-
+        try LavaBuilder<VkRenderPassBeginInfo> {
+            \.renderPass <- renderPass
+            \.framebuffer <- framebuffer
+            \.renderArea <- renderArea
+            (\.clearValueCount, \.pClearValues) <- clearValues
+        }.withUnsafeResultPointer { info in
             try vulkanInvoke {
-                vkCmdBeginRenderPass(pointer, &renderPassBeginInfo, subpassContents)
+                vkCmdBeginRenderPass(pointer, info, subpassContents)
             }
         }
     }

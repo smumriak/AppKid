@@ -27,19 +27,17 @@ public final class BufferDescriptor {
         return accessQueueFamiliesIndices.count > 1 ? .concurrent : .exclusive
     }
 
-    public func withUnsafeBufferCreateInfoPointer<T>(_ body: (UnsafePointer<VkBufferCreateInfo>) throws -> (T)) rethrows -> T {
-        return try accessQueueFamiliesIndices.withUnsafeBufferPointer { accessQueueFamiliesIndices in
-            var info = VkBufferCreateInfo.new()
-            info.pNext = nil
-            info.flags = flags.rawValue
-            info.size = size
-            info.usage = usage.rawValue
-            info.sharingMode = sharingMode
-            info.queueFamilyIndexCount = CUnsignedInt(accessQueueFamiliesIndices.count)
-            info.pQueueFamilyIndices = accessQueueFamiliesIndices.baseAddress!
+    @LavaBuilder<VkBufferCreateInfo>
+    public var builder: LavaBuilder<VkBufferCreateInfo> {
+        \.flags <- flags
+        \.size <- size
+        \.usage <- usage
+        \.sharingMode <- sharingMode
+        (\.queueFamilyIndexCount, \.pQueueFamilyIndices) <- accessQueueFamiliesIndices
+    }
 
-            return try body(&info)
-        }
+    public func withUnsafeBufferCreateInfoPointer<T>(_ body: (UnsafePointer<VkBufferCreateInfo>) throws -> (T)) rethrows -> T {
+        try builder(body)
     }
 
     public init() {}

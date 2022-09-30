@@ -14,13 +14,10 @@ public final class CommandPool: DeviceEntity<VkCommandPool_T> {
     public init(device: Device, queue: Queue, flags: VkCommandPoolCreateFlagBits = .resetCommandBuffer) throws {
         self.queue = queue
 
-        var info = VkCommandPoolCreateInfo.new()
-        info.flags = flags.rawValue
-        info.queueFamilyIndex = CUnsignedInt(queue.familyIndex)
-
-        let handle = try device.create(with: &info)
-        
-        try super.init(device: device, handle: handle)
+        try super.init(device: device) {
+            \.flags <- flags
+            \.queueFamilyIndex <- queue.familyIndex
+        }
     }
 
     public func createCommandBuffer(level: VkCommandBufferLevel = .primary) throws -> CommandBuffer {

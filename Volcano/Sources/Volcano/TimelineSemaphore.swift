@@ -49,19 +49,13 @@ public final class TimelineSemaphore: AbstractSemaphore {
             }
         }()
 
-        try [value].withUnsafeBufferPointer { values in
-            try [self].optionalMutablePointers().withUnsafeBufferPointer { semaphores in
-                let flags: VkSemaphoreWaitFlagBits = []
-
-                var info = VkSemaphoreWaitInfo.new()
-                info.flags = flags.rawValue
-                info.semaphoreCount = CUnsignedInt(semaphores.count)
-                info.pSemaphores = semaphores.baseAddress!
-                info.pValues = values.baseAddress!
-                
-                try vulkanInvoke {
-                    device.vkWaitSemaphoresKHR(device.pointer, &info, timeout)
-                }
+        try LavaBuilder<VkSemaphoreWaitInfo> {
+            \.flags <- VkSemaphoreWaitFlagBits()
+            (\.semaphoreCount, \.pSemaphores) <- [self]
+            \.pValues <- [value]
+        }.withUnsafeResultPointer { info in
+            try vulkanInvoke {
+                device.vkWaitSemaphoresKHR(device.pointer, info, timeout)
             }
         }
     }
@@ -84,19 +78,14 @@ public final class TimelineSemaphore: AbstractSemaphore {
 extension Device {
     func wait(for semaphores: [TimelineSemaphore], values: [UInt64], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
         assert(semaphores.count == values.count)
-        try values.withUnsafeBufferPointer { values in
-            try semaphores.optionalMutablePointers().withUnsafeBufferPointer { semaphores in
-                let flags: VkSemaphoreWaitFlagBits = waitForAll ? [] : .any
 
-                var info = VkSemaphoreWaitInfo.new()
-                info.flags = flags.rawValue
-                info.semaphoreCount = CUnsignedInt(semaphores.count)
-                info.pSemaphores = semaphores.baseAddress!
-                info.pValues = values.baseAddress!
-                
-                try vulkanInvoke {
-                    self.vkWaitSemaphoresKHR(pointer, &info, timeout)
-                }
+        try LavaBuilder<VkSemaphoreWaitInfo> {
+            \.flags <- waitForAll ? [] : VkSemaphoreWaitFlagBits.any
+            (\.semaphoreCount, \.pSemaphores) <- semaphores
+            \.pValues <- values
+        }.withUnsafeResultPointer { info in
+            try vulkanInvoke {
+                vkWaitSemaphoresKHR(pointer, info, timeout)
             }
         }
     }

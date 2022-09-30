@@ -27,6 +27,15 @@ internal final class RenderPassBuilder {
     internal var attachments: [Attachment] = []
 
     func buid(device: Device) throws -> SharedPointer<VkRenderPass_T> {
+        // smumriak:FIXME: implement LVPath and LVPathOperator for <WritableKeyPath<Struct, UnsafePointer<GenericType>?>, CUnsignedInt> which consumes UnsafeBufferPointer<GenericType>
+        // subpasses.withUnsafeSubpassDescriptionBufferPointer(renderPassBuilder: self) { subpasses in
+        //     let builder = LavaBuilder<VkRenderPassCreateInfo> {
+        //         (\.attachmentCount, \.pAttachments) <- attachments.map { $0.description }
+        //         (\.subpassCount, \.pSubpasses) <- subpasses
+        //         (\.dependencyCount, \.pDependencies) <- dependencies
+        //     }
+        // }
+
         return try subpasses.withUnsafeSubpassDescriptionBufferPointer(renderPassBuilder: self) { subpasses in
             try attachments.map { $0.description }.withUnsafeBufferPointer { attachments in
                 try dependencies.withUnsafeBufferPointer { dependencies in

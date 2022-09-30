@@ -32,21 +32,21 @@ public final class GraphicsPipeline: Pipeline {
     }
 
     public convenience init(device: Device, descriptor: GraphicsPipelineDescriptor, cache: VkPipelineCache? = nil) throws {
-        let layout = try device.buildEntity(VkPipelineLayoutCreateInfo.self) {
+        let layout: SharedPointer<VkPipelineLayout_T> = try device.buildEntity {
             (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts
             (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
         }
 
         let handle = try device.buildEntity(cache: nil, descriptor.createBuilder(layout))
-
+        
         try self.init(device: device, handle: handle, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
     }
 }
 
 public extension Device {
     func createPipelines(from descriptors: [GraphicsPipelineDescriptor], cache: VkPipelineCache? = nil) throws -> [GraphicsPipeline] {
-        let layouts = try descriptors.map { descriptor in
-            try buildEntity(VkPipelineLayoutCreateInfo.self) {
+        let layouts: [SharedPointer<VkPipelineLayout_T>] = try descriptors.map { descriptor in
+            try buildEntity {
                 (\.setLayoutCount, \.pSetLayouts) <- descriptor.descriptorSetLayouts
                 (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
             }

@@ -15,16 +15,10 @@ public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
 
         self.maxSets = maxSets
 
-        let handle: SharedPointer<VkDescriptorPool_T> = try sizes.withUnsafeBufferPointer { sizes in
-            var info = VkDescriptorPoolCreateInfo.new()
-            info.poolSizeCount = CUnsignedInt(sizes.count)
-            info.pPoolSizes = sizes.baseAddress!
-            info.maxSets = CUnsignedInt(maxSets)
-
-            return try device.create(with: &info)
+        try super.init(device: device) {
+            (\.poolSizeCount, \.pPoolSizes) <- sizes
+            \.maxSets <- maxSets
         }
-
-        try super.init(device: device, handle: handle)
     }
 
     public func allocate(with layout: DescriptorSetLayout) throws -> DescriptorSet {
@@ -45,19 +39,21 @@ public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
 
         return DescriptorSet(pool: self, handle: result)
     }
+
+    public func free(descriptorSet: DescriptorSet) throws {
+        try [descriptorSet].optionalHandles().withUnsafeBufferPointer { descriptorSets in
+            try vulkanInvoke {
+                vkFreeDescriptorSets(device.pointer, pointer, CUnsignedInt(descriptorSets.count), descriptorSets.baseAddress!)
+            }
+        }
+    }
 }
 
 public final class DescriptorSetLayout: DeviceEntity<VkDescriptorSetLayout_T> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
-        let handle: SharedPointer<VkDescriptorSetLayout_T> = try bindings.withUnsafeBufferPointer { bindings in
-            var info = VkDescriptorSetLayoutCreateInfo.new()
-            info.bindingCount = CUnsignedInt(bindings.count)
-            info.pBindings = bindings.baseAddress!
-
-            return try device.create(with: &info)
+        try super.init(device: device) {
+            (\.bindingCount, \.pBindings) <- bindings
         }
-
-        try super.init(device: device, handle: handle)
     }
 }
 

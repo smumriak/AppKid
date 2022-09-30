@@ -112,23 +112,19 @@ public struct LavaBuilder<Struct: InitializableWithNew> {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, _ builder: LavaBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
-        try builder.withUnsafeResultPointer {
-            try create(with: $0)
-        }
-    }
-
-    func buildEntity<Info: SimpleEntityInfo>(_ type: Info.Type = Info.self, @LavaBuilder<Info> _ content: () throws -> (LavaBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
-        try buildEntity(type, content())
-    }
-
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, _ builder: LavaBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func buildEntity<Info: PipelineEntityInfo>(cache: VkPipelineCache?, _ builder: LavaBuilder<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try builder.withUnsafeResultPointer {
             try create(with: $0, cache: cache)
         }
     }
 
-    func buildEntity<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache? = nil, @LavaBuilder<Info> _ content: () throws -> (LavaBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
-        try buildEntity(type, cache: cache, content())
+    func buildEntity<Info: PipelineEntityInfo>(cache: VkPipelineCache?, @LavaBuilder<Info> _ content: () throws -> (LavaBuilder<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+        try buildEntity(cache: cache, content())
+    }
+
+    func buildEntity<Result: CreateableFromSingleEntityInfo>(@LavaBuilder<Result.Info> _ content: () throws -> (LavaBuilder<Result.Info>)) throws -> SharedPointer<Result> where Result.Info: SimpleEntityInfo, Result.Info.Parent == Handle.Pointee {
+        try content().withUnsafeResultPointer {
+            try self.create(with: $0)
+        }
     }
 }

@@ -43,14 +43,8 @@ internal class DescriptorSetContainer {
     let descriptorSet: VkDescriptorSet
 
     init(bindings: [VkDescriptorSetLayoutBinding], pool: SharedPointer<VkDescriptorPool_T>, device: Device) throws {
-        self.device = device
-
-        layout = try bindings.withUnsafeBufferPointer { bindings in
-            var info = VkDescriptorSetLayoutCreateInfo.new()
-            info.bindingCount = CUnsignedInt(bindings.count)
-            info.pBindings = bindings.baseAddress!
-
-            return try device.create(with: &info)
+        layout = try device.buildEntity {
+            (\.bindingCount, \.pBindings) <- bindings
         }
 
         descriptorSet = try withUnsafePointer(to: layout.optionalPointer) { layout in
@@ -67,6 +61,7 @@ internal class DescriptorSetContainer {
 
             return result!
         }
+        self.device = device
     }
 }
 

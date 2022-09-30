@@ -59,17 +59,18 @@ public class ImageViewDescriptor {
         return result
     }
 
-    internal func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
-        var info = VkImageViewCreateInfo.new()
-        info.flags = flags.rawValue
-        info.image = image.pointer
-        info.viewType = type
-        info.format = format
-        info.components = componentMapping
-        info.subresourceRange = subresourceRange
+    @LavaBuilder<VkImageViewCreateInfo>
+    public func builder(for image: Image) -> LavaBuilder<VkImageViewCreateInfo> {
+        \.flags <- flags
+        \.image <- image
+        \.viewType <- type
+        \.format <- format
+        \.components <- componentMapping
+        \.subresourceRange <- subresourceRange
+    }
 
-        return try withUnsafePointer(to: &info) { info in
-            return try body(info)
-        }
+    public func withUnsafeImageViewCreateInfoPointer<T>(for image: Image, _ body: (UnsafePointer<VkImageViewCreateInfo>) throws -> (T)) rethrows -> T {
+        let builder = builder(for: image)
+        return try builder(body)
     }
 }
