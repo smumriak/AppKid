@@ -15,11 +15,15 @@ public struct LavaBuilder<Struct: InitializableWithNew> {
     }
 
     public static func buildExpression(_ expression: (any LVPath<Struct>)?) -> [any LVPath<Struct>] {
-        if let expression = expression {
+        if let expression {
             return [expression]
         } else {
             return []
         }
+    }
+
+    public static func buildExpression(_ expression: [(any LVPath<Struct>)?]) -> [any LVPath<Struct>] {
+        expression.compactMap { $0 }
     }
 
     public static func buildBlock() -> [any LVPath<Struct>] {
