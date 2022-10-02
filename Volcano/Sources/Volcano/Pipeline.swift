@@ -37,7 +37,9 @@ public final class GraphicsPipeline: Pipeline {
             (\.pushConstantRangeCount, \.pPushConstantRanges) <- descriptor.pushConstants
         }
 
-        let handle = try device.buildEntity(cache: nil, descriptor.createBuilder(layout))
+        var context = VolcanoGraphicsPipelineContext(pipelineCache: cache)
+
+        let handle = try device.buildEntity(context: &context, descriptor.createBuilder(layout))
         
         try self.init(device: device, handle: handle, layout: layout, renderPass: descriptor.renderPass, subpassIndex: descriptor.subpassIndex, descriptorSetLayouts: descriptor.descriptorSetLayouts)
     }
@@ -52,7 +54,8 @@ public extension Device {
             }
         }
 
-        let handles = try buildEntities(VkGraphicsPipelineCreateInfo.self, cache: cache) {
+        var context = VolcanoGraphicsPipelineContext(pipelineCache: cache)
+        let handles = try buildEntities(context: &context) {
             for i in 0..<descriptors.count {
                 descriptors[i].createBuilder(layouts[i])
             }

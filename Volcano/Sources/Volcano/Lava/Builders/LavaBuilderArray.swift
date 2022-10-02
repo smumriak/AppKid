@@ -126,13 +126,13 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, _ builder: LavaBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
-        try builder.withUnsafeResultPointer {
-            try create(with: $0, cache: cache)
+    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, _ builder: LavaBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+        try builder {
+            try create(with: $0, context: context)
         }
     }
 
-    func buildEntities<Info: PipelineEntityInfo>(_ type: Info.Type = Info.self, cache: VkPipelineCache?, @LavaBuilderArray<Info> _ content: () throws -> (LavaBuilderArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
-        try buildEntities(type, cache: cache, content())
+    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, @LavaBuilderArray<Info> _ content: () throws -> (LavaBuilderArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+        try buildEntities(context: context, content())
     }
 }

@@ -9,7 +9,7 @@ import CVulkan
 
 public typealias AllocationCallbacks = UnsafePointer<VkAllocationCallbacks>
 
-public protocol EntityInfo<Parent, Result>: VulkanChainableStructure {
+public protocol EntityInfo<Result>: VulkanChainableStructure {
     associatedtype Parent: EntityFactory & VkEntity
     associatedtype Result: VkEntity
 
@@ -21,7 +21,7 @@ public protocol EntityInfo<Parent, Result>: VulkanChainableStructure {
     associatedtype DeleteFunction
 }
 
-public protocol SimpleEntityInfo<Parent, Result>: EntityInfo where CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
+public protocol SimpleEntityInfo<Result>: EntityInfo where CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
     typealias ConcreteCreateFunction = (_ parent: ParentPointer?,
                                         _ pCreateInfo: PointerToSelf?,
                                         _ pAllocator: AllocationCallbacks?,
@@ -34,18 +34,20 @@ public protocol SimpleEntityInfo<Parent, Result>: EntityInfo where CreateFunctio
     static var deleteFunction: DeleteFunction { get }
 }
 
-public protocol InstanceEntityInfo<Parent, Result>: EntityInfo where Parent == VkInstance.Pointee {}
+public protocol InstanceEntityInfo<Result>: EntityInfo where Parent == VkInstance.Pointee {}
 public typealias SimpleInstanceEntityInfo = SimpleEntityInfo & InstanceEntityInfo
 
-public protocol PhysicalDeviceEntityInfo<Parent, Result>: EntityInfo where Parent == VkPhysicalDevice.Pointee {}
+public protocol PhysicalDeviceEntityInfo<Result>: EntityInfo where Parent == VkPhysicalDevice.Pointee {}
 public typealias SimplePhysicalDeviceEntityInfo = SimpleEntityInfo & PhysicalDeviceEntityInfo
 
-public protocol DeviceEntityInfo<Parent, Result>: EntityInfo where Parent == VkDevice.Pointee {}
+public protocol DeviceEntityInfo<Result>: EntityInfo where Parent == VkDevice.Pointee {}
 public typealias SimpleDeviceEntityInfo = SimpleEntityInfo & DeviceEntityInfo
 
-public protocol PipelineEntityInfo<Parent, Result>: DeviceEntityInfo where Result == VkPipeline.Pointee, CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
+public protocol PipelineEntityInfo<Result>: DeviceEntityInfo where Result == VkPipeline.Pointee, CreateFunction == ConcreteCreateFunction, DeleteFunction == ConcreteDeleteFunction {
+    associatedtype Context
+
     typealias ConcreteCreateFunction = (_ device: VkDevice?,
-                                        _ pipelineCache: VkPipelineCache?,
+                                        _ pContext: UnsafePointer<Context>?,
                                         _ createInfoCount: CUnsignedInt,
                                         _ pCreateInfos: PointerToSelf?,
                                         _ pAllocator: AllocationCallbacks?,
@@ -93,8 +95,8 @@ public protocol FourthEntityInfo: EntityInfo where Result: CreateableFromFourEnt
 #elseif os(macOS) || os(iOS)
     // extension VkMetalSurfaceCreateInfoEXT: SimpleInstanceEntityInfo {
     //     public typealias Result = VkSurfaceKHR.Pointee
-    //     public static let createFunction  = vkCreateMetalSurfaceEXT
-    //     public static let deleteFunction  = vkDestroySurfaceKHR
+    //     public static let createFunction = vkCreateMetalSurfaceEXT
+    //     public static let deleteFunction = vkDestroySurfaceKHR
     // }
 
     #if os(macOS)
@@ -313,14 +315,30 @@ extension VkDescriptorPoolCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
 extension VkPipeline_T: CreateableFromTwoEntityInfos {
     public typealias Info = VkGraphicsPipelineCreateInfo
     public typealias Info2 = VkComputePipelineCreateInfo
+    // public typealias Info3 = VkRayTracingPipelineCreateInfoKHR
+    // public typealias Info4 = VkRayTracingPipelineCreateInfoNV
 }
 
 extension VkGraphicsPipelineCreateInfo: PipelineEntityInfo, FirstEntityInfo {
-    public static let createFunction = vkCreateGraphicsPipelines
+    public typealias Context = VolcanoGraphicsPipelineContext
+    public static let createFunction = volcanoCreateGraphicsPipelines
     public static let deleteFunction = vkDestroyPipeline
 }
 
 extension VkComputePipelineCreateInfo: PipelineEntityInfo, SecondEntityInfo {
-    public static let createFunction = vkCreateComputePipelines
+    public typealias Context = VolcanoComputePipelineContext
+    public static let createFunction = volcanoCreateComputePipelines
     public static let deleteFunction = vkDestroyPipeline
 }
+
+// extension VkRayTracingPipelineCreateInfoKHR: PipelineEntityInfo, ThirdEntityInfo {
+//     public typealias Context = VolcanoRayTracingPipelineKHRContext
+//     public static let createFunction = volcanoCreateRayTracingPipelinesKHR
+//     public static let deleteFunction = vkDestroyPipeline
+// }
+
+// extension VkRayTracingPipelineCreateInfoNV: PipelineEntityInfo, FourthEntityInfo {
+//     public typealias Context = VolcanoRayTracingPipelineNVContext
+//     public static let createFunction = volcanoCreateRayTracingPipelinesNV
+//     public static let deleteFunction = vkDestroyPipeline
+// }

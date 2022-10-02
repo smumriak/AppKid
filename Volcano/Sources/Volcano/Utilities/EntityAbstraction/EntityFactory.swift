@@ -40,11 +40,11 @@ public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func create<Info: PipelineEntityInfo>(with info: UnsafePointer<Info>, cache: VkPipelineCache? = nil, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+    func create<Info: PipelineEntityInfo>(with info: UnsafePointer<Info>, context: UnsafePointer<Info.Context>? = nil, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         var result: UnsafeMutablePointer<Info.Result>? = nil
 
         try vulkanInvoke {
-            Info.createFunction(pointer, cache, 1, info, callbacks, &result)
+            Info.createFunction(pointer, context, 1, info, callbacks, &result)
         }
 
         return SharedPointer(with: result!) { [unowned self] in
@@ -52,11 +52,11 @@ public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
         }
     }
 
-    func create<Info: PipelineEntityInfo>(with infos: UnsafeBufferPointer<Info>, cache: VkPipelineCache? = nil, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+    func create<Info: PipelineEntityInfo>(with infos: UnsafeBufferPointer<Info>, context: UnsafePointer<Info.Context>? = nil, callbacks: UnsafePointer<VkAllocationCallbacks>? = nil) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         var entities: [UnsafeMutablePointer<Info.Result>?] = Array(repeating: nil, count: infos.count)
 
         try vulkanInvoke {
-            Info.createFunction(pointer, cache, CUnsignedInt(infos.count), infos.baseAddress, callbacks, &entities)
+            Info.createFunction(pointer, context, CUnsignedInt(infos.count), infos.baseAddress, callbacks, &entities)
         }
 
         return entities.map {

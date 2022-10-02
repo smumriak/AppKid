@@ -38,16 +38,6 @@
 
 #include <vulkan/vulkan.h>
 
-#ifndef __cplusplus
-static inline void * cVulkanGetInstanceProcAddr(VkInstance instance, const char* pName)
-{
-    return vkGetInstanceProcAddr(instance, pName);
-}
-
-static inline void * cVulkanGetDeviceProcAddr(VkDevice device, const char* pName)
-{
-    return vkGetDeviceProcAddr(device, pName);
-}
-#endif
+#include "Additions.h"
 
 #endif
