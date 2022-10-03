@@ -79,8 +79,9 @@ static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateComputePipelines(
 }
 
 typedef struct {
-    VkDeferredOperationKHR  deferredOperation;
-    VkPipelineCache         pipelineCache;
+    PFN_vkCreateRayTracingPipelinesKHR  vkCreateRayTracingPipelinesKHR;
+    VkDeferredOperationKHR              deferredOperation;
+    VkPipelineCache                     pipelineCache;
 } VolcanoRayTracingPipelineKHRContext;
 
 static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesKHR(
@@ -91,18 +92,11 @@ static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesKHR(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
-    VkDeferredOperationKHR deferredOperation = NULL;
-    VkPipelineCache pipelineCache = NULL;
-
-    if (pContext) {
-        deferredOperation = pContext->deferredOperation;
-        pipelineCache = pContext->pipelineCache;
-    }
-
-    return vkCreateRayTracingPipelinesKHR(
+    // smumriak: Since this thing does rely on pContext being always non-null there's no need to check for anything before unwraping. if your code crash here - it's your fault
+    return pContext->vkCreateRayTracingPipelinesKHR(
         device /* device */,
-        deferredOperation /* deferredOperation */,
-        pipelineCache /* pipelineCache */,
+        pContext->deferredOperation /* deferredOperation */,
+        pContext->pipelineCache /* pipelineCache */,
         createInfoCount /* createInfoCount */,
         pCreateInfos /* pCreateInfos */,
         pAllocator /* pAllocator */,
@@ -111,7 +105,8 @@ static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesKHR(
 }
 
 typedef struct {
-    VkPipelineCache pipelineCache;
+    PFN_vkCreateRayTracingPipelinesNV   vkCreateRayTracingPipelinesNV;
+    VkPipelineCache                     pipelineCache;
 } VolcanoRayTracingPipelineNVContext;
 
 static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesNV(
@@ -122,15 +117,10 @@ static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesNV(
     const VkAllocationCallbacks*                pAllocator,
     VkPipeline*                                 pPipelines)
 {
-    VkPipelineCache pipelineCache = NULL;
-
-    if (pContext) {
-        pipelineCache = pContext->pipelineCache;
-    }
-
-    return vkCreateRayTracingPipelinesNV(
+    // smumriak: Since this thing does rely on pContext being always non-null there's no need to check for anything before unwraping. if your code crash here - it's your fault
+    return pContext->vkCreateRayTracingPipelinesNV(
         device /* device */,
-        pipelineCache /* pipelineCache */,
+        pContext->pipelineCache /* pipelineCache */,
         createInfoCount /* createInfoCount */,
         pCreateInfos /* pCreateInfos */,
         pAllocator /* pAllocator */,

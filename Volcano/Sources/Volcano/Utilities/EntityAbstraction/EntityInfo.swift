@@ -312,11 +312,11 @@ extension VkDescriptorPoolCreateInfo: SimpleDeviceEntityInfo, FirstEntityInfo {
     public static let deleteFunction = vkDestroyDescriptorPool
 }
 
-extension VkPipeline_T: CreateableFromTwoEntityInfos {
+extension VkPipeline_T: CreateableFromFourEntityInfos {
     public typealias Info = VkGraphicsPipelineCreateInfo
     public typealias Info2 = VkComputePipelineCreateInfo
-    // public typealias Info3 = VkRayTracingPipelineCreateInfoKHR
-    // public typealias Info4 = VkRayTracingPipelineCreateInfoNV
+    public typealias Info3 = VkRayTracingPipelineCreateInfoKHR
+    public typealias Info4 = VkRayTracingPipelineCreateInfoNV
 }
 
 extension VkGraphicsPipelineCreateInfo: PipelineEntityInfo, FirstEntityInfo {
@@ -331,14 +331,14 @@ extension VkComputePipelineCreateInfo: PipelineEntityInfo, SecondEntityInfo {
     public static let deleteFunction = vkDestroyPipeline
 }
 
-// extension VkRayTracingPipelineCreateInfoKHR: PipelineEntityInfo, ThirdEntityInfo {
-//     public typealias Context = VolcanoRayTracingPipelineKHRContext
-//     public static let createFunction = volcanoCreateRayTracingPipelinesKHR
-//     public static let deleteFunction = vkDestroyPipeline
-// }
+extension VkRayTracingPipelineCreateInfoKHR: PipelineEntityInfo, ThirdEntityInfo {
+    public typealias Context = VolcanoRayTracingPipelineKHRContext
+    public static let createFunction = volcanoCreateRayTracingPipelinesKHR
+    public static let deleteFunction = vkDestroyPipeline
+}
 
-// extension VkRayTracingPipelineCreateInfoNV: PipelineEntityInfo, FourthEntityInfo {
-//     public typealias Context = VolcanoRayTracingPipelineNVContext
-//     public static let createFunction = volcanoCreateRayTracingPipelinesNV
-//     public static let deleteFunction = vkDestroyPipeline
-// }
+extension VkRayTracingPipelineCreateInfoNV: PipelineEntityInfo, FourthEntityInfo {
+    public typealias Context = VolcanoRayTracingPipelineNVContext
+    public static let createFunction = volcanoCreateRayTracingPipelinesNV
+    public static let deleteFunction = vkDestroyPipeline
+}
