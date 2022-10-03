@@ -1,7 +1,7 @@
 //
 //  ResponderEditActions.swift
 //  AppKid
-//  
+//
 //  Created by Serhii Mumriak on 17.07.2022
 //
 

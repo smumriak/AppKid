@@ -15,7 +15,6 @@ import Foundation
     import Darwin
 #endif
 
-
 open class RunLoop1 {
     @Synchronized @_spi(AppKid) public static var runLoops: [ObjectIdentifier: RunLoop1] = [:]
 
@@ -114,8 +113,6 @@ public extension RunLoop1 {
 }
 
 public protocol RunLoopItem {}
-
-
 
 @_spi(AppKid) public class RunLoopMode: Hashable {
     internal let lock = NSRecursiveLock()

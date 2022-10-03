@@ -47,5 +47,5 @@ public struct ControlResponderAction<Target: AnyObject>: ResponderAction {
     public func perform(on responder: Target, withSender sender: Any?) {
         let casted = sender! as! ControlProtocol
         actionIdentifier.invoke(sender: casted, event: event)
-    }  
+    }
 }

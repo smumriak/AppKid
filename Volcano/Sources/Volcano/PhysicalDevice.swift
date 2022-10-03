@@ -32,21 +32,17 @@ public final class PhysicalDevice: InstanceEntity<VkPhysicalDevice_T> {
     public let extensionProperties: [VkExtensionProperties]
     public let supportedExtensionsVersions: [DeviceExtension: UInt]
 
-    public lazy var memoryTypes: [VkMemoryType] = {
-        return withUnsafeBytes(of: memoryProperties.memoryTypes) {
-            let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryType.self)
-            let bufferPointer = UnsafeBufferPointer<VkMemoryType>(start: pointer, count: Int(memoryProperties.memoryTypeCount))
-            return Array<VkMemoryType>(bufferPointer)
-        }
-    }()
+    public lazy var memoryTypes: [VkMemoryType] = withUnsafeBytes(of: memoryProperties.memoryTypes) {
+        let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryType.self)
+        let bufferPointer = UnsafeBufferPointer<VkMemoryType>(start: pointer, count: Int(memoryProperties.memoryTypeCount))
+        return Array<VkMemoryType>(bufferPointer)
+    }
 
-    public lazy var memoryHeaps: [VkMemoryHeap] = {
-        return withUnsafeBytes(of: memoryProperties.memoryHeaps) {
-            let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryHeap.self)
-            let bufferPointer = UnsafeBufferPointer<VkMemoryHeap>(start: pointer, count: Int(memoryProperties.memoryHeapCount))
-            return Array<VkMemoryHeap>(bufferPointer)
-        }
-    }()
+    public lazy var memoryHeaps: [VkMemoryHeap] = withUnsafeBytes(of: memoryProperties.memoryHeaps) {
+        let pointer = $0.baseAddress!.assumingMemoryBound(to: VkMemoryHeap.self)
+        let bufferPointer = UnsafeBufferPointer<VkMemoryHeap>(start: pointer, count: Int(memoryProperties.memoryHeapCount))
+        return Array<VkMemoryHeap>(bufferPointer)
+    }
 
     internal lazy var renderingPerformanceScore: UInt32 = {
         var result: UInt32 = 0
