@@ -14,7 +14,7 @@ public protocol EntityInfo<Result>: VulkanChainableStructure {
     associatedtype Result: VkEntity
 
     typealias ParentPointer = UnsafeMutablePointer<Parent>
-    typealias ResultPoitner = UnsafeMutablePointer<Result>
+    typealias ResultPointer = UnsafeMutablePointer<Result>
     typealias PointerToSelf = UnsafePointer<Self>
 
     associatedtype CreateFunction
@@ -25,11 +25,11 @@ public protocol SimpleEntityInfo<Result>: EntityInfo where CreateFunction == Con
     typealias ConcreteCreateFunction = (_ parent: ParentPointer?,
                                         _ pCreateInfo: PointerToSelf?,
                                         _ pAllocator: AllocationCallbacks?,
-                                        _ pResult: UnsafeMutablePointer<ResultPoitner?>?) -> (VkResult)
+                                        _ pResult: UnsafeMutablePointer<ResultPointer?>?) -> (VkResult)
     static var createFunction: CreateFunction { get }
 
     typealias ConcreteDeleteFunction = (_ parent: ParentPointer?,
-                                        _ result: ResultPoitner?,
+                                        _ result: ResultPointer?,
                                         _ pAllocator: AllocationCallbacks?) -> ()
     static var deleteFunction: DeleteFunction { get }
 }
@@ -51,7 +51,7 @@ public protocol PipelineEntityInfo<Result>: DeviceEntityInfo where Result == VkP
                                         _ createInfoCount: CUnsignedInt,
                                         _ pCreateInfos: PointerToSelf?,
                                         _ pAllocator: AllocationCallbacks?,
-                                        _ pPipelines: UnsafeMutablePointer<ResultPoitner?>?) -> (VkResult)
+                                        _ pPipelines: UnsafeMutablePointer<ResultPointer?>?) -> (VkResult)
     static var createFunction: CreateFunction { get }
 
     typealias ConcreteDeleteFunction = (_ device: VkDevice?,
