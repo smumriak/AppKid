@@ -56,27 +56,26 @@ public final class Device: PhysicalDeviceEntity<VkDevice_T> {
         var timelineSemaphoreFeatures = VkPhysicalDeviceTimelineSemaphoreFeatures.new()
         timelineSemaphoreFeatures.timelineSemaphore = true.vkBool
 
-        let handle: SharedPointer<VkDevice_T> =
-            try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
-                return try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
-                    var info = VkDeviceCreateInfo.new()
-                    info.flags = 0
+        let handle: Handle = try extensions.map { $0.rawValue }.withUnsafeNullableCStringsBufferPointer { extensions in
+            try processedQueueRequests.withUnsafeDeviceQueueCreateInfoBufferPointer { deviceQueueCreateInfos in
+                var info = VkDeviceCreateInfo.new()
+                info.flags = 0
 
-                    info.enabledExtensionCount = CUnsignedInt(extensions.count)
-                    info.ppEnabledExtensionNames = extensions.baseAddress!
+                info.enabledExtensionCount = CUnsignedInt(extensions.count)
+                info.ppEnabledExtensionNames = extensions.baseAddress!
                     
-                    info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreateInfos.count)
-                    info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
+                info.queueCreateInfoCount = CUnsignedInt(deviceQueueCreateInfos.count)
+                info.pQueueCreateInfos = deviceQueueCreateInfos.baseAddress!
 
-                    let chain = VulkanStructureChain(root: info)
-                    // chain.append(features12)
-                    // chain.append(features11)
-                    chain.append(timelineSemaphoreFeatures)
-                    chain.append(features2)
+                let chain = VulkanStructureChain(root: info)
+                // chain.append(features12)
+                // chain.append(features11)
+                chain.append(timelineSemaphoreFeatures)
+                chain.append(features2)
         
-                    return try physicalDevice.create(with: chain)
-                }
+                return try physicalDevice.create(with: chain)
             }
+        }
 
         vkCreateSwapchainKHR = try handle.loadFunction(named: "vkCreateSwapchainKHR")
         vkDestroySwapchainKHR = try handle.loadFunction(named: "vkDestroySwapchainKHR")

@@ -35,8 +35,8 @@ extension QueueFamilyDescriptor: Comparable, Equatable {
 }
 
 public struct QueueRequest {
-    let type: VkQueueFlagBits
-    let priorities: [Float]
+    public let type: VkQueueFlagBits
+    public let priorities: [Float]
 
     public init(type: VkQueueFlagBits, priorities: [Float] = [0.0]) {
         self.type = type
