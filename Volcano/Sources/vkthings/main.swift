@@ -444,9 +444,11 @@ struct VulkanStructureGenerator: ParsableCommand {
             registry.enumerations
                 .filter { $0.subtype == .bitmask }
                 .filter {
-                    $0.name != "VkAccessFlagBits2"
-                        && $0.name != "VkFormatFeatureFlagBits2"
-                        && $0.name != "VkPipelineStageFlagBits2"
+                    ["VkAccessFlagBits2",
+                     "VkFormatFeatureFlagBits2",
+                     "VkPipelineStageFlagBits2",
+                     "VkMemoryDecompressionMethodFlagBitsNV"]
+                     .contains($0.name) == false
                 }
                 .map { ParsedEnum(enumerationDefinition: $0) }
                 .map { ($0.name, $0) }
