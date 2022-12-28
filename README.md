@@ -2,7 +2,7 @@
 
 ![Platforms](https://img.shields.io/badge/platforms-linux%20x86__64%20|%20%20linux%20arm64-informational)
 ![License](https://img.shields.io/github/license/smumriak/AppKid)
-![Build](https://img.shields.io/github/workflow/status/smumriak/appkid/Build%20AppKidDemo?label=build%20x86_64)
+![Build](https://img.shields.io/github/actions/workflow/status/smumriak/appkid/build-appkiddemo.yml?label=build%20x86_64)
 
 **AppKid** is an open-source Application Development Framework heavily inspired by Apple's AppKit and UIKit. It was started as a way to have convenient SDK to build UI applications for X11 enabled GNU/Linux environment. It is written completely in swift, using Vulkan as rendering backend and relies on X11 for window management and user input events.
 
