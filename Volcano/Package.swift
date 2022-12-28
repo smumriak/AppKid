@@ -40,7 +40,7 @@ let package = Package(
         tinyFoundationDependency,
         simpleGLMDependency,
         swiftXlibDependency,
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMinor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
     ],
@@ -84,7 +84,10 @@ let package = Package(
                 "CVulkan",
             ],
             cSettings: [
-                .unsafeFlags(["-Wno-nullability-completeness", "-std=gnu++17"]),
+                .unsafeFlags(["-Wno-nullability-completeness"]),
+            ],
+            cxxSettings: [
+                .unsafeFlags(["-Wno-nullability-completeness", "-std=c++17"]),
             ]
         ),
         .executableTarget(
