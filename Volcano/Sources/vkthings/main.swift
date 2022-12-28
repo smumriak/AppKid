@@ -448,7 +448,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                      "VkFormatFeatureFlagBits2",
                      "VkPipelineStageFlagBits2",
                      "VkMemoryDecompressionMethodFlagBitsNV"]
-                     .contains($0.name) == false
+                        .contains($0.name) == false
                 }
                 .map { ParsedEnum(enumerationDefinition: $0) }
                 .map { ($0.name, $0) }

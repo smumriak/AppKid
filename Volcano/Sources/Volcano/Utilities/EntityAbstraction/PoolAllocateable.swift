@@ -49,7 +49,7 @@ extension VkDescriptorSetAllocateInfo: PoolAllocateInfo {
 }
 
 extension VkDescriptorPool_T: EntityPool {
-    public typealias Allocateable =  VkDescriptorSet_T
+    public typealias Allocateable = VkDescriptorSet_T
 }
 
 extension VkDescriptorSet_T: PoolAllocateable {
