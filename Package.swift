@@ -110,34 +110,34 @@ let package = Package(
 )
 
 extension Product {
-    static let appKid: Product = .library(name: "AppKid", type: .dynamic, targets: [Target.appKid.name])
+    static let appKid: Product = library(name: "AppKid", type: .dynamic, targets: [Target.appKid.name])
 
-    static let cCairo: Product = .library(name: "CCairo", targets: [Target.cCairo.name])
-    static let cPango: Product = .library(name: "CPango", targets: [Target.cPango.name])
-    static let cairoGraphics: Product = .library(name: "CairoGraphics", type: .dynamic, targets: [Target.cairoGraphics.name])
-    static let sTBImage: Product = .library(name: "STBImage", type: .static, targets: [Target.stbImageRead.name, Target.stbImageWrite.name, Target.stbImageResize.name])
-    static let sTBImageRead: Product = .library(name: "STBImageRead", type: .static, targets: [Target.stbImageRead.name])
-    static let sTBImageWrite: Product = .library(name: "STBImageWrite", type: .static, targets: [Target.stbImageWrite.name])
-    static let sTBImageResize: Product = .library(name: "STBImageResize", type: .static, targets: [Target.stbImageResize.name])
+    static let cCairo: Product = library(name: "CCairo", targets: [Target.cCairo.name])
+    static let cPango: Product = library(name: "CPango", targets: [Target.cPango.name])
+    static let cairoGraphics: Product = library(name: "CairoGraphics", type: .dynamic, targets: [Target.cairoGraphics.name])
+    static let sTBImage: Product = library(name: "STBImage", type: .static, targets: [Target.stbImageRead.name, Target.stbImageWrite.name, Target.stbImageResize.name])
+    static let sTBImageRead: Product = library(name: "STBImageRead", type: .static, targets: [Target.stbImageRead.name])
+    static let sTBImageWrite: Product = library(name: "STBImageWrite", type: .static, targets: [Target.stbImageWrite.name])
+    static let sTBImageResize: Product = library(name: "STBImageResize", type: .static, targets: [Target.stbImageResize.name])
 
-    static let contentAnimation: Product = .library(name: "ContentAnimation", type: .dynamic, targets: [Target.contentAnimation.name])
+    static let contentAnimation: Product = library(name: "ContentAnimation", type: .dynamic, targets: [Target.contentAnimation.name])
 
-    static let simpleGLM: Product = .library(name: "SimpleGLM", type: .dynamic, targets: [Target.simpleGLM.name])
+    static let simpleGLM: Product = library(name: "SimpleGLM", type: .dynamic, targets: [Target.simpleGLM.name])
 
-    static let cXlib: Product = .library(name: "CXlib", targets: [Target.cXlib.name])
-    static let swiftXlib: Product = .library(name: "SwiftXlib", type: .dynamic, targets: [Target.swiftXlib.name])
+    static let cXlib: Product = library(name: "CXlib", targets: [Target.cXlib.name])
+    static let swiftXlib: Product = library(name: "SwiftXlib", type: .dynamic, targets: [Target.swiftXlib.name])
 
-    static let cGLib: Product = .library(name: "CGLib", targets: [Target.cGLib.name])
-    static let swiftyGLib: Product = .library(name: "SwiftyGLib", type: .dynamic, targets: [Target.swiftyGLib.name])
+    static let cGLib: Product = library(name: "CGLib", targets: [Target.cGLib.name])
+    static let swiftyGLib: Product = library(name: "SwiftyGLib", type: .dynamic, targets: [Target.swiftyGLib.name])
 
-    static let tinyFoundation: Product = .library(name: "TinyFoundation", type: .dynamic, targets: [Target.tinyFoundation.name])
+    static let tinyFoundation: Product = library(name: "TinyFoundation", targets: [Target.tinyFoundation.name])
 
-    static let cVulkan: Product = .library(name: "CVulkan", targets: [Target.cVulkan.name])
-    static let volcano: Product = .library(name: "Volcano", type: .dynamic, targets: [Target.volcano.name])
-    static let vulkanMemoryAllocatorAdapted: Product = .library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: [Target.vulkanMemoryAllocatorAdapted.name])
-    static let vkthings: Product = .executable(name: "vkthings", targets: [Target.vkthings.name])
-    static let volcanosl: Product = .executable(name: "volcanosl", targets: [Target.volcanoSL.name])
-    static let volcanoSLPlugin: Product = .plugin(name: "VolcanoSLPlugin", targets: [Target.volcanoSLPlugin.name])
+    static let cVulkan: Product = library(name: "CVulkan", targets: [Target.cVulkan.name])
+    static let volcano: Product = library(name: "Volcano", type: .dynamic, targets: [Target.volcano.name])
+    static let vulkanMemoryAllocatorAdapted: Product = library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: [Target.vulkanMemoryAllocatorAdapted.name])
+    static let vkthings: Product = executable(name: "vkthings", targets: [Target.vkthings.name])
+    static let volcanosl: Product = executable(name: "volcanosl", targets: [Target.volcanoSL.name])
+    static let volcanoSLPlugin: Product = plugin(name: "VolcanoSLPlugin", targets: [Target.volcanoSLPlugin.name])
 }
 
 extension Target.Dependency {
@@ -185,7 +185,7 @@ extension Target {
 }
 
 extension Target {
-    static let appKid: Target = .target(
+    static let appKid: Target = target(
         name: "AppKid",
         dependencies: [
             .cairoGraphics,
@@ -204,7 +204,7 @@ extension Target {
 }
 
 extension Target {
-    static let cCairo: Target = .systemLibrary(
+    static let cCairo: Target = systemLibrary(
         name: "CCairo",
         path: "CairoGraphics/Sources/CCairo",
         pkgConfig: "cairo gobject-2.0",
@@ -213,7 +213,7 @@ extension Target {
             .brew(["cairo glib"]),
         ]
     )
-    static let cPango: Target = .systemLibrary(
+    static let cPango: Target = systemLibrary(
         name: "CPango",
         path: "CairoGraphics/Sources/CPango",
         pkgConfig: "pango gobject-2.0",
@@ -222,7 +222,7 @@ extension Target {
             .brew(["pango glib"]),
         ]
     )
-    static let cairoGraphics: Target = .target(
+    static let cairoGraphics: Target = target(
         name: "CairoGraphics",
         dependencies: [
             .cCairo,
@@ -238,19 +238,19 @@ extension Target {
             .unsafeFlags(["-emit-module"]),
         ]
     )
-    static let stbImageRead: Target = .target(
+    static let stbImageRead: Target = target(
         name: "STBImageRead",
         path: "CairoGraphics/SwiftSTB/Sources/STBImageRead")
 
-    static let stbImageWrite: Target = .target(
+    static let stbImageWrite: Target = target(
         name: "STBImageWrite",
         path: "CairoGraphics/SwiftSTB/Sources/STBImageWrite")
 
-    static let stbImageResize: Target = .target(
+    static let stbImageResize: Target = target(
         name: "STBImageResize",
         path: "CairoGraphics/SwiftSTB/Sources/STBImageResize")
 
-    static let cairoGraphicsTests: Target = .testTarget(
+    static let cairoGraphicsTests: Target = testTarget(
         name: "CairoGraphicsTests",
         dependencies: [.cairoGraphics],
         path: "CairoGraphics/Tests/CairoGraphicsTests"
@@ -258,7 +258,7 @@ extension Target {
 }
 
 extension Target {
-    static let contentAnimation: Target = .target(
+    static let contentAnimation: Target = target(
         name: "ContentAnimation",
         dependencies: [
             .cairoGraphics,
@@ -283,14 +283,14 @@ extension Target {
             // .plugin(name: "VolcanoSLPlugin", package: "Volcano"),
         ]
     )
-    static let layerRenderingData: Target = .target(
+    static let layerRenderingData: Target = target(
         name: "LayerRenderingData",
         dependencies: [
             .simpleGLM,
         ],
         path: "ContentAnimation/Sources/LayerRenderingData"
     )
-    static let contentAnimationTests: Target = .testTarget(
+    static let contentAnimationTests: Target = testTarget(
         name: "ContentAnimationTests",
         dependencies: [.contentAnimation],
         path: "ContentAnimation/Tests/ContentAnimationTests"
@@ -298,7 +298,7 @@ extension Target {
 }
 
 extension Target {
-    static let simpleGLM: Target = .target(
+    static let simpleGLM: Target = target(
         name: "SimpleGLM",
         dependencies: [
             .product(name: "cglm", package: "cglm"),
@@ -307,7 +307,7 @@ extension Target {
         swiftSettings: [
             .unsafeFlags(["-emit-module"]),
         ])
-    static let simpleGLMTests: Target = .testTarget(
+    static let simpleGLMTests: Target = testTarget(
         name: "SimpleGLMTests",
         dependencies: [
             .simpleGLM,
@@ -317,7 +317,7 @@ extension Target {
 }
 
 extension Target {
-    static let cXlib: Target = .systemLibrary(
+    static let cXlib: Target = systemLibrary(
         name: "CXlib",
         path: "SwiftXlib/Sources/CXlib",
         pkgConfig: "x11 xext xi xcb",
@@ -326,7 +326,7 @@ extension Target {
             .brew(["xquartz"]),
         ]
     )
-    static let swiftXlib: Target = .target(
+    static let swiftXlib: Target = target(
         name: "SwiftXlib",
         dependencies: [
             .cXlib,
@@ -337,7 +337,7 @@ extension Target {
             .unsafeFlags(["-emit-module"]),
         ]
     )
-    static let swiftXlibTests: Target = .testTarget(
+    static let swiftXlibTests: Target = testTarget(
         name: "SwiftXlibTests",
         dependencies: ["SwiftXlib"],
         path: "SwiftXlib/Tests/SwiftXlibTests"
@@ -345,7 +345,7 @@ extension Target {
 }
 
 extension Target {
-    static let cGLib: Target = .systemLibrary(
+    static let cGLib: Target = systemLibrary(
         name: "CGLib",
         path: "SwiftyGLib/Sources/CGLib",
         pkgConfig: "glib-2.0",
@@ -354,7 +354,7 @@ extension Target {
             .brew(["glib"]),
         ]
     )
-    static let swiftyGLib: Target = .target(
+    static let swiftyGLib: Target = target(
         name: "SwiftyGLib",
         dependencies: [
             .tinyFoundation,
@@ -364,7 +364,7 @@ extension Target {
         swiftSettings: [
             .unsafeFlags(["-emit-module"]),
         ])
-    static let swiftyGLibTests: Target = .testTarget(
+    static let swiftyGLibTests: Target = testTarget(
         name: "SwiftyGLibTests",
         dependencies: [.swiftyGLib],
         path: "SwiftyGLib/Tests/SwiftyGLibTests"
@@ -372,14 +372,14 @@ extension Target {
 }
 
 extension Target {
-    static let tinyFoundation: Target = .target(
+    static let tinyFoundation: Target = target(
         name: "TinyFoundation",
         dependencies: [
             .product(name: "Collections", package: "swift-collections"),
         ],
         path: "TinyFoundation/Sources/TinyFoundation"
     )
-    static let tinyFoundationTests: Target = .testTarget(
+    static let tinyFoundationTests: Target = testTarget(
         name: "TinyFoundationTests",
         dependencies: [.tinyFoundation],
         path: "TinyFoundation/Tests/TinyFoundationTests"
@@ -387,7 +387,7 @@ extension Target {
 }
 
 extension Target {
-    static let cVulkan: Target = .systemLibrary(
+    static let cVulkan: Target = systemLibrary(
         name: "CVulkan",
         path: "Volcano/Sources/CVulkan",
         pkgConfig: "vulkan",
@@ -395,7 +395,7 @@ extension Target {
             .apt(["vulkan-sdk libwayland-dev libx11-dev"]),
         ]
     )
-    static let cClang: Target = .systemLibrary(
+    static let cClang: Target = systemLibrary(
         name: "CClang",
         path: "Volcano/Sources/CClang",
         pkgConfig: "clang",
@@ -403,7 +403,7 @@ extension Target {
             .apt(["libclang-12-dev"]),
         ]
     )
-    static let volcano: Target = .target(
+    static let volcano: Target = target(
         name: "Volcano",
         dependencies: [
             .cVulkan,
@@ -423,7 +423,7 @@ extension Target {
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
         ]
     )
-    static let vulkanMemoryAllocatorAdapted: Target = .target(
+    static let vulkanMemoryAllocatorAdapted: Target = target(
         name: "VulkanMemoryAllocatorAdapted",
         dependencies: [
             .cVulkan,
@@ -436,7 +436,7 @@ extension Target {
             .unsafeFlags(["-Wno-nullability-completeness", "-std=c++17"]),
         ]
     )
-    static let vkthings: Target = .executableTarget(
+    static let vkthings: Target = executableTarget(
         name: "vkthings",
         dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
@@ -444,7 +444,7 @@ extension Target {
         ],
         path: "Volcano/Sources/vkthings"
     )
-    static let volcanoSL: Target = .executableTarget(
+    static let volcanoSL: Target = executableTarget(
         name: "VolcanoSL",
         dependencies: [
             .cClang,
@@ -457,7 +457,7 @@ extension Target {
             .copy("Resources/GLSLTypesInclude.h"),
         ]
     )
-    static let volcanoSLPlugin: Target = .plugin(
+    static let volcanoSLPlugin: Target = plugin(
         name: "VolcanoSLPlugin",
         capability: .buildTool(),
         dependencies: [.volcanoSL],

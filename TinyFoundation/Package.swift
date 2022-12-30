@@ -14,7 +14,7 @@ let package = Package(
         .macOS(.v12),
     ],
     products: [
-        .library(name: "TinyFoundation", type: .dynamic, targets: ["TinyFoundation"]),
+        .library(name: "TinyFoundation", targets: ["TinyFoundation"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
