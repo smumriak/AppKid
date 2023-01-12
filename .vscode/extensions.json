@@ -2,7 +2,6 @@
     "recommendations": [
         "sswg.swift-lang",
         "vadimcn.vscode-lldb",
-        "maptz.camelcasenavigation",
         "vknabel.vscode-swiftformat",
         "arturodent.launch-config",
         "wmaurer.change-case",
