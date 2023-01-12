@@ -72,28 +72,16 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
     public func present(swapchains: [Swapchain],
                         waitSemaphores: [Volcano.Semaphore] = [],
                         imageIndices: [CUnsignedInt]) throws {
-        let swapchainsHandles: [VkSwapchainKHR?] = swapchains.map { $0.pointer }
-        let waitSemaphoresHandles: [VkSemaphore?] = waitSemaphores.map { $0.pointer }
-
-        try imageIndices.withUnsafeBufferPointer { imageIndicesPointer in
-            try waitSemaphoresHandles.withUnsafeBufferPointer { waitSemaphoresPointer in
-                try swapchainsHandles.withUnsafeBufferPointer { swapchainsPointer in
-                    var presentInfo = VkPresentInfoKHR.new()
-
-                    presentInfo.waitSemaphoreCount = CUnsignedInt(waitSemaphoresPointer.count)
-                    presentInfo.pWaitSemaphores = waitSemaphoresPointer.baseAddress
-
-                    presentInfo.swapchainCount = CUnsignedInt(swapchainsPointer.count)
-                    presentInfo.pSwapchains = swapchainsPointer.baseAddress!
-
-                    presentInfo.pImageIndices = imageIndicesPointer.baseAddress!
-                    presentInfo.pResults = nil
-
-                    try lock.synchronized {
-                        try vulkanInvoke {
-                            device.vkQueuePresentKHR(pointer, &presentInfo)
-                        }
-                    }
+        try LavaBuilder<VkPresentInfoKHR> {
+            (\.waitSemaphoreCount, \.pWaitSemaphores) <- waitSemaphores
+            (\.swapchainCount, \.pSwapchains) <- swapchains
+            \.pImageIndices <- imageIndices
+            \.pResults <- nil
+        }
+        .withUnsafeMutableResultPointer { info in
+            try lock.synchronized {
+                try vulkanInvoke {
+                    device.vkQueuePresentKHR(pointer, info)
                 }
             }
         }
