@@ -40,7 +40,7 @@ public class Chain<Struct: VulkanChainableStructure>: LVPath {
         assert(result[keyPath: \.pNext] == nil)
         return try builder.withUnsafeChainPointer {
             result[keyPath: \.pNext] = $0
-            return try withAppliedDefault(to: &result, tail: tail, body)
+            return try body(&result)
         }
     }
 }

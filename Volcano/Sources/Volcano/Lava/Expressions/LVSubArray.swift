@@ -8,17 +8,17 @@
 import TinyFoundation
 import CVulkan
 
-@inlinable @inline(__always)
+@inlinable @_transparent
 public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), builder: LavaBuilderArray<SubStruct>) -> LVSubArray<Struct, SubStruct> {
     LVSubArray(paths.0, paths.1, builder)
 }
 
-@inlinable @inline(__always)
+@inlinable @_transparent
 public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), @LavaBuilderArray<SubStruct> content: () -> (LavaBuilderArray<SubStruct>)) -> LVSubArray<Struct, SubStruct> {
     LVSubArray(paths.0, paths.1, content())
 }
 
-@inlinable @inline(__always)
+@inlinable @_transparent
 public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [LavaBuilder<Value>?]) -> LVSubArray<Struct, Value> {
     LVSubArray(paths.0, paths.1, LavaBuilderArray(value.compactMap { $0 }))
 }
@@ -36,19 +36,20 @@ public struct LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: L
     @usableFromInline
     internal let builder: LavaBuilderArray<SubStruct>
 
+    @inlinable @_transparent
     public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ builder: LavaBuilderArray<SubStruct>) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.builder = builder
     }
 
-    @inlinable @inline(__always)
-    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    @inlinable @_transparent
+    public func withApplied<R>(to result: inout Struct, body: (inout Struct) throws -> (R)) rethrows -> R {
         return try builder.withUnsafeResultPointer {
             result[keyPath: countKeyPath] = CUnsignedInt($0.count)
             result[keyPath: valueKeyPath] = $0.baseAddress!
 
-            return try withAppliedDefault(to: &result, tail: tail, body)
+            return try body(&result)
         }
     }
 }

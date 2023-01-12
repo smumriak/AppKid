@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-@inlinable @inline(__always)
+@inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> LVFlags64<Struct, Value> where Value.RawValue == VkFlags64 {
     LVFlags64(path, value)
 }
@@ -22,14 +22,15 @@ public struct LVFlags64<Struct: InitializableWithNew, Value: RawRepresentable>: 
     @usableFromInline
     internal let value: Value
 
+    @inlinable @_transparent
     public init(_ valueKeyPath: ValueKeyPath, _ value: Value) {
         self.valueKeyPath = valueKeyPath
         self.value = value
     }
 
-    @inlinable @inline(__always)
-    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    @inlinable @_transparent
+    public func withApplied<R>(to result: inout Struct, body: (inout Struct) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = value.rawValue
-        return try withAppliedDefault(to: &result, tail: tail, body)
+        return try body(&result)
     }
 }

@@ -9,7 +9,7 @@ import TinyFoundation
 import CVulkan
 
 internal extension LavaBuilder {
-    @inlinable @inline(__always)
+    @inlinable @_transparent
     func withApplied<R>(to result: inout [Struct], tail: ArraySlice<LavaBuilder<Struct>>, _ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
         return try withUnsafeResultPointer {
             result.append($0.pointee)
@@ -101,7 +101,7 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
         self.elements = elements
     }
 
-    @inlinable @inline(__always)
+    @inlinable @_transparent
     public func withUnsafeResultPointer<R>(_ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
         var result: [Struct] = []
 
@@ -119,7 +119,7 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
         }
     }
 
-    @inlinable @inline(__always)
+    @inlinable @_transparent
     public func callAsFunction<R>(_ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
         try withUnsafeResultPointer(body)
     }

@@ -8,7 +8,7 @@
 import TinyFoundation
 import CVulkan
 
-@inlinable @inline(__always)
+@inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, UnsafeMutablePointer<Value>?>, value: UnsafeMutablePointer<Value>) -> LVMutablePointer<Struct, Value> {
     LVMutablePointer(path, value)
 }
@@ -22,14 +22,15 @@ public struct LVMutablePointer<Struct: InitializableWithNew, Value>: LVPath {
     @usableFromInline
     internal let pointer: UnsafeMutablePointer<Value>?
 
+    @inlinable @_transparent
     public init(_ valueKeyPath: ValueKeyPath, _ pointer: UnsafeMutablePointer<Value>?) {
         self.valueKeyPath = valueKeyPath
         self.pointer = pointer
     }
 
-    @inlinable @inline(__always)
-    public func withApplied<R>(to result: inout Struct, tail: ArraySlice<any LVPath<Struct>>, _ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+    @inlinable @_transparent
+    public func withApplied<R>(to result: inout Struct, body: (inout Struct) throws -> (R)) rethrows -> R {
         result[keyPath: valueKeyPath] = pointer
-        return try withAppliedDefault(to: &result, tail: tail, body)
+        return try body(&result)
     }
 }

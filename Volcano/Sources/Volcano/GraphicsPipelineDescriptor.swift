@@ -107,15 +107,24 @@ extension GraphicsPipelineDescriptor {
     @_transparent
     @LavaBuilder<VkPipelineViewportStateCreateInfo>
     var viewportState: LavaBuilder<VkPipelineViewportStateCreateInfo> {
-        switch viewportStateDefinition {
-            case .static(let viewports, let scissors):
-                (\.viewportCount, \.pViewports) <- viewports
-                (\.scissorCount, \.pScissors) <- scissors
-
-            case .dynamic(let viewportsCount, let scissorsCount):
-                (\.viewportCount, \.pViewports) <- viewportsCount
-                (\.scissorCount, \.pScissors) <- scissorsCount
+        // smumriak: This looks stupid. Why not use switch or at least else-if? The reason is https://github.com/apple/swift/issues/57076 ([SR-14726]). Till this is fixed functionality of "else" and "switch" in Lava will be disabled
+        if case let .static(viewports, scissors) = viewportStateDefinition {
+            (\.viewportCount, \.pViewports) <- viewports
+            (\.scissorCount, \.pScissors) <- scissors
         }
+        if case let .dynamic(viewportsCount, scissorsCount) = viewportStateDefinition {
+            (\.viewportCount, \.pViewports) <- viewportsCount
+            (\.scissorCount, \.pScissors) <- scissorsCount
+        }
+        // switch viewportStateDefinition {
+        //     case .static(let viewports, let scissors):
+        //         (\.viewportCount, \.pViewports) <- viewports
+        //         (\.scissorCount, \.pScissors) <- scissors
+
+        //     case .dynamic(let viewportsCount, let scissorsCount):
+        //         (\.viewportCount, \.pViewports) <- viewportsCount
+        //         (\.scissorCount, \.pScissors) <- scissorsCount
+        // }
     }
 
     @_transparent

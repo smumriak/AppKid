@@ -8,106 +8,104 @@
 import TinyFoundation
 import CVulkan
 
-@resultBuilder
-public struct LavaBuilder<Struct: InitializableWithNew> {
-    public static func buildExpression(_ expression: any LVPath<Struct>) -> [any LVPath<Struct>] {
-        return [expression]
-    }
-
-    public static func buildExpression(_ expression: (any LVPath<Struct>)?) -> [any LVPath<Struct>] {
-        if let expression {
-            return [expression]
-        } else {
-            return []
-        }
-    }
-
-    public static func buildExpression(_ expression: [(any LVPath<Struct>)?]) -> [any LVPath<Struct>] {
-        expression.compactMap { $0 }
-    }
-
-    public static func buildBlock() -> [any LVPath<Struct>] {
-        return []
-    }
-
-    public static func buildBlock(_ paths: [any LVPath<Struct>]...) -> [any LVPath<Struct>] {
-        return paths.flatMap { $0 }
-    }
-
-    public static func buildBlock(_ paths: [(any LVPath<Struct>)?]) -> [any LVPath<Struct>] {
-        return paths.compactMap { $0 }
-    }
-
-    public static func buildOptional(_ component: [any LVPath<Struct>]?) -> [any LVPath<Struct>] {
-        return component ?? []
-    }
-
-    public static func buildEither(first: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
-        return first
-    }
-
-    public static func buildEither(second: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
-        return second
-    }
-
-    public static func buildArray(_ paths: [[any LVPath<Struct>]]) -> [any LVPath<Struct>] {
-        return paths.flatMap { $0 }
-    }
-
-    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> [any LVPath<Struct>] {
-        return paths
-    }
-
-    public static func buildFinalResult(_ paths: [any LVPath<Struct>]) -> LavaBuilder<Struct> {
-        return LavaBuilder(paths)
-    }
-
-    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows -> [any LVPath<Struct>] {
-        return try content()
-    }
-
-    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> (LavaBuilder<Struct>)) rethrows -> LavaBuilder<Struct> {
-        return try content()
-    }
-
-    @usableFromInline
-    internal var paths: [any LVPath<Struct>]
-
-    public init(@LavaBuilder<Struct> _ content: () throws -> ([any LVPath<Struct>])) rethrows {
-        try self.init(content())
-    }
-
-    @usableFromInline
-    internal init(_ paths: [any LVPath<Struct>]) {
-        self.paths = paths
-    }
-
+public protocol LavaBuilderProtocol<Struct> {
+    associatedtype Struct: InitializableWithNew
+    
     @inlinable @inline(__always)
-    internal func withUnsafeMutableResultPointer<R>(_ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
-        var result = Struct.new()
+    func withUnsafeMutableResultPointer<R>(_ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R
+}
 
-        if paths.isEmpty {
-            return try withUnsafeMutablePointer(to: &result, body)
-        } else {
-            let indices = paths.indices
-
-            let head = paths[indices.lowerBound]
-            let tail = paths[indices.dropFirst()]
-
-            return try head.withApplied(to: &result, tail: tail, body)
-        }
-    }
-
-    @inlinable @inline(__always)
-    public func withUnsafeResultPointer<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+public extension LavaBuilderProtocol {
+    @inlinable @_transparent
+    func withUnsafeResultPointer<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
         try withUnsafeMutableResultPointer {
             try body(UnsafePointer($0))
         }
     }
 
-    @inlinable @inline(__always)
-    public func callAsFunction<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
+    @inlinable @_transparent
+    func callAsFunction<R>(_ body: (UnsafePointer<Struct>) throws -> (R)) rethrows -> R {
         try withUnsafeResultPointer(body)
+    }
+}
+
+@resultBuilder
+public struct LavaBuilder<Struct: InitializableWithNew>: LavaBuilderProtocol {
+    @inlinable @_transparent
+    public static func buildExpression(_ expression: some LVPath<Struct>) -> some LVPath<Struct> {
+        expression
+    }
+
+    @inlinable @_transparent
+    public static func buildBlock() -> some LVPath<Struct> {
+        LVEmptyPath()
+    }
+    
+    @inlinable @_transparent
+    public static func buildPartialBlock(first: some LVPath<Struct>) -> some LVPath<Struct> {
+        first
+    }
+
+    @inlinable @_transparent
+    public static func buildPartialBlock(accumulated left: some LVPath<Struct>, next right: some LVPath<Struct>) -> some LVPath<Struct> {
+        LVTuplePath(left: left, right: right)
+    }
+
+    @inlinable @_transparent
+    public static func buildOptional(_ component: (some LVPath<Struct>)?) -> some LVPath<Struct> {
+        LVOptionalPath(component)
+    }
+
+    // smumriak: https://github.com/apple/swift/issues/57076 ([SR-14726]). Till this is fixed functionality of "else" and "switch" in Lava will be disabled
+    // @inlinable @_transparent
+    // public static func buildEither(first component: some LVPath<Struct>) -> some LVPath<Struct> {
+    //     component
+    // }
+
+    // @inlinable @_transparent
+    // public static func buildEither(second component: some LVPath<Struct>) -> some LVPath<Struct> {
+    //     component
+    // }
+
+    @inlinable @_transparent
+    public static func buildFinalResult(_ component: some LVPath<Struct>) -> some LVPath<Struct> {
+        component
+    }
+
+    @inlinable @_transparent
+    public static func buildFinalResult(_ component: some LVPath<Struct>) -> LavaBuilder<Struct> {
+        LavaBuilder(component)
+    }
+
+    @inlinable @_transparent
+    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> (some LVPath<Struct>)) rethrows -> some LVPath<Struct> {
+        try content()
+    }
+
+    @inlinable @_transparent
+    public static func buildFinalResult(@LavaBuilder<Struct> _ content: () throws -> (LavaBuilder<Struct>)) rethrows -> LavaBuilder<Struct> {
+        try content()
+    }
+
+    @usableFromInline
+    internal var path: any LVPath<Struct>
+
+    @inlinable @_transparent
+    public init<Path: LVPath>(@LavaBuilder<Struct> _ content: () throws -> (Path)) rethrows where Path.Struct == Struct {
+        try self.init(content())
+    }
+
+    @inlinable @_transparent
+    public init<Path: LVPath>(_ path: Path) where Path.Struct == Struct {
+        self.path = path
+    }
+
+    @inlinable @_transparent
+    public func withUnsafeMutableResultPointer<R>(_ body: (UnsafeMutablePointer<Struct>) throws -> (R)) rethrows -> R {
+        var result = Struct.new()
+        return try path.withApplied(to: &result) {
+            try withUnsafeMutablePointer(to: &$0, body)
+        }
     }
 }
 
