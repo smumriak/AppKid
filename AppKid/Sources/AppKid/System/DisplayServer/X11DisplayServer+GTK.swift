@@ -20,7 +20,7 @@ internal extension X11DisplayServer {
         return try? DylibWrapper.perform(on: "libgdk-3.so") {
             let gdk_display_open: gdk_display_open_f = try $0.loadCFunction(with: "gdk_display_open")
             let gdk_display_close: gdk_display_close_f = try $0.loadCFunction(with: "gdk_display_close")
-            guard let gtkDisplay = gdk_display_open(display.handle.pointee.display_name) else {
+            guard let gtkDisplay = gdk_display_open(display.handle.display_name) else {
                 return nil
             }
 

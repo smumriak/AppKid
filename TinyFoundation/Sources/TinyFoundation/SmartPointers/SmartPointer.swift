@@ -25,6 +25,7 @@ internal struct RetainCount {
 
 internal var globalRetainCount = RetainCount()
 
+@dynamicMemberLookup
 public protocol SmartPointer<Pointee>: Hashable {
     associatedtype Pointee
     typealias Pointer = UnsafeMutablePointer<Pointee>
@@ -41,6 +42,15 @@ public extension SmartPointer {
 
     @_transparent
     var optionalPointer: Pointer? { pointer }
+
+    subscript<T>(dynamicMember keyPath: WritableKeyPath<Pointee, T>) -> T {
+        get {
+            pointer.pointee[keyPath: keyPath]
+        }
+        set {
+            pointer.pointee[keyPath: keyPath] = newValue
+        }
+    }
 }
 
 public extension SmartPointer {
