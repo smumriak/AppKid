@@ -9,3 +9,29 @@
 // Original code was distributed under Apache License 2.0 located at https://github.com/apple/swift-corelibs-foundation/blob/3c390df83b75a2bb362cacd2fc7f64e8b31123f0/LICENSE
 // The reason for salvaging is this thread https://forums.swift.org/t/what-s-next-for-foundation/61939
 // Thanks all swift-corelibs-foundation contributors for ability to preserve functionality of Thread family of classes
+
+import Dispatch
+
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import Foundation
+
+    public typealias Thread = Foundation.Thread
+#else
+    #if canImport(CLinuxSys)
+        import CLinuxSys
+    #endif
+
+    #if os(Windows)
+        import WinSDK
+    #endif
+
+    #if os(Windows)
+        internal typealias OSNativeThread = HANDLE
+        internal typealias OSNativeThreadAttributes = (dwSizeOfAttributes: CUnsignedLong, dwThreadStackReservation: CUnsignedLong)
+        internal typealias OSNativeThreadSpecificKey = CUnsignedLong
+    #else
+        internal typealias OSNativeThread = pthread_t
+        internal typealias OSNativeThreadAttributes = pthread_attr_t
+        internal typealias OSNativeThreadSpecificKey = pthread_key_t
+    #endif
+#endif

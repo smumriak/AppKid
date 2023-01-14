@@ -26,12 +26,6 @@
     #endif
 
     #if os(Windows)
-        internal typealias OSNativeThread = HANDLE
-    #else
-        internal typealias OSNativeThread = pthread_t
-    #endif
-
-    #if os(Windows)
         import WinSDK
     #endif
 
