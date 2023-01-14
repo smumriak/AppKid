@@ -27,7 +27,7 @@ open class RunLoop1 {
         self.thread = thread
     }
 
-    internal let lock = NSRecursiveLock()
+    internal let lock = RecursiveLock()
 
     @_spi(AppKid) public func isFinished(in mode: RunLoopMode) -> Bool {
         return lock.synchronized {
@@ -115,7 +115,7 @@ public extension RunLoop1 {
 public protocol RunLoopItem {}
 
 @_spi(AppKid) public class RunLoopMode: Hashable {
-    internal let lock = NSRecursiveLock()
+    internal let lock = RecursiveLock()
 
     internal var isEmpty: Bool {
         return true

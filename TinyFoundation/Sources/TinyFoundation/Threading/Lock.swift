@@ -11,29 +11,39 @@
 // After salvaging original code was heavily modified to use more convenience features that swift provides and is not source-compatible with original
 // Thanks all swift-corelibs-foundation contributors for ability to preserve functionality of Lock family of classes
 
-import Foundation
-
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import Foundation
+
     public typealias LockProtocol = NSLocking
     public typealias Lock = NSLock
     public typealias RecursiveLock = NSRecursiveLock
+    public typealias ConditionLock = NSConditionLock
 #else
+    import struct Foundation.Date
+
     #if canImport(CLinuxSys)
         import CLinuxSys
+    #endif
+
+    #if os(Windows)
+        internal typealias OSNativeThread = HANDLE
+    #else
+        internal typealias OSNativeThread = pthread_t
     #endif
 
     #if os(Windows)
         import WinSDK
     #endif
 
-    public protocol LockProtocol: NSLocking {
+    public protocol LockProtocol {
         func lock()
         func unlock()
     }
 
-    extension NSLock: LockProtocol {}
-    extension NSRecursiveLock: LockProtocol {}
-    extension NSConditionLock: LockProtocol {}
+    public typealias NSLocking = LockProtocol
+    public typealias NSLock = Lock
+    public typealias NSRecursiveLock = RecursiveLock
+    public typealias NSConditionLock = ConditionLock
 
     @_transparent
     fileprivate func newOSMutex() -> Lock.Mutex {
@@ -133,7 +143,7 @@ import Foundation
             #endif
 
             #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(Windows)
-                return timedLock(mutex: mutex.pointer, endTime: limit, using: timeoutConditionalVariable.pointer, with: timeoutMutex.pointer)
+                return timedLock(mutex: mutex, endTime: limit, using: timeoutConditionalVariable, with: timeoutMutex)
             #else
                 guard var endTime = limit.timeSpec else {
                     return false
@@ -198,7 +208,7 @@ import Foundation
             #endif
 
             #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(Windows)
-                return timedLock(mutex: mutex.pointer, endTime: limit, using: timeoutConditionalVariable.pointer, with: timeoutMutex.pointer)
+                return timedLock(mutex: mutex, endTime: limit, using: timeoutConditionalVariable, with: timeoutMutex)
             #else
                 guard var endTime = limit.timeSpec else {
                     return false
@@ -213,180 +223,149 @@ import Foundation
     }
 
     #if !os(WASI)
-        // open class ConditionLock: LockProtocol {
-        //     internal var _cond = Condition()
-        //     internal var _value: Int
-        //     internal var _thread: _swift_CFThreadRef?
-    
-        //     public override convenience init() {
-        //         self.init(condition: 0)
-        //     }
-    
-        //     public init(condition: Int) {
-        //         _value = condition
-        //     }
+        public final class ConditionLock: LockProtocol {
+            internal var _condition = Condition()
+            internal var _value: Int
+            internal var _thread: OSNativeThread?
+            public var name: String?
 
-        //     open func lock() {
-        //         let _ = lock(before: Date.distantFuture)
-        //     }
-
-        //     open func unlock() {
-        //         _cond.lock()
-        //         #if os(Windows)
-        //             _thread = INVALID_HANDLE_VALUE
-        //         #else
-        //             _thread = nil
-        //         #endif
-        //         _cond.broadcast()
-        //         _cond.unlock()
-        //     }
+            public convenience init() {
+                self.init(condition: 0)
+            }
     
-        //     open var condition: Int {
-        //         return _value
-        //     }
+            public init(condition: Int) {
+                _value = condition
+            }
 
-        //     open func lock(whenCondition condition: Int) {
-        //         let _ = lock(whenCondition: condition, before: Date.distantFuture)
-        //     }
+            public func lock() {
+                let _ = lock(before: Date.distantFuture)
+            }
 
-        //     open func `try`() -> Bool {
-        //         return lock(before: Date.distantPast)
-        //     }
+            public func unlock() {
+                _condition.lock()
+                #if os(Windows)
+                    _thread = INVALID_HANDLE_VALUE
+                #else
+                    _thread = nil
+                #endif
+                _condition.broadcast()
+                _condition.unlock()
+            }
     
-        //     open func tryLock(whenCondition condition: Int) -> Bool {
-        //         return lock(whenCondition: condition, before: Date.distantPast)
-        //     }
+            public var condition: Int {
+                return _value
+            }
 
-        //     open func unlock(withCondition condition: Int) {
-        //         _cond.lock()
-        //         #if os(Windows)
-        //             _thread = INVALID_HANDLE_VALUE
-        //         #else
-        //             _thread = nil
-        //         #endif
-        //         _value = condition
-        //         _cond.broadcast()
-        //         _cond.unlock()
-        //     }
+            public func lock(whenCondition condition: Int) {
+                let _ = lock(whenCondition: condition, before: Date.distantFuture)
+            }
 
-        //     open func lock(before limit: Date) -> Bool {
-        //         _cond.lock()
-        //         while _thread != nil {
-        //             if !_cond.wait(until: limit) {
-        //                 _cond.unlock()
-        //                 return false
-        //             }
-        //         }
-        //         #if os(Windows)
-        //             _thread = GetCurrentThread()
-        //         #else
-        //             _thread = pthread_self()
-        //         #endif
-        //         _cond.unlock()
-        //         return true
-        //     }
+            public func `try`() -> Bool {
+                return lock(before: Date.distantPast)
+            }
     
-        //     open func lock(whenCondition condition: Int, before limit: Date) -> Bool {
-        //         _cond.lock()
-        //         while _thread != nil || _value != condition {
-        //             if !_cond.wait(until: limit) {
-        //                 _cond.unlock()
-        //                 return false
-        //             }
-        //         }
-        //         #if os(Windows)
-        //             _thread = GetCurrentThread()
-        //         #else
-        //             _thread = pthread_self()
-        //         #endif
-        //         _cond.unlock()
-        //         return true
-        //     }
+            public func tryLock(whenCondition condition: Int) -> Bool {
+                return lock(whenCondition: condition, before: Date.distantPast)
+            }
+
+            public func unlock(withCondition condition: Int) {
+                _condition.lock()
+                #if os(Windows)
+                    _thread = INVALID_HANDLE_VALUE
+                #else
+                    _thread = nil
+                #endif
+                _value = condition
+                _condition.broadcast()
+                _condition.unlock()
+            }
+
+            public func lock(before limit: Date) -> Bool {
+                _condition.lock()
+                while _thread != nil {
+                    if !_condition.wait(until: limit) {
+                        _condition.unlock()
+                        return false
+                    }
+                }
+                #if os(Windows)
+                    _thread = GetCurrentThread()
+                #else
+                    _thread = pthread_self()
+                #endif
+                _condition.unlock()
+                return true
+            }
     
-        //     open var name: String?
-        // }
+            public func lock(whenCondition condition: Int, before limit: Date) -> Bool {
+                _condition.lock()
+                while _thread != nil || _value != condition {
+                    if !_condition.wait(until: limit) {
+                        _condition.unlock()
+                        return false
+                    }
+                }
+                #if os(Windows)
+                    _thread = GetCurrentThread()
+                #else
+                    _thread = pthread_self()
+                #endif
+                _condition.unlock()
+                return true
+            }
+        }
     #endif
 
-    // open class Condition: LockProtocol {
-    //     internal var mutex = _MutexPointer.allocate(capacity: 1)
-    //     internal var cond = _ConditionVariablePointer.allocate(capacity: 1)
+    public final class Condition: LockProtocol {
+        internal var mutex = newOSMutex()
+        internal var conditionalVariable = newOSConditionalVariable()
+        var name: String?
 
-    //     public override init() {
-    //         #if os(Windows)
-    //             InitializeSRWLock(mutex)
-    //             InitializeConditionVariable(cond)
-    //         #else
-    //             pthread_mutex_init(mutex, nil)
-    //             pthread_cond_init(cond, nil)
-    //         #endif
-    //     }
-    
-    //     deinit {
-    //         #if os(Windows)
-    //         // SRWLock do not need to be explicitly destroyed
-    //         #else
-    //             pthread_mutex_destroy(mutex)
-    //             pthread_cond_destroy(cond)
-    //         #endif
-    //         mutex.deinitialize(count: 1)
-    //         cond.deinitialize(count: 1)
-    //         mutex.deallocate()
-    //         cond.deallocate()
-    //     }
-    
-    //     open func lock() {
-    //         #if os(Windows)
-    //             AcquireSRWLockExclusive(mutex)
-    //         #else
-    //             pthread_mutex_lock(mutex)
-    //         #endif
-    //     }
-    
-    //     open func unlock() {
-    //         #if os(Windows)
-    //             ReleaseSRWLockExclusive(mutex)
-    //         #else
-    //             pthread_mutex_unlock(mutex)
-    //         #endif
-    //     }
-    
-    //     open func wait() {
-    //         #if os(Windows)
-    //             SleepConditionVariableSRW(cond, mutex, WinSDK.INFINITE, 0)
-    //         #else
-    //             pthread_cond_wait(cond, mutex)
-    //         #endif
-    //     }
+        public init() {}
 
-    //     open func wait(until limit: Date) -> Bool {
-    //         #if os(Windows)
-    //             return SleepConditionVariableSRW(cond, mutex, timeoutFrom(date: limit), 0)
-    //         #else
-    //             guard var timeout = timeSpecFrom(date: limit) else {
-    //                 return false
-    //             }
-    //             return pthread_cond_timedwait(cond, mutex, &timeout) == 0
-    //         #endif
-    //     }
+        public func lock() {
+            mutex.lock()
+        }
     
-    //     open func signal() {
-    //         #if os(Windows)
-    //             WakeConditionVariable(cond)
-    //         #else
-    //             pthread_cond_signal(cond)
-    //         #endif
-    //     }
+        public func unlock() {
+            mutex.unlock()
+        }
     
-    //     open func broadcast() {
-    //         #if os(Windows)
-    //             WakeAllConditionVariable(cond)
-    //         #else
-    //             pthread_cond_broadcast(cond)
-    //         #endif
-    //     }
+        public func wait() {
+            #if os(Windows)
+                SleepConditionVariableSRW(conditionalVariable.pointer, mutex.pointer, WinSDK.INFINITE, 0)
+            #else
+                pthread_cond_wait(conditionalVariable.pointer, mutex.pointer)
+            #endif
+        }
+
+        public func wait(until limit: Date) -> Bool {
+            #if os(Windows)
+                return SleepConditionVariableSRW(conditionalVariable.pointer, mutex.pointer, endTime.timeout, 0)
+            #else
+                guard var timeout = limit.timeSpec else {
+                    return false
+                }
+                return pthread_cond_timedwait(conditionalVariable.pointer, mutex.pointer, &timeout) == 0
+            #endif
+        }
     
-    //     open var name: String?
-    // }
+        public func signal() {
+            #if os(Windows)
+                WakeConditionVariable(conditionalVariable.pointer)
+            #else
+                pthread_cond_signal(conditionalVariable.pointer)
+            #endif
+        }
+    
+        public func broadcast() {
+            #if os(Windows)
+                WakeAllConditionVariable(conditionalVariable.pointer)
+            #else
+                pthread_cond_broadcast(conditionalVariable.pointer)
+            #endif
+        }
+    }
 
     internal extension Lock {
         #if os(Windows)
@@ -570,12 +549,12 @@ import Foundation
                                                     with timeoutMutex: Lock.Mutex) -> Bool {
             repeat {
                 timeoutMutex.lock()
-                SleepConditionVariableSRW(timeoutConditionalVariable.pointer, timeoutMutex.pointer, timeoutFrom(date: endTime), 0)
+                SleepConditionVariableSRW(timeoutConditionalVariable.pointer, timeoutMutex.pointer, endTime.timeout, 0)
                 timeoutMutex.unlock()
                 if mutex.try() != 0 {
                     return true
                 }
-            } while timeoutFrom(date: endTime) != 0
+            } while endTime.timeout != 0
             return false
         }
     // #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)

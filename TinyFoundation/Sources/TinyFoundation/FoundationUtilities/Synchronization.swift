@@ -19,7 +19,7 @@ public extension LockProtocol {
 @propertyWrapper
 public struct Synchronized<Value> {
     private var value: Value
-    private let lock = NSRecursiveLock()
+    private let lock = RecursiveLock()
 
     public init(wrappedValue value: Value) {
         self.value = value

@@ -66,7 +66,7 @@ internal class DescriptorSetContainer {
 }
 
 @_spi(AppKid) public class RenderTargetsCache {
-    let lock = NSRecursiveLock()
+    let lock = RecursiveLock()
     var renderTargets: [AnyHashable: RenderTarget] = [:]
 
     let renderPass: RenderPass

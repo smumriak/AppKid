@@ -15,7 +15,7 @@ import TinyFoundation
 protocol KeySomething: Hashable {}
 
 internal class DescriptorsSetCache {
-    let lock = NSRecursiveLock()
+    let lock = RecursiveLock()
     let device: Device
     let layout: DescriptorSetLayout
     let sizes: [VkDescriptorPoolSize]
