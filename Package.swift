@@ -36,6 +36,8 @@ let package = Package(
         // .cGLib,
         // .swiftyGLib,
 
+        .cLinuxSys,
+
         .tinyFoundation,
 
         .cVulkan,
@@ -95,6 +97,8 @@ let package = Package(
         // .cGLib,
         // .swiftyGLib,
         // .swiftyGLibTests,
+        
+        .cLinuxSys,
 
         .tinyFoundation,
         .tinyFoundationTests,
@@ -129,6 +133,8 @@ extension Product {
 
     static let cGLib: Product = library(name: "CGLib", targets: [Target.cGLib.name])
     static let swiftyGLib: Product = library(name: "SwiftyGLib", type: .dynamic, targets: [Target.swiftyGLib.name])
+
+    static let cLinuxSys: Product = library(name: "CLinuxSys", targets: [Target.cLinuxSys.name])
 
     static let tinyFoundation: Product = library(name: "TinyFoundation", targets: [Target.tinyFoundation.name])
 
@@ -165,6 +171,8 @@ extension Target.Dependency {
     static let cGLib = Target.cGLib.asDependency
     static let swiftyGLib = Target.swiftyGLib.asDependency
     static let swiftyGLibTests = Target.swiftyGLibTests.asDependency
+
+    static let cLinuxSys = Target.cLinuxSys.asDependency
 
     static let tinyFoundation = Target.tinyFoundation.asDependency
     static let tinyFoundationTests = Target.tinyFoundationTests.asDependency
@@ -372,10 +380,18 @@ extension Target {
 }
 
 extension Target {
+    static let cLinuxSys: Target = systemLibrary(
+        name: "CLinuxSys",
+        path: "Sys/Sources/CLinuxSys"
+    )
+}
+
+extension Target {
     static let tinyFoundation: Target = target(
         name: "TinyFoundation",
         dependencies: [
             .product(name: "Collections", package: "swift-collections"),
+            .cLinuxSys,
         ],
         path: "TinyFoundation/Sources/TinyFoundation"
     )
