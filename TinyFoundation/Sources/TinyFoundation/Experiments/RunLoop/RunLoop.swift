@@ -186,13 +186,6 @@ public protocol RunLoopItem {}
 private let kDeinitHook: AnyHashable = kDeinitHook
 
 @_spi(AppKid) extension Thread {
-    #if !os(macOS)
-        @_transparent
-        static var main: Thread {
-            return .mainThread
-        }
-    #endif
-
     class DeinitHook {
         public typealias Callback = () -> ()
 
