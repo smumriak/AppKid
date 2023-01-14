@@ -26,7 +26,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
         try super.init(device: device, handle: handle)
     }
 
-    internal let valueLock = NSRecursiveLock()
+    internal let valueLock = RecursiveLock()
     internal var _value: UInt64
     public var value: UInt64 {
         get throws {

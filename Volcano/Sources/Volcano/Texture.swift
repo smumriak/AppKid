@@ -10,7 +10,7 @@ import TinyFoundation
 import CVulkan
 
 internal var globalTextureCounter: UInt = 0
-internal var globalTextureCounterLock = NSLock()
+internal var globalTextureCounterLock = Lock()
 
 internal func grabAvailableGlobalTextureIdentifier() -> UInt {
     return globalTextureCounterLock.synchronized {

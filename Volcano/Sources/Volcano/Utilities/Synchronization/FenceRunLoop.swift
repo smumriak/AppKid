@@ -7,11 +7,12 @@
 
 import CVulkan
 import Foundation
+import TinyFoundation
 
 internal class FenceSet {
     let device: Device
     var fences: Set<Fence> = []
-    let lock = NSRecursiveLock()
+    let lock = RecursiveLock()
 
     init(device: Device) {
         fatalError("WORK IN PROGRESS, DO NOT USE")
@@ -141,7 +142,7 @@ internal protocol FenceRunLoopDelegate: AnyObject {
 }
     
 public final class FenceRunLoop {
-    internal let lock = NSRecursiveLock()
+    internal let lock = RecursiveLock()
     internal let wakeUpFence: Fence
     internal var fenceSet: FenceSet
     internal var fenceToSource: [Fence: Source] = [:]

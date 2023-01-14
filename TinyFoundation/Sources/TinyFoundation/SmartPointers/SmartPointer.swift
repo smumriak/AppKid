@@ -92,8 +92,8 @@ public final class SharedPointer<Pointee>: SmartPointer {
         deleter(pointer)
     }
 
-    public class func allocate(capacity: Int = 1) -> SharedPointer<Pointee> {
-        return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: .system)
+    public class func allocate(capacity: Int = 1, deleter: Deleter = .system) -> SharedPointer<Pointee> {
+        return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: deleter)
     }
 
     public init(with pointer: Pointer, deleter: Deleter) {

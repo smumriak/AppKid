@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension NSLocking {
+public extension LockProtocol {
     func synchronized<T>(_ body: () throws -> T) rethrows -> T {
         self.lock()
         defer { self.unlock() }
@@ -36,5 +36,9 @@ public struct Synchronized<Value> {
 
     public func synchronized<T>(_ body: () throws -> T) rethrows -> T {
         return try lock.synchronized(body)
+    }
+
+    public var projectedValue: Synchronized<Value> {
+        self
     }
 }

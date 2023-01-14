@@ -7,12 +7,13 @@
 
 import CVulkan
 import Foundation
+import TinyFoundation
 
 internal class TimelineSemaphoreSet {
     let device: Device
     var semaphores: Set<TimelineSemaphore> = []
     var semaphoresToWaitValues: [TimelineSemaphore: UInt64] = [:]
-    let lock = NSRecursiveLock()
+    let lock = RecursiveLock()
 
     init(device: Device) {
         self.device = device
@@ -163,7 +164,7 @@ internal protocol SemaphoreRunLoopDelegate: AnyObject {
 }
     
 public final class SemaphoreRunLoop {
-    internal let lock = NSRecursiveLock()
+    internal let lock = RecursiveLock()
     internal let wakeUpSemaphore: TimelineSemaphore
     internal var semaphoreSet: TimelineSemaphoreSet
     internal var semaphoreToSource: [TimelineSemaphore: Source] = [:]

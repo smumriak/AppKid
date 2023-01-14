@@ -15,7 +15,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
     public let queueIndex: Int
     public let type: VkQueueFlagBits
 
-    private let lock = NSRecursiveLock()
+    private let lock = RecursiveLock()
 
     public init(device: Device, familyIndex: Int, queueIndex: Int, type: VkQueueFlagBits) throws {
         self.device = device

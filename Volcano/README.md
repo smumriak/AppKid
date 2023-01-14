@@ -55,5 +55,5 @@ Volcano aims to support all platforms that are supported by both Swift 5.5+ and 
 
 ### Compatibility
 
-Volcano follows [SemVer 2.0.0](https://semver.org/#semantic-versioning-200) and is periodically syncrhonized with Vulkan API version.
+Volcano follows [SemVer 2.0.0](https://semver.org/#semantic-versioning-200) and is periodically synchronized with Vulkan API version.
 
