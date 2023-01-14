@@ -15,7 +15,7 @@ import Foundation
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
     public typealias LockProtocol = NSLocking
-    public typealias Lock = NSLocale
+    public typealias Lock = NSLock
     public typealias RecursiveLock = NSRecursiveLock
 #else
     #if canImport(CLinuxSys)
