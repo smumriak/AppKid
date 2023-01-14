@@ -19,13 +19,11 @@ public extension UnsafeMutablePointer where Pointee: ReleasableCType {
     }
 }
 
-public class ReleasablePointer<Pointee>: SharedPointer<Pointee> where Pointee: ReleasableCType {
-    public init(with pointer: Pointer) {
-        super.init(with: pointer, deleter: .custom(Pointee.releaseFunc))
-    }
+public typealias ReleasablePointer<Pointee> = SharedPointer<Pointee>
 
-    public override class func allocate(capacity: Int = 1) -> SharedPointer<Pointee> {
-        return ReleasablePointer<Pointee>(with: Pointer.allocate(capacity: capacity))
+public extension SharedPointer where Pointee: ReleasableCType {
+    convenience init(with pointer: Pointer) {
+        self.init(with: pointer, deleter: .custom(Pointee.releaseFunc))
     }
 }
 

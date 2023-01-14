@@ -17,7 +17,7 @@ public final class Image: DeviceEntity<VkImage_T> {
     }
 
     public convenience init(device: Device, swapchainImageHandle handle: VkImage, format: VkFormat) throws {
-        try self.init(device: device, handle: SharedPointer(with: handle), format: format)
+        try self.init(device: device, handle: SharedPointer(nonOwning: handle), format: format)
     }
     
     public convenience init(device: Device, descriptor: ImageDescriptor) throws {

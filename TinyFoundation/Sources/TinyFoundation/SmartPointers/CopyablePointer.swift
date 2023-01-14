@@ -19,15 +19,11 @@ public extension UnsafeMutablePointer where Pointee: CopyableCType {
     }
 }
 
-public final class CopyablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: CopyableCType {
-    public override init(with pointer: Pointer) {
-        defer { globalRetainCount.increment() }
+public typealias CopyablePointer<Pointee> = SharedPointer<Pointee>
 
-        super.init(with: pointer)
-    }
-
-    public init(copy other: CopyablePointer<Pointee>) {
-        super.init(with: other.pointer.copy())
+public extension SharedPointer where Pointee: CopyableCType {
+    convenience init(copying other: CopyablePointer<Pointee>) {
+        self.init(with: other.pointer.copy())
     }
 }
 

@@ -28,7 +28,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
             vkGetDeviceQueue(device.pointer, CUnsignedInt(familyIndex), CUnsignedInt(queueIndex), &handle)
         }
 
-        super.init(handle: SharedPointer(with: handle!))
+        super.init(handle: SharedPointer(nonOwning: handle!))
     }
 
     public func waitForIdle() throws {

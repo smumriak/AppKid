@@ -29,7 +29,7 @@ internal var globalRetainCount = RetainCount()
 public protocol SmartPointer<Pointee>: Hashable {
     associatedtype Pointee
     typealias Pointer = UnsafeMutablePointer<Pointee>
-    
+
     var pointer: Pointer { get }
 }
 
@@ -45,10 +45,10 @@ public extension SmartPointer {
 
     subscript<T>(dynamicMember keyPath: WritableKeyPath<Pointee, T>) -> T {
         get {
-            pointer.pointee[keyPath: keyPath]
+            pointee[keyPath: keyPath]
         }
         set {
-            pointer.pointee[keyPath: keyPath] = newValue
+            pointee[keyPath: keyPath] = newValue
         }
     }
 }
@@ -63,7 +63,7 @@ public extension SmartPointer {
     }
 }
 
-public class SharedPointer<Pointee>: SmartPointer {
+public final class SharedPointer<Pointee>: SmartPointer {
     public typealias Pointee = Pointee
 
     public enum Deleter {
@@ -72,6 +72,8 @@ public class SharedPointer<Pointee>: SmartPointer {
         case custom((Pointer) -> ())
         
         func callAsFunction(_ pointer: Pointer) {
+            defer { globalRetainCount.decrement() }
+
             switch self {
                 case .none:
                     break
@@ -87,8 +89,6 @@ public class SharedPointer<Pointee>: SmartPointer {
     internal let deleter: Deleter
 
     deinit {
-        defer { globalRetainCount.decrement() }
-        
         deleter(pointer)
     }
 
@@ -96,7 +96,7 @@ public class SharedPointer<Pointee>: SmartPointer {
         return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: .system)
     }
 
-    public init(with pointer: Pointer, deleter: Deleter = .none) {
+    public init(with pointer: Pointer, deleter: Deleter) {
         defer { globalRetainCount.increment() }
         
         self.pointer = pointer
@@ -105,6 +105,10 @@ public class SharedPointer<Pointee>: SmartPointer {
 
     public convenience init(with pointer: Pointer, deleter: @escaping (Pointer) -> ()) {
         self.init(with: pointer, deleter: .custom(deleter))
+    }
+
+    public convenience init(nonOwning pointer: Pointer) {
+        self.init(with: pointer, deleter: .none)
     }
 
     public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {

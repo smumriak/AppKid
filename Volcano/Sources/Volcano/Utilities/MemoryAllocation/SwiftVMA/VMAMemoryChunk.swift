@@ -23,7 +23,7 @@ public class VMAMemoryChunk: MemoryChunk {
         self.allocator = allocator
         self.allocation = allocation
 
-        let handle = SharedPointer(with: info.deviceMemory!, deleter: .none)
+        let handle = SharedPointer(nonOwning: info.deviceMemory!)
 
         try super.init(device: allocator.device, handle: handle, parent: nil, offset: info.offset, size: info.size, properties: memoryProperties)
     }

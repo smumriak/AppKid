@@ -42,7 +42,7 @@ public final class Instance: SharedPointerStorage<VkInstance_T> {
         do {
             return try loadDataArray(using: vkEnumeratePhysicalDevices)
                 .compactMap { $0 }
-                .map { try PhysicalDevice(instance: self, handle: SharedPointer(with: $0)) }
+                .map { try PhysicalDevice(instance: self, handle: SharedPointer(nonOwning: $0)) }
                 .sorted(by: >)
         } catch {
             fatalError("Could not query vulkan devices with error: \(error)")

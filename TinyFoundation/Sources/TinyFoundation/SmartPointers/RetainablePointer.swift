@@ -20,18 +20,20 @@ public extension UnsafeMutablePointer where Pointee: RetainableCType {
     }
 }
 
-public class RetainablePointer<Pointee>: ReleasablePointer<Pointee> where Pointee: RetainableCType {
-    public override init(with pointer: Pointer) {
-        super.init(with: pointer.retain())
+public typealias RetainablePointer<Pointee> = SharedPointer<Pointee>
+
+public extension SharedPointer where Pointee: RetainableCType {
+    convenience init(retaining pointer: Pointer) {
+        self.init(with: pointer.retain())
     }
 
-    public init(withRetained pointer: Pointer) {
+    convenience init(withRetained pointer: Pointer) {
         defer { globalRetainCount.increment() }
         
-        super.init(with: pointer)
+        self.init(with: pointer)
     }
 
-    public convenience init(other: RetainablePointer<Pointee>) {
+    convenience init(other: SharedPointer<Pointee>) {
         self.init(with: other.pointer)
     }
 }
