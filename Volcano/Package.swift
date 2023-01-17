@@ -43,6 +43,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
+        .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .systemLibrary(
@@ -61,7 +62,8 @@ let package = Package(
         ),
         .target(
             name: "Volcano",
-            dependencies: [
+            dependencies:
+            .product(name: "Atomics", package: "swift-atomics"), [
                 "CVulkan",
                 .product(name: "CXlib", package: "SwiftXlib"),
                 .product(name: "TinyFoundation", package: "TinyFoundation"),

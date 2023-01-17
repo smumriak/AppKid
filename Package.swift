@@ -436,6 +436,7 @@ extension Target {
     static let volcano: Target = target(
         name: "Volcano",
         dependencies: [
+            .product(name: "Atomics", package: "swift-atomics"),
             .cVulkan,
             .cXlib,
             .tinyFoundation,

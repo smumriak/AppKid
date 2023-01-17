@@ -8,15 +8,13 @@
 import Foundation
 import TinyFoundation
 import CVulkan
+import Atomics
 
-internal var globalTextureCounter: UInt = 0
+internal var globalTextureCounter = ManagedAtomic<UInt>(0)
 internal var globalTextureCounterLock = Lock()
 
 internal func grabAvailableGlobalTextureIdentifier() -> UInt {
-    return globalTextureCounterLock.synchronized {
-        globalTextureCounter += 1
-        return globalTextureCounter
-    }
+    globalTextureCounter.wrappingIncrementThenLoad(ordering: .relaxed)
 }
 
 public protocol Texture: AnyObject {
