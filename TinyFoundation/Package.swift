@@ -26,6 +26,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
         sysDependency,
     ],
     targets: [
@@ -34,10 +35,18 @@ let package = Package(
             dependencies: [
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "LinuxSys", package: "Sys"),
+                .product(name: "Atomics", package: "swift-atomics"),
                 .target("HijackingHacks"),
             ]
         ),
-        .target(name: "HijackingHacks"),
+        .target(
+            name: "HijackingHacks",
+            cSettings: [
+                .unsafeFlags([
+                    "-I/opt/swift/usr/lib/swift",
+                ]),
+            ]
+        ),
         .testTarget(
             name: "TinyFoundationTests",
             dependencies: ["TinyFoundation"]

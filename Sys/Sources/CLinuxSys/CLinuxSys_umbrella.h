@@ -12,12 +12,15 @@
 
 #ifdef __linux__
 
+#define _GNU_SOURCE
+
 AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <sys/syscall.h>
 #include <sys/sysinfo.h>
 #include <sys/timerfd.h>
 #include <sys/types.h>

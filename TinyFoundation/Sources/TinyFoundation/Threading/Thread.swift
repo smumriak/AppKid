@@ -24,14 +24,4 @@ import Dispatch
     #if os(Windows)
         import WinSDK
     #endif
-
-    #if os(Windows)
-        internal typealias OSNativeThread = HANDLE
-        internal typealias OSNativeThreadAttributes = (dwSizeOfAttributes: CUnsignedLong, dwThreadStackReservation: CUnsignedLong)
-        internal typealias OSNativeThreadSpecificKey = CUnsignedLong
-    #else
-        internal typealias OSNativeThread = pthread_t
-        internal typealias OSNativeThreadAttributes = pthread_attr_t
-        internal typealias OSNativeThreadSpecificKey = pthread_key_t
-    #endif
 #endif

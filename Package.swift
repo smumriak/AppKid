@@ -53,6 +53,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.2.0"),
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
+        .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
         .executableTarget(
@@ -101,6 +102,7 @@ let package = Package(
         .cLinuxSys,
 
         .tinyFoundation,
+        .hijackingHacks,
         .tinyFoundationTests,
     
         .cVulkan,
@@ -175,6 +177,7 @@ extension Target.Dependency {
     static let cLinuxSys = Target.cLinuxSys.asDependency
 
     static let tinyFoundation = Target.tinyFoundation.asDependency
+    static let hijackingHacks = Target.hijackingHacks.asDependency
     static let tinyFoundationTests = Target.tinyFoundationTests.asDependency
     
     static let cVulkan = Target.cVulkan.asDependency
@@ -391,9 +394,20 @@ extension Target {
         name: "TinyFoundation",
         dependencies: [
             .product(name: "Collections", package: "swift-collections"),
+            .product(name: "Atomics", package: "swift-atomics"),
             .cLinuxSys,
+            .hijackingHacks,
         ],
         path: "TinyFoundation/Sources/TinyFoundation"
+    )
+    static let hijackingHacks: Target = target(
+        name: "HijackingHacks",
+        path: "TinyFoundation/Sources/HijackingHacks",
+        cSettings: [
+            .unsafeFlags([
+                "-I/opt/swift/usr/lib/swift",
+            ]),
+        ]
     )
     static let tinyFoundationTests: Target = testTarget(
         name: "TinyFoundationTests",
