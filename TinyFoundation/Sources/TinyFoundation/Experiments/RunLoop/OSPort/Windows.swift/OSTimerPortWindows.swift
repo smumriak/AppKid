@@ -1,16 +1,16 @@
 //
-//  OSPort.swift
+//  OSTimerPortLinux.swift
 //  TinyFoundation
 //
-//  Created by Serhii Mumriak on 12.01.2023
+//  Created by Serhii Mumriak on 24.01.2023
 //
 
-#if os(Linux) || os(Android) || os(OpenBSD)
+#if os(Windows)
     import Glibc
     import LinuxSys
 
     @_spi(AppKid)
-    public extension OSPort {
+    public extension OSTimerPort {
         struct Context {
             public var timeout: Duration = .milliseconds(-1)
             public init() {}
@@ -18,30 +18,16 @@
 
         enum WakeUpResult {
             case timeout
-            case awokenPort(OSPort)
+            case awokenPort(OSTimerPort)
         }
         
         init() throws {
-            let result = eventfd(0, CInt(EFD_CLOEXEC | EFD_NONBLOCK))
+            let result = timerfd_create(0, CInt(EFD_CLOEXEC | EFD_NONBLOCK))
             switch result {
                 case -1: throw POSIXErrorCode(rawValue: errno)!
                 default: handle = result
             }
             shouldFree = true
-        }
-
-        init(_ handle: HandleType, shouldFree: Bool = false) {
-            self.handle = handle
-            self.shouldFree = shouldFree
-        }
-
-        static func timerPort() throws -> OSPort {
-            let result = timerfd_create(CLOCK_MONOTONIC, CInt(TFD_NONBLOCK | TFD_CLOEXEC))
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
-            }
-            return Self(result, shouldFree: true)
         }
 
         func free() throws {

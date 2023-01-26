@@ -9,15 +9,16 @@ import Foundation
 import HijackingHacks
 
 #if os(Linux)
-    import CLinuxSys
+    import LinuxSys
 #elseif os(Android) || os(OpenBSD)
 #elseif os(Windows)
-//    import whatever
+    import WinSDK
 #elseif os(macOS)
     import Darwin
 #endif
 
 // TODO: When RunLoopMode is created and placed into runloop - runloops wake up port is placed to this modes port set
+// TODO: Track main thread exit via __CFMainThreadHasExited and check all public APIs for main runloop and exiting thread
 
 internal let tsrRate: TimeInterval = {
     #if os(Linux)
@@ -76,13 +77,20 @@ internal extension UInt64 {
     }
 }
 
+internal let timeoutLimit: TimeInterval = 0
+
 #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import CoreFoundation
+
     public typealias RunLoop1 = Foundation.RunLoop
+
+    public extension RunLoop1 {
+        typealias Activity = CoreFoundation.CFRunLoopActivity
+    }
 #else
     import HijackingHacks
 
     internal var isInMainQueue = false
-
     public final class RunLoop1 {
         enum RunResult {
             case finished
@@ -130,6 +138,7 @@ internal extension UInt64 {
         internal let lock = RecursiveLock()
         internal let wakeUpPort: OSPort
         public let notifyPort: OSPort
+        public private(set) var isWaiting: Bool = false
 
         deinit {
             try? wakeUpPort.free()
@@ -148,12 +157,16 @@ internal extension UInt64 {
         }
 
         @_spi(AppKid)
-        public func isFinished(in mode: RunLoopMode) -> Bool {
-            // lock.synchronized {
-            //     mode.lock.synchronized {
-            false
-            // }
-            // }
+        public func isFinished(in modeName: RunLoop1.Mode) -> Bool {
+            lock.synchronized {
+                guard let mode = modes[modeName] else {
+                    return true
+                }
+
+                return mode.lock.synchronized {
+                    mode.isEmpty
+                }
+            }
         }
 
         class var current: RunLoop1 {
@@ -183,72 +196,151 @@ internal extension UInt64 {
             }
         }
 
-        internal func notifyObservers(for activity: Activity) {
+        fileprivate func notifyObservers(for activity: Activity, mode: RunLoopMode) {
+            // runloop and mode are locked on entrance and exit
+            let observers = mode.observers.filter { observer in
+                // original code does not lock the observer, yet clearly it should because *all* setters to isValid are hidden behind locks implying possible race conditions
+                observer.lock.synchronized {
+                    observer.activity.contains(activity)
+                        && observer.isValid
+                        && observer.isFiring == false
+                }
+            }
+
+            mode.lock.unlock()
+            lock.unlock()
+
+            defer {
+                lock.lock()
+                mode.lock.lock()
+            }
+
+            observers.forEach { observer in
+                var callBack: Observer.CallBack?
+                var shouldInvadliate = false
+                observer.lock.synchronized {
+                    if observer.isValid && observer.isFiring == false {
+                        callBack = observer.callBack
+                        shouldInvadliate = observer.repeats
+                    }
+                }
+
+                if let callBack {
+                    observer.isFiring = true
+                    callBack(observer, activity)
+                    if shouldInvadliate {
+                        observer.invalidate()
+                    }
+                    observer.isFiring = false
+                }
+            }
         }
 
         fileprivate func actualRun(in mode: RunLoopMode, name: RunLoop1.Mode, duration: TimeInterval, stopAfterHandle: Bool, previousMode: RunLoopMode?) throws -> RunResult {
+            let startTSR: UInt64 = .absoluteTime
+
             var dispatchMainQueuePort: OSPort? = nil
+            let isMainThread = OSNativeThread.isMain
 
             try lock.synchronized {
                 try mode.lock.synchronized {
-                    if OSNativeThread.isMain, isInMainQueue == false, self === RunLoop1.main, commonModes[name] === mode {
+                    if isMainThread == true, isInMainQueue == false, self === RunLoop1.main, commonModes[name] === mode {
                         dispatchMainQueuePort = OSPort.dispatchMainQueuePort
                     }
-        
+
+                    // var timeoutToken: UInt64 = .zero
+
+                    // switch duration {
+                    //     case 0:
+                    //         break
+
+                    //     case let duration where duration <= timeoutLimit:
+                    //         // // CFRunLoop is using overcommit queues via DISPATCH_QUEUE_OVERCOMMIT. Those are not available publicly and there's a very low chance they are needed. Overcommit for queues means there will always be dedicated thread started for the given queue
+                    //         let timeoutQueue: DispatchQueue = isMainThread ? .global(qos: .userInitiated) : .global(qos: .utility)
+                    //         let timeoutTimer = DispatchSource.makeTimerSource(flags: [], queue: timeoutQueue)
+                    //         let timeoutEventHandler = DispatchWorkItem {
+                    //             timeoutToken = 1
+                    //         }
+                    //         timeoutTimer.setEventHandler(handler: timeoutEventHandler)
+                    //         timeoutToken = startTSR + duration.toTSR
+                    //         // timeoutTimer.scheduleOneshot(deadline: DispatchTime, leeway: DispatchTimeInterval)
+                    //         timeoutTimer.resume()
+
+                    //     default:
+                    //         timeoutToken = .max
+                    // }
+                                    
+                    notifyObservers(for: .beforeTimers, mode: mode)
+                    notifyObservers(for: .beforeSources, mode: mode)
+                    // sources1
+
+                    notifyObservers(for: .beforeWaiting, mode: mode)
+
                     if let dispatchMainQueuePort {
                         try mode.portSet.addPort(dispatchMainQueuePort)
                     }
 
-                    // create timout timer via GCD
-            
-                    notifyObservers(for: .beforeTimers)
-                    notifyObservers(for: .beforeSources)
-                    // sources1
-
-                    notifyObservers(for: .beforeWaiting)
+                    isWaiting = true
                 }
             }
 
             var context = OSPortSet.Context()
             context.timeout = .seconds(1)
 
-            let wakeUpResult = try mode.portSet.waitForWakeUp(context: context)
+            let wakeUpResult = try mode.portSet.wait(context: context)
 
             lock.lock()
-            mode.lock.unlock()
+            mode.lock.lock()
             defer {
                 mode.lock.unlock()
                 lock.unlock()
             }
 
+            // this is not ideal since if there was an exception throwin from portSet wait this boolean would be in invalid state. ideally this line would be inside defer statement right before waiting on portSet, covered by locks from runloop and runloop mode. but original code did this and we are just achieving parity as much as we can. plus, caller from outside should fatalError on any exception
+            isWaiting = false
+
             if let dispatchMainQueuePort {
                 try mode.portSet.removePort(dispatchMainQueuePort)
             }
 
-            notifyObservers(for: .afterWaiting)
-            if case let .awokenPort(value) = wakeUpResult {
-                switch value {
-                    case let value where value.isEqual(to: wakeUpPort):
-                        try wakeUpPort.acknowledgeWakeUp()
+            notifyObservers(for: .afterWaiting, mode: mode)
+            let result: RunResult
 
-                    case let value where value.isEqual(to: mode.timerPort):
-                        try mode.timerPort.acknowledgeWakeUp()
+            switch wakeUpResult {
+                case .awokenPort(let value) where value.isEqual(to: wakeUpPort):
+                    try wakeUpPort.acknowledge()
+                    result = .handledSource
 
-                    case let value where value.isEqual(to: dispatchMainQueuePort):
-                        isInMainQueue = true
-                        defer { isInMainQueue = false }
-                        let dummy: UnsafeMutableRawPointer? = nil
-                        _dispatch_main_queue_callback_4CF(dummy)
-                        try dispatchMainQueuePort?.acknowledgeWakeUp()
-                    
-                    default:
+                case .awokenPort(let value) where value.isEqual(to: mode.timerPort):
+                    try mode.timerPort.acknowledge()
+                    result = .handledSource
+
+                case .awokenPort(let value) where value.isEqual(to: dispatchMainQueuePort):
+                    isInMainQueue = true
+                    defer { isInMainQueue = false }
+                    let dummy: UnsafeMutableRawPointer? = nil
+                    _dispatch_main_queue_callback_4CF(dummy)
+                    try dispatchMainQueuePort?.acknowledge()
+                    result = .handledSource
+
+                case .timeout:
+                    result = .timedOut
+
+                #if os(Windows)
+                    case .windowsEvent:
                         break
-                }
+
+                    case .inputOutputCompletion:
+                        break
+                #endif
+
+                case let value:
+                    fatalError("Unhandled port set wait result: \(value)")
             }
 
-            return .handledSource
+            return result
         }
-
+         
         @discardableResult
         internal func run(in modeName: RunLoop1.Mode, duration: TimeInterval, returnAfterHandled: Bool) -> RunResult {
             if modeName == .common {
@@ -262,10 +354,6 @@ internal extension UInt64 {
 
                 return mode.lock.synchronized {
                     if mode.isEmpty {
-                        return .finished
-                    }
-
-                    if isFinished(in: mode) {
                         return .finished
                     }
 

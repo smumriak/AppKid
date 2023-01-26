@@ -19,11 +19,11 @@
         
         func free() throws {}
         
-        func waitForWakeUp(context: Context = Context()) throws -> WakeUpResult {
+        func wait(context: Context = Context()) throws -> WakeUpResult {
             return .awokenPort(self)
         }
     
-        func acknowledgeWakeUp(context: Context = Context()) throws {
+        func acknowledge(context: Context = Context()) throws {
         }
     }
 #endif

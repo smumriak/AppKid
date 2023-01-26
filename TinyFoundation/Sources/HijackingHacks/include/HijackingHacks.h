@@ -8,14 +8,15 @@
 #ifndef HijackingHacks_h
 #define HijackingHacks_h 1
 
-#if TARGET_OS_OSX || TARGET_OS_IPHONE || TARGET_OS_TV || TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
-typedef mach_port_t port_t;
-#elif defined(__linux__)
+#if __linux__
 typedef int port_t;
-#elif TARGET_OS_WIN32 || TARGET_OS_CYGWIN
+#elif __APPLE__
+#include <mach/port.h>
+typedef mach_port_t port_t;
+#elif __CYGWIN__ || _WIN32 || _WIN64
 typedef HANDLE port_t;
 #else 
-typedef void * port_t;
+#error unknown operating system
 #endif
 
 #include <stdbool.h>

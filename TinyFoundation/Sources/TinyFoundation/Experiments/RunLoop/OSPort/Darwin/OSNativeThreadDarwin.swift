@@ -5,8 +5,8 @@
 //  Created by Serhii Mumriak on 16.01.2023
 //
 
-#if os(Linux) || os(Android) || os(OpenBSD)
-    import LinuxSys
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import Darwin
 
     public typealias OSNativeThread = pthread_t
     public typealias OSNativeThreadAttributes = pthread_attr_t
@@ -15,7 +15,7 @@
     public extension OSNativeThread {
         @_transparent
         static var isMain: Bool {
-            gettid() == getpid()
+            pthread_main_np() == 1
         }
     }
 #endif

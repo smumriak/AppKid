@@ -6,7 +6,7 @@
 //
 
 #if os(Windows)
-    // import whatever
+    import WinSDK
 
     public typealias OSNativeThread = HANDLE
     public typealias OSNativeThreadAttributes = (dwSizeOfAttributes: CUnsignedLong, dwThreadStackReservation: CUnsignedLong)

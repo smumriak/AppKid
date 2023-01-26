@@ -19,10 +19,18 @@ public protocol OSPortProtocol: Hashable {
     #endif
 
     var handle: HandleType { get }
-    func waitForWakeUp(context: Context) throws -> WakeUpResult
-    func acknowledgeWakeUp(context: Context) throws
+    func wait(context: Context) throws -> WakeUpResult
+    func acknowledge(context: Context) throws
     init() throws
     func free() throws
+}
+
+public protocol OSPortSetProtocol: OSPortProtocol {
+    associatedtype Context
+    associatedtype WakeUpResult
+    mutating func addPort(_ port: some OSPortProtocol) throws
+    mutating func removePort(_ port: some OSPortProtocol) throws
+    func containsPort(_ port: some OSPortProtocol) -> Bool
 }
 
 public extension OSPortProtocol {
@@ -54,7 +62,7 @@ public struct OSPort: OSPortProtocol {
     }
 }
 
-public struct OSPortSet: OSPortProtocol {
+public struct OSPortSet: OSPortSetProtocol {
     public let handle: HandleType
     public internal(set) var ports: [OSPort.HandleType: any OSPortProtocol] = [:]
 }
@@ -64,4 +72,9 @@ internal extension Duration {
         let components = components
         return components.seconds * 1000 + Int64(Double(components.attoseconds) * 0.000_000_000_000_001)
     }
+}
+
+public struct OSTimerPort: OSPortProtocol {
+    public let handle: HandleType
+    public let shouldFree: Bool
 }

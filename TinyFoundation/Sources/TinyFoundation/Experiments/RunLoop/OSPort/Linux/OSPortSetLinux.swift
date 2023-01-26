@@ -6,7 +6,7 @@
 //
 
 #if os(Linux) || os(Android) || os(OpenBSD)
-    import CLinuxSys
+    import LinuxSys
     import Glibc
 
     public extension OSPortSet {
@@ -77,7 +77,7 @@
         }
 
         // throws POSIXErrorCode with possible values from [.EBADF, .EFAULT, .EINTR, .EINVAL]
-        func waitForWakeUp(context: Context = Context()) throws -> WakeUpResult {
+        func wait(context: Context = Context()) throws -> WakeUpResult {
             var event = epoll_event()
             let result = epoll_wait(handle /* epfd */,
                                     &event /* events */,
@@ -98,7 +98,7 @@
             }
         }
 
-        func acknowledgeWakeUp(context: Context = Context()) throws {
+        func acknowledge(context: Context = Context()) throws {
             // intentionally does nothing
         }
     }

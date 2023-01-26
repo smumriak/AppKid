@@ -5,7 +5,9 @@
 //  Created by Serhii Mumriak on 12.01.2023
 //
 
-#if os(Windows)
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import Darwin
+
     public extension OSPortSet {
         struct Context {
             public var timeout: Duration = .milliseconds(-1)
@@ -15,35 +17,34 @@
         enum WakeUpResult {
             case timeout
             case awokenPort(any OSPortProtocol)
-            case windowsEvent
-            case abandonedMutex(any OSPortProtocol)
-            case inputOutputCompletion // whatever WAIT_IO_COMPLETION is used for
         }
 
         mutating func addPort(_ port: some OSPortProtocol) throws {
-            ports[port.handle] = port
+            fatalError("Unimplemented")
         }
-        
+
         mutating func removePort(_ port: some OSPortProtocol) throws {
-            ports[port.handle] = nil
+            fatalError("Unimplemented")
         }
 
         func containsPort(_ port: some OSPortProtocol) -> Bool {
             ports[port.handle] != nil
         }
 
-        init() throws {}
+        init() throws {
+            fatalError("Unimplemented")
+        }
 
-        func free() throws {}
+        func free() throws {
+            fatalError("Unimplemented")
+        }
 
         func wait(context: Context = Context()) throws -> WakeUpResult {
-            ports.values.map { $0.handle }.withUnsafeBufferPointer { handles in
-                let result = MsgWaitForMultipleObjectsEx
-            }
-            return .timeout
+            fatalError("Unimplemented")
         }
 
         func acknowledge(context: Context = Context()) throws {
+            fatalError("Unimplemented")
         }
     }
 #endif

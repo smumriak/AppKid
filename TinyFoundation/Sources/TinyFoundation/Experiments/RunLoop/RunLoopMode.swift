@@ -10,25 +10,33 @@ public class RunLoopMode: Hashable {
     public let name: RunLoop1.Mode
     internal let lock = RecursiveLock()
     internal var portSet: OSPortSet
-    internal var timerPort: OSPort
+    internal var timerPort: OSTimerPort
     public internal(set) var activity: RunLoop1.Activity = []
+    internal var sources: [RunLoop1.Source] = []
+    internal var observers: [RunLoop1.Observer] = []
+    internal var timers: [Timer1] = []
 
     deinit {
-        try? portSet.free()
+        do {
+            try portSet.free()
+            try timerPort.free()
+        } catch {
+            debugPrint("Freeing ports failed in RunLoopMode deainit with error: \(error)")
+        }
     }
     
     public init(name: RunLoop1.Mode) {
         self.name = name
         do {
             try portSet = OSPortSet()
-            try timerPort = OSPort.timerPort()
+            try timerPort = OSTimerPort()
             try portSet.addPort(timerPort)
         } catch {
             fatalError("Sorry, RunLoop experienced an error while trying to allocate native OS port set: \(error.localizedDescription)")
         }
     }
 
-    internal var isEmpty: Bool {
+    public var isEmpty: Bool {
         return true
     }
 
@@ -41,20 +49,22 @@ public class RunLoopMode: Hashable {
     }
 }
 
-public extension RunLoop1 {
-    struct Mode: RawRepresentable, Equatable, Hashable {
-        public typealias RawValue = String
-        public let rawValue: RawValue
+#if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
+    public extension RunLoop1 {
+        struct Mode: RawRepresentable, Equatable, Hashable {
+            public typealias RawValue = String
+            public let rawValue: RawValue
 
-        public init(rawValue: RawValue) {
-            self.rawValue = rawValue
+            public init(rawValue: RawValue) {
+                self.rawValue = rawValue
+            }
+
+            public init(_ rawValue: RawValue) {
+                self.rawValue = rawValue
+            }
+
+            public static let `default` = RunLoop1.Mode("RunLoop.Mode.Default")
+            public static let common = RunLoop1.Mode("RunLoop.Mode.Common")
         }
-
-        public init(_ rawValue: RawValue) {
-            self.rawValue = rawValue
-        }
-
-        public static let `default` = RunLoop1.Mode("RunLoop.Mode.Default")
-        public static let common = RunLoop1.Mode("RunLoop.Mode.Common")
     }
-}
+#endif
