@@ -11,9 +11,9 @@ import PackageDescription
 let package = Package(
     name: "Sys",
     products: [
-        .library(name: "CLinuxSys", targets: ["CLinuxSys"]),
+        .library(name: "LinuxSys", targets: ["LinuxSys"]),
     ],
     targets: [
-        .systemLibrary(name: "CLinuxSys"),
+        .systemLibrary(name: "LinuxSys"),
     ]
 )

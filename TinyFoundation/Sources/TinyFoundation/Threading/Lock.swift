@@ -21,8 +21,8 @@
 #else
     import struct Foundation.Date
 
-    #if canImport(CLinuxSys)
-        import CLinuxSys
+    #if canImport(LinuxSys)
+        import LinuxSys
     #endif
 
     #if os(Windows)

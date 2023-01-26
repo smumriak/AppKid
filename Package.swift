@@ -36,7 +36,7 @@ let package = Package(
         // .cGLib,
         // .swiftyGLib,
 
-        .cLinuxSys,
+        .linuxSys,
 
         .tinyFoundation,
 
@@ -99,7 +99,7 @@ let package = Package(
         // .swiftyGLib,
         // .swiftyGLibTests,
         
-        .cLinuxSys,
+        .linuxSys,
 
         .tinyFoundation,
         .hijackingHacks,
@@ -136,7 +136,7 @@ extension Product {
     static let cGLib: Product = library(name: "CGLib", targets: [Target.cGLib.name])
     static let swiftyGLib: Product = library(name: "SwiftyGLib", type: .dynamic, targets: [Target.swiftyGLib.name])
 
-    static let cLinuxSys: Product = library(name: "CLinuxSys", targets: [Target.cLinuxSys.name])
+    static let linuxSys: Product = library(name: "LinuxSys", targets: [Target.linuxSys.name])
 
     static let tinyFoundation: Product = library(name: "TinyFoundation", targets: [Target.tinyFoundation.name])
 
@@ -149,49 +149,49 @@ extension Product {
 }
 
 extension Target.Dependency {
-    static let appKid = Target.appKid.asDependency
+    static let appKid = Target.appKid.asDependency()
 
-    static let cCairo = Target.cCairo.asDependency
-    static let cPango = Target.cPango.asDependency
-    static let cairoGraphics = Target.cairoGraphics.asDependency
-    static let stbImageRead = Target.stbImageRead.asDependency
-    static let stbImageWrite = Target.stbImageWrite.asDependency
-    static let stbImageResize = Target.stbImageResize.asDependency
-    static let cairoGraphicsTests = Target.cairoGraphicsTests.asDependency
+    static let cCairo = Target.cCairo.asDependency()
+    static let cPango = Target.cPango.asDependency()
+    static let cairoGraphics = Target.cairoGraphics.asDependency()
+    static let stbImageRead = Target.stbImageRead.asDependency()
+    static let stbImageWrite = Target.stbImageWrite.asDependency()
+    static let stbImageResize = Target.stbImageResize.asDependency()
+    static let cairoGraphicsTests = Target.cairoGraphicsTests.asDependency()
 
-    static let contentAnimation = Target.contentAnimation.asDependency
-    static let layerRenderingData = Target.layerRenderingData.asDependency
-    static let contentAnimationTests = Target.contentAnimationTests.asDependency
+    static let contentAnimation = Target.contentAnimation.asDependency()
+    static let layerRenderingData = Target.layerRenderingData.asDependency()
+    static let contentAnimationTests = Target.contentAnimationTests.asDependency()
 
-    static let simpleGLM = Target.simpleGLM.asDependency
-    static let simpleGLMTests = Target.simpleGLMTests.asDependency
+    static let simpleGLM = Target.simpleGLM.asDependency()
+    static let simpleGLMTests = Target.simpleGLMTests.asDependency()
 
-    static let cXlib = Target.cXlib.asDependency
-    static let swiftXlib = Target.swiftXlib.asDependency
-    static let swiftXlibTests = Target.swiftXlibTests.asDependency
+    static let cXlib = Target.cXlib.asDependency()
+    static let swiftXlib = Target.swiftXlib.asDependency()
+    static let swiftXlibTests = Target.swiftXlibTests.asDependency()
 
-    static let cGLib = Target.cGLib.asDependency
-    static let swiftyGLib = Target.swiftyGLib.asDependency
-    static let swiftyGLibTests = Target.swiftyGLibTests.asDependency
+    static let cGLib = Target.cGLib.asDependency()
+    static let swiftyGLib = Target.swiftyGLib.asDependency()
+    static let swiftyGLibTests = Target.swiftyGLibTests.asDependency()
 
-    static let cLinuxSys = Target.cLinuxSys.asDependency
+    static let linuxSys = Target.linuxSys.asDependency()
 
-    static let tinyFoundation = Target.tinyFoundation.asDependency
-    static let hijackingHacks = Target.hijackingHacks.asDependency
-    static let tinyFoundationTests = Target.tinyFoundationTests.asDependency
+    static let tinyFoundation = Target.tinyFoundation.asDependency()
+    static let hijackingHacks = Target.hijackingHacks.asDependency()
+    static let tinyFoundationTests = Target.tinyFoundationTests.asDependency()
     
-    static let cVulkan = Target.cVulkan.asDependency
-    static let cClang = Target.cClang.asDependency
-    static let volcano = Target.volcano.asDependency
-    static let vulkanMemoryAllocatorAdapted = Target.vulkanMemoryAllocatorAdapted.asDependency
-    static let vkthings = Target.vkthings.asDependency
-    static let volcanoSL = Target.volcanoSL.asDependency
-    static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency
+    static let cVulkan = Target.cVulkan.asDependency()
+    static let cClang = Target.cClang.asDependency()
+    static let volcano = Target.volcano.asDependency()
+    static let vulkanMemoryAllocatorAdapted = Target.vulkanMemoryAllocatorAdapted.asDependency()
+    static let vkthings = Target.vkthings.asDependency()
+    static let volcanoSL = Target.volcanoSL.asDependency()
+    static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency()
 }
 
 extension Target {
-    var asDependency: Dependency {
-        return .target(name: name)
+    func asDependency(condition: PackageDescription.TargetDependencyCondition? = nil) -> Dependency {
+        return .targetItem(name: name, condition: condition)
     }
 }
 
@@ -383,9 +383,9 @@ extension Target {
 }
 
 extension Target {
-    static let cLinuxSys: Target = systemLibrary(
-        name: "CLinuxSys",
-        path: "Sys/Sources/CLinuxSys"
+    static let linuxSys: Target = systemLibrary(
+        name: "LinuxSys",
+        path: "Sys/Sources/LinuxSys"
     )
 }
 
@@ -395,7 +395,7 @@ extension Target {
         dependencies: [
             .product(name: "Collections", package: "swift-collections"),
             .product(name: "Atomics", package: "swift-atomics"),
-            .cLinuxSys,
+            .linuxSys,
             .hijackingHacks,
         ],
         path: "TinyFoundation/Sources/TinyFoundation"

@@ -17,8 +17,8 @@ import Dispatch
 
     public typealias Thread = Foundation.Thread
 #else
-    #if canImport(CLinuxSys)
-        import CLinuxSys
+    #if canImport(LinuxSys)
+        import LinuxSys
     #endif
 
     #if os(Windows)

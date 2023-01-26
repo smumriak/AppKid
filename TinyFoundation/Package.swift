@@ -34,9 +34,9 @@ let package = Package(
             name: "TinyFoundation",
             dependencies: [
                 .product(name: "Collections", package: "swift-collections"),
-                .product(name: "LinuxSys", package: "Sys"),
+                .product(name: "LinuxSys", package: "Sys", condition: .when(platforms: [.linux])),
                 .product(name: "Atomics", package: "swift-atomics"),
-                .target("HijackingHacks"),
+                .target(name: "HijackingHacks"),
             ]
         ),
         .target(

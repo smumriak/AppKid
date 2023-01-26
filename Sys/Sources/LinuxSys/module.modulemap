@@ -1,11 +1,11 @@
 //
 //  module.modulemap
-//  CLinuxSys
+//  LinuxSys
 //  
 //  Created by Serhii Mumriak on 11.01.2023
 //
 
-module CLinuxSys [system] {
-    header "CLinuxSys_umbrella.h"
+module LinuxSys [system] {
+    header "LinuxSys_umbrella.h"
     export *
 }

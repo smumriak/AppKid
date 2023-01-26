@@ -1,12 +1,12 @@
 //
-//  CLinuxSys_umbrella.h
-//  CLinuxSys
+//  LinuxSys_umbrella.h
+//  LinuxSys
 //  
 //  Created by Serhii Mumriak on 11.01.2023
 //
 
-#ifndef CLinuxSys_umbrella_h
-#define CLinuxSys_umbrella_h 1
+#ifndef LinuxSys_umbrella_h
+#define LinuxSys_umbrella_h 1
 
 #include "../../../CCore/include/CCore.h"
 
