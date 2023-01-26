@@ -11,7 +11,6 @@ import CVulkan
 import Atomics
 
 internal var globalTextureCounter = ManagedAtomic<UInt>(0)
-internal var globalTextureCounterLock = Lock()
 
 internal func grabAvailableGlobalTextureIdentifier() -> UInt {
     globalTextureCounter.wrappingIncrementThenLoad(ordering: .relaxed)

@@ -14,7 +14,7 @@ public protocol RetainableCType: ReleasableCType {
 public extension UnsafeMutablePointer where Pointee: RetainableCType {
     @discardableResult
     func retain() -> UnsafeMutablePointer<Pointee> {
-        defer { globalRetainCount.increment() }
+        defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
 
         return Pointee.retainFunc(self)!
     }
@@ -28,7 +28,7 @@ public extension SharedPointer where Pointee: RetainableCType {
     }
 
     convenience init(withRetained pointer: Pointer) {
-        defer { globalRetainCount.increment() }
+        defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
         
         self.init(with: pointer)
     }

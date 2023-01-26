@@ -6,24 +6,9 @@
 //
 
 import Foundation
+import Atomics
 
-internal struct RetainCount {
-    @Synchronized private var value: Int64 = 0
-
-    mutating func increment() {
-        value += 1
-    }
-
-    mutating func decrement() {
-        value -= 1
-    }
-
-    var currentValue: Int64 {
-        value
-    }
-}
-
-internal var globalRetainCount = RetainCount()
+internal var globalRetainCount = ManagedAtomic<Int64>(0)
 
 @dynamicMemberLookup
 public protocol SmartPointer<Pointee>: Hashable {
@@ -72,7 +57,7 @@ public final class SharedPointer<Pointee>: SmartPointer {
         case custom((Pointer) -> ())
         
         func callAsFunction(_ pointer: Pointer) {
-            defer { globalRetainCount.decrement() }
+            defer { globalRetainCount.wrappingDecrement(by: 1, ordering: .relaxed) }
 
             switch self {
                 case .none:
@@ -97,7 +82,7 @@ public final class SharedPointer<Pointee>: SmartPointer {
     }
 
     public init(with pointer: Pointer, deleter: Deleter) {
-        defer { globalRetainCount.increment() }
+        defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
         
         self.pointer = pointer
         self.deleter = deleter

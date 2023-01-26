@@ -13,7 +13,7 @@ public protocol CopyableCType: ReleasableCType {
 
 public extension UnsafeMutablePointer where Pointee: CopyableCType {
     func copy() -> UnsafeMutablePointer<Pointee> {
-        defer { globalRetainCount.increment() }
+        defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
         
         return Pointee.copyFunc(self)!
     }
