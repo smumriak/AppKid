@@ -42,9 +42,7 @@ public final class CGImage {
     @_spi(AppKid) public internal(set) var bitmap: UnsafeMutableRawBufferPointer
 
     deinit {
-        if let dataStore = dataStore {
-            dataStore.decreaseUseCount()
-        } else {
+        if dataStore == nil {
             bitmap.deallocate()
         }
     }
@@ -86,7 +84,6 @@ public final class CGImage {
             return nil
         }
 
-        dataStore.increaseUseCount()
         self.dataStore = dataStore
 
         self.bitmap = UnsafeMutableRawBufferPointer(start: dataStore.data, count: context.bytesPerRow * context.height)

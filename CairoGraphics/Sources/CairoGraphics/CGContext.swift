@@ -77,31 +77,13 @@ internal extension cairo_line_join_t {
     }
 }
 
-@_spi(AppKid) public class CGContextDataStore {
-    // smumriak: swift-atomics libabry can not be built on macOS. oh the irony
-    @Synchronized private var useCount: UInt
-
+@_spi(AppKid) public final class CGContextDataStore {
     public let surface: SharedPointer<cairo_surface_t>
     public let data: UnsafeMutableRawPointer
 
-    public init(surface: SharedPointer<cairo_surface_t>, useCount: UInt = 1) {
+    public init(surface: SharedPointer<cairo_surface_t>) {
         self.surface = surface
         self.data = UnsafeMutableRawPointer(cairo_image_surface_get_data(surface.pointer))
-        self.useCount = useCount
-    }
-
-    public func currentValue() -> UInt {
-        return useCount
-    }
-
-    public func increaseUseCount() {
-        useCount += 1
-    }
-
-    public func decreaseUseCount() {
-        assert(useCount > 0, "Can't decrement use count from zero")
-
-        useCount -= 1
     }
 }
 
@@ -134,10 +116,6 @@ open class CGContext {
     public internal(set) var height: Int = 0
     public internal(set) var width: Int = 0
 
-    deinit {
-        dataStore?.decreaseUseCount()
-    }
-    
     internal init(cairoContext: UnsafeMutablePointer<cairo_t>, width: Int, height: Int) {
         self.context = RetainablePointer(with: cairoContext)
         self.surface = RetainablePointer(with: cairo_get_target(context.pointer))
@@ -459,11 +437,7 @@ public extension CGContext {
 
 internal extension CGContext {
     func recreateDataIfNeeded() {
-        guard let oldDataStore = dataStore else {
-            return
-        }
-
-        if oldDataStore.currentValue() <= 1 {
+        guard var oldDataStore = dataStore, isKnownUniquelyReferenced(&oldDataStore) else {
             return
         }
 
