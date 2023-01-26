@@ -100,7 +100,7 @@ public protocol FourthEntityInfo: EntityInfo where Result: CreateableFromFourEnt
     // }
 
     #if os(macOS)
-        extension VkSurfaceKHR.Pointee: CreateableFromSingleEntityInfo {
+        extension VkSurfaceKHR_T: CreateableFromSingleEntityInfo {
             public typealias Info = VkMacOSSurfaceCreateInfoMVK
         }
 
@@ -111,7 +111,7 @@ public protocol FourthEntityInfo: EntityInfo where Result: CreateableFromFourEnt
         }
 
     #elseif os(iOS)
-        extension VkSurfaceKHR.Pointee: CreateableFromSingleEntityInfo {
+        extension VkSurfaceKHR_T: CreateableFromSingleEntityInfo {
             public typealias Info = VkIOSSurfaceCreateInfoMVK
         }
 

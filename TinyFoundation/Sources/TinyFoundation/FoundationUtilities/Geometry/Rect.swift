@@ -5,7 +5,11 @@
 //  Created by Serhii Mumriak on 10.12.2020.
 //
 
-import Foundation
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import CoreGraphics
+#else
+    import Foundation
+#endif
 
 public struct Rect<StorageType> where StorageType: BinaryInteger {
     public var origin: Point<StorageType>

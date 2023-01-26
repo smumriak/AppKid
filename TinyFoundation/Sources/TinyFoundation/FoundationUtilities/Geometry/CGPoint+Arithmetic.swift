@@ -5,7 +5,11 @@
 //  Created by Serhii Mumriak on 27.04.2020.
 //
 
-import Foundation
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import CoreGraphics
+#else
+    import Foundation
+#endif
 
 public extension CGPoint {
     static let nan: CGPoint = CGPoint(x: CGFloat.nan, y: CGFloat.nan)

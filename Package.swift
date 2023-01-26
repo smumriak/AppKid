@@ -11,7 +11,7 @@ import PackageDescription
 let package = Package(
     name: "AppKidDemo",
     platforms: [
-        .macOS(.v12),
+        .macOS(.v13),
     ],
     products: [
         .executable(name: "AppKidDemo", targets: ["AppKidDemo"]),

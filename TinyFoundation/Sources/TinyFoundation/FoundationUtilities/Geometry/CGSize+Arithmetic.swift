@@ -5,7 +5,11 @@
 //  Created by Serhii Mumriak on 12.05.2020.
 //
 
-import Foundation
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import CoreGraphics
+#else
+    import Foundation
+#endif
 
 public extension CGSize {
     static let nan: CGSize = CGSize(width: CGFloat.nan, height: CGFloat.nan)

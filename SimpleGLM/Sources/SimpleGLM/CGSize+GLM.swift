@@ -5,7 +5,11 @@
 //  Created by Serhii Mumriak on 05.09.2020.
 //
 
-import Foundation
+#if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+    import CoreGraphics
+#else
+    import Foundation
+#endif
 import cglm
 
 public extension CGSize {
