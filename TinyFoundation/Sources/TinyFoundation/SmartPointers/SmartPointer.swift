@@ -8,7 +8,9 @@
 import Foundation
 import Atomics
 
-internal var globalRetainCount = ManagedAtomic<Int64>(0)
+#if DEBUG
+    internal var globalRetainCount = ManagedAtomic<Int64>(0)
+#endif
 
 @dynamicMemberLookup
 public protocol SmartPointer<Pointee>: Hashable {
@@ -57,7 +59,9 @@ public final class SharedPointer<Pointee>: SmartPointer {
         case custom((Pointer) -> ())
         
         func callAsFunction(_ pointer: Pointer) {
-            defer { globalRetainCount.wrappingDecrement(by: 1, ordering: .relaxed) }
+            #if DEBUG
+                defer { globalRetainCount.wrappingDecrement(by: 1, ordering: .relaxed) }
+            #endif
 
             switch self {
                 case .none:
@@ -82,7 +86,9 @@ public final class SharedPointer<Pointee>: SmartPointer {
     }
 
     public init(with pointer: Pointer, deleter: Deleter) {
-        defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
+        #if DEBUG
+            defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
+        #endif
         
         self.pointer = pointer
         self.deleter = deleter

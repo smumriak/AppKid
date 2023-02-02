@@ -14,6 +14,13 @@ public extension LockProtocol {
 
         return try body()
     }
+
+    func desynchronized<T>(_ body: () throws -> T) rethrows -> T {
+        self.unlock()
+        defer { self.lock() }
+
+        return try body()
+    }
 }
 
 @propertyWrapper

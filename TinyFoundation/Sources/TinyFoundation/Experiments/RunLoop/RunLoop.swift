@@ -107,11 +107,11 @@ internal let timeoutLimit: TimeInterval = 0
         @_spi(AppKid)
         public var items: [any RunLoopItem] = []
         @_spi(AppKid)
-        public var modes: [RunLoop1.Mode: RunLoopMode] = [:]
+        public var modes: [Mode: RunLoopMode] = [:]
         @_spi(AppKid)
-        public var commonModes: [RunLoop1.Mode: RunLoopMode] = [:]
+        public var commonModes: [Mode: RunLoopMode] = [:]
 
-        public var currentMode: RunLoop1.Mode? {
+        public var currentMode: Mode? {
             _currentMode?.name
         }
 
@@ -126,9 +126,9 @@ internal let timeoutLimit: TimeInterval = 0
                 self.rawValue = rawValue
             }
 
-            public static let entry = Activity(rawValue: 1 << 0)
-            public static let beforeTimers = Activity(rawValue: 1 << 1)
-            public static let beforeSources = Activity(rawValue: 1 << 2)
+            public static let entry = Activity(rawValue: 0 << 0)
+            public static let beforeTimers = Activity(rawValue: 1 << 0)
+            public static let beforeSources = Activity(rawValue: 1 << 1)
             public static let beforeWaiting = Activity(rawValue: 1 << 5)
             public static let afterWaiting = Activity(rawValue: 1 << 6)
             public static let exit = Activity(rawValue: 1 << 7)
@@ -137,12 +137,10 @@ internal let timeoutLimit: TimeInterval = 0
 
         internal let lock = RecursiveLock()
         internal let wakeUpPort: OSPort
-        public let notifyPort: OSPort
         public private(set) var isWaiting: Bool = false
 
         deinit {
             try? wakeUpPort.free()
-            try? notifyPort.free()
         }
 
         @_spi(AppKid)
@@ -150,14 +148,17 @@ internal let timeoutLimit: TimeInterval = 0
             self.thread = thread
             do {
                 try wakeUpPort = OSPort()
-                try notifyPort = OSPort()
             } catch {
                 fatalError("Sorry, RunLoop experienced an error while trying to allocate native OS port: \(error.localizedDescription)")
             }
         }
 
+        public func port(for modeName: Mode) -> (some OSPortProtocol)? {
+            modes[modeName]?.portSet
+        }
+
         @_spi(AppKid)
-        public func isFinished(in modeName: RunLoop1.Mode) -> Bool {
+        public func isFinished(in modeName: Mode) -> Bool {
             lock.synchronized {
                 guard let mode = modes[modeName] else {
                     return true
@@ -177,7 +178,7 @@ internal let timeoutLimit: TimeInterval = 0
             return getRunLoop(.main)
         }
 
-        private static func getRunLoop(_ thread: Thread) -> RunLoop1 {
+        internal static func getRunLoop(_ thread: Thread) -> RunLoop1 {
             let identifier = ObjectIdentifier(thread)
             return $runLoops.synchronized {
                 if let result = runLoops[identifier] {
@@ -187,7 +188,7 @@ internal let timeoutLimit: TimeInterval = 0
 
                     runLoops[identifier] = result
 
-                    thread.deinitHook = {
+                    thread.runLoopDeinitHook = {
                         RunLoop1.runLoops[identifier] = nil
                     }
 
@@ -195,6 +196,21 @@ internal let timeoutLimit: TimeInterval = 0
                 }
             }
         }
+
+        #if DEBUG
+            internal static func clearRunLoop(_ thread: Thread) {
+                let identifier = ObjectIdentifier(thread)
+                return $runLoops.synchronized {
+                    guard runLoops.keys.contains(identifier) else {
+                        return
+                    }
+                     
+                    runLoops[identifier] = nil
+
+                    thread.runLoopDeinitHook = nil
+                }
+            }
+        #endif
 
         fileprivate func notifyObservers(for activity: Activity, mode: RunLoopMode) {
             // runloop and mode are locked on entrance and exit
@@ -207,36 +223,32 @@ internal let timeoutLimit: TimeInterval = 0
                 }
             }
 
-            mode.lock.unlock()
-            lock.unlock()
+            mode.lock.desynchronized {
+                lock.desynchronized {
+                    observers.forEach { observer in
+                        var callBack: Observer.CallBack?
+                        var shouldInvadliate = false
+                        observer.lock.synchronized {
+                            if observer.isValid && observer.isFiring == false {
+                                callBack = observer.callBack
+                                shouldInvadliate = observer.repeats
+                            }
+                        }
 
-            defer {
-                lock.lock()
-                mode.lock.lock()
-            }
-
-            observers.forEach { observer in
-                var callBack: Observer.CallBack?
-                var shouldInvadliate = false
-                observer.lock.synchronized {
-                    if observer.isValid && observer.isFiring == false {
-                        callBack = observer.callBack
-                        shouldInvadliate = observer.repeats
+                        if let callBack {
+                            observer.isFiring = true
+                            callBack(observer, activity)
+                            if shouldInvadliate {
+                                observer.invalidate()
+                            }
+                            observer.isFiring = false
+                        }
                     }
-                }
-
-                if let callBack {
-                    observer.isFiring = true
-                    callBack(observer, activity)
-                    if shouldInvadliate {
-                        observer.invalidate()
-                    }
-                    observer.isFiring = false
                 }
             }
         }
 
-        fileprivate func actualRun(in mode: RunLoopMode, name: RunLoop1.Mode, duration: TimeInterval, stopAfterHandle: Bool, previousMode: RunLoopMode?) throws -> RunResult {
+        fileprivate func actualRun(in mode: RunLoopMode, name: Mode, duration: TimeInterval, stopAfterHandle: Bool, previousMode: RunLoopMode?) throws -> RunResult {
             let startTSR: UInt64 = .absoluteTime
 
             var dispatchMainQueuePort: OSPort? = nil
@@ -289,60 +301,57 @@ internal let timeoutLimit: TimeInterval = 0
 
             let wakeUpResult = try mode.portSet.wait(context: context)
 
-            lock.lock()
-            mode.lock.lock()
-            defer {
-                mode.lock.unlock()
-                lock.unlock()
+            return try lock.synchronized {
+                try mode.lock.synchronized {
+                    // this is not ideal since if there was an exception throwin from portSet wait this boolean would be in invalid state. ideally this line would be inside defer statement right before waiting on portSet, covered by locks from runloop and runloop mode. but original code did this and we are just achieving parity as much as we can. plus, caller from outside should fatalError on any exception
+                    isWaiting = false
+
+                    if let dispatchMainQueuePort {
+                        try mode.portSet.removePort(dispatchMainQueuePort)
+                    }
+
+                    notifyObservers(for: .afterWaiting, mode: mode)
+                    let result: RunResult
+
+                    switch wakeUpResult {
+                        case .awokenPort(let value) where value.isEqual(to: wakeUpPort):
+                            try wakeUpPort.acknowledge()
+                            result = .handledSource
+
+                        case .awokenPort(let value) where value.isEqual(to: mode.timerPort):
+                            try mode.timerPort.acknowledge()
+                            result = .handledSource
+
+                        case .awokenPort(let value) where value.isEqual(to: dispatchMainQueuePort):
+                            isInMainQueue = true
+                            defer { isInMainQueue = false }
+                            let dummy: UnsafeMutableRawPointer? = nil
+                            _dispatch_main_queue_callback_4CF(dummy)
+                            try dispatchMainQueuePort?.acknowledge()
+                            result = .handledSource
+
+                        case .timeout:
+                            result = .timedOut
+
+                        #if os(Windows)
+                            case .windowsEvent:
+                                break
+
+                            case .inputOutputCompletion:
+                                break
+                        #endif
+
+                        case let value:
+                            fatalError("Unhandled port set wait result: \(value)")
+                    }
+
+                    return result
+                }
             }
-
-            // this is not ideal since if there was an exception throwin from portSet wait this boolean would be in invalid state. ideally this line would be inside defer statement right before waiting on portSet, covered by locks from runloop and runloop mode. but original code did this and we are just achieving parity as much as we can. plus, caller from outside should fatalError on any exception
-            isWaiting = false
-
-            if let dispatchMainQueuePort {
-                try mode.portSet.removePort(dispatchMainQueuePort)
-            }
-
-            notifyObservers(for: .afterWaiting, mode: mode)
-            let result: RunResult
-
-            switch wakeUpResult {
-                case .awokenPort(let value) where value.isEqual(to: wakeUpPort):
-                    try wakeUpPort.acknowledge()
-                    result = .handledSource
-
-                case .awokenPort(let value) where value.isEqual(to: mode.timerPort):
-                    try mode.timerPort.acknowledge()
-                    result = .handledSource
-
-                case .awokenPort(let value) where value.isEqual(to: dispatchMainQueuePort):
-                    isInMainQueue = true
-                    defer { isInMainQueue = false }
-                    let dummy: UnsafeMutableRawPointer? = nil
-                    _dispatch_main_queue_callback_4CF(dummy)
-                    try dispatchMainQueuePort?.acknowledge()
-                    result = .handledSource
-
-                case .timeout:
-                    result = .timedOut
-
-                #if os(Windows)
-                    case .windowsEvent:
-                        break
-
-                    case .inputOutputCompletion:
-                        break
-                #endif
-
-                case let value:
-                    fatalError("Unhandled port set wait result: \(value)")
-            }
-
-            return result
         }
          
         @discardableResult
-        internal func run(in modeName: RunLoop1.Mode, duration: TimeInterval, returnAfterHandled: Bool) -> RunResult {
+        internal func run(in modeName: Mode, duration: TimeInterval, returnAfterHandled: Bool) -> RunResult {
             if modeName == .common {
                 return .finished
             }
@@ -375,38 +384,37 @@ internal let timeoutLimit: TimeInterval = 0
             }
         }
 
-        public func run(mode modeName: RunLoop1.Mode, before limitDate: Date) -> Bool {
+        public func run(mode modeName: Mode, before limitDate: Date) -> Bool {
             let duration = limitDate.timeIntervalSince(Date())
             run(in: modeName, duration: duration, returnAfterHandled: true)
             return false
         }
     }
 
-    private let kDeinitHook: AnyHashable = kDeinitHook
+    fileprivate let kRunLoopDeinitHook: AnyHashable = ObjectIdentifier(Thread.RunLoopDeinitHook.self)
 
     @_spi(AppKid)
     public extension Thread {
-        class DeinitHook {
-            public typealias Callback = () -> ()
-
-            let callback: Callback
+        typealias DeinitCallback = () -> ()
+        fileprivate final class RunLoopDeinitHook {
+            let callback: DeinitCallback
 
             deinit {
                 callback()
             }
 
-            public init(_ callback: @escaping Callback) {
+            public init(_ callback: @escaping DeinitCallback) {
                 self.callback = callback
             }
         }
 
-        var deinitHook: DeinitHook.Callback? {
+        var runLoopDeinitHook: DeinitCallback? {
             get {
-                return (threadDictionary[kDeinitHook] as? DeinitHook)?.callback
+                return (threadDictionary[kRunLoopDeinitHook] as? RunLoopDeinitHook)?.callback
             }
             set {
                 if let newValue = newValue {
-                    threadDictionary[kDeinitHook] = DeinitHook(newValue)
+                    threadDictionary[kRunLoopDeinitHook] = RunLoopDeinitHook(newValue)
                 }
             }
         }
