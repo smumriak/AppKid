@@ -10,7 +10,7 @@
         "--configuration",
         "debug"
     ],
-    "swift.buildPath": ".build/AppKidDemo",
+    "swift.buildPath": ".build",
     "swift.testEnvironmentVariables": {
         "APPKID_LOCAL_BUILD": "1"
     },
@@ -64,13 +64,16 @@
         "APPKID_LOCAL_BUILD": "1"
     },
     "files.exclude": {
-        "**/.build": true
+        "**/.build": true,
+        "**/.swiftpm": true,
     },
     "files.watcherExclude": {
-        "**/.build": true
+        "**/.build": true,
+        "**/.swiftpm": true,
     },
     "search.exclude": {
-        "**/.build": true
+        "**/.build": true,
+        "**/.swiftpm": true,
     },
     "psi-header.config": {
         "forceToTop": true,

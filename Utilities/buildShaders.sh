@@ -11,7 +11,7 @@ importHeaderSearchPath=./ContentAnimation/Sources/LayerRenderingData/include
 
 mkdir -p $shadersBinariesCodePath
 
-VolcanoSLBuildPath=.build/AppKidDemo
+VolcanoSLBuildPath=.build
 contentAnimationShadersBuildPath=.build/ContentAnimationShaders
 
 mkdir -p $contentAnimationShadersBuildPath

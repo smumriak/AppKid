@@ -2,12 +2,12 @@ variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
 stages:
-  - build
+  - test
 
 build_project:
-  stage: build
+  stage: test
   variables:
     APPKID_LOCAL_BUILD: "1"
   script:
     - rm -rf .build
-    - swift build --product AppKidDemo -v --build-path .build/AppKidDemo
+    - swift test -v --build-path .build

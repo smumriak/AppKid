@@ -13,7 +13,7 @@ import SimpleGLM
 // smumriak:cglm supports floats only for now and most operations have really low precision. at least the API i used for things. aparently there are some functions that have another implementation with higher precision
 let accuracy: CGFloat = 0.0001
 
-typealias TestedAffineTransform = CGAffineTransform_cglm_WorkInProgress
+typealias TestedAffineTransform = CGAffineTransform
 typealias ControlAffineTransform = CGAffineTransform_cairo
 
 final class CGAffineTransformTests: XCTestCase {
@@ -31,6 +31,28 @@ final class CGAffineTransformTests: XCTestCase {
         XCTAssertEqual(testTransform._matrix.yy, controlTransform._matrix.yy, accuracy: Double(accuracy))
         XCTAssertEqual(testTransform._matrix.x0, controlTransform._matrix.x0, accuracy: Double(accuracy))
         XCTAssertEqual(testTransform._matrix.y0, controlTransform._matrix.y0, accuracy: Double(accuracy))
+    }
+
+    func equalityCheck(_ testTransform: mat4s, _ controlTransform: mat4s) throws {
+        XCTAssertEqual(testTransform.m00, controlTransform.m00, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m01, controlTransform.m01, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m02, controlTransform.m02, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m03, controlTransform.m03, accuracy: Float(accuracy))
+
+        XCTAssertEqual(testTransform.m10, controlTransform.m10, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m11, controlTransform.m11, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m12, controlTransform.m12, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m13, controlTransform.m13, accuracy: Float(accuracy))
+
+        XCTAssertEqual(testTransform.m20, controlTransform.m20, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m21, controlTransform.m21, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m22, controlTransform.m22, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m23, controlTransform.m23, accuracy: Float(accuracy))
+        
+        XCTAssertEqual(testTransform.m30, controlTransform.m30, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m31, controlTransform.m31, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m32, controlTransform.m32, accuracy: Float(accuracy))
+        XCTAssertEqual(testTransform.m33, controlTransform.m33, accuracy: Float(accuracy))
     }
 
     func testIdentity() throws {

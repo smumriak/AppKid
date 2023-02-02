@@ -11,12 +11,7 @@
                 "DEBUG": "1",
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
-            "linux": {
-                "program": "${workspaceFolder}/.build/AppKidDemo/debug/AppKidDemo"
-            },
-            "osx": {
-                "program": "${workspaceFolder}/.build/AppKidDemo/debug/AppKidDemo"
-            }
+            "program": "${workspaceFolder}/.build/debug/AppKidDemo"
         },
         {
             "name": "RunWithoutBuilding",
@@ -27,12 +22,7 @@
                 "DEBUG": "1",
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
-            "linux": {
-                "program": "${workspaceFolder}/.build/AppKidDemo/debug/AppKidDemo"
-            },
-            "osx": {
-                "program": "${workspaceFolder}/.build/AppKidDemo/debug/AppKidDemo"
-            }
+            "program": "${workspaceFolder}/.build/debug/AppKidDemo"
         },
         {
             "name": "Test",
@@ -41,12 +31,7 @@
             "args": [],
             "preLaunchTask": "build_tests",
             "terminal": "console",
-            "linux": {
-                "program": "${workspaceFolder}/.build/AppKidDemoTests/debug/AppKidDemoPackageTests.xctest"
-            },
-            "osx": {
-                "program": "${workspaceFolder}/.build/AppKidDemoTests/debug/AppKidDemoPackageTests.xctest"
-            }
+            "program": "${workspaceFolder}/.build/debug/AppKidDemoPackageTests.xctest"
         },
         {
             "name": "Run arm64",
@@ -65,12 +50,7 @@
                 "DEBUG": "1",
                 "APPKID_FORCE_SCALE_FACTOR": "2.0"
             },
-            "linux": {
-                "program": "AppKidDemo"
-            },
-            "osx": {
-                "program": "AppKidDemo"
-            }
+            "program": "AppKidDemo"
         }
     ]
 }

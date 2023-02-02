@@ -2,7 +2,7 @@ name: 'Build AppKidDemo'
 on: push
 
 jobs:
-  build_project:
+  test_everything:
     runs-on: [self-hosted, ubuntu]
     steps:
     - name: Checkout
@@ -13,5 +13,5 @@ jobs:
     - name: Clean Build Directory
       run: rm -rf .build
 
-    - name: Build
-      run: swift build --product AppKidDemo -v --build-path .build/AppKidDemo
+    - name: Test
+      run: swift test -v  --build-path .build
