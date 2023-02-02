@@ -1,4 +1,4 @@
-name: 'Build AppKidDemo'
+name: 'Test Everything'
 on: push
 
 jobs:

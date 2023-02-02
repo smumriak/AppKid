@@ -4,7 +4,7 @@ variables:
 stages:
   - test
 
-build_project:
+test_everything:
   stage: test
   variables:
     APPKID_LOCAL_BUILD: "1"
