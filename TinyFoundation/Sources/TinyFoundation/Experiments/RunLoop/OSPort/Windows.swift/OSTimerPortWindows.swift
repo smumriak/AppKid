@@ -45,6 +45,10 @@
             return .awokenPort(self)
         }
 
+        func signal(context: Context) throws {
+            fatalError("Unimplemented")
+        }
+
         func acknowledge(context: Context = Context()) throws {
             var ret: CInt = 0
             repeat {

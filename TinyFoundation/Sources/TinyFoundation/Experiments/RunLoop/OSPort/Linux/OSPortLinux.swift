@@ -35,15 +35,6 @@
             self.shouldFree = shouldFree
         }
 
-        static func timerPort() throws -> OSPort {
-            let result = timerfd_create(CLOCK_MONOTONIC, CInt(TFD_NONBLOCK | TFD_CLOEXEC))
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
-            }
-            return Self(result, shouldFree: true)
-        }
-
         func free() throws {
             guard shouldFree else { return }
             let result = close(handle)
@@ -57,6 +48,10 @@
             // var info = pollfd(fd: handle, events: Int16(POLLIN), revents: 0)
 
             return .awokenPort(self)
+        }
+
+        func signal(context: Context) throws {
+            fatalError("Unimplemented")
         }
 
         func acknowledge(context: Context = Context()) throws {

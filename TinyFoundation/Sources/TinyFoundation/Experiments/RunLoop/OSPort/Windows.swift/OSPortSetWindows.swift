@@ -43,7 +43,12 @@
             return .timeout
         }
 
+        func signal(context: Context) throws {
+            fatalError("Unimplemented")
+        }
+
         func acknowledge(context: Context = Context()) throws {
+            // intentionally does nothing
         }
     }
 #endif

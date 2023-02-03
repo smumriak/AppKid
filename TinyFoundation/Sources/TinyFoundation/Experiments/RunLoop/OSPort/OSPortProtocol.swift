@@ -20,6 +20,7 @@ public protocol OSPortProtocol: Hashable {
 
     var handle: HandleType { get }
     func wait(context: Context) throws -> WakeUpResult
+    func signal(context: Context) throws
     func acknowledge(context: Context) throws
     init() throws
     func free() throws

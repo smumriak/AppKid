@@ -98,6 +98,10 @@
             }
         }
 
+        func signal(context: Context) throws {
+            // intentionally does nothing
+        }
+
         func acknowledge(context: Context = Context()) throws {
             // intentionally does nothing
         }
