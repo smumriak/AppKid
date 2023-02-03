@@ -7,7 +7,7 @@
 
 import DequeModule
 
-public class DisposalBag {
+public final class DisposalBag {
     public init() {}
     
     private var items: Deque<Any> = []
