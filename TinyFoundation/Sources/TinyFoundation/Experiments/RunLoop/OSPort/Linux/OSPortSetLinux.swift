@@ -28,14 +28,11 @@
             let data = epoll_data_t(fd: portHandle)
             var event = epoll_event(events: events.rawValue, data: data)
 
-            let result = epoll_ctl(handle /* epfd */,
-                                   EPOLL_CTL_ADD /* op */,
-                                   portHandle /* fd */,
-                                   &event /* event */ )
-
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
+            try syscall {
+                epoll_ctl(handle /* epfd */,
+                          EPOLL_CTL_ADD /* op */,
+                          portHandle /* fd */,
+                          &event /* event */ )
             }
         }
 
@@ -43,14 +40,11 @@
             let portHandle = port.handle
             ports[portHandle] = nil
 
-            let result = epoll_ctl(handle /* epfd */,
-                                   EPOLL_CTL_DEL /* op */,
-                                   portHandle /* fd */,
-                                   nil /* event */ )
-
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
+            try syscall {
+                epoll_ctl(handle /* epfd */,
+                          EPOLL_CTL_DEL /* op */,
+                          portHandle /* fd */,
+                          nil /* event */ )
             }
         }
 
@@ -60,33 +54,28 @@
 
         // throws POSIXErrorCode with possible values from [.EINVAL, .EMFILE, .ENFILE, .ENOMEM]
         init() throws {
-            let result = epoll_create1(CInt(EPOLL_CLOEXEC))
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: handle = result
+            try handle = syscall {
+                epoll_create1(CInt(EPOLL_CLOEXEC))
             }
         }
 
-        // throws POSIXErrorCode with possible values from [.EBADF, .EINTR, .EIO, .ENOSPC, .EDQUOT]
+        // throws POSIXErrorCode with possible values from [.EBADF, .EIO, .ENOSPC, .EDQUOT]
         func free() throws {
-            let result = close(handle)
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
+            try syscall {
+                close(handle)
             }
         }
 
-        // throws POSIXErrorCode with possible values from [.EBADF, .EFAULT, .EINTR, .EINVAL]
+        // throws POSIXErrorCode with possible values from [.EBADF, .EFAULT, .EINVAL]
         func wait(context: Context = Context()) throws -> WakeUpResult {
             var event = epoll_event()
-            let result = epoll_wait(handle /* epfd */,
-                                    &event /* events */,
-                                    1, /* maxevents */
-                                    CInt(context.timeout.milliseconds) /* timeout */ )
+            let result = try syscall {
+                epoll_wait(handle /* epfd */,
+                           &event /* events */,
+                           1, /* maxevents */
+                           CInt(context.timeout.milliseconds) /* timeout */ )
+            }
             switch result {
-                case -1:
-                    throw POSIXErrorCode(rawValue: errno)!
-
                 case 0:
                     return .timeout
 
@@ -94,16 +83,8 @@
                     return .awokenPort(ports[event.data.fd]!)
 
                 default:
-                    fatalError("epoll_wait more than one signaled file descriptor. This should not happen and indicates and error in kernel")
+                    fatalError("epoll_wait returned more than one signaled file descriptor. This should not happen and indicates and error in kernel")
             }
-        }
-
-        func signal(context: Context) throws {
-            // intentionally does nothing
-        }
-
-        func acknowledge(context: Context = Context()) throws {
-            // intentionally does nothing
         }
     }
 #endif

@@ -22,40 +22,41 @@
         }
         
         init() throws {
-            let result = timerfd_create(0, CInt(EFD_CLOEXEC | EFD_NONBLOCK))
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: handle = result
+            try handle = syscall {
+                timerfd_create(0, CInt(EFD_CLOEXEC | EFD_NONBLOCK))
             }
             shouldFree = true
         }
 
         func free() throws {
             guard shouldFree else { return }
-            let result = close(handle)
-            switch result {
-                case -1: throw POSIXErrorCode(rawValue: errno)!
-                default: break
+            try syscall {
+                close(handle)
             }
         }
 
         func schedule() {}
         
         func wait(context: Context = Context()) throws -> WakeUpResult {
-            // var info = pollfd(fd: handle, events: Int16(POLLIN), revents: 0)
+            try poll(timeout: context.timeout)
 
             return .awokenPort(self)
         }
 
-        func signal(context: Context) throws {
-            fatalError("Unimplemented")
-        }
-
         func acknowledge(context: Context = Context()) throws {
-            var ret: CInt = 0
-            repeat {
-                ret = eventfd_write(handle, 1)
-            } while ret == -1 && errno == EINTR
+            // Now we acknowledge the wakeup. awokenFd is an eventfd (or possibly a
+            // timerfd ?). In either case, we read an 8-byte integer, as per eventfd(2)
+            // and timerfd_create(2).
+            var value: UInt64 = 0
+            let result = try syscall {
+                read(handle /* fd */,
+                     &value /* buf */,
+                     MemoryLayout.size(ofValue: value) /* nbytes */ )
+            }
+
+            if result != MemoryLayout.size(ofValue: value) {
+                throw POSIXErrorCode(rawValue: errno)!
+            }
         }
     }
 

@@ -20,8 +20,6 @@ public protocol OSPortProtocol: Hashable {
 
     var handle: HandleType { get }
     func wait(context: Context) throws -> WakeUpResult
-    func signal(context: Context) throws
-    func acknowledge(context: Context) throws
     init() throws
     func free() throws
 }
@@ -68,10 +66,15 @@ public struct OSPortSet: OSPortSetProtocol {
     public internal(set) var ports: [OSPort.HandleType: any OSPortProtocol] = [:]
 }
 
-internal extension Duration {
+public extension Duration {
     var milliseconds: Int64 {
         let components = components
         return components.seconds * 1000 + Int64(Double(components.attoseconds) * 0.000_000_000_000_001)
+    }
+
+    var nanoseconds: Int64 {
+        let components = components
+        return components.seconds * 1000000000 + Int64(Double(components.attoseconds) * 0.000_000_001)
     }
 }
 
