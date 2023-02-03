@@ -20,7 +20,7 @@ public extension VertexInput {
     static func attributesDescriptions(binding: CUnsignedInt = 0) -> [VkVertexInputAttributeDescription] {
         let mirror = Mirror(reflecting: Self())
 
-        let result: AttributesAccumulator = mirror.children.reduce(AttributesAccumulator([], 0)) { accumulator, child -> AttributesAccumulator in
+        let result: AttributesAccumulator = mirror.children.reduce(into: AttributesAccumulator([], 0)) { accumulator, child in
             guard let vertexInputAttribute = child.value as? VertexInputAttribute else {
                 fatalError("Gathering vertex input attributes only supported if all stored properties are conforming to VertexInputAttribute protocol")
             }
@@ -32,9 +32,8 @@ public extension VertexInput {
                 location = last.location + 1
             }
 
-            let attributes = accumulator.attributes + vertexInputAttributeType.descriptions(binding: binding, offset: accumulator.offset, location: location)
-            let offset = accumulator.offset + CUnsignedInt(vertexInputAttributeType.stride)
-            return (attributes, offset)
+            accumulator.attributes += vertexInputAttributeType.descriptions(binding: binding, offset: accumulator.offset, location: location)
+            accumulator.offset += CUnsignedInt(vertexInputAttributeType.stride)
         }
 
         return result.attributes
