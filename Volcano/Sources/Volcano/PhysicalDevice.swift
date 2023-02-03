@@ -129,13 +129,11 @@ public final class PhysicalDevice: InstanceEntity<VkPhysicalDevice_T> {
             .compactMap {
                 $0.nameVersion() as (name: DeviceExtension, version: UInt)?
             }
-            .reduce([:]) { accumulator, element in
+            .reduce(into: [:]) { accumulator, element in
                 if let existing = accumulator[element.name], existing >= element.version {
-                    return accumulator
+                    return
                 }
-                var mutableAccumulator = accumulator
-                mutableAccumulator[element.name] = element.version
-                return mutableAccumulator
+                accumulator[element.name] = element.version
             }
 
         deviceType = properties.deviceType

@@ -131,13 +131,11 @@ extension VkQueueFamilyProperties: Equatable {
 }
 
 internal func processQueueRequests(from queueRequests: [QueueRequest], familiesDescriptors: [QueueFamilyDescriptor]) throws -> [ProcessedQueueRequest] {
-    let result: [Int: ProcessedQueueRequest] = try queueRequests.reduce([:]) { accumulator, queueRequest in
+    let result: [Int: ProcessedQueueRequest] = try queueRequests.reduce(into: [:]) { accumulator, queueRequest in
         guard let familyDescriptor = familiesDescriptors.first(where: { $0.satisfies(queueRequest) }) else {
             throw VulkanError.noQueueFamilySatisfyingType(queueRequest.type)
         }
         let familyIndex = familyDescriptor.index
-
-        var accumulator = accumulator
 
         if var processedRequest = accumulator[familyIndex] {
             processedRequest.priorities += queueRequest.priorities
@@ -155,8 +153,6 @@ internal func processQueueRequests(from queueRequests: [QueueRequest], familiesD
 
             accumulator[familyIndex] = processedRequest
         }
-
-        return accumulator
     }
 
     return Array(result.values).sorted { $0.type < $1.type }
