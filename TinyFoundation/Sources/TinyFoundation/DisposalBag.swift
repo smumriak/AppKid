@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 03.10.2021.
 //
 
-import Collections
+import DequeModule
 
 public class DisposalBag {
     public init() {}

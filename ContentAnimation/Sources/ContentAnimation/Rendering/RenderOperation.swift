@@ -7,7 +7,7 @@
 
 import Foundation
 import CoreFoundation
-import Collections
+import DequeModule
 @_spi(AppKid) import CairoGraphics
 @_spi(AppKid) import Volcano
 import CVulkan

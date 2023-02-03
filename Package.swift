@@ -277,7 +277,7 @@ extension Target {
             .volcano,
             .simpleGLM,
             .layerRenderingData,
-            .product(name: "Collections", package: "swift-collections"),
+            .product(name: "DequeModule", package: "swift-collections"),
             .product(name: "OrderedCollections", package: "swift-collections"),
         ],
         path: "ContentAnimation/Sources/ContentAnimation",
@@ -393,7 +393,7 @@ extension Target {
     static let tinyFoundation: Target = target(
         name: "TinyFoundation",
         dependencies: [
-            .product(name: "Collections", package: "swift-collections"),
+            .product(name: "DequeModule", package: "swift-collections"),
             .product(name: "Atomics", package: "swift-atomics"),
             .linuxSys,
             .hijackingHacks,

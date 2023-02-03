@@ -33,7 +33,7 @@ let package = Package(
         .target(
             name: "TinyFoundation",
             dependencies: [
-                .product(name: "Collections", package: "swift-collections"),
+                .product(name: "DequeModule", package: "swift-collections"),
                 .product(name: "LinuxSys", package: "Sys", condition: .when(platforms: [.linux])),
                 .product(name: "Atomics", package: "swift-atomics"),
                 .target(name: "HijackingHacks"),

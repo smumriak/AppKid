@@ -50,7 +50,7 @@ let package = Package(
                 .product(name: "Volcano", package: "Volcano"),
                 .product(name: "SimpleGLM", package: "SimpleGLM"),
                 .target(name: "LayerRenderingData"),
-                .product(name: "Collections", package: "swift-collections"),
+                .product(name: "DequeModule", package: "swift-collections"),
                 .product(name: "OrderedCollections", package: "swift-collections"),
             ],
             exclude: [
