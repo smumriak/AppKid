@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Atomics
 
 public extension LockProtocol {
     func synchronized<T>(_ body: () throws -> T) rethrows -> T {
@@ -25,13 +26,18 @@ public extension LockProtocol {
 
 @propertyWrapper
 public struct Synchronized<Value> {
-    private var value: Value
-    private let lock = RecursiveLock()
+    @usableFromInline
+    internal var value: Value
 
+    @usableFromInline
+    internal let lock = RecursiveLock()
+
+    @_transparent
     public init(wrappedValue value: Value) {
         self.value = value
     }
 
+    @_transparent
     public var wrappedValue: Value {
         get {
             lock.synchronized { value }
@@ -41,11 +47,39 @@ public struct Synchronized<Value> {
         }
     }
 
+    @_transparent
     public func synchronized<T>(_ body: () throws -> T) rethrows -> T {
         return try lock.synchronized(body)
     }
 
+    @_transparent
+    public func desynchronized<T>(_ body: () throws -> T) rethrows -> T {
+        return try lock.desynchronized(body)
+    }
+
+    @_transparent
     public var projectedValue: Synchronized<Value> {
         self
+    }
+}
+
+@propertyWrapper
+public struct AtomicSequentiallyConsistent<Value> where Value: AtomicValue {
+    @usableFromInline
+    internal var value: ManagedAtomic<Value>
+
+    @_transparent
+    public init(wrappedValue value: Value) {
+        self.value = ManagedAtomic(value)
+    }
+
+    @_transparent
+    public var wrappedValue: Value {
+        get {
+            value.load(ordering: .sequentiallyConsistent)
+        }
+        set {
+            value.store(newValue, ordering: .sequentiallyConsistent)
+        }
     }
 }
