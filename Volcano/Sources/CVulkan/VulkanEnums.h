@@ -94,6 +94,7 @@ AK_EXISTING_ENUM(VkPresentModeKHR);
 AK_EXISTING_ENUM(VkPrimitiveTopology);
 AK_EXISTING_ENUM(VkProvokingVertexModeEXT);
 AK_EXISTING_ENUM(VkQueryPoolSamplingModeINTEL);
+AK_EXISTING_ENUM(VkQueryResultStatusKHR);
 AK_EXISTING_ENUM(VkQueryType);
 AK_EXISTING_ENUM(VkQueueGlobalPriorityKHR);
 AK_EXISTING_ENUM(VkRasterizationOrderAMD);

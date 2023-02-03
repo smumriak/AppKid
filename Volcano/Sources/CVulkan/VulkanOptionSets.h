@@ -83,6 +83,8 @@ AK_EXISTING_OPTIONS(VkPipelineDepthStencilStateCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineLayoutCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineShaderStageCreateFlagBits);
 AK_EXISTING_OPTIONS(VkPipelineStageFlagBits);
+AK_EXISTING_OPTIONS(VkPresentGravityFlagBitsEXT);
+AK_EXISTING_OPTIONS(VkPresentScalingFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkQueryControlFlagBits);
 AK_EXISTING_OPTIONS(VkQueryPipelineStatisticFlagBits);
 AK_EXISTING_OPTIONS(VkQueryResultFlagBits);
@@ -108,5 +110,14 @@ AK_EXISTING_OPTIONS(VkSwapchainCreateFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkSwapchainImageUsageFlagBitsANDROID);
 #endif
 AK_EXISTING_OPTIONS(VkToolPurposeFlagBits);
+AK_EXISTING_OPTIONS(VkVideoCapabilityFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoChromaSubsamplingFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoCodecOperationFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoCodingControlFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoComponentBitDepthFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoDecodeCapabilityFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoDecodeH264PictureLayoutFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoDecodeUsageFlagBitsKHR);
+AK_EXISTING_OPTIONS(VkVideoSessionCreateFlagBitsKHR);
 
 #endif /* VulkanOptionSets_h */

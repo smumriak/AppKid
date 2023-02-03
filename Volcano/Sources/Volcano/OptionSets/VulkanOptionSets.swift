@@ -84,6 +84,8 @@ public extension VkBufferUsageFlagBits {
     static let vertexBuffer: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
     static let indirectBuffer: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT
     static let shaderDeviceAddress: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+    static let videoDecodeSourceKhr: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR
+    static let videoDecodeDestinationKhr: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_VIDEO_DECODE_DST_BIT_KHR
     static let transformFeedbackBufferExt: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT
     static let transformFeedbackCounterBufferExt: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT
     static let conditionalRenderingExt: VkBufferUsageFlagBits = .VK_BUFFER_USAGE_CONDITIONAL_RENDERING_BIT_EXT
@@ -465,6 +467,8 @@ public extension VkFormatFeatureFlagBits {
     static let cositedChromaSamples: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT
     static let sampledImageFilterMinmax: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT
     static let sampledImageFilterCubicImg: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG
+    static let videoDecodeOutputKhr: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_VIDEO_DECODE_OUTPUT_BIT_KHR
+    static let videoDecodeDpbKhr: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_VIDEO_DECODE_DPB_BIT_KHR
     static let transferSourceKhr: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR
     static let transferDestinationKhr: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_TRANSFER_DST_BIT_KHR
     static let sampledImageFilterMinmaxExt: VkFormatFeatureFlagBits = .VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT_EXT
@@ -620,6 +624,9 @@ public extension VkImageUsageFlagBits {
     static let depthStencilAttachment: VkImageUsageFlagBits = .VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
     static let transientAttachment: VkImageUsageFlagBits = .VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT
     static let inputAttachment: VkImageUsageFlagBits = .VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT
+    static let videoDecodeDestinationKhr: VkImageUsageFlagBits = .VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR
+    static let videoDecodeSourceKhr: VkImageUsageFlagBits = .VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR
+    static let videoDecodeDpbKhr: VkImageUsageFlagBits = .VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR
     static let shadingRateImageNv: VkImageUsageFlagBits = .VK_IMAGE_USAGE_SHADING_RATE_IMAGE_BIT_NV
     static let fragmentDensityMapExt: VkImageUsageFlagBits = .VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT
     static let fragmentShadingRateAttachmentKhr: VkImageUsageFlagBits = .VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR
@@ -879,6 +886,22 @@ public extension VkPipelineStageFlagBits {
     static let meshShaderExt: VkPipelineStageFlagBits = .VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT
 }
 
+public typealias VkPresentGravityFlagBitsEXT = CVulkan.VkPresentGravityFlagBitsEXT
+
+public extension VkPresentGravityFlagBitsEXT {
+    static let min: VkPresentGravityFlagBitsEXT = .VK_PRESENT_GRAVITY_MIN_BIT_EXT
+    static let max: VkPresentGravityFlagBitsEXT = .VK_PRESENT_GRAVITY_MAX_BIT_EXT
+    static let centered: VkPresentGravityFlagBitsEXT = .VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
+}
+
+public typealias VkPresentScalingFlagBitsEXT = CVulkan.VkPresentScalingFlagBitsEXT
+
+public extension VkPresentScalingFlagBitsEXT {
+    static let oneToOne: VkPresentScalingFlagBitsEXT = .VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT
+    static let aspectRatioStretch: VkPresentScalingFlagBitsEXT = .VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT
+    static let stretch: VkPresentScalingFlagBitsEXT = .VK_PRESENT_SCALING_STRETCH_BIT_EXT
+}
+
 public typealias VkQueryControlFlagBits = CVulkan.VkQueryControlFlagBits
 
 public extension VkQueryControlFlagBits {
@@ -901,6 +924,7 @@ public extension VkQueryPipelineStatisticFlagBits {
     static let computeShaderInvocations: VkQueryPipelineStatisticFlagBits = .VK_QUERY_PIPELINE_STATISTIC_COMPUTE_SHADER_INVOCATIONS_BIT
     static let taskShaderInvocationsExt: VkQueryPipelineStatisticFlagBits = .VK_QUERY_PIPELINE_STATISTIC_TASK_SHADER_INVOCATIONS_BIT_EXT
     static let meshShaderInvocationsExt: VkQueryPipelineStatisticFlagBits = .VK_QUERY_PIPELINE_STATISTIC_MESH_SHADER_INVOCATIONS_BIT_EXT
+    static let clusterCullingShaderInvocationsHuawei: VkQueryPipelineStatisticFlagBits = .VK_QUERY_PIPELINE_STATISTIC_CLUSTER_CULLING_SHADER_INVOCATIONS_BIT_HUAWEI
 }
 
 public typealias VkQueryResultFlagBits = CVulkan.VkQueryResultFlagBits
@@ -910,6 +934,7 @@ public extension VkQueryResultFlagBits {
     static let wait: VkQueryResultFlagBits = .VK_QUERY_RESULT_WAIT_BIT
     static let withAvailability: VkQueryResultFlagBits = .VK_QUERY_RESULT_WITH_AVAILABILITY_BIT
     static let partial: VkQueryResultFlagBits = .VK_QUERY_RESULT_PARTIAL_BIT
+    static let withStatusKhr: VkQueryResultFlagBits = .VK_QUERY_RESULT_WITH_STATUS_BIT_KHR
 }
 
 public typealias VkQueueFlagBits = CVulkan.VkQueueFlagBits
@@ -920,6 +945,7 @@ public extension VkQueueFlagBits {
     static let transfer: VkQueueFlagBits = .VK_QUEUE_TRANSFER_BIT
     static let sparseBinding: VkQueueFlagBits = .VK_QUEUE_SPARSE_BINDING_BIT
     static let protected: VkQueueFlagBits = .VK_QUEUE_PROTECTED_BIT
+    static let videoDecodeKhr: VkQueueFlagBits = .VK_QUEUE_VIDEO_DECODE_BIT_KHR
     static let opticalFlowNv: VkQueueFlagBits = .VK_QUEUE_OPTICAL_FLOW_BIT_NV
 }
 
@@ -1018,6 +1044,7 @@ public extension VkShaderStageFlagBits {
     static let taskExt: VkShaderStageFlagBits = .VK_SHADER_STAGE_TASK_BIT_EXT
     static let meshExt: VkShaderStageFlagBits = .VK_SHADER_STAGE_MESH_BIT_EXT
     static let subpassShadingHuawei: VkShaderStageFlagBits = .VK_SHADER_STAGE_SUBPASS_SHADING_BIT_HUAWEI
+    static let clusterCullingHuawei: VkShaderStageFlagBits = .VK_SHADER_STAGE_CLUSTER_CULLING_BIT_HUAWEI
 }
 
 public typealias VkSparseImageFormatFlagBits = CVulkan.VkSparseImageFormatFlagBits
@@ -1106,6 +1133,7 @@ public extension VkSwapchainCreateFlagBitsKHR {
     static let splitInstanceBindRegions: VkSwapchainCreateFlagBitsKHR = .VK_SWAPCHAIN_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT_KHR
     static let protected: VkSwapchainCreateFlagBitsKHR = .VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR
     static let mutableFormat: VkSwapchainCreateFlagBitsKHR = .VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR
+    static let deferredMemoryAllocationExt: VkSwapchainCreateFlagBitsKHR = .VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT
 }
 
 #if VOLCANO_PLATFORM_ANDROID
@@ -1133,4 +1161,73 @@ public extension VkToolPurposeFlagBits {
     static let modifyingFeaturesExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_MODIFYING_FEATURES_BIT_EXT
     static let debugReportingExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_DEBUG_REPORTING_BIT_EXT
     static let debugMarkersExt: VkToolPurposeFlagBits = .VK_TOOL_PURPOSE_DEBUG_MARKERS_BIT_EXT
+}
+
+public typealias VkVideoCapabilityFlagBitsKHR = CVulkan.VkVideoCapabilityFlagBitsKHR
+
+public extension VkVideoCapabilityFlagBitsKHR {
+    static let protectedContent: VkVideoCapabilityFlagBitsKHR = .VK_VIDEO_CAPABILITY_PROTECTED_CONTENT_BIT_KHR
+    static let separateReferenceImages: VkVideoCapabilityFlagBitsKHR = .VK_VIDEO_CAPABILITY_SEPARATE_REFERENCE_IMAGES_BIT_KHR
+}
+
+public typealias VkVideoChromaSubsamplingFlagBitsKHR = CVulkan.VkVideoChromaSubsamplingFlagBitsKHR
+
+public extension VkVideoChromaSubsamplingFlagBitsKHR {
+    static let invalid: VkVideoChromaSubsamplingFlagBitsKHR = []
+    static let monochrome: VkVideoChromaSubsamplingFlagBitsKHR = .VK_VIDEO_CHROMA_SUBSAMPLING_MONOCHROME_BIT_KHR
+    static let fourTwoZero: VkVideoChromaSubsamplingFlagBitsKHR = .VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR
+    static let fourTwoTwo: VkVideoChromaSubsamplingFlagBitsKHR = .VK_VIDEO_CHROMA_SUBSAMPLING_422_BIT_KHR
+    static let fourFourFour: VkVideoChromaSubsamplingFlagBitsKHR = .VK_VIDEO_CHROMA_SUBSAMPLING_444_BIT_KHR
+}
+
+public typealias VkVideoCodecOperationFlagBitsKHR = CVulkan.VkVideoCodecOperationFlagBitsKHR
+
+public extension VkVideoCodecOperationFlagBitsKHR {
+    static let decodeH264: VkVideoCodecOperationFlagBitsKHR = .VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR
+    static let decodeH265: VkVideoCodecOperationFlagBitsKHR = .VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR
+}
+
+public typealias VkVideoCodingControlFlagBitsKHR = CVulkan.VkVideoCodingControlFlagBitsKHR
+
+public extension VkVideoCodingControlFlagBitsKHR {
+    static let reset: VkVideoCodingControlFlagBitsKHR = .VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR
+}
+
+public typealias VkVideoComponentBitDepthFlagBitsKHR = CVulkan.VkVideoComponentBitDepthFlagBitsKHR
+
+public extension VkVideoComponentBitDepthFlagBitsKHR {
+    static let invalid: VkVideoComponentBitDepthFlagBitsKHR = []
+    static let eight: VkVideoComponentBitDepthFlagBitsKHR = .VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR
+    static let ten: VkVideoComponentBitDepthFlagBitsKHR = .VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR
+    static let twelve: VkVideoComponentBitDepthFlagBitsKHR = .VK_VIDEO_COMPONENT_BIT_DEPTH_12_BIT_KHR
+}
+
+public typealias VkVideoDecodeCapabilityFlagBitsKHR = CVulkan.VkVideoDecodeCapabilityFlagBitsKHR
+
+public extension VkVideoDecodeCapabilityFlagBitsKHR {
+    static let dpbAndOutputCoincide: VkVideoDecodeCapabilityFlagBitsKHR = .VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_COINCIDE_BIT_KHR
+    static let dpbAndOutputDistinct: VkVideoDecodeCapabilityFlagBitsKHR = .VK_VIDEO_DECODE_CAPABILITY_DPB_AND_OUTPUT_DISTINCT_BIT_KHR
+}
+
+public typealias VkVideoDecodeH264PictureLayoutFlagBitsKHR = CVulkan.VkVideoDecodeH264PictureLayoutFlagBitsKHR
+
+public extension VkVideoDecodeH264PictureLayoutFlagBitsKHR {
+    static let progressive: VkVideoDecodeH264PictureLayoutFlagBitsKHR = []
+    static let interlacedInterleavedLines: VkVideoDecodeH264PictureLayoutFlagBitsKHR = .VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_INTERLEAVED_LINES_BIT_KHR
+    static let interlacedSeparatePlanes: VkVideoDecodeH264PictureLayoutFlagBitsKHR = .VK_VIDEO_DECODE_H264_PICTURE_LAYOUT_INTERLACED_SEPARATE_PLANES_BIT_KHR
+}
+
+public typealias VkVideoDecodeUsageFlagBitsKHR = CVulkan.VkVideoDecodeUsageFlagBitsKHR
+
+public extension VkVideoDecodeUsageFlagBitsKHR {
+    static let `default`: VkVideoDecodeUsageFlagBitsKHR = []
+    static let transcoding: VkVideoDecodeUsageFlagBitsKHR = .VK_VIDEO_DECODE_USAGE_TRANSCODING_BIT_KHR
+    static let offline: VkVideoDecodeUsageFlagBitsKHR = .VK_VIDEO_DECODE_USAGE_OFFLINE_BIT_KHR
+    static let streaming: VkVideoDecodeUsageFlagBitsKHR = .VK_VIDEO_DECODE_USAGE_STREAMING_BIT_KHR
+}
+
+public typealias VkVideoSessionCreateFlagBitsKHR = CVulkan.VkVideoSessionCreateFlagBitsKHR
+
+public extension VkVideoSessionCreateFlagBitsKHR {
+    static let protectedContent: VkVideoSessionCreateFlagBitsKHR = .VK_VIDEO_SESSION_CREATE_PROTECTED_CONTENT_BIT_KHR
 }

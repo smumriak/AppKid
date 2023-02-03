@@ -492,6 +492,7 @@ public extension VkDriverId {
     static let mesaVenus: VkDriverId = .VK_DRIVER_ID_MESA_VENUS
     static let mesaDozen: VkDriverId = .VK_DRIVER_ID_MESA_DOZEN
     static let mesaNvk: VkDriverId = .VK_DRIVER_ID_MESA_NVK
+    static let imaginationOpenSourceMesa: VkDriverId = .VK_DRIVER_ID_IMAGINATION_OPEN_SOURCE_MESA
     static let amdProprietaryKhr: VkDriverId = .VK_DRIVER_ID_AMD_PROPRIETARY_KHR
     static let amdOpenSourceKhr: VkDriverId = .VK_DRIVER_ID_AMD_OPEN_SOURCE_KHR
     static let mesaRadvKhr: VkDriverId = .VK_DRIVER_ID_MESA_RADV_KHR
@@ -995,6 +996,9 @@ public extension VkImageLayout {
     static let readOnlyOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL
     static let attachmentOptimal: VkImageLayout = .VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL
     static let presentSourceKhr: VkImageLayout = .VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+    static let videoDecodeDestinationKhr: VkImageLayout = .VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR
+    static let videoDecodeSourceKhr: VkImageLayout = .VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR
+    static let videoDecodeDpbKhr: VkImageLayout = .VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR
     static let sharedPresentKhr: VkImageLayout = .VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR
     static let depthReadOnlyStencilAttachmentOptimalKhr: VkImageLayout = .VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL_KHR
     static let depthAttachmentStencilReadOnlyOptimalKhr: VkImageLayout = .VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL_KHR
@@ -1149,6 +1153,8 @@ public extension VkObjectType {
     static let displayKhr: VkObjectType = .VK_OBJECT_TYPE_DISPLAY_KHR
     static let displayModeKhr: VkObjectType = .VK_OBJECT_TYPE_DISPLAY_MODE_KHR
     static let debugReportCallbackExt: VkObjectType = .VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT
+    static let videoSessionKhr: VkObjectType = .VK_OBJECT_TYPE_VIDEO_SESSION_KHR
+    static let videoSessionParametersKhr: VkObjectType = .VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR
     static let cuModuleNvx: VkObjectType = .VK_OBJECT_TYPE_CU_MODULE_NVX
     static let cuFunctionNvx: VkObjectType = .VK_OBJECT_TYPE_CU_FUNCTION_NVX
     static let descriptorUpdateTemplateKhr: VkObjectType = .VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_KHR
@@ -1384,12 +1390,21 @@ public extension VkQueryPoolSamplingModeINTEL {
     static let manual: VkQueryPoolSamplingModeINTEL = .VK_QUERY_POOL_SAMPLING_MODE_MANUAL_INTEL
 }
 
+public typealias VkQueryResultStatusKHR = CVulkan.VkQueryResultStatusKHR
+
+public extension VkQueryResultStatusKHR {
+    static let error: VkQueryResultStatusKHR = .VK_QUERY_RESULT_STATUS_ERROR_KHR
+    static let notReady: VkQueryResultStatusKHR = .VK_QUERY_RESULT_STATUS_NOT_READY_KHR
+    static let complete: VkQueryResultStatusKHR = .VK_QUERY_RESULT_STATUS_COMPLETE_KHR
+}
+
 public typealias VkQueryType = CVulkan.VkQueryType
 
 public extension VkQueryType {
     static let occlusion: VkQueryType = .VK_QUERY_TYPE_OCCLUSION
     static let pipelineStatistics: VkQueryType = .VK_QUERY_TYPE_PIPELINE_STATISTICS
     static let timestamp: VkQueryType = .VK_QUERY_TYPE_TIMESTAMP
+    static let resultStatusOnlyKhr: VkQueryType = .VK_QUERY_TYPE_RESULT_STATUS_ONLY_KHR
     static let transformFeedbackStreamExt: VkQueryType = .VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT
     static let performanceQueryKhr: VkQueryType = .VK_QUERY_TYPE_PERFORMANCE_QUERY_KHR
     static let accelerationStructureCompactedSizeKhr: VkQueryType = .VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR
@@ -1476,6 +1491,12 @@ public extension VkResult {
     static let errorIncompatibleDisplayKhr: VkResult = .VK_ERROR_INCOMPATIBLE_DISPLAY_KHR
     static let errorValidationFailedExt: VkResult = .VK_ERROR_VALIDATION_FAILED_EXT
     static let errorInvalidShaderNv: VkResult = .VK_ERROR_INVALID_SHADER_NV
+    static let errorImageUsageNotSupportedKhr: VkResult = .VK_ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR
+    static let errorVideoPictureLayoutNotSupportedKhr: VkResult = .VK_ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR
+    static let errorVideoProfileOperationNotSupportedKhr: VkResult = .VK_ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR
+    static let errorVideoProfileFormatNotSupportedKhr: VkResult = .VK_ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR
+    static let errorVideoProfileCodecNotSupportedKhr: VkResult = .VK_ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR
+    static let errorVideoStdVersionNotSupportedKhr: VkResult = .VK_ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR
     static let errorOutOfPoolMemoryKhr: VkResult = .VK_ERROR_OUT_OF_POOL_MEMORY_KHR
     static let errorInvalidExternalHandleKhr: VkResult = .VK_ERROR_INVALID_EXTERNAL_HANDLE_KHR
     static let errorInvalidDrmFormatModifierPlaneLayoutExt: VkResult = .VK_ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT
@@ -1885,6 +1906,26 @@ public extension VkStructureType {
     static let debugMarkerObjectNameInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT
     static let debugMarkerObjectTagInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT
     static let debugMarkerMarkerInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT
+    static let videoProfileInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR
+    static let videoCapabilitiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR
+    static let videoPictureResourceInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR
+    static let videoSessionMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR
+    static let bindVideoSessionMemoryInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR
+    static let videoSessionCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR
+    static let videoSessionParametersCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR
+    static let videoSessionParametersUpdateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR
+    static let videoBeginCodingInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR
+    static let videoEndCodingInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR
+    static let videoCodingControlInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR
+    static let videoReferenceSlotInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR
+    static let queueFamilyVideoPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR
+    static let videoProfileListInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR
+    static let physicalDeviceVideoFormatInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR
+    static let videoFormatPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR
+    static let queueFamilyQueryResultStatusPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR
+    static let videoDecodeInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR
+    static let videoDecodeCapabilitiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR
+    static let videoDecodeUsageInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR
     static let dedicatedAllocationImageCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV
     static let dedicatedAllocationBufferCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV
     static let dedicatedAllocationMemoryAllocateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV
@@ -1896,6 +1937,12 @@ public extension VkStructureType {
     static let cuLaunchInfoNvx: VkStructureType = .VK_STRUCTURE_TYPE_CU_LAUNCH_INFO_NVX
     static let imageViewHandleInfoNvx: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_HANDLE_INFO_NVX
     static let imageViewAddressPropertiesNvx: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_ADDRESS_PROPERTIES_NVX
+    static let videoDecodeH264CapabilitiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR
+    static let videoDecodeH264PictureInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR
+    static let videoDecodeH264ProfileInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR
+    static let videoDecodeH264SessionParametersCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR
+    static let videoDecodeH264SessionParametersAddInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR
+    static let videoDecodeH264DpbSlotInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR
     static let textureLodGatherFormatPropertiesAmd: VkStructureType = .VK_STRUCTURE_TYPE_TEXTURE_LOD_GATHER_FORMAT_PROPERTIES_AMD
     static let renderingInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_INFO_KHR
     static let renderingAttachmentInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO_KHR
@@ -2196,6 +2243,12 @@ public extension VkStructureType {
     static let pipelineCompilerControlCreateInfoAmd: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_COMPILER_CONTROL_CREATE_INFO_AMD
     static let calibratedTimestampInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT
     static let physicalDeviceShaderCorePropertiesAmd: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD
+    static let videoDecodeH265CapabilitiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR
+    static let videoDecodeH265SessionParametersCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR
+    static let videoDecodeH265SessionParametersAddInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR
+    static let videoDecodeH265ProfileInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR
+    static let videoDecodeH265PictureInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR
+    static let videoDecodeH265DpbSlotInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR
     static let deviceQueueGlobalPriorityCreateInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO_KHR
     static let physicalDeviceGlobalPriorityQueryFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GLOBAL_PRIORITY_QUERY_FEATURES_KHR
     static let queueFamilyGlobalPriorityPropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR
@@ -2313,6 +2366,15 @@ public extension VkStructureType {
     static let pipelineExecutableStatisticKhr: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR
     static let pipelineExecutableInternalRepresentationKhr: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR
     static let physicalDeviceShaderAtomicFloat2FeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT
+    static let surfacePresentModeExt: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT
+    static let surfacePresentScalingCapabilitiesExt: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT
+    static let surfacePresentModeCompatibilityExt: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT
+    static let physicalDeviceSwapchainMaintenance1FeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT
+    static let swapchainPresentFenceInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT
+    static let swapchainPresentModesCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT
+    static let swapchainPresentModeInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT
+    static let swapchainPresentScalingCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT
+    static let releaseSwapchainImagesInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT
     static let physicalDeviceShaderDemoteToHelperInvocationFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES_EXT
     static let physicalDeviceDeviceGeneratedCommandsPropertiesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_NV
     static let graphicsShaderGroupCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_GRAPHICS_SHADER_GROUP_CREATE_INFO_NV
@@ -2517,6 +2579,8 @@ public extension VkStructureType {
     static let micromapCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_MICROMAP_CREATE_INFO_EXT
     static let micromapBuildSizesInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_MICROMAP_BUILD_SIZES_INFO_EXT
     static let accelerationStructureTrianglesOpacityMicromapExt: VkStructureType = .VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_TRIANGLES_OPACITY_MICROMAP_EXT
+    static let physicalDeviceClusterCullingShaderFeaturesHuawei: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI
+    static let physicalDeviceClusterCullingShaderPropertiesHuawei: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI
     static let physicalDeviceBorderColorSwizzleFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BORDER_COLOR_SWIZZLE_FEATURES_EXT
     static let samplerBorderColorComponentMappingCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SAMPLER_BORDER_COLOR_COMPONENT_MAPPING_CREATE_INFO_EXT
     static let physicalDevicePageableDeviceLocalMemoryFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT

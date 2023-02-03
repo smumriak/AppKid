@@ -256,6 +256,12 @@ extension VkBindSparseInfo: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_SPARSE_INFO
 }
 
+public typealias VkBindVideoSessionMemoryInfoKHR = CVulkan.VkBindVideoSessionMemoryInfoKHR
+
+extension VkBindVideoSessionMemoryInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR
+}
+
 public typealias VkBlitImageInfo2 = CVulkan.VkBlitImageInfo2
 
 extension VkBlitImageInfo2: VulkanInStructure {
@@ -1928,6 +1934,18 @@ extension VkPhysicalDeviceBufferDeviceAddressFeaturesEXT: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT
 }
 
+public typealias VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI = CVulkan.VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI
+
+extension VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_FEATURES_HUAWEI
+}
+
+public typealias VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI = CVulkan.VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI
+
+extension VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CLUSTER_CULLING_SHADER_PROPERTIES_HUAWEI
+}
+
 public typealias VkPhysicalDeviceCoherentMemoryFeaturesAMD = CVulkan.VkPhysicalDeviceCoherentMemoryFeaturesAMD
 
 extension VkPhysicalDeviceCoherentMemoryFeaturesAMD: VulkanOutStructure {
@@ -3054,6 +3072,12 @@ extension VkPhysicalDeviceSurfaceInfo2KHR: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR
 }
 
+public typealias VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT = CVulkan.VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT
+
+extension VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT
+}
+
 public typealias VkPhysicalDeviceSynchronization2Features = CVulkan.VkPhysicalDeviceSynchronization2Features
 
 extension VkPhysicalDeviceSynchronization2Features: VulkanOutStructure {
@@ -3142,6 +3166,12 @@ public typealias VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT = CVulkan.Vk
 
 extension VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT
+}
+
+public typealias VkPhysicalDeviceVideoFormatInfoKHR = CVulkan.VkPhysicalDeviceVideoFormatInfoKHR
+
+extension VkPhysicalDeviceVideoFormatInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR
 }
 
 public typealias VkPhysicalDeviceVulkan11Features = CVulkan.VkPhysicalDeviceVulkan11Features
@@ -3582,6 +3612,18 @@ extension VkQueueFamilyProperties2: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2
 }
 
+public typealias VkQueueFamilyQueryResultStatusPropertiesKHR = CVulkan.VkQueueFamilyQueryResultStatusPropertiesKHR
+
+extension VkQueueFamilyQueryResultStatusPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_QUERY_RESULT_STATUS_PROPERTIES_KHR
+}
+
+public typealias VkQueueFamilyVideoPropertiesKHR = CVulkan.VkQueueFamilyVideoPropertiesKHR
+
+extension VkQueueFamilyVideoPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUEUE_FAMILY_VIDEO_PROPERTIES_KHR
+}
+
 public typealias VkRayTracingPipelineCreateInfoKHR = CVulkan.VkRayTracingPipelineCreateInfoKHR
 
 extension VkRayTracingPipelineCreateInfoKHR: VulkanInStructure {
@@ -3610,6 +3652,12 @@ public typealias VkRayTracingShaderGroupCreateInfoNV = CVulkan.VkRayTracingShade
 
 extension VkRayTracingShaderGroupCreateInfoNV: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_NV
+}
+
+public typealias VkReleaseSwapchainImagesInfoEXT = CVulkan.VkReleaseSwapchainImagesInfoEXT
+
+extension VkReleaseSwapchainImagesInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_RELEASE_SWAPCHAIN_IMAGES_INFO_EXT
 }
 
 public typealias VkRenderPassAttachmentBeginInfo = CVulkan.VkRenderPassAttachmentBeginInfo
@@ -3970,6 +4018,24 @@ extension VkSurfaceFormat2KHR: VulkanOutStructure {
     }
 #endif
 
+public typealias VkSurfacePresentModeCompatibilityEXT = CVulkan.VkSurfacePresentModeCompatibilityEXT
+
+extension VkSurfacePresentModeCompatibilityEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_COMPATIBILITY_EXT
+}
+
+public typealias VkSurfacePresentModeEXT = CVulkan.VkSurfacePresentModeEXT
+
+extension VkSurfacePresentModeEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT
+}
+
+public typealias VkSurfacePresentScalingCapabilitiesEXT = CVulkan.VkSurfacePresentScalingCapabilitiesEXT
+
+extension VkSurfacePresentScalingCapabilitiesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT
+}
+
 public typealias VkSurfaceProtectedCapabilitiesKHR = CVulkan.VkSurfaceProtectedCapabilitiesKHR
 
 extension VkSurfaceProtectedCapabilitiesKHR: VulkanInStructure {
@@ -4008,6 +4074,30 @@ public typealias VkSwapchainPresentBarrierCreateInfoNV = CVulkan.VkSwapchainPres
 
 extension VkSwapchainPresentBarrierCreateInfoNV: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_BARRIER_CREATE_INFO_NV
+}
+
+public typealias VkSwapchainPresentFenceInfoEXT = CVulkan.VkSwapchainPresentFenceInfoEXT
+
+extension VkSwapchainPresentFenceInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT
+}
+
+public typealias VkSwapchainPresentModeInfoEXT = CVulkan.VkSwapchainPresentModeInfoEXT
+
+extension VkSwapchainPresentModeInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT
+}
+
+public typealias VkSwapchainPresentModesCreateInfoEXT = CVulkan.VkSwapchainPresentModesCreateInfoEXT
+
+extension VkSwapchainPresentModesCreateInfoEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT
+}
+
+public typealias VkSwapchainPresentScalingCreateInfoEXT = CVulkan.VkSwapchainPresentScalingCreateInfoEXT
+
+extension VkSwapchainPresentScalingCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT
 }
 
 public typealias VkTextureLODGatherFormatPropertiesAMD = CVulkan.VkTextureLODGatherFormatPropertiesAMD
@@ -4056,6 +4146,174 @@ public typealias VkVertexInputBindingDescription2EXT = CVulkan.VkVertexInputBind
 
 extension VkVertexInputBindingDescription2EXT: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT
+}
+
+public typealias VkVideoBeginCodingInfoKHR = CVulkan.VkVideoBeginCodingInfoKHR
+
+extension VkVideoBeginCodingInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR
+}
+
+public typealias VkVideoCapabilitiesKHR = CVulkan.VkVideoCapabilitiesKHR
+
+extension VkVideoCapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR
+}
+
+public typealias VkVideoCodingControlInfoKHR = CVulkan.VkVideoCodingControlInfoKHR
+
+extension VkVideoCodingControlInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR
+}
+
+public typealias VkVideoDecodeCapabilitiesKHR = CVulkan.VkVideoDecodeCapabilitiesKHR
+
+extension VkVideoDecodeCapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR
+}
+
+public typealias VkVideoDecodeH264CapabilitiesKHR = CVulkan.VkVideoDecodeH264CapabilitiesKHR
+
+extension VkVideoDecodeH264CapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR
+}
+
+public typealias VkVideoDecodeH264DpbSlotInfoKHR = CVulkan.VkVideoDecodeH264DpbSlotInfoKHR
+
+extension VkVideoDecodeH264DpbSlotInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_DPB_SLOT_INFO_KHR
+}
+
+public typealias VkVideoDecodeH264PictureInfoKHR = CVulkan.VkVideoDecodeH264PictureInfoKHR
+
+extension VkVideoDecodeH264PictureInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR
+}
+
+public typealias VkVideoDecodeH264ProfileInfoKHR = CVulkan.VkVideoDecodeH264ProfileInfoKHR
+
+extension VkVideoDecodeH264ProfileInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR
+}
+
+public typealias VkVideoDecodeH264SessionParametersAddInfoKHR = CVulkan.VkVideoDecodeH264SessionParametersAddInfoKHR
+
+extension VkVideoDecodeH264SessionParametersAddInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_ADD_INFO_KHR
+}
+
+public typealias VkVideoDecodeH264SessionParametersCreateInfoKHR = CVulkan.VkVideoDecodeH264SessionParametersCreateInfoKHR
+
+extension VkVideoDecodeH264SessionParametersCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_SESSION_PARAMETERS_CREATE_INFO_KHR
+}
+
+public typealias VkVideoDecodeH265CapabilitiesKHR = CVulkan.VkVideoDecodeH265CapabilitiesKHR
+
+extension VkVideoDecodeH265CapabilitiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR
+}
+
+public typealias VkVideoDecodeH265DpbSlotInfoKHR = CVulkan.VkVideoDecodeH265DpbSlotInfoKHR
+
+extension VkVideoDecodeH265DpbSlotInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR
+}
+
+public typealias VkVideoDecodeH265PictureInfoKHR = CVulkan.VkVideoDecodeH265PictureInfoKHR
+
+extension VkVideoDecodeH265PictureInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR
+}
+
+public typealias VkVideoDecodeH265ProfileInfoKHR = CVulkan.VkVideoDecodeH265ProfileInfoKHR
+
+extension VkVideoDecodeH265ProfileInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR
+}
+
+public typealias VkVideoDecodeH265SessionParametersAddInfoKHR = CVulkan.VkVideoDecodeH265SessionParametersAddInfoKHR
+
+extension VkVideoDecodeH265SessionParametersAddInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_ADD_INFO_KHR
+}
+
+public typealias VkVideoDecodeH265SessionParametersCreateInfoKHR = CVulkan.VkVideoDecodeH265SessionParametersCreateInfoKHR
+
+extension VkVideoDecodeH265SessionParametersCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_SESSION_PARAMETERS_CREATE_INFO_KHR
+}
+
+public typealias VkVideoDecodeInfoKHR = CVulkan.VkVideoDecodeInfoKHR
+
+extension VkVideoDecodeInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR
+}
+
+public typealias VkVideoDecodeUsageInfoKHR = CVulkan.VkVideoDecodeUsageInfoKHR
+
+extension VkVideoDecodeUsageInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_DECODE_USAGE_INFO_KHR
+}
+
+public typealias VkVideoEndCodingInfoKHR = CVulkan.VkVideoEndCodingInfoKHR
+
+extension VkVideoEndCodingInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR
+}
+
+public typealias VkVideoFormatPropertiesKHR = CVulkan.VkVideoFormatPropertiesKHR
+
+extension VkVideoFormatPropertiesKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR
+}
+
+public typealias VkVideoPictureResourceInfoKHR = CVulkan.VkVideoPictureResourceInfoKHR
+
+extension VkVideoPictureResourceInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR
+}
+
+public typealias VkVideoProfileInfoKHR = CVulkan.VkVideoProfileInfoKHR
+
+extension VkVideoProfileInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR
+}
+
+public typealias VkVideoProfileListInfoKHR = CVulkan.VkVideoProfileListInfoKHR
+
+extension VkVideoProfileListInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR
+}
+
+public typealias VkVideoReferenceSlotInfoKHR = CVulkan.VkVideoReferenceSlotInfoKHR
+
+extension VkVideoReferenceSlotInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR
+}
+
+public typealias VkVideoSessionCreateInfoKHR = CVulkan.VkVideoSessionCreateInfoKHR
+
+extension VkVideoSessionCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_CREATE_INFO_KHR
+}
+
+public typealias VkVideoSessionMemoryRequirementsKHR = CVulkan.VkVideoSessionMemoryRequirementsKHR
+
+extension VkVideoSessionMemoryRequirementsKHR: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR
+}
+
+public typealias VkVideoSessionParametersCreateInfoKHR = CVulkan.VkVideoSessionParametersCreateInfoKHR
+
+extension VkVideoSessionParametersCreateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR
+}
+
+public typealias VkVideoSessionParametersUpdateInfoKHR = CVulkan.VkVideoSessionParametersUpdateInfoKHR
+
+extension VkVideoSessionParametersUpdateInfoKHR: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_UPDATE_INFO_KHR
 }
 
 #if VOLCANO_PLATFORM_LINUX
