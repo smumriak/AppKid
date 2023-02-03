@@ -27,11 +27,7 @@
         mutating func removePort(_ port: some OSPortProtocol) throws {
             ports[port.handle] = nil
         }
-
-        func containsPort(_ port: some OSPortProtocol) -> Bool {
-            ports[port.handle] != nil
-        }
-
+        
         init() throws {}
 
         func free() throws {}

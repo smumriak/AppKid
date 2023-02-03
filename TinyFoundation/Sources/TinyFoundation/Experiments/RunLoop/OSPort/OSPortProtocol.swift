@@ -29,7 +29,6 @@ public protocol OSPortSetProtocol: OSPortProtocol {
     associatedtype WakeUpResult
     mutating func addPort(_ port: some OSPortProtocol) throws
     mutating func removePort(_ port: some OSPortProtocol) throws
-    func containsPort(_ port: some OSPortProtocol) -> Bool
 }
 
 public extension OSPortProtocol {

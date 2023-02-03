@@ -28,11 +28,15 @@
             let data = epoll_data_t(fd: portHandle)
             var event = epoll_event(events: events.rawValue, data: data)
 
-            try syscall {
-                epoll_ctl(handle /* epfd */,
-                          EPOLL_CTL_ADD /* op */,
-                          portHandle /* fd */,
-                          &event /* event */ )
+            do {
+                try syscall {
+                    epoll_ctl(handle /* epfd */,
+                              EPOLL_CTL_ADD /* op */,
+                              portHandle /* fd */,
+                              &event /* event */ )
+                }
+            } catch POSIXErrorCode.EEXIST {
+                // NO-OP
             }
         }
 
@@ -40,16 +44,16 @@
             let portHandle = port.handle
             ports[portHandle] = nil
 
-            try syscall {
-                epoll_ctl(handle /* epfd */,
-                          EPOLL_CTL_DEL /* op */,
-                          portHandle /* fd */,
-                          nil /* event */ )
+            do {
+                try syscall {
+                    epoll_ctl(handle /* epfd */,
+                              EPOLL_CTL_DEL /* op */,
+                              portHandle /* fd */,
+                              nil /* event */ )
+                }
+            } catch POSIXErrorCode.ENOENT {
+                // NO-OP
             }
-        }
-
-        func containsPort(_ port: some OSPortProtocol) -> Bool {
-            ports[port.handle] != nil
         }
 
         // throws POSIXErrorCode with possible values from [.EINVAL, .EMFILE, .ENFILE, .ENOMEM]

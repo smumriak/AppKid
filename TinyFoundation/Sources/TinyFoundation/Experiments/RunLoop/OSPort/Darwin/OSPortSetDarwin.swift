@@ -27,10 +27,6 @@
             fatalError("Unimplemented")
         }
 
-        func containsPort(_ port: some OSPortProtocol) -> Bool {
-            ports[port.handle] != nil
-        }
-
         init() throws {
             fatalError("Unimplemented")
         }
