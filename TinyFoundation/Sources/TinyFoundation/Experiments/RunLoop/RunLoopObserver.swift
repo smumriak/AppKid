@@ -6,7 +6,7 @@
 //
 
 public extension RunLoop1 {
-    final class Observer {
+    final class Observer: Hashable {
         public typealias CallBack = (_ observer: Observer, _ activity: RunLoop1.Activity) -> ()
         public internal(set) var activity: RunLoop1.Activity
         public internal(set) var repeats: Bool
@@ -27,6 +27,14 @@ public extension RunLoop1 {
             self.repeats = repeats
             self.oder = oder
             self.callBack = callBack
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(ObjectIdentifier(self))
+        }
+
+        public static func == (lhs: Observer, rhs: Observer) -> Bool {
+            return lhs === rhs
         }
     }
 }

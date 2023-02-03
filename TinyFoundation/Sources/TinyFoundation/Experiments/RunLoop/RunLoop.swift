@@ -19,6 +19,8 @@ import HijackingHacks
 
 // TODO: When RunLoopMode is created and placed into runloop - runloops wake up port is placed to this modes port set
 // TODO: Track main thread exit via __CFMainThreadHasExited and check all public APIs for main runloop and exiting thread
+// TODO: Callout sources when they are removed in CFRunLoopRemoveSource
+// TODO: Replace array of runloops in runloop source with Bag type
 
 internal let tsrRate: TimeInterval = {
     #if os(Linux)
@@ -103,13 +105,17 @@ internal let timeoutLimit: TimeInterval = 0
         public static var runLoops: [ObjectIdentifier: RunLoop1] = [:]
 
         @_spi(AppKid)
-        public unowned var thread: Thread = .current
+        public internal(set) unowned var thread: Thread
         @_spi(AppKid)
-        public var items: [any RunLoopItem] = []
+        public internal(set) var modes: [Mode: RunLoopMode] = [:]
         @_spi(AppKid)
-        public var modes: [Mode: RunLoopMode] = [:]
+        public internal(set) var commonModes: [Mode: RunLoopMode] = [:]
+
         @_spi(AppKid)
-        public var commonModes: [Mode: RunLoopMode] = [:]
+        public typealias CommonModeItems = (sources: Set<RunLoop1.Source>, observers: Set<RunLoop1.Observer>, timers: Set<Timer1>)
+
+        @_spi(AppKid)
+        public internal(set) var commonModeItems: CommonModeItems = ([], [], [])
 
         public var currentMode: Mode? {
             _currentMode?.name
@@ -170,11 +176,11 @@ internal let timeoutLimit: TimeInterval = 0
             }
         }
 
-        class var current: RunLoop1 {
+        public class var current: RunLoop1 {
             return getRunLoop(.current)
         }
 
-        class var main: RunLoop1 {
+        public class var main: RunLoop1 {
             return getRunLoop(.main)
         }
 
@@ -256,9 +262,11 @@ internal let timeoutLimit: TimeInterval = 0
 
             try lock.synchronized {
                 try mode.lock.synchronized {
-                    if isMainThread == true, isInMainQueue == false, self === RunLoop1.main, commonModes[name] === mode {
-                        dispatchMainQueuePort = OSPort.dispatchMainQueuePort
-                    }
+                    #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
+                        if isMainThread == true, isInMainQueue == false, self === RunLoop1.main, commonModes[name] === mode {
+                            dispatchMainQueuePort = OSPort.dispatchMainQueuePort
+                        }
+                    #endif
 
                     // var timeoutToken: UInt64 = .zero
 
@@ -384,10 +392,15 @@ internal let timeoutLimit: TimeInterval = 0
             }
         }
 
+        @discardableResult
         public func run(mode modeName: Mode, before limitDate: Date) -> Bool {
             let duration = limitDate.timeIntervalSince(Date())
             run(in: modeName, duration: duration, returnAfterHandled: true)
             return false
+        }
+
+        public func wakeUp() throws {
+            try wakeUpPort.signal()
         }
     }
 

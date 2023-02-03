@@ -12,7 +12,7 @@ public class RunLoopMode: Hashable {
     internal var portSet: OSPortSet
     internal var timerPort: OSTimerPort
     public internal(set) var activity: RunLoop1.Activity = []
-    internal var sources: [RunLoop1.Source] = []
+    internal var sources: Set<RunLoop1.Source> = []
     internal var observers: [RunLoop1.Observer] = []
     internal var timers: [Timer1] = []
 
@@ -46,6 +46,33 @@ public class RunLoopMode: Hashable {
 
     public static func == (lhs: RunLoopMode, rhs: RunLoopMode) -> Bool {
         return lhs === rhs
+    }
+}
+
+internal extension RunLoopMode {
+    @_transparent
+    func removeSource(_ source: RunLoop1.Source) {
+        _ = lock.synchronized {
+            sources.remove(source)
+        }
+    }
+
+    @_transparent
+    func removeObserver(_ observer: RunLoop1.Observer) {
+        lock.synchronized {
+            if let index = observers.firstIndex(of: observer) {
+                observers.remove(at: index)
+            }
+        }
+    }
+
+    @_transparent
+    func removeTimer(_ timer: Timer1) {
+        lock.synchronized {
+            if let index = timers.firstIndex(of: timer) {
+                timers.remove(at: index)
+            }
+        }
     }
 }
 
