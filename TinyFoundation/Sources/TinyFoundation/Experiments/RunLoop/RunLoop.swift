@@ -367,13 +367,13 @@ internal let timeoutLimit: TimeInterval = 0
             // TIMER_INTERVAL_LIMIT from CFRunLoop
             switch duration {
                 case let value where value <= 0:
-                    context.timeout = .milliseconds(-1)
+                    context.timeout = .nanoseconds(0)
 
                 case let value where value > 0 && value <= 504911232.0:
                     context.timeout = .nanoseconds(Int64(duration * 1000000000))
 
                 default:
-                    context.timeout = .seconds(UInt64.max)
+                    context.timeout = nil
             }
 
             let wakeUpResult = try mode.portSet.wait(context: context)

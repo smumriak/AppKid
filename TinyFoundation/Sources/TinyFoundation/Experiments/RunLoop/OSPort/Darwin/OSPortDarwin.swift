@@ -11,7 +11,7 @@
     @_spi(AppKid)
     public extension OSPort {
         struct Context {
-            public var timeout: Duration = .milliseconds(-1)
+            public var timeout: Duration? = nil
             public init() {}
         }
 

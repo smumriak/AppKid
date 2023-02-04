@@ -12,7 +12,7 @@
     @_spi(AppKid)
     public extension OSPort {
         struct Context {
-            public var timeout: Duration = .milliseconds(-1)
+            public var timeout: Duration? = nil
             public init() {}
         }
 
@@ -85,7 +85,7 @@
 
     internal extension OSPortProtocol {
         @_transparent
-        func poll(timeout: Duration? = nil) throws {
+        func poll(timeout: Duration?) throws {
             var info = pollfd(fd: handle, events: Int16(POLLIN), revents: 0)
             var elapsed: UInt64 = 0
             var start: UInt64 = .absoluteTime

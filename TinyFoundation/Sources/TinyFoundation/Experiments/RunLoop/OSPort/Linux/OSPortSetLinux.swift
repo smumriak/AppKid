@@ -11,7 +11,7 @@
 
     public extension OSPortSet {
         struct Context {
-            public var timeout: Duration = .milliseconds(-1)
+            public var timeout: Duration? = nil
             public init() {}
         }
 
@@ -77,7 +77,7 @@
                 epoll_wait(handle /* epfd */,
                            &event /* events */,
                            1, /* maxevents */
-                           CInt(context.timeout.milliseconds) /* timeout */ )
+                           CInt(context.timeout?.milliseconds ?? -1) /* timeout */ )
             }
             switch result {
                 case 0:

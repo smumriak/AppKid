@@ -12,7 +12,7 @@
     @_spi(AppKid)
     public extension OSTimerPort {
         struct Context {
-            public var timeout: Duration = .milliseconds(-1)
+            public var timeout: Duration? = nil
             public init() {}
         }
 
