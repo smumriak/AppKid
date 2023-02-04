@@ -17,16 +17,22 @@ public extension RunLoop1 {
         internal let lock = RecursiveLock()
         internal var isFiring: Bool = false
         internal unowned var runLoop: RunLoop1? = nil
-        
-        public func invalidate() {
-            guard let runLoop else { return }
-        }
 
+        deinit {
+            invalidate()
+        }
+        
         public init(activity: RunLoop1.Activity, repeats: Bool, oder: Int, callBack: @escaping CallBack) {
             self.activity = activity
             self.repeats = repeats
             self.oder = oder
             self.callBack = callBack
+        }
+
+        public func invalidate() {
+            lock.synchronized {
+                runLoop?.removeObserver(self)
+            }
         }
 
         public func hash(into hasher: inout Hasher) {
@@ -35,6 +41,59 @@ public extension RunLoop1 {
 
         public static func == (lhs: Observer, rhs: Observer) -> Bool {
             return lhs === rhs
+        }
+    }
+
+    @_transparent
+    internal func removeObserver(_ observer: Observer) {
+        lock.synchronized {
+            commonModeItems.observers.remove(observer)
+            modes.values.forEach { mode in
+                mode.removeObserver(observer)
+            }
+            observer.lock.synchronized {
+                observer.runLoop = nil
+            }
+        }
+    }
+
+    func addObserver(_ observer: Observer, mode modeName: Mode) {
+        observer.lock.synchronized {
+            guard observer.runLoop == nil else { return }
+            
+            lock.synchronized {
+                if commonModeItems.observers.contains(observer) == false {
+                    commonModeItems.observers.insert(observer)
+                }
+                if modeName == .common {
+                    commonModes.forEach {
+                        modes[$0]?.addObserver(observer)
+                    }
+                } else {
+                    modes[modeName]?.addObserver(observer)
+                }
+            }
+
+            observer.runLoop = nil
+        }
+    }
+
+    func removeObserver(_ observer: Observer, mode modeName: Mode) {
+        observer.lock.synchronized {
+            guard observer.runLoop == self else { return }
+
+            lock.synchronized {
+                if modeName == .common {
+                    commonModeItems.observers.remove(observer)
+                    commonModes.forEach {
+                        modes[$0]?.removeObserver(observer)
+                    }
+                } else {
+                    modes[modeName]?.removeObserver(observer)
+                }
+
+                observer.runLoop = nil
+            }
         }
     }
 }

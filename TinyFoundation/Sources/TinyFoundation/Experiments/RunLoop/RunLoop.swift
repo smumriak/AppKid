@@ -21,6 +21,10 @@ import HijackingHacks
 // TODO: Track main thread exit via __CFMainThreadHasExited and check all public APIs for main runloop and exiting thread
 // TODO: Callout sources when they are removed in CFRunLoopRemoveSource
 // TODO: Replace array of runloops in runloop source with Bag type
+// TODO: Clear ports from run loop sources found in modes in deinit of RunLoop
+// TODO: Clear ports from run loop observers found in modes in deinit of RunLoop
+// TODO: Clear ports from timers found in modes in deinit of RunLoop
+// TODO: Traverses list of stored blocks in runloop and check if any block is scheduled in current runloop while determining if mode is empty
 
 internal let tsrRate: TimeInterval = {
     #if os(Linux)
@@ -93,7 +97,7 @@ internal let timeoutLimit: TimeInterval = 0
     import HijackingHacks
 
     internal var isInMainQueue = false
-    public final class RunLoop1 {
+    public final class RunLoop1: Hashable {
         enum RunResult {
             case finished
             case stopped
@@ -106,10 +110,11 @@ internal let timeoutLimit: TimeInterval = 0
 
         @_spi(AppKid)
         public internal(set) unowned var thread: Thread
+        
         @_spi(AppKid)
         public internal(set) var modes: [Mode: RunLoopMode] = [:]
         @_spi(AppKid)
-        public internal(set) var commonModes: [Mode: RunLoopMode] = [:]
+        public internal(set) var commonModes: Set<Mode> = []
 
         @_spi(AppKid)
         public typealias CommonModeItems = (sources: Set<RunLoop1.Source>, observers: Set<RunLoop1.Observer>, timers: Set<Timer1>)
@@ -146,7 +151,33 @@ internal let timeoutLimit: TimeInterval = 0
         public private(set) var isWaiting: Bool = false
 
         deinit {
-            try? wakeUpPort.free()
+            lock.synchronized {
+                do {
+                    try wakeUpPort.free()
+                } catch {
+                    debugPrint("Freeing wake up port failed in RunLoop deainit with error: \(error)")
+                }
+
+                // smumriak: Original code is very strict about thread safety modes manipulation. because of that cleanup for modes and sources is happening in deinit of runloop itsels. this way there's less locking
+                modes.forEach { name, mode in
+                    mode.lock.synchronized {
+                        mode.sources.forEach { source in
+                            source.lock.synchronized {
+                                if let index = source.runLoops.firstIndex(of: self) {
+                                    source.runLoops.remove(at: index)
+                                }
+                            }
+
+                            source.context.cleanupOnDeinit(runLoop: self, mode: mode, name: name)
+                        }
+                        mode.observers.forEach { observer in
+                            observer.lock.synchronized {
+                                observer.runLoop = nil
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         @_spi(AppKid)
@@ -157,10 +188,14 @@ internal let timeoutLimit: TimeInterval = 0
             } catch {
                 fatalError("Sorry, RunLoop experienced an error while trying to allocate native OS port: \(error.localizedDescription)")
             }
+
+            let defaultMode = createModeForNameIfNeeded(.default)
+            modes[.default] = defaultMode
+            commonModes.insert(.default)
         }
 
-        public func port(for modeName: Mode) -> (some OSPortProtocol)? {
-            modes[modeName]?.portSet
+        public func port(for modeName: Mode) -> (some OSPortProtocol) {
+            createModeForNameIfNeeded(modeName).portSet
         }
 
         @_spi(AppKid)
@@ -170,9 +205,7 @@ internal let timeoutLimit: TimeInterval = 0
                     return true
                 }
 
-                return mode.lock.synchronized {
-                    mode.isEmpty
-                }
+                return isModeEmpty(mode: mode)
             }
         }
 
@@ -182,6 +215,32 @@ internal let timeoutLimit: TimeInterval = 0
 
         public class var main: RunLoop1 {
             return getRunLoop(.main)
+        }
+
+        public func addCommonMode(_ name: Mode) {
+            lock.synchronized {
+                if commonModes.contains(name) {
+                    return
+                }
+
+                let mode = createModeForNameIfNeeded(name)
+                mode.sources.formUnion(commonModeItems.sources)
+                mode.observers.append(contentsOf: commonModeItems.observers)
+                mode.timers.append(contentsOf: commonModeItems.timers)
+                
+                modes[name] = mode
+                commonModes.insert(name)
+            }
+        }
+
+        internal func createModeForNameIfNeeded(_ name: Mode) -> RunLoopMode {
+            if let mode = modes[name] {
+                return mode
+            }
+
+            let mode = RunLoopMode(name: name)
+            modes[name] = mode
+            return mode
         }
 
         internal static func getRunLoop(_ thread: Thread) -> RunLoop1 {
@@ -263,7 +322,7 @@ internal let timeoutLimit: TimeInterval = 0
             try lock.synchronized {
                 try mode.lock.synchronized {
                     #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
-                        if isMainThread == true, isInMainQueue == false, self === RunLoop1.main, commonModes[name] === mode {
+                        if isMainThread == true, isInMainQueue == false, self === RunLoop1.main, commonModes.contains(name) {
                             dispatchMainQueuePort = OSPort.dispatchMainQueuePort
                         }
                     #endif
@@ -370,7 +429,7 @@ internal let timeoutLimit: TimeInterval = 0
                 }
 
                 return mode.lock.synchronized {
-                    if mode.isEmpty {
+                    if isModeEmpty(mode: mode) {
                         return .finished
                     }
 
@@ -401,6 +460,31 @@ internal let timeoutLimit: TimeInterval = 0
 
         public func wakeUp() throws {
             try wakeUpPort.signal()
+        }
+
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(ObjectIdentifier(self))
+        }
+
+        public static func == (lhs: RunLoop1, rhs: RunLoop1) -> Bool {
+            return lhs === rhs
+        }
+
+        internal func isModeEmpty(mode: RunLoopMode) -> Bool {
+            #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
+                if OSNativeThread.isMain == true, self === RunLoop1.main, isInMainQueue == false, commonModes.contains(mode.name) {
+                    return false
+                }
+            #endif
+
+            return mode.lock.synchronized {
+                if mode.sources.isEmpty == false || mode.timers.isEmpty == false {
+                    return false
+                }
+
+                // TODO: This is where CFRunLoop also traverses list of stored blocks and checks if any block is scheduled in current runloop
+                return true
+            }
         }
     }
 

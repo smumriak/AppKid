@@ -6,7 +6,7 @@
 //
 
 @_spi(AppKid)
-public class RunLoopMode: Hashable {
+public final class RunLoopMode: Hashable {
     public let name: RunLoop1.Mode
     internal let lock = RecursiveLock()
     internal var portSet: OSPortSet
@@ -36,10 +36,6 @@ public class RunLoopMode: Hashable {
         }
     }
 
-    public var isEmpty: Bool {
-        return true
-    }
-
     public func hash(into hasher: inout Hasher) {
         hasher.combine(ObjectIdentifier(self))
     }
@@ -51,9 +47,26 @@ public class RunLoopMode: Hashable {
 
 internal extension RunLoopMode {
     @_transparent
+    func addSource(_ source: RunLoop1.Source) {
+        lock.synchronized {
+            source.context.addTo(portSet: &portSet)
+            sources.insert(source)
+        }
+    }
+
+    @_transparent
     func removeSource(_ source: RunLoop1.Source) {
-        _ = lock.synchronized {
+        lock.synchronized {
+            source.context.removeFrom(portSet: &portSet)
             sources.remove(source)
+        }
+    }
+
+    @_transparent
+    func addObserver(_ observer: RunLoop1.Observer) {
+        lock.synchronized {
+            // TODO: maybe check for duplicates
+            observers.append(observer)
         }
     }
 
@@ -63,6 +76,13 @@ internal extension RunLoopMode {
             if let index = observers.firstIndex(of: observer) {
                 observers.remove(at: index)
             }
+        }
+    }
+
+    @_transparent
+    func addTimer(_ timer: Timer1) {
+        lock.synchronized {
+            timers.append(timer)
         }
     }
 

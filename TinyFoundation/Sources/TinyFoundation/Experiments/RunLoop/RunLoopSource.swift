@@ -73,6 +73,23 @@ public extension RunLoop1 {
             }
 
             @_transparent
+            func cleanupOnDeinit(runLoop: RunLoop1, mode: RunLoopMode, name: RunLoop1.Mode) {
+                switch self {
+                    case .zero(let context):
+                        // smumriak: This is cleanup for source 0
+                        context.didCancel(runLoop: runLoop, mode: name)
+
+                    case .one(let context):
+                        // smumriak: This is cleanup for source 1. original code calls getPort as a form of callout at this point
+                        do {
+                            try mode.portSet.removePort(context.port)
+                        } catch {
+                            fatalError("Sorry, RunLoop failed to remove native OS port from port set: \(error.localizedDescription)")
+                        }
+                }
+            }
+
+            @_transparent
             func addTo(portSet: inout OSPortSet) {
                 switch self {
                     case .zero(_):
@@ -147,9 +164,8 @@ public extension RunLoop1 {
                 isValid = false
 
                 if runLoops.isEmpty == false {
-                    let runLoopsCopy = runLoops
                     lock.desynchronized {
-                        runLoopsCopy.forEach {
+                        runLoops.forEach {
                             $0.removeSource(self)
                         }
                     }
@@ -169,8 +185,22 @@ public extension RunLoop1 {
     @_transparent
     internal func removeSource(_ source: Source) {
         lock.synchronized {
+            commonModeItems.sources.remove(source)
             modes.values.forEach { mode in
                 mode.removeSource(source)
+            }
+        }
+    }
+
+    func addSource(_ source: Source, mode modeName: Mode) {
+        lock.synchronized {
+            if modeName == .common {
+                commonModeItems.sources.insert(source)
+                commonModes.forEach {
+                    modes[$0]?.addSource(source)
+                }
+            } else {
+                modes[modeName]?.addSource(source)
             }
         }
     }
@@ -178,10 +208,12 @@ public extension RunLoop1 {
     func removeSource(_ source: Source, mode modeName: Mode) {
         lock.synchronized {
             if modeName == .common {
-            } else {
-                if let mode = modes[modeName] {
-                    mode.removeSource(source)
+                commonModeItems.sources.remove(source)
+                commonModes.forEach {
+                    modes[$0]?.removeSource(source)
                 }
+            } else {
+                modes[modeName]?.removeSource(source)
             }
         }
     }
