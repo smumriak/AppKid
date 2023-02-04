@@ -25,9 +25,14 @@ public extension UInt64 {
     static var absoluteTime: UInt64 {
         #if os(Linux) || os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(Android) || os(OpenBSD)
             var timespec = timespec()
-            let result = clock_gettime(CLOCK_MONOTONIC /* clock_id */,
-                                       &timespec /* res */ )
-            assert(result != 0, "Sorry, failed to get current time from OS")
+            do {
+                try syscall {
+                    clock_gettime(CLOCK_MONOTONIC /* clock_id */,
+                                  &timespec /* res */ )
+                }
+            } catch {
+                assertionFailure("Sorry, failed to get current time from OS with error: \(error)")
+            }
             return UInt64(timespec.tv_nsec) + UInt64(timespec.tv_sec * 1000000000)
         #elseif os(Windows)
             return 0
