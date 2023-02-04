@@ -17,7 +17,6 @@ import HijackingHacks
     import Darwin
 #endif
 
-// TODO: When RunLoopMode is created and placed into runloop - runloops wake up port is placed to this modes port set
 // TODO: Track main thread exit via __CFMainThreadHasExited and check all public APIs for main runloop and exiting thread
 // TODO: Callout sources when they are removed in CFRunLoopRemoveSource
 // TODO: Replace array of runloops in runloop source with Bag type
@@ -240,6 +239,11 @@ internal let timeoutLimit: TimeInterval = 0
 
             let mode = RunLoopMode(name: name)
             modes[name] = mode
+            do {
+                try mode.portSet.addPort(wakeUpPort)
+            } catch {
+                fatalError("Sorry, RunLoop failed to add wake up port to mode \(name) port set with error: \(error)")
+            }
             return mode
         }
 
