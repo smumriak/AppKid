@@ -24,7 +24,7 @@
             let portHandle = port.handle
             ports[portHandle] = port
 
-            let events: EPOLL_EVENTS = [.EPOLLONESHOT, .EPOLLET]
+            let events: EPOLL_EVENTS = [.EPOLLIN, .EPOLLET]
             let data = epoll_data_t(fd: portHandle)
             var event = epoll_event(events: events.rawValue, data: data)
 
