@@ -48,9 +48,9 @@ public class SemaphoreWatcher {
     }
 
     @discardableResult
-    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, callback: @escaping SemaphoreRunLoop.SourceCallback.Callback) throws -> SemaphoreRunLoop.SourceCallback {
+    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, callback: @escaping SemaphoreRunLoop.Source.Callback) throws -> SemaphoreRunLoop.Source {
         try lock.synchronized {
-            let source = try SemaphoreRunLoop.SourceCallback(with: semaphore, waitValue: waitValue ?? semaphore.value, callback: callback)
+            let source = try SemaphoreRunLoop.Source(with: semaphore, waitValue: waitValue ?? semaphore.value, callback: callback)
             sources.insert(source)
 
             try runLoop.add(source: source)
@@ -60,9 +60,9 @@ public class SemaphoreWatcher {
     }
 
     @discardableResult
-    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, continuation: SemaphoreRunLoop.ContinuationSource.Continuation) throws -> SemaphoreRunLoop.ContinuationSource {
+    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, continuation: SemaphoreRunLoop.Source.Continuation) throws -> SemaphoreRunLoop.Source {
         try lock.synchronized {
-            let source = try SemaphoreRunLoop.ContinuationSource(with: semaphore, waitValue: waitValue ?? semaphore.value, continuation: continuation)
+            let source = try SemaphoreRunLoop.Source(with: semaphore, waitValue: waitValue ?? semaphore.value, continuation: continuation)
             sources.insert(source)
 
             try runLoop.add(source: source)
@@ -72,9 +72,9 @@ public class SemaphoreWatcher {
     }
 
     @discardableResult
-    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, continuation: SemaphoreRunLoop.ThrowingContinuationSource.Continuation) throws -> SemaphoreRunLoop.ThrowingContinuationSource {
+    public func add(semaphore: TimelineSemaphore, waitValue: UInt64? = nil, throwingContinuation: SemaphoreRunLoop.Source.ThrowingContinuation) throws -> SemaphoreRunLoop.Source {
         try lock.synchronized {
-            let source = try SemaphoreRunLoop.ThrowingContinuationSource(with: semaphore, waitValue: waitValue ?? semaphore.value, continuation: continuation)
+            let source = try SemaphoreRunLoop.Source(with: semaphore, waitValue: waitValue ?? semaphore.value, throwingContinuation: throwingContinuation)
             sources.insert(source)
 
             try runLoop.add(source: source)

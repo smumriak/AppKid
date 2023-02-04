@@ -9,7 +9,7 @@ import CVulkan
 import Foundation
 import TinyFoundation
 
-internal class TimelineSemaphoreSet {
+internal final class TimelineSemaphoreSet {
     let device: Device
     var semaphores: Set<TimelineSemaphore> = []
     var semaphoresToWaitValues: [TimelineSemaphore: UInt64] = [:]
@@ -86,7 +86,7 @@ internal class TimelineSemaphoreSet {
 }
 
 public extension SemaphoreRunLoop {
-    class Source: Hashable {
+    final class Source: Hashable {
         internal let waitValue: UInt64
         public func hash(into hasher: inout Hasher) {
             semaphore.hash(into: &hasher)
@@ -99,62 +99,46 @@ public extension SemaphoreRunLoop {
 
         fileprivate weak var runLoop: SemaphoreRunLoop? = nil
         public let semaphore: TimelineSemaphore
+        public typealias Callback = () -> ()
+        public typealias Continuation = UnsafeContinuation<Void, Never>
+        public typealias ThrowingContinuation = UnsafeContinuation<Void, Error>
 
-        internal func perform() throws {}
+        internal enum Store {
+            case callback(Callback)
+            case continuation(Continuation)
+            case throwingContinuation(ThrowingContinuation)
 
-        public init(with semaphore: TimelineSemaphore, waitValue: UInt64) {
+            func perform() throws {
+                switch self {
+                    case .callback(let value): value()
+                    case .continuation(let value): value.resume()
+                    case .throwingContinuation(let value): value.resume()
+                }
+            }
+        }
+
+        internal let store: Store
+
+        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, callback: @escaping Callback) {
             self.semaphore = semaphore
             self.waitValue = waitValue
+            store = .callback(callback)
+        }
+
+        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, continuation: Continuation) {
+            self.semaphore = semaphore
+            self.waitValue = waitValue
+            store = .continuation(continuation)
+        }
+
+        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, throwingContinuation: ThrowingContinuation) {
+            self.semaphore = semaphore
+            self.waitValue = waitValue
+            store = .throwingContinuation(throwingContinuation)
         }
         
         public func invalildate() throws {
             try runLoop?.remove(source: self)
-        }
-    }
-
-    class SourceCallback: Source {
-        public typealias Callback = () -> ()
-
-        public let callback: Callback
-
-        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, callback: @escaping Callback) {
-            self.callback = callback
-
-            super.init(with: semaphore, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            callback()
-        }
-    }
-
-    class ContinuationSource: Source {
-        public typealias Continuation = UnsafeContinuation<Void, Never>
-        public let continuation: Continuation
-
-        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, continuation: Continuation) {
-            self.continuation = continuation
-
-            super.init(with: semaphore, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            continuation.resume()
-        }
-    }
-
-    class ThrowingContinuationSource: Source {
-        public typealias Continuation = UnsafeContinuation<Void, Error>
-        public let continuation: Continuation
-
-        public init(with semaphore: TimelineSemaphore, waitValue: UInt64, continuation: Continuation) {
-            self.continuation = continuation
-
-            super.init(with: semaphore, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            continuation.resume()
         }
     }
 }
@@ -279,7 +263,7 @@ public final class SemaphoreRunLoop {
         try signalledSemaphores.compactMap { semaphoreToSource[$0] }
             .forEach {
                 sourcesToRemove.insert($0)
-                try $0.perform()
+                try $0.store.perform()
             }
 
         if signalledSemaphores.contains(wakeUpSemaphore) {

@@ -9,7 +9,7 @@ import Foundation
 import CCairo
 import TinyFoundation
 
-internal class CGContextState {
+internal final class CGContextState {
     var alpha: CGFloat = .zero
 
     var fillColor: CGColor = .clear {

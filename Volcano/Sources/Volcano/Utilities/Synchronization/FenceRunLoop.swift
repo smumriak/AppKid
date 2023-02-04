@@ -64,7 +64,7 @@ internal class FenceSet {
 }
 
 public extension FenceRunLoop {
-    class Source: Hashable {
+    final class Source: Hashable {
         internal let waitValue: UInt64
         public func hash(into hasher: inout Hasher) {
             fence.hash(into: &hasher)
@@ -77,62 +77,46 @@ public extension FenceRunLoop {
 
         fileprivate weak var runLoop: FenceRunLoop? = nil
         public let fence: Fence
+        public typealias Callback = () -> ()
+        public typealias Continuation = UnsafeContinuation<Void, Never>
+        public typealias ThrowingContinuation = UnsafeContinuation<Void, Error>
 
-        internal func perform() throws {}
+        internal enum Store {
+            case callback(Callback)
+            case continuation(Continuation)
+            case throwingContinuation(ThrowingContinuation)
 
-        public init(with fence: Fence, waitValue: UInt64) {
+            func perform() throws {
+                switch self {
+                    case .callback(let value): value()
+                    case .continuation(let value): value.resume()
+                    case .throwingContinuation(let value): value.resume()
+                }
+            }
+        }
+
+        internal let store: Store
+
+        public init(with fence: Fence, waitValue: UInt64, callback: @escaping Callback) {
             self.fence = fence
             self.waitValue = waitValue
+            store = .callback(callback)
+        }
+
+        public init(with fence: Fence, waitValue: UInt64, continuation: Continuation) {
+            self.fence = fence
+            self.waitValue = waitValue
+            store = .continuation(continuation)
+        }
+
+        public init(with fence: Fence, waitValue: UInt64, throwingContinuation: ThrowingContinuation) {
+            self.fence = fence
+            self.waitValue = waitValue
+            store = .throwingContinuation(throwingContinuation)
         }
         
         public func invalildate() throws {
             try runLoop?.remove(source: self)
-        }
-    }
-
-    class SourceCallback: Source {
-        public typealias Callback = () -> ()
-
-        public let callback: Callback
-
-        public init(with fence: Fence, waitValue: UInt64, callback: @escaping Callback) {
-            self.callback = callback
-
-            super.init(with: fence, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            callback()
-        }
-    }
-
-    class ContinuationSource: Source {
-        public typealias Continuation = UnsafeContinuation<Void, Never>
-        public let continuation: Continuation
-
-        public init(with fence: Fence, waitValue: UInt64, continuation: Continuation) {
-            self.continuation = continuation
-
-            super.init(with: fence, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            continuation.resume()
-        }
-    }
-
-    class ThrowingContinuationSource: Source {
-        public typealias Continuation = UnsafeContinuation<Void, Error>
-        public let continuation: Continuation
-
-        public init(with fence: Fence, waitValue: UInt64, continuation: Continuation) {
-            self.continuation = continuation
-
-            super.init(with: fence, waitValue: waitValue)
-        }
-
-        override func perform() throws {
-            continuation.resume()
         }
     }
 }
@@ -257,7 +241,7 @@ public final class FenceRunLoop {
         try signalledFences.compactMap { fenceToSource[$0] }
             .forEach {
                 sourcesToRemove.insert($0)
-                try $0.perform()
+                try $0.store.perform()
             }
 
         if signalledFences.contains(wakeUpFence) {
