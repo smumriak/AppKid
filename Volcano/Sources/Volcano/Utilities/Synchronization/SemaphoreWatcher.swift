@@ -9,7 +9,7 @@ import CVulkan
 import Foundation
 import TinyFoundation
 
-public class SemaphoreWatcher {
+public final class SemaphoreWatcher {
     private var thread: Thread
     private let lock = RecursiveLock()
     public let runLoop: SemaphoreRunLoop

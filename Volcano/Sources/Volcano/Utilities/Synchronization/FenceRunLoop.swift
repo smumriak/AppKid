@@ -9,7 +9,7 @@ import CVulkan
 import Foundation
 import TinyFoundation
 
-internal class FenceSet {
+internal final class FenceSet {
     let device: Device
     var fences: Set<Fence> = []
     let lock = RecursiveLock()
