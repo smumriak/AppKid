@@ -40,7 +40,7 @@ public struct Copyable<Pointee: CopyableCType> {
             pointer.pointer
         }
         set {
-            pointer = StoragePointer(with: newValue)
+            pointer = StoragePointer(with: newValue.copy())
         }
     }
 

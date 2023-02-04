@@ -53,7 +53,7 @@ public struct Retainable<Pointee: RetainableCType> {
             pointer.pointer
         }
         set {
-            pointer = StoragePointer(with: newValue)
+            pointer = StoragePointer(retaining: newValue)
         }
     }
 
