@@ -33,14 +33,14 @@ internal let tsrRate: TimeInterval = {
         if result != 0 {
             fatalError("Sorry, getting clock resulution failed with error: \(POSIXErrorCode(rawValue: errno)!)")
         }
-        return TimeInterval(timespec.tv_sec) + (1000000000 * TimeInterval(timespec.tv_nsec))
+        return TimeInterval(timespec.tv_sec) + (1_000_000_000 * TimeInterval(timespec.tv_nsec))
     #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
         return 1
     #elseif os(Android)
         return 1
     #elseif os(Windows)
         // QueryUnbiasedInterruptTimePrecise returns system time in units of 100 nanoseconds. Divide it by 10^7 to get seconds
-        return 10000000
+        return 10_000_000
     #else
         return 1
     #endif
@@ -78,7 +78,7 @@ internal extension UInt64 {
 
     @_transparent
     var tsrToNanoseconds: UInt64 {
-        UInt64((TimeInterval(self) * tsrRate * 1000000000).rounded(.down))
+        UInt64((TimeInterval(self) * tsrRate * 1_000_000_000).rounded(.down))
     }
 }
 
@@ -142,7 +142,7 @@ internal let timeoutLimit: TimeInterval = 0
             public static let beforeWaiting = Activity(rawValue: 1 << 5)
             public static let afterWaiting = Activity(rawValue: 1 << 6)
             public static let exit = Activity(rawValue: 1 << 7)
-            public static let all = Activity(rawValue: 0x0FFFFFFF)
+            public static let all = Activity(rawValue: 0x0FFF_FFFF)
         }
 
         internal let lock = RecursiveLock()
@@ -373,8 +373,8 @@ internal let timeoutLimit: TimeInterval = 0
                 case let value where value <= 0:
                     context.timeout = .nanoseconds(0)
 
-                case let value where value > 0 && value <= 504911232.0:
-                    context.timeout = .nanoseconds(Int64(duration * 1000000000))
+                case let value where value > 0 && value <= 504_911_232.0:
+                    context.timeout = .nanoseconds(Int64(duration * 1_000_000_000))
 
                 default:
                     context.timeout = nil

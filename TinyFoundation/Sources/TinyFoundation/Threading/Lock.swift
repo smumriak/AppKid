@@ -432,7 +432,7 @@
                 if timeIntervalSinceNow <= 0 {
                     return nil
                 } else {
-                    let nsecPerSec: Int64 = 1000000000
+                    let nsecPerSec: Int64 = 1_000_000_000
                     let intervalNS = Int64(timeIntervalSince1970 * Double(nsecPerSec))
 
                     return timespec(tv_sec: time_t(intervalNS / nsecPerSec),

@@ -3,10 +3,10 @@
 --indent 4
 --tabwidth 4
 --xcodeindentation enabled
---decimalgrouping none
---binarygrouping none
---octalgrouping none
---hexgrouping none
+--decimalgrouping 3,6
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 4,8
 --hexliteralcase uppercase
 --exponentcase lowercase
 --nospaceoperators ...,..<

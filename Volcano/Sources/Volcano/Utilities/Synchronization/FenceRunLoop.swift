@@ -247,8 +247,8 @@ public final class FenceRunLoop {
 
         if timeInterval <= 0 {
             timeout = 0
-        } else if timeInterval * 1000000000 < TimeInterval(UInt64.max) {
-            timeout = UInt64(timeInterval) * 1000000000
+        } else if timeInterval * 1_000_000_000 < TimeInterval(UInt64.max) {
+            timeout = UInt64(timeInterval) * 1_000_000_000
         } else {
             timeout = .max
         }

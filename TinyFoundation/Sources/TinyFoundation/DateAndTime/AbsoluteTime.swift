@@ -33,7 +33,7 @@ public extension UInt64 {
             } catch {
                 assertionFailure("Sorry, failed to get current time from OS with error: \(error)")
             }
-            return UInt64(timespec.tv_nsec) + UInt64(timespec.tv_sec * 1000000000)
+            return UInt64(timespec.tv_nsec) + UInt64(timespec.tv_sec * 1_000_000_000)
         #elseif os(Windows)
             return 0
         #else

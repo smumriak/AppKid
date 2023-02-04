@@ -73,7 +73,7 @@ public extension Duration {
 
     var nanoseconds: Int64 {
         let components = components
-        return components.seconds * 1000000000 + Int64(Double(components.attoseconds) * 0.000_000_001)
+        return components.seconds * 1_000_000_000 + Int64(Double(components.attoseconds) * 0.000_000_001)
     }
 }
 

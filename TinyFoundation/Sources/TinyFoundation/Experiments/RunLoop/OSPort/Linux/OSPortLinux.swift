@@ -95,7 +95,7 @@
                 
                 if let timeout_ns = timeout?.nanoseconds, timeout_ns > 0 && elapsed < UInt64(timeout_ns) {
                     let delta = UInt64(timeout_ns) - elapsed
-                    timespec = .init(tv_sec: Int(delta / 1000000000), tv_nsec: Int(delta % 1000000000))
+                    timespec = .init(tv_sec: Int(delta / 1_000_000_000), tv_nsec: Int(delta % 1_000_000_000))
                 } else {
                     timespec = nil
                 }
