@@ -35,7 +35,37 @@
             }
         }
 
-        func schedule() {}
+        func schedule(deadline: Int64) throws {
+            var timespec = itimerspec()
+            timespec.it_interval.tv_sec = 0
+            timespec.it_interval.tv_nsec = 0
+
+            timespec.it_value.tv_sec = Int(deadline / 1_000_000_000)
+            timespec.it_value.tv_nsec = Int(deadline % 1_000_000_000)
+
+            try syscall {
+                timerfd_settime(handle /* ufd */,
+                                CInt(TFD_TIMER_ABSTIME) /* flags */,
+                                &timespec /* itimerspec */,
+                                nil /* otmr */ )
+            }
+        }
+
+        func cancel() throws {
+            var timespec = itimerspec()
+            timespec.it_interval.tv_sec = 0
+            timespec.it_interval.tv_nsec = 0
+
+            timespec.it_value.tv_sec = 0
+            timespec.it_value.tv_nsec = 0
+
+            try syscall {
+                timerfd_settime(handle /* ufd */,
+                                CInt(TFD_TIMER_ABSTIME) /* flags */,
+                                &timespec /* itimerspec */,
+                                nil /* otmr */ )
+            }
+        }
         
         func wait(context: Context = Context()) throws -> WakeUpResult {
             try poll(timeout: context.timeout)

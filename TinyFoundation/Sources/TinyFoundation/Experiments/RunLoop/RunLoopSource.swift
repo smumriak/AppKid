@@ -26,7 +26,12 @@ public extension RunLoopSourceContext0 {
 public extension RunLoop1 {
     final class Source: Hashable {
         internal let lock = RecursiveLock()
+        // smumriak: only used for source 0
         public let order: Int
+        
+        @inlinable @inline(__always)
+        @TFValid
+        public internal(set) var isValid: Bool = true
 
         // smumriak: original CoreFoundation code performs compareExchange operation with acquire then release rules for success and failure. this code does not need that since it explicitly checks initial state on every operation, so it is safe to use atomic release storage operation
         @AtomicAcquiring
@@ -119,11 +124,6 @@ public extension RunLoop1 {
                 }
             }
         }
-
-        // smumriak: original CoreFoundation code performs weakCompareExchange operation with sequentially consistend rules for success and failure. this code does not need that since it explicitly checks initial state on every operation, so it is safe to use atomic sequentially consistend storage operation
-        @inlinable @inline(__always)
-        @AtomicSequentiallyConsistent
-        internal var isValid: Bool = true
 
         public var isSignaled: Bool {
             switch context {

@@ -11,7 +11,11 @@ public extension RunLoop1 {
         public internal(set) var activity: RunLoop1.Activity
         public internal(set) var repeats: Bool
         public internal(set) var oder: Int
+        
+        @inlinable @inline(__always)
+        @TFValid
         public internal(set) var isValid: Bool = true
+        
         public internal(set) var callBack: CallBack
 
         internal let lock = RecursiveLock()
@@ -30,9 +34,13 @@ public extension RunLoop1 {
         }
 
         public func invalidate() {
+            guard isValid else { return }
+            
             lock.synchronized {
                 runLoop?.removeObserver(self)
             }
+
+            isValid = false
         }
 
         public func hash(into hasher: inout Hasher) {

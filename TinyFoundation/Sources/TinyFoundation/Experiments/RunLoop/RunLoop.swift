@@ -8,6 +8,8 @@
 import Foundation
 import HijackingHacks
 
+import CoreFoundation
+
 #if os(Linux)
     import LinuxSys
 #elseif os(Android) || os(OpenBSD)
@@ -24,6 +26,9 @@ import HijackingHacks
 // TODO: Clear ports from run loop observers found in modes in deinit of RunLoop
 // TODO: Clear ports from timers found in modes in deinit of RunLoop
 // TODO: Traverses list of stored blocks in runloop and check if any block is scheduled in current runloop while determining if mode is empty
+
+// smumriak: original CoreFoundation code performs weakCompareExchange operation with sequentially consistend rules for success and failure. this code does not need that since it explicitly checks initial state on every operation, so it is safe to use atomic sequentially consistend storage operation
+public typealias TFValid = AtomicSequentiallyConsistent
 
 internal let tsrRate: TimeInterval = {
     #if os(Linux)
@@ -283,6 +288,8 @@ internal let timeoutLimit: TimeInterval = 0
 
         fileprivate func notifyObservers(for activity: Activity, mode: RunLoopMode) {
             // runloop and mode are locked on entrance and exit
+            guard mode.activity.contains(activity) else { return }
+
             let observers = mode.observers.filter { observer in
                 // original code does not lock the observer, yet clearly it should because *all* setters to isValid are hidden behind locks implying possible race conditions
                 observer.lock.synchronized {

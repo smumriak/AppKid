@@ -67,6 +67,8 @@ internal extension RunLoopMode {
         lock.synchronized {
             // TODO: maybe check for duplicates
             observers.append(observer)
+            // smumriak: original code never removes it from the known activites. assuming the expecation is "observer should never be removed from runloop"
+            activity.formUnion(observer.activity)
         }
     }
 
