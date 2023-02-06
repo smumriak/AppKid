@@ -14,10 +14,22 @@ public enum BinarySearchOptions: Int {
 public extension RandomAccessCollection where Element: Comparable {
     @_transparent
     func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual) -> Index? {
-        findInsertionIndex(for: element, options: options, by: <)
+        findInsertionIndex(for: element, options: options, predicate: <)
     }
 
-    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual, by predicate: (_ lhs: Element, _ rhs: Element) throws -> (Bool)) rethrows -> Index? {
+    @_transparent
+    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual) -> Index? {
+        findInsertionIndex(for: element, options: options, predicate: <)
+    }
+
+    @_transparent
+    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: T, _ rhs: T) throws -> (Bool)) rethrows -> Index? {
+        try findInsertionIndex(for: element, options: options) {
+            try predicate($0[keyPath: keyPath], $1[keyPath: keyPath])
+        }
+    }
+
+    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: Element, _ rhs: Element) throws -> (Bool)) rethrows -> Index? {
         var left = startIndex
         if isEmpty {
             return left
