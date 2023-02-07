@@ -14,6 +14,7 @@ import SimpleGLM
 public struct CGAffineTransform_cglm_WorkInProgress {
     public var matrix: mat3s = .identity
     
+    @_transparent
     public var _matrix: cairo_matrix_t {
         get {
             cairo_matrix_t(xx: Double(a), yx: Double(b),
@@ -30,14 +31,17 @@ public struct CGAffineTransform_cglm_WorkInProgress {
         }
     }
 
+    @_transparent
     public init() {
         self = .identity
     }
 
+    @_transparent
     public init(matrix: mat3s) {
         self.matrix = matrix
     }
 
+    @_transparent
     public init(matrix: cairo_matrix_t) {
         self.matrix = .identity
         _matrix = matrix
@@ -94,6 +98,7 @@ public extension CGAffineTransform_cglm_WorkInProgress {
     static let identity = CGAffineTransform_cglm_WorkInProgress(matrix: .identity)
     static let zero = CGAffineTransform_cglm_WorkInProgress(matrix: .zero)
 
+    @_transparent
     var isIdentity: Bool { matrix.isIdentity }
 
     @_transparent
@@ -108,14 +113,17 @@ public extension CGAffineTransform_cglm_WorkInProgress {
 }
 
 public extension CGAffineTransform_cglm_WorkInProgress {
+    @_transparent
     init(translationX tx: CGFloat, y ty: CGFloat) {
         matrix = mat3s(translationVector: vec2s(tx, ty))
     }
     
+    @_transparent
     init(scaleX sx: CGFloat, y sy: CGFloat) {
         matrix = mat3s(scaleVector: vec2s(sx, sy))
     }
     
+    @_transparent
     init(rotationAngle angle: CGFloat) {
         matrix = mat3s(rotationAngle: angle)
     }
@@ -136,6 +144,7 @@ public extension CGAffineTransform_cglm_WorkInProgress {
     }
 
     // smumriak:For unknown reason this code crashes swift compiler on raspberry pi
+    // @_transparent
     // func inverted() -> CGAffineTransform_cglm_WorkInProgress {
     //     if isIdentity { return self }
 
@@ -144,6 +153,7 @@ public extension CGAffineTransform_cglm_WorkInProgress {
     //     return CGAffineTransform_cglm_WorkInProgress(matrix: matrix.inversed)
     // }
     
+    @_transparent
     func concatenating(_ t2: CGAffineTransform_cglm_WorkInProgress) -> CGAffineTransform_cglm_WorkInProgress {
         var result = CGAffineTransform_cglm_WorkInProgress(matrix: matrix * t2.matrix)
         result.tx = tx * t2.a + ty * t2.c + t2.tx
@@ -169,6 +179,7 @@ public extension CGSize {
 }
 
 public extension CGRect {
+    @_transparent
     func applying(_ t: CGAffineTransform_cglm_WorkInProgress) -> CGRect {
         let topLeft = CGPoint(x: minX, y: minY).applying(t)
         let topRight = CGPoint(x: maxX, y: minY).applying(t)

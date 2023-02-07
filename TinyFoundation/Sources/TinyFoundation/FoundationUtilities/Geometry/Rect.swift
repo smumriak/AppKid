@@ -39,11 +39,13 @@ public struct Rect<StorageType> where StorageType: BinaryInteger {
         set { size.height = newValue }
     }
 
+    @_transparent
     public init(origin: Point<StorageType>, size: Size<StorageType>) {
         self.origin = origin
         self.size = size
     }
 
+    @_transparent
     public init(x: StorageType, y: StorageType, width: StorageType, height: StorageType) {
         self.origin = Point(x: x, y: y)
         self.size = Size(width: width, height: height)

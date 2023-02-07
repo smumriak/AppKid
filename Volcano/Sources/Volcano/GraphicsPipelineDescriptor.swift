@@ -82,7 +82,7 @@ public class GraphicsPipelineDescriptor {
     public init() {}
 }
 
-extension GraphicsPipelineDescriptor {
+internal extension GraphicsPipelineDescriptor {
     @_transparent
     @LavaBuilder<VkGraphicsPipelineCreateInfo>
     func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LavaBuilder<VkGraphicsPipelineCreateInfo> {

@@ -8,6 +8,7 @@
 import Foundation
 
 public extension Array where Element == String {
+    @_transparent
     var cStrings: [SharedPointer<CChar>] {
         let deleter = SharedPointer<Int8>.Deleter.custom { free($0) }
 
@@ -16,12 +17,14 @@ public extension Array where Element == String {
         }
     }
 
+    @_transparent
     func withUnsafeNullableCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<CChar>?>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
         return try cStrings.optionalPointers().withUnsafeBufferPointer(body)
     }
 
+    @_transparent
     func withUnsafeCStringsBufferPointer<R>(_ body: (UnsafeBufferPointer<UnsafePointer<CChar>>) throws -> (R)) rethrows -> R {
         let cStrings = self.cStrings
 
@@ -30,6 +33,7 @@ public extension Array where Element == String {
 }
 
 public extension Set where Element == String {
+    @_transparent
     var cStrings: [SharedPointer<Int8>] {
         let deleter = SharedPointer<Int8>.Deleter.custom { free($0) }
 

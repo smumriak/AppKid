@@ -11,6 +11,7 @@ public struct Point<StorageType> where StorageType: BinaryInteger {
     public var x: StorageType
     public var y: StorageType
 
+    @_transparent
     public init(x: StorageType, y: StorageType) {
         self.x = x
         self.y = y

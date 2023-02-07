@@ -9,6 +9,7 @@ import Foundation
 import Atomics
 
 public extension LockProtocol {
+    @_transparent
     func synchronized<T>(_ body: () throws -> T) rethrows -> T {
         self.lock()
         defer { self.unlock() }
@@ -16,6 +17,7 @@ public extension LockProtocol {
         return try body()
     }
 
+    @_transparent
     func desynchronized<T>(_ body: () throws -> T) rethrows -> T {
         self.unlock()
         defer { self.lock() }

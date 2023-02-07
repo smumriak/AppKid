@@ -18,6 +18,7 @@ public enum ComparisonResult: Int {
 }
 
 public extension Comparable {
+    @_transparent
     static func ascendingPredicate(_ lhs: Self, _ rhs: Self) -> ComparisonResult {
         if lhs < rhs {
             return .ascending
@@ -28,6 +29,7 @@ public extension Comparable {
         }
     }
 
+    @_transparent
     static func descendingPredicate(_ lhs: Self, _ rhs: Self) -> ComparisonResult {
         if lhs > rhs {
             return .ascending
