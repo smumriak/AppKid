@@ -11,37 +11,60 @@ public enum BinarySearchOptions: Int {
     case lastEqual // highest possible index, will be +1 after the last equal element
 }
 
-public extension RandomAccessCollection where Element: Comparable {
+public enum ComparisonResult: Int {
+    case descending
+    case same
+    case ascending
+}
+
+public extension Comparable {
+    static func ascendingPredicate(_ lhs: Self, _ rhs: Self) -> ComparisonResult {
+        if lhs < rhs {
+            return .ascending
+        } else if lhs > rhs {
+            return .descending
+        } else {
+            return .same
+        }
+    }
+
+    static func descendingPredicate(_ lhs: Self, _ rhs: Self) -> ComparisonResult {
+        if lhs > rhs {
+            return .ascending
+        } else if lhs < rhs {
+            return .descending
+        } else {
+            return .same
+        }
+    }
+}
+
+public extension RandomAccessCollection {
     @_transparent
-    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual) -> Index? {
-        findInsertionIndex(for: element, options: options, predicate: <)
+    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual) -> Index {
+        findInsertionIndex(for: element, keyPath: keyPath, options: options, predicate: T.ascendingPredicate)
     }
 
     @_transparent
-    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual) -> Index? {
-        findInsertionIndex(for: element, options: options, predicate: <)
-    }
-
-    @_transparent
-    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: T, _ rhs: T) throws -> (Bool)) rethrows -> Index? {
+    func findInsertionIndex<T: Comparable>(for element: Element, keyPath: KeyPath<Element, T>, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: T, _ rhs: T) throws -> (ComparisonResult)) rethrows -> Index {
         try findInsertionIndex(for: element, options: options) {
             try predicate($0[keyPath: keyPath], $1[keyPath: keyPath])
         }
     }
 
-    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: Element, _ rhs: Element) throws -> (Bool)) rethrows -> Index? {
+    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual, predicate: (_ lhs: Element, _ rhs: Element) throws -> (ComparisonResult)) rethrows -> Index {
         var left = startIndex
         if isEmpty {
             return left
         }
 
-        if try predicate(element, self[left]) {
+        if try predicate(element, self[left]) == .ascending {
             return left
         }
         
         var right = index(endIndex, offsetBy: -1)
         let rightElement = self[right]
-        if try predicate(element, rightElement) == false && element != rightElement {
+        if try predicate(element, rightElement) == .descending {
             return endIndex
         }
 
@@ -52,24 +75,29 @@ public extension RandomAccessCollection where Element: Comparable {
             let middle = index(left, offsetBy: distance(from: left, to: right) / 2)
             let middleElement = self[middle]
 
-            if try predicate(element, middleElement) { // search right
-                lastGreaterThan = middle
-                right = index(before: middle)
-            } else if element == middleElement { // =
-                result = middle
-                switch options {
-                    case .anyEqual:
-                        break loop
+            let comparisonResult = try predicate(element, middleElement)
 
-                    case .firstEqual:
-                        lastGreaterThan = middle
-                        right = index(before: middle)
+            switch comparisonResult {
+                case .ascending: // search right
+                    lastGreaterThan = middle
+                    right = index(before: middle)
 
-                    case .lastEqual:
-                        left = index(after: middle)
-                }
-            } else { // search left
-                left = index(after: middle)
+                case .descending: // search left
+                    left = index(after: middle)
+
+                case .same: // =
+                    result = middle
+                    switch options {
+                        case .anyEqual:
+                            break loop
+
+                        case .firstEqual:
+                            lastGreaterThan = middle
+                            right = index(before: middle)
+
+                        case .lastEqual:
+                            left = index(after: middle)
+                    }
             }
         }
         
@@ -80,7 +108,14 @@ public extension RandomAccessCollection where Element: Comparable {
                 return result
             }
         } else {
-            return lastGreaterThan
+            return lastGreaterThan ?? startIndex
         }
+    }
+}
+
+public extension RandomAccessCollection where Element: Comparable {
+    @_transparent
+    func findInsertionIndex(for element: Element, options: BinarySearchOptions = .anyEqual) -> Index {
+        findInsertionIndex(for: element, options: options, predicate: Element.ascendingPredicate)
     }
 }
