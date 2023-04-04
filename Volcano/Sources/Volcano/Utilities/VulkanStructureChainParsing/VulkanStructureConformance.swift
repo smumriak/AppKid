@@ -1436,6 +1436,12 @@ extension VkImageViewSampleWeightCreateInfoQCOM: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_SAMPLE_WEIGHT_CREATE_INFO_QCOM
 }
 
+public typealias VkImageViewSlicedCreateInfoEXT = CVulkan.VkImageViewSlicedCreateInfoEXT
+
+extension VkImageViewSlicedCreateInfoEXT: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT
+}
+
 public typealias VkImageViewUsageCreateInfo = CVulkan.VkImageViewUsageCreateInfo
 
 extension VkImageViewUsageCreateInfo: VulkanInStructure {
@@ -1756,21 +1762,17 @@ extension VkMultiviewPerViewAttributesInfoNVX: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX
 }
 
+public typealias VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM = CVulkan.VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM
+
+extension VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM
+}
+
 public typealias VkMutableDescriptorTypeCreateInfoEXT = CVulkan.VkMutableDescriptorTypeCreateInfoEXT
 
 extension VkMutableDescriptorTypeCreateInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT
 }
-
-#if VOLCANO_PLATFORM_ANDROID
-    public typealias VkNativeBufferANDROID = CVulkan.VkNativeBufferANDROID
-#endif
-
-#if VOLCANO_PLATFORM_ANDROID
-    extension VkNativeBufferANDROID: VulkanInStructure {
-        public static let type: VkStructureType = .VK_STRUCTURE_TYPE_NATIVE_BUFFER_ANDROID
-    }
-#endif
 
 public typealias VkOpaqueCaptureDescriptorDataCreateInfoEXT = CVulkan.VkOpaqueCaptureDescriptorDataCreateInfoEXT
 
@@ -2390,6 +2392,12 @@ extension VkPhysicalDeviceImageRobustnessFeatures: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ROBUSTNESS_FEATURES
 }
 
+public typealias VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT = CVulkan.VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT
+
+extension VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT
+}
+
 public typealias VkPhysicalDeviceImageViewImageFormatInfoEXT = CVulkan.VkPhysicalDeviceImageViewImageFormatInfoEXT
 
 extension VkPhysicalDeviceImageViewImageFormatInfoEXT: VulkanOutStructure {
@@ -2564,6 +2572,12 @@ extension VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX: VulkanOutStru
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_ATTRIBUTES_PROPERTIES_NVX
 }
 
+public typealias VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM = CVulkan.VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
+
+extension VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM
+}
+
 public typealias VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM = CVulkan.VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM
 
 extension VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM: VulkanOutStructure {
@@ -2648,6 +2662,12 @@ extension VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR: VulkanOutStru
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_EXECUTABLE_PROPERTIES_FEATURES_KHR
 }
 
+public typealias VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT = CVulkan.VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT
+
+extension VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT
+}
+
 public typealias VkPhysicalDevicePipelinePropertiesFeaturesEXT = CVulkan.VkPhysicalDevicePipelinePropertiesFeaturesEXT
 
 extension VkPhysicalDevicePipelinePropertiesFeaturesEXT: VulkanOutStructure {
@@ -2695,16 +2715,6 @@ public typealias VkPhysicalDevicePresentWaitFeaturesKHR = CVulkan.VkPhysicalDevi
 extension VkPhysicalDevicePresentWaitFeaturesKHR: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENT_WAIT_FEATURES_KHR
 }
-
-#if VOLCANO_PLATFORM_ANDROID
-    public typealias VkPhysicalDevicePresentationPropertiesANDROID = CVulkan.VkPhysicalDevicePresentationPropertiesANDROID
-#endif
-
-#if VOLCANO_PLATFORM_ANDROID
-    extension VkPhysicalDevicePresentationPropertiesANDROID: VulkanInStructure {
-        public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PRESENTATION_PROPERTIES_ANDROID
-    }
-#endif
 
 public typealias VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT = CVulkan.VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT
 
@@ -2914,6 +2924,12 @@ public typealias VkPhysicalDeviceShaderCorePropertiesAMD = CVulkan.VkPhysicalDev
 
 extension VkPhysicalDeviceShaderCorePropertiesAMD: VulkanOutStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_AMD
+}
+
+public typealias VkPhysicalDeviceShaderCorePropertiesARM = CVulkan.VkPhysicalDeviceShaderCorePropertiesARM
+
+extension VkPhysicalDeviceShaderCorePropertiesARM: VulkanOutStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM
 }
 
 public typealias VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures = CVulkan.VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures
@@ -3570,6 +3586,12 @@ extension VkProtectedSubmitInfo: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO
 }
 
+public typealias VkQueryLowLatencySupportNV = CVulkan.VkQueryLowLatencySupportNV
+
+extension VkQueryLowLatencySupportNV: VulkanInStructure {
+    public static let type: VkStructureType = .VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV
+}
+
 public typealias VkQueryPoolCreateInfo = CVulkan.VkQueryPoolCreateInfo
 
 extension VkQueryPoolCreateInfo: VulkanInStructure {
@@ -4060,16 +4082,6 @@ extension VkSwapchainDisplayNativeHdrCreateInfoAMD: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_DISPLAY_NATIVE_HDR_CREATE_INFO_AMD
 }
 
-#if VOLCANO_PLATFORM_ANDROID
-    public typealias VkSwapchainImageCreateInfoANDROID = CVulkan.VkSwapchainImageCreateInfoANDROID
-#endif
-
-#if VOLCANO_PLATFORM_ANDROID
-    extension VkSwapchainImageCreateInfoANDROID: VulkanInStructure {
-        public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_IMAGE_CREATE_INFO_ANDROID
-    }
-#endif
-
 public typealias VkSwapchainPresentBarrierCreateInfoNV = CVulkan.VkSwapchainPresentBarrierCreateInfoNV
 
 extension VkSwapchainPresentBarrierCreateInfoNV: VulkanOutStructure {
@@ -4078,19 +4090,19 @@ extension VkSwapchainPresentBarrierCreateInfoNV: VulkanOutStructure {
 
 public typealias VkSwapchainPresentFenceInfoEXT = CVulkan.VkSwapchainPresentFenceInfoEXT
 
-extension VkSwapchainPresentFenceInfoEXT: VulkanOutStructure {
+extension VkSwapchainPresentFenceInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_FENCE_INFO_EXT
 }
 
 public typealias VkSwapchainPresentModeInfoEXT = CVulkan.VkSwapchainPresentModeInfoEXT
 
-extension VkSwapchainPresentModeInfoEXT: VulkanOutStructure {
+extension VkSwapchainPresentModeInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODE_INFO_EXT
 }
 
 public typealias VkSwapchainPresentModesCreateInfoEXT = CVulkan.VkSwapchainPresentModesCreateInfoEXT
 
-extension VkSwapchainPresentModesCreateInfoEXT: VulkanOutStructure {
+extension VkSwapchainPresentModesCreateInfoEXT: VulkanInStructure {
     public static let type: VkStructureType = .VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_MODES_CREATE_INFO_EXT
 }
 

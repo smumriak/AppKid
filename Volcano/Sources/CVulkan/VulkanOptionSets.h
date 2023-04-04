@@ -106,9 +106,6 @@ AK_EXISTING_OPTIONS(VkSubpassDescriptionFlagBits);
 AK_EXISTING_OPTIONS(VkSurfaceCounterFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkSurfaceTransformFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkSwapchainCreateFlagBitsKHR);
-#ifdef VK_USE_PLATFORM_ANDROID_KHR
-AK_EXISTING_OPTIONS(VkSwapchainImageUsageFlagBitsANDROID);
-#endif
 AK_EXISTING_OPTIONS(VkToolPurposeFlagBits);
 AK_EXISTING_OPTIONS(VkVideoCapabilityFlagBitsKHR);
 AK_EXISTING_OPTIONS(VkVideoChromaSubsamplingFlagBitsKHR);

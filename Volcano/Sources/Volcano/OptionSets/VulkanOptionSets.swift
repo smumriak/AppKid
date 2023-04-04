@@ -1136,16 +1136,6 @@ public extension VkSwapchainCreateFlagBitsKHR {
     static let deferredMemoryAllocationExt: VkSwapchainCreateFlagBitsKHR = .VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT
 }
 
-#if VOLCANO_PLATFORM_ANDROID
-    public typealias VkSwapchainImageUsageFlagBitsANDROID = CVulkan.VkSwapchainImageUsageFlagBitsANDROID
-#endif
-
-#if VOLCANO_PLATFORM_ANDROID
-    public extension VkSwapchainImageUsageFlagBitsANDROID {
-        static let shared: VkSwapchainImageUsageFlagBitsANDROID = .VK_SWAPCHAIN_IMAGE_USAGE_SHARED_BIT_ANDROID
-    }
-#endif
-
 public typealias VkToolPurposeFlagBits = CVulkan.VkToolPurposeFlagBits
 
 public extension VkToolPurposeFlagBits {

@@ -97,6 +97,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "XMLCoder", package: "XMLCoder"),
+                .product(name: "TinyFoundation", package: "TinyFoundation"),
+
             ]),
         .executableTarget(
             name: "VolcanoSL",

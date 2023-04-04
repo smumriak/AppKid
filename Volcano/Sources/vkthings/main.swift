@@ -8,6 +8,7 @@
 import Foundation
 import ArgumentParser
 import XMLCoder
+import TinyFoundation
 
 // smumriak: The code below is extremely bad. Abstraction is bad, a lot of hardcoded values and it was written in three nights. But vk.xml is a crappy format for specification anyway, so crappy input deserves crappy tool
 
@@ -183,12 +184,13 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
     enum Supported: String, Codable, Equatable {
         case vulkan
         case disabled
+        case vulkansc
     }
 
     let name: String
     let number: String
     let extensionType: ExtensionType?
-    let supported: Supported
+    let supported: Set<Supported>
     let requirements: [RequirementDefinition]?
     let platformName: String?
     let deprecatedBy: String?
@@ -214,6 +216,22 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
             case CodingKeys.deprecatedBy: return .attribute
             default: return .elementOrAttribute
         }
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        name = try values.decode(.name)
+        number = try values.decode(.number)
+        extensionType = try values.decodeIfPresent(.extensionType)
+        requirements = try values.decodeIfPresent(.requirements)
+        platformName = try values.decodeIfPresent(.platformName)
+        deprecatedBy = try values.decodeIfPresent(.deprecatedBy)
+
+        let supported = try values.decode(String.self, forKey: .supported)
+            .split(separator: ",")
+            .compactMap { Supported(rawValue: String($0)) }
+
+        self.supported = Set(supported)
     }
 }
 
@@ -355,25 +373,61 @@ struct RequirementDefinition: Codable, Equatable {
         let name: String
     }
 
+    enum API: String, Codable, Equatable {
+        case vulkan
+        case disabled
+        case vulkansc
+    }
+
+    let depends: String?
+    let api: Set<API>
+
     let enumerants: [Enumerant]?
     let typeEntries: [TypeEntry]?
 
     enum CodingKeys: String, CodingKey {
         case enumerants = "enum"
         case typeEntries = "type"
+        case depends
+        case api
     }
 
     static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.enumerants: return .element
             case CodingKeys.typeEntries: return .element
+            case CodingKeys.api: return .attribute
+            case CodingKeys.depends: return .attribute
             default: return .elementOrAttribute
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        enumerants = try values.decodeIfPresent(.enumerants)
+        typeEntries = try values.decodeIfPresent(.typeEntries)
+        depends = try values.decodeIfPresent(.depends)
+
+        let api = try values.decodeIfPresent(String.self, forKey: .api)?
+            .split(separator: ",")
+            .compactMap { API(rawValue: String($0)) }
+
+        if let api {
+            self.api = Set(api)
+        } else {
+            self.api = Set([.vulkan, .vulkansc])
         }
     }
 }
 
 struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
-    let api: String
+    enum API: String, Codable, Equatable {
+        case vulkan
+        case disabled
+        case vulkansc
+    }
+
+    let api: Set<API>
     let name: String
     let number: String
 
@@ -394,6 +448,19 @@ struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
             case CodingKeys.requirements: return .element
             default: return .elementOrAttribute
         }
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        name = try values.decode(.name)
+        number = try values.decode(.number)
+        requirements = try values.decode(.requirements)
+
+        let api = try values.decode(String.self, forKey: .api)
+            .split(separator: ",")
+            .compactMap { API(rawValue: String($0)) }
+
+        self.api = Set(api)
     }
 }
 
@@ -455,7 +522,6 @@ struct VulkanStructureGenerator: ParsableCommand {
         )
 
         let enabledExtensions = registry.extensions.elements
-            .filter { $0.supported != .disabled }
             .filter {
                 if let deprecatedBy = $0.deprecatedBy {
                     return deprecatedBy.isEmpty
@@ -479,7 +545,21 @@ struct VulkanStructureGenerator: ParsableCommand {
         )
 
         registry.features.forEach { feature in
+            let shouldRemoveType = !feature.api.contains(.vulkan)
             feature.requirements.forEach { requirement in
+                let shouldRemoveType = shouldRemoveType || !requirement.api.contains(.vulkan)
+                requirement.typeEntries?.forEach {
+                    if shouldRemoveType && $0.name != "VkPipelineCacheCreateFlagBits" {
+                        parsedStructures.removeValue(forKey: $0.name)
+                        parsedEnumerations.removeValue(forKey: $0.name)
+                        parsedOptionSets.removeValue(forKey: $0.name)
+                    }
+                }
+
+                if !feature.api.contains(.vulkan) || !requirement.api.contains(.vulkan) {
+                    return
+                }
+
                 requirement.enumerants?.forEach {
                     guard let extends = $0.extends else {
                         return
@@ -529,7 +609,7 @@ struct VulkanStructureGenerator: ParsableCommand {
         }
 
         registry.extensions.elements.forEach { extensionItem in
-            var shouldRemoveType = false
+            var shouldRemoveType = !extensionItem.supported.contains(.vulkan)
             var swiftDefine: String?
             var cDefine: String?
             
@@ -546,8 +626,9 @@ struct VulkanStructureGenerator: ParsableCommand {
             }
 
             extensionItem.requirements?.forEach { requirement in
+                let shouldRemoveType = shouldRemoveType || !requirement.api.contains(.vulkan)
                 requirement.typeEntries?.forEach {
-                    if shouldRemoveType {
+                    if shouldRemoveType && $0.name != "VkPipelineCacheCreateFlagBits" {
                         parsedStructures.removeValue(forKey: $0.name)
                         parsedEnumerations.removeValue(forKey: $0.name)
                         parsedOptionSets.removeValue(forKey: $0.name)
@@ -596,11 +677,14 @@ struct VulkanStructureGenerator: ParsableCommand {
                     }
                 }
 
-                if extensionItem.supported == .disabled {
+                if !extensionItem.supported.contains(.vulkan) || !requirement.api.contains(.vulkan) {
                     return
                 }
 
                 requirement.enumerants?.forEach {
+                    if $0.name == "VK_STRUCTURE_TYPE_PERFORMANCE_QUERY_RESERVATION_INFO_KHR" {
+                        print("YES DAWG")
+                    }
                     guard let extends = $0.extends else {
                         return
                     }

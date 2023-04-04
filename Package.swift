@@ -472,6 +472,7 @@ extension Target {
         dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
             .product(name: "XMLCoder", package: "XMLCoder"),
+            .tinyFoundation,
         ],
         path: "Volcano/Sources/vkthings"
     )

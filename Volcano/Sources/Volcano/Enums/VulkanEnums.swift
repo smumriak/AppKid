@@ -536,10 +536,13 @@ public extension VkDynamicState {
     static let primitiveRestartEnable: VkDynamicState = .VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE
     static let viewportWScalingNv: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_W_SCALING_NV
     static let discardRectangleExt: VkDynamicState = .VK_DYNAMIC_STATE_DISCARD_RECTANGLE_EXT
+    static let discardRectangleEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_DISCARD_RECTANGLE_ENABLE_EXT
+    static let discardRectangleModeExt: VkDynamicState = .VK_DYNAMIC_STATE_DISCARD_RECTANGLE_MODE_EXT
     static let sampleLocationsExt: VkDynamicState = .VK_DYNAMIC_STATE_SAMPLE_LOCATIONS_EXT
     static let rayTracingPipelineStackSizeKhr: VkDynamicState = .VK_DYNAMIC_STATE_RAY_TRACING_PIPELINE_STACK_SIZE_KHR
     static let viewportShadingRatePaletteNv: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_SHADING_RATE_PALETTE_NV
     static let viewportCoarseSampleOrderNv: VkDynamicState = .VK_DYNAMIC_STATE_VIEWPORT_COARSE_SAMPLE_ORDER_NV
+    static let exclusiveScissorEnableNv: VkDynamicState = .VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_ENABLE_NV
     static let exclusiveScissorNv: VkDynamicState = .VK_DYNAMIC_STATE_EXCLUSIVE_SCISSOR_NV
     static let fragmentShadingRateKhr: VkDynamicState = .VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR
     static let lineStippleExt: VkDynamicState = .VK_DYNAMIC_STATE_LINE_STIPPLE_EXT
@@ -2412,6 +2415,7 @@ public extension VkStructureType {
     static let physicalDevicePipelineCreationCacheControlFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES_EXT
     static let physicalDeviceDiagnosticsConfigFeaturesNv: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DIAGNOSTICS_CONFIG_FEATURES_NV
     static let deviceDiagnosticsConfigCreateInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV
+    static let queryLowLatencySupportNv: VkStructureType = .VK_STRUCTURE_TYPE_QUERY_LOW_LATENCY_SUPPORT_NV
     #if VOLCANO_PLATFORM_APPLE_METAL
         static let exportMetalObjectCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_EXPORT_METAL_OBJECT_CREATE_INFO_EXT
     #endif
@@ -2588,6 +2592,9 @@ public extension VkStructureType {
     static let physicalDeviceMaintenance4PropertiesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES_KHR
     static let deviceBufferMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_BUFFER_MEMORY_REQUIREMENTS_KHR
     static let deviceImageMemoryRequirementsKhr: VkStructureType = .VK_STRUCTURE_TYPE_DEVICE_IMAGE_MEMORY_REQUIREMENTS_KHR
+    static let physicalDeviceShaderCorePropertiesArm: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_PROPERTIES_ARM
+    static let physicalDeviceImageSlicedViewOfThreeDimensionsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_SLICED_VIEW_OF_3D_FEATURES_EXT
+    static let imageViewSlicedCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_IMAGE_VIEW_SLICED_CREATE_INFO_EXT
     static let physicalDeviceDescriptorSetHostMappingFeaturesValve: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_SET_HOST_MAPPING_FEATURES_VALVE
     static let descriptorSetBindingReferenceValve: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_BINDING_REFERENCE_VALVE
     static let descriptorSetLayoutHostMappingInfoValve: VkStructureType = .VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_HOST_MAPPING_INFO_VALVE
@@ -2638,6 +2645,9 @@ public extension VkStructureType {
     static let mutableDescriptorTypeCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_MUTABLE_DESCRIPTOR_TYPE_CREATE_INFO_EXT
     static let physicalDeviceShaderCoreBuiltinsFeaturesArm: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM
     static let physicalDeviceShaderCoreBuiltinsPropertiesArm: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM
+    static let physicalDevicePipelineLibraryGroupHandlesFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT
+    static let physicalDeviceMultiviewPerViewRenderAreasFeaturesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM
+    static let multiviewPerViewRenderAreasRenderPassBeginInfoQcom: VkStructureType = .VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM
 }
 
 public typealias VkSubpassContents = CVulkan.VkSubpassContents
@@ -2739,6 +2749,7 @@ public extension VkVendorId {
     static let codeplay: VkVendorId = .VK_VENDOR_ID_CODEPLAY
     static let mesa: VkVendorId = .VK_VENDOR_ID_MESA
     static let pocl: VkVendorId = .VK_VENDOR_ID_POCL
+    static let mobileye: VkVendorId = .VK_VENDOR_ID_MOBILEYE
 }
 
 public typealias VkVertexInputRate = CVulkan.VkVertexInputRate
