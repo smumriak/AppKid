@@ -1,0 +1,13 @@
+#
+#  .spi.yml
+#  AppKid
+#  
+#  Created by Serhii Mumriak on 04.04.2023
+#
+
+version: 1
+builder:
+  configs:
+  - platform: linux
+    swift_version: '5.8'
+    image: palkovnik/appkid-toolchain-jammy:5.8

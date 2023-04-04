@@ -1,0 +1,36 @@
+#
+#  Dockerfile.appkid_toolchain
+#  AppKid
+#  
+#  Created by Serhii Mumriak on 04.04.2023
+#
+
+ARG swift_version
+FROM swift:${swift_version}-jammy
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt update && apt install -y \
+    wget \
+    gnupg \
+    curl
+
+RUN wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc \
+    | tee /etc/apt/trusted.gpg.d/lunarg.asc
+    
+RUN wget -q http://packages.lunarg.com/vulkan/lunarg-vulkan-jammy.list -O \
+    /etc/apt/sources.list.d/lunarg-vulkan-jammy.list
+
+RUN export DEBIAN_FRONTEND=noninteractive \
+    && apt update && apt install -y\
+    vulkan-sdk \
+    libx11-dev \
+ 	libxi-dev \
+ 	libwayland-dev \
+ 	libcairo2-dev \
+ 	libpango1.0-dev \
+ 	libglib2.0-dev \
+    libpython3-dev \
+    libclang-12-dev
+
+RUN mkdir -p /usr/local/lib/pkgconfig && wget -qO /usr/local/lib/pkgconfig/clang.pc \
+    https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc 
