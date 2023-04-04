@@ -66,7 +66,7 @@ public struct Synchronized<Value> {
 }
 
 @propertyWrapper
-public struct AtomicSequentiallyConsistent<Value> where Value: AtomicValue {
+public struct AtomicSequentiallyConsistent<Value> where Value: AtomicValue, Value.AtomicRepresentation.Value == Value {
     @usableFromInline
     internal var value: ManagedAtomic<Value>
 
@@ -87,7 +87,7 @@ public struct AtomicSequentiallyConsistent<Value> where Value: AtomicValue {
 }
 
 @propertyWrapper
-public struct AtomicAcquiring<Value> where Value: AtomicValue {
+public struct AtomicAcquiring<Value> where Value: AtomicValue, Value.AtomicRepresentation.Value == Value {
     @usableFromInline
     internal var value: ManagedAtomic<Value>
 
