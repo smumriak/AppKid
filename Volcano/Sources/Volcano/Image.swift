@@ -50,7 +50,7 @@ public class ImageDescriptor {
     }
 
     @LavaBuilder<VkImageCreateInfo>
-    public var builder: LavaBuilder<VkImageCreateInfo> {
+    public var builder: LavaContainer<VkImageCreateInfo> {
         \.flagsBits <- flags
         \.imageType <- imageType
         \.format <- format

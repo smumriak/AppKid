@@ -49,7 +49,7 @@ public final class TimelineSemaphore: AbstractSemaphore {
             }
         }()
 
-        try LavaBuilder<VkSemaphoreWaitInfo> {
+        try VkSemaphoreWaitInfo.lava {
             \.flags <- VkSemaphoreWaitFlagBits()
             (\.semaphoreCount, \.pSemaphores) <- [self]
             \.pValues <- [value]
@@ -79,7 +79,7 @@ extension Device {
     func wait(for semaphores: [TimelineSemaphore], values: [UInt64], waitForAll: Bool = true, timeout: UInt64 = .max) throws {
         assert(semaphores.count == values.count)
 
-        try LavaBuilder<VkSemaphoreWaitInfo> {
+        try VkSemaphoreWaitInfo.lava {
             \.flags <- waitForAll ? [] : VkSemaphoreWaitFlagBits.any
             (\.semaphoreCount, \.pSemaphores) <- semaphores
             \.pValues <- values

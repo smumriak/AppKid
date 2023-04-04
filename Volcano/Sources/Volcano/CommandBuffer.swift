@@ -28,7 +28,7 @@ public final class CommandBuffer: DeviceEntity<VkCommandBuffer_T> {
     }
 
     public func begin(flags: VkCommandBufferUsageFlagBits = []) throws {
-        try LavaBuilder<VkCommandBufferBeginInfo> {
+        try VkCommandBufferBeginInfo.lava {
             \.flags <- flags
             \.pInheritanceInfo <- nil
         }.withUnsafeResultPointer { info in
@@ -45,7 +45,7 @@ public final class CommandBuffer: DeviceEntity<VkCommandBuffer_T> {
     }
 
     public func begin(renderPass: RenderPass, framebuffer: Framebuffer, renderArea: VkRect2D, clearValues: [VkClearValue] = [], subpassContents: VkSubpassContents = .inline) throws {
-        try LavaBuilder<VkRenderPassBeginInfo> {
+        try VkRenderPassBeginInfo.lava {
             \.renderPass <- renderPass
             \.framebuffer <- framebuffer
             \.renderArea <- renderArea

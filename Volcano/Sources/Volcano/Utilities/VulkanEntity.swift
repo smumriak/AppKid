@@ -39,8 +39,7 @@ open class DeviceEntity<Entity: VkDeviceEntity>: SharedPointerStorage<Entity> {
         super.init(handle: handle)
     }
     
-    // smumriak:FIXME: when making this initializer to consume `Entity.Info` directly in `content` argument type declaration complier crashes. presumably, because it fails to resolve types recursivelly or something. making initializer generic with specifying the `NoCompilerCrashType` as `Entity.Info` crash is avoided
-    public init<NoCompilerCrashType>(device: Device, @LavaBuilder<NoCompilerCrashType> _ content: () throws -> (LavaBuilder<NoCompilerCrashType>)) throws where Entity: CreateableFromSingleEntityInfo, Entity.Info: SimpleEntityInfo, Entity.Info.Parent == VkDevice.Pointee, NoCompilerCrashType == Entity.Info {
+    public init(device: Device, @LavaBuilder<Entity.Info> _ content: () throws -> (LavaContainer<Entity.Info>)) throws where Entity: CreateableFromSingleEntityInfo, Entity.Info: SimpleEntityInfo, Entity.Info.Parent == VkDevice.Pointee {
         let handle: Handle = try device.buildEntity(content)
         self.device = device
 

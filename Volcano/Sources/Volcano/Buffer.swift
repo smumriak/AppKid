@@ -28,7 +28,7 @@ public final class BufferDescriptor {
     }
 
     @LavaBuilder<VkBufferCreateInfo>
-    public var builder: LavaBuilder<VkBufferCreateInfo> {
+    public var builder: LavaContainer<VkBufferCreateInfo> {
         \.flags <- flags
         \.size <- size
         \.usage <- usage

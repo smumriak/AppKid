@@ -29,18 +29,17 @@ internal extension LavaBuilder {
 
 @resultBuilder
 public struct LavaBuilderArray<Struct: VulkanStructure> {
-    public typealias Expression = LavaBuilder<Struct>
-    public typealias Component = [LavaBuilder<Struct>]
+    public typealias Component = [LavaContainer<Struct>]
 
     static func buildExpression() -> Component {
         return []
     }
 
-    static func buildExpression(_ expression: Expression) -> Component {
+    static func buildExpression(_ expression: LavaContainer<Struct>) -> Component {
         return [expression]
     }
 
-    static func buildExpression(_ expression: Expression?) -> Component {
+    static func buildExpression(_ expression: LavaContainer<Struct>?) -> Component {
         if let expression = expression {
             return [expression]
         } else {
@@ -48,7 +47,7 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
         }
     }
 
-    static func buildBlock(_ elements: [Expression?]) -> Component {
+    static func buildBlock(_ elements: [LavaContainer<Struct>?]) -> Component {
         return elements.compactMap { $0 }
     }
 
@@ -76,16 +75,8 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
         return elements
     }
 
-    static func buildFinalResult(_ elements: Component) -> LavaBuilderArray<Struct> {
-        return LavaBuilderArray(elements)
-    }
-
-    static func buildFinalResult(@LavaBuilderArray<Struct> _ content: () -> (Component)) -> LavaBuilderArray<Struct> {
-        return LavaBuilderArray(content())
-    }
-
-    static func buildFinalResult(@LavaBuilderArray<Struct> _ content: () -> (LavaBuilderArray<Struct>)) -> LavaBuilderArray<Struct> {
-        return content()
+    static func buildFinalResult(_ elements: Component) -> LavaContainerArray<Struct> {
+        return LavaContainerArray(elements)
     }
 
     @usableFromInline
@@ -126,13 +117,13 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
 }
 
 public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
-    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, _ builder: LavaBuilderArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
-        try builder {
+    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, _ container: LavaContainerArray<Info>) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+        try container {
             try create(with: $0, context: context)
         }
     }
 
-    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, @LavaBuilderArray<Info> _ content: () throws -> (LavaBuilderArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, @LavaBuilderArray<Info> _ content: () throws -> (LavaContainerArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         try buildEntities(context: context, content())
     }
 }

@@ -9,18 +9,18 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @_transparent
-public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), builder: LavaBuilderArray<SubStruct>) -> LVSubArray<Struct, SubStruct> {
+public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), builder: LavaContainerArray<SubStruct>) -> LVSubArray<Struct, SubStruct> {
     LVSubArray(paths.0, paths.1, builder)
 }
 
 @inlinable @_transparent
-public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), @LavaBuilderArray<SubStruct> content: () -> (LavaBuilderArray<SubStruct>)) -> LVSubArray<Struct, SubStruct> {
+public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), @LavaBuilderArray<SubStruct> content: () -> (LavaContainerArray<SubStruct>)) -> LVSubArray<Struct, SubStruct> {
     LVSubArray(paths.0, paths.1, content())
 }
 
 @inlinable @_transparent
-public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [LavaBuilder<Value>?]) -> LVSubArray<Struct, Value> {
-    LVSubArray(paths.0, paths.1, LavaBuilderArray(value.compactMap { $0 }))
+public func <- <Struct: VulkanStructure, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [LavaContainer<Value>?]) -> LVSubArray<Struct, Value> {
+    LVSubArray(paths.0, paths.1, LavaContainerArray(value.compactMap { $0 }))
 }
 
 public struct LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: LVPath {
@@ -34,10 +34,10 @@ public struct LVSubArray<Struct: VulkanStructure, SubStruct: VulkanStructure>: L
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let builder: LavaBuilderArray<SubStruct>
+    internal let builder: LavaContainerArray<SubStruct>
 
     @inlinable @_transparent
-    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ builder: LavaBuilderArray<SubStruct>) {
+    public init(_ countKeyPath: CountKeyPath, _ valueKeyPath: ValueKeyPath, _ builder: LavaContainerArray<SubStruct>) {
         self.countKeyPath = countKeyPath
         self.valueKeyPath = valueKeyPath
         self.builder = builder

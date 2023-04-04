@@ -9,12 +9,12 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @_transparent
-public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, builder: LavaBuilder<SubStruct>) -> LVSubStruct<Struct, SubStruct> {
+public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, builder: LavaContainer<SubStruct>) -> LVSubStruct<Struct, SubStruct> {
     LVSubStruct(path, builder)
 }
 
 @inlinable @_transparent
-public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @LavaBuilder<SubStruct> _ content: () throws -> (LavaBuilder<SubStruct>)) rethrows -> LVSubStruct<Struct, SubStruct> {
+public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @LavaBuilder<SubStruct> _ content: () throws -> (LavaContainer<SubStruct>)) rethrows -> LVSubStruct<Struct, SubStruct> {
     try LVSubStruct(path, content())
 }
 
@@ -25,10 +25,10 @@ public struct LVSubStruct<Struct: InitializableWithNew, SubStruct: Initializable
     internal let valueKeyPath: ValueKeyPath
 
     @usableFromInline
-    internal let builder: LavaBuilder<SubStruct>
+    internal let builder: LavaContainer<SubStruct>
 
     @inlinable @_transparent
-    public init(_ valueKeyPath: ValueKeyPath, _ builder: LavaBuilder<SubStruct>) {
+    public init(_ valueKeyPath: ValueKeyPath, _ builder: LavaContainer<SubStruct>) {
         self.valueKeyPath = valueKeyPath
         self.builder = builder
     }

@@ -85,7 +85,7 @@ public class GraphicsPipelineDescriptor {
 internal extension GraphicsPipelineDescriptor {
     @_transparent
     @LavaBuilder<VkGraphicsPipelineCreateInfo>
-    func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LavaBuilder<VkGraphicsPipelineCreateInfo> {
+    func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LavaContainer<VkGraphicsPipelineCreateInfo> {
         \.pViewportState <- viewportState
         \.pVertexInputState <- vertexInputState
         \.pInputAssemblyState <- inputAssemblyState
@@ -106,7 +106,7 @@ internal extension GraphicsPipelineDescriptor {
 
     @_transparent
     @LavaBuilder<VkPipelineViewportStateCreateInfo>
-    var viewportState: LavaBuilder<VkPipelineViewportStateCreateInfo> {
+    var viewportState: LavaContainer<VkPipelineViewportStateCreateInfo> {
         // smumriak: This looks stupid. Why not use switch or at least else-if? The reason is https://github.com/apple/swift/issues/57076 ([SR-14726]). Till this is fixed functionality of "else" and "switch" in Lava will be disabled
         if case let .static(viewports, scissors) = viewportStateDefinition {
             (\.viewportCount, \.pViewports) <- viewports
@@ -129,21 +129,21 @@ internal extension GraphicsPipelineDescriptor {
 
     @_transparent
     @LavaBuilder<VkPipelineVertexInputStateCreateInfo>
-    var vertexInputState: LavaBuilder<VkPipelineVertexInputStateCreateInfo> {
+    var vertexInputState: LavaContainer<VkPipelineVertexInputStateCreateInfo> {
         (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
         (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
     }
 
     @_transparent
     @LavaBuilder<VkPipelineInputAssemblyStateCreateInfo>
-    var inputAssemblyState: LavaBuilder<VkPipelineInputAssemblyStateCreateInfo> {
+    var inputAssemblyState: LavaContainer<VkPipelineInputAssemblyStateCreateInfo> {
         \.topology <- inputPrimitiveTopology
         \.primitiveRestartEnabled <- primitiveRestartEnabled
     }
 
     @_transparent
     @LavaBuilder<VkPipelineRasterizationStateCreateInfo>
-    var rasterizationState: LavaBuilder<VkPipelineRasterizationStateCreateInfo> {
+    var rasterizationState: LavaContainer<VkPipelineRasterizationStateCreateInfo> {
         \.depthClampEnabled <- false
         \.discardEnabled <- false
         \.polygonMode <- .fill
@@ -158,7 +158,7 @@ internal extension GraphicsPipelineDescriptor {
 
     @_transparent
     @LavaBuilder<VkPipelineMultisampleStateCreateInfo>
-    var multisampleState: LavaBuilder<VkPipelineMultisampleStateCreateInfo> {
+    var multisampleState: LavaContainer<VkPipelineMultisampleStateCreateInfo> {
         \.sampleShadingEnabled <- sampleShadingEnabled
         \.rasterizationSamples <- rasterizationSamples
         \.minSampleShading <- minSampleShading
@@ -171,7 +171,7 @@ internal extension GraphicsPipelineDescriptor {
 
     @_transparent
     @LavaBuilder<VkPipelineColorBlendStateCreateInfo>
-    var colorBlendState: LavaBuilder<VkPipelineColorBlendStateCreateInfo> {
+    var colorBlendState: LavaContainer<VkPipelineColorBlendStateCreateInfo> {
         \.logicOperationEnabled <- logicOperationEnabled
         \.logicOperation <- logicOperation
         (\.attachmentCount, \.pAttachments) <- colorBlendAttachments
@@ -180,13 +180,13 @@ internal extension GraphicsPipelineDescriptor {
 
     @_transparent
     @LavaBuilder<VkPipelineDynamicStateCreateInfo>
-    var dynamicState: LavaBuilder<VkPipelineDynamicStateCreateInfo> {
+    var dynamicState: LavaContainer<VkPipelineDynamicStateCreateInfo> {
         (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
     }
 
     @_transparent
     @LavaBuilderArray<VkPipelineShaderStageCreateInfo>
-    var shaders: LavaBuilderArray<VkPipelineShaderStageCreateInfo> {
+    var shaders: LavaContainerArray<VkPipelineShaderStageCreateInfo> {
         vertexShader?.builder(for: .vertex)
         tessellationControlShader?.builder(for: .tessellationControl)
         tessellationEvaluationShader?.builder(for: .tessellationEvaluation)

@@ -38,7 +38,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
     }
 
     public func submit(with descriptor: SubmitDescriptor) throws {
-        try LavaBuilder<VkSubmitInfo> {
+        try VkSubmitInfo.lava {
             (\.waitSemaphoreCount, \.pWaitSemaphores) <- descriptor.waitSemaphores
             (\.signalSemaphoreCount, \.pSignalSemaphores) <- descriptor.signalSemaphores
             \.pWaitDstStageMask <- descriptor.waitStages
@@ -72,7 +72,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
     public func present(swapchains: [Swapchain],
                         waitSemaphores: [Volcano.Semaphore] = [],
                         imageIndices: [CUnsignedInt]) throws {
-        try LavaBuilder<VkPresentInfoKHR> {
+        try VkPresentInfoKHR.lava {
             (\.waitSemaphoreCount, \.pWaitSemaphores) <- waitSemaphores
             (\.swapchainCount, \.pSwapchains) <- swapchains
             \.pImageIndices <- imageIndices

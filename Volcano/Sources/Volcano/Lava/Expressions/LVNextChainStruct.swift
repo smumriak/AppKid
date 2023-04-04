@@ -9,31 +9,31 @@ import TinyFoundation
 import CVulkan
 
 @inlinable @_transparent
-public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(builder: LavaBuilder<NextStruct>) -> LVNextChainStruct<Struct, NextStruct> {
+public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(builder: LavaContainer<NextStruct>) -> LVNextChainStruct<Struct, NextStruct> {
     LVNextChainStruct(builder)
 }
 
 @inlinable @_transparent
-public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@LavaBuilder<NextStruct> _ content: () throws -> LavaBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@LavaBuilder<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
 @inlinable @_transparent
-public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @LavaBuilder<NextStruct> _ content: () throws -> LavaBuilder<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @LavaBuilder<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
 public struct LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanChainableStructure>: LVPath {
     @usableFromInline
-    internal let builder: LavaBuilder<Next>
+    internal let builder: LavaContainer<Next>
 
     @inlinable @_transparent
-    public init(_ builder: LavaBuilder<Next>) {
+    public init(_ builder: LavaContainer<Next>) {
         self.builder = builder
     }
 
     @inlinable @_transparent
-    public init(@LavaBuilder<Next> _ content: () -> (LavaBuilder<Next>)) {
+    public init(@LavaBuilder<Next> _ content: () -> (LavaContainer<Next>)) {
         self.builder = content()
     }
 

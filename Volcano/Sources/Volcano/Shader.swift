@@ -77,7 +77,7 @@ public extension Shader {
     }
 
     @LavaBuilder<VkPipelineShaderStageCreateInfo>
-    func builder(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> LavaBuilder<VkPipelineShaderStageCreateInfo> {
+    func builder(for stage: VkShaderStageFlagBits, flags: VkPipelineShaderStageCreateFlagBits = []) -> LavaContainer<VkPipelineShaderStageCreateInfo> {
         \.flags <- flags
         \.stage <- stage
         \.module <- self
