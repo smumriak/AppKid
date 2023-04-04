@@ -9,7 +9,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "AppKidDemo",
+    name: "AppKid",
     platforms: [
         .macOS(.v13),
     ],
