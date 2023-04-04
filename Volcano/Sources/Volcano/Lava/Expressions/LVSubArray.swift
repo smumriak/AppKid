@@ -14,7 +14,7 @@ public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (Wri
 }
 
 @inlinable @_transparent
-public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), @LavaBuilderArray<SubStruct> content: () -> (LavaContainerArray<SubStruct>)) -> LVSubArray<Struct, SubStruct> {
+public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), @LavaArray<SubStruct> content: () -> (LavaContainerArray<SubStruct>)) -> LVSubArray<Struct, SubStruct> {
     LVSubArray(paths.0, paths.1, content())
 }
 

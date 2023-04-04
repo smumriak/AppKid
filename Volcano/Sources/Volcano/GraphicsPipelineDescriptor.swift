@@ -84,7 +84,7 @@ public class GraphicsPipelineDescriptor {
 
 internal extension GraphicsPipelineDescriptor {
     @_transparent
-    @LavaBuilder<VkGraphicsPipelineCreateInfo>
+    @Lava<VkGraphicsPipelineCreateInfo>
     func createBuilder(_ layout: SharedPointer<VkPipelineLayout_T>) -> LavaContainer<VkGraphicsPipelineCreateInfo> {
         \.pViewportState <- viewportState
         \.pVertexInputState <- vertexInputState
@@ -105,7 +105,7 @@ internal extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineViewportStateCreateInfo>
+    @Lava<VkPipelineViewportStateCreateInfo>
     var viewportState: LavaContainer<VkPipelineViewportStateCreateInfo> {
         // smumriak: This looks stupid. Why not use switch or at least else-if? The reason is https://github.com/apple/swift/issues/57076 ([SR-14726]). Till this is fixed functionality of "else" and "switch" in Lava will be disabled
         if case let .static(viewports, scissors) = viewportStateDefinition {
@@ -128,21 +128,21 @@ internal extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineVertexInputStateCreateInfo>
+    @Lava<VkPipelineVertexInputStateCreateInfo>
     var vertexInputState: LavaContainer<VkPipelineVertexInputStateCreateInfo> {
         (\.vertexBindingDescriptionCount, \.pVertexBindingDescriptions) <- vertexInputBindingDescriptions
         (\.vertexAttributeDescriptionCount, \.pVertexAttributeDescriptions) <- inputAttributeDescrioptions
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineInputAssemblyStateCreateInfo>
+    @Lava<VkPipelineInputAssemblyStateCreateInfo>
     var inputAssemblyState: LavaContainer<VkPipelineInputAssemblyStateCreateInfo> {
         \.topology <- inputPrimitiveTopology
         \.primitiveRestartEnabled <- primitiveRestartEnabled
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineRasterizationStateCreateInfo>
+    @Lava<VkPipelineRasterizationStateCreateInfo>
     var rasterizationState: LavaContainer<VkPipelineRasterizationStateCreateInfo> {
         \.depthClampEnabled <- false
         \.discardEnabled <- false
@@ -157,7 +157,7 @@ internal extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineMultisampleStateCreateInfo>
+    @Lava<VkPipelineMultisampleStateCreateInfo>
     var multisampleState: LavaContainer<VkPipelineMultisampleStateCreateInfo> {
         \.sampleShadingEnabled <- sampleShadingEnabled
         \.rasterizationSamples <- rasterizationSamples
@@ -170,7 +170,7 @@ internal extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineColorBlendStateCreateInfo>
+    @Lava<VkPipelineColorBlendStateCreateInfo>
     var colorBlendState: LavaContainer<VkPipelineColorBlendStateCreateInfo> {
         \.logicOperationEnabled <- logicOperationEnabled
         \.logicOperation <- logicOperation
@@ -179,13 +179,13 @@ internal extension GraphicsPipelineDescriptor {
     }
 
     @_transparent
-    @LavaBuilder<VkPipelineDynamicStateCreateInfo>
+    @Lava<VkPipelineDynamicStateCreateInfo>
     var dynamicState: LavaContainer<VkPipelineDynamicStateCreateInfo> {
         (\.dynamicStateCount, \.pDynamicStates) <- Array(Set(dynamicStates + viewportStateDefinition.dynamicStates))
     }
 
     @_transparent
-    @LavaBuilderArray<VkPipelineShaderStageCreateInfo>
+    @LavaArray<VkPipelineShaderStageCreateInfo>
     var shaders: LavaContainerArray<VkPipelineShaderStageCreateInfo> {
         vertexShader?.builder(for: .vertex)
         tessellationControlShader?.builder(for: .tessellationControl)

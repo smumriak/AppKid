@@ -14,12 +14,12 @@ public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChain
 }
 
 @inlinable @_transparent
-public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@LavaBuilder<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public prefix func <- <Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(@Lava<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
 @inlinable @_transparent
-public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @LavaBuilder<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
+public func next<Struct: VulkanChainableStructure, NextStruct: VulkanChainableStructure>(_: NextStruct.Type, @Lava<NextStruct> _ content: () throws -> LavaContainer<NextStruct>) rethrows -> LVNextChainStruct<Struct, NextStruct> {
     try LVNextChainStruct(content())
 }
 
@@ -33,7 +33,7 @@ public struct LVNextChainStruct<Struct: VulkanChainableStructure, Next: VulkanCh
     }
 
     @inlinable @_transparent
-    public init(@LavaBuilder<Next> _ content: () -> (LavaContainer<Next>)) {
+    public init(@Lava<Next> _ content: () -> (LavaContainer<Next>)) {
         self.builder = content()
     }
 

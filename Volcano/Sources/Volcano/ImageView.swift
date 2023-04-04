@@ -59,7 +59,7 @@ public class ImageViewDescriptor {
         return result
     }
 
-    @LavaBuilder<VkImageViewCreateInfo>
+    @Lava<VkImageViewCreateInfo>
     public func builder(for image: Image) -> LavaContainer<VkImageViewCreateInfo> {
         \.flags <- flags
         \.image <- image

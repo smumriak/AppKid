@@ -49,7 +49,7 @@ public class ImageDescriptor {
         queueFamilyIndices = accessQueues.familyIndices
     }
 
-    @LavaBuilder<VkImageCreateInfo>
+    @Lava<VkImageCreateInfo>
     public var builder: LavaContainer<VkImageCreateInfo> {
         \.flagsBits <- flags
         \.imageType <- imageType

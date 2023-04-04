@@ -39,7 +39,7 @@ open class DeviceEntity<Entity: VkDeviceEntity>: SharedPointerStorage<Entity> {
         super.init(handle: handle)
     }
     
-    public init(device: Device, @LavaBuilder<Entity.Info> _ content: () throws -> (LavaContainer<Entity.Info>)) throws where Entity: CreateableFromSingleEntityInfo, Entity.Info: SimpleEntityInfo, Entity.Info.Parent == VkDevice.Pointee {
+    public init(device: Device, @Lava<Entity.Info> _ content: () throws -> (LavaContainer<Entity.Info>)) throws where Entity: CreateableFromSingleEntityInfo, Entity.Info: SimpleEntityInfo, Entity.Info.Parent == VkDevice.Pointee {
         let handle: Handle = try device.buildEntity(content)
         self.device = device
 

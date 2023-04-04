@@ -14,7 +14,7 @@ public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(p
 }
 
 @inlinable @_transparent
-public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @LavaBuilder<SubStruct> _ content: () throws -> (LavaContainer<SubStruct>)) rethrows -> LVSubStruct<Struct, SubStruct> {
+public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, @Lava<SubStruct> _ content: () throws -> (LavaContainer<SubStruct>)) rethrows -> LVSubStruct<Struct, SubStruct> {
     try LVSubStruct(path, content())
 }
 

@@ -27,7 +27,7 @@ public final class BufferDescriptor {
         return accessQueueFamiliesIndices.count > 1 ? .concurrent : .exclusive
     }
 
-    @LavaBuilder<VkBufferCreateInfo>
+    @Lava<VkBufferCreateInfo>
     public var builder: LavaContainer<VkBufferCreateInfo> {
         \.flags <- flags
         \.size <- size

@@ -53,7 +53,7 @@ public final class Queue: SharedPointerStorage<VkQueue_T> {
 
             // <-Chain {
             //     if descriptor.hasTimeline {
-            //         LavaBuilder<VkTimelineSemaphoreSubmitInfo> {
+            //         Lava<VkTimelineSemaphoreSubmitInfo> {
             //             (\.waitSemaphoreValueCount, \.pWaitSemaphoreValues) <- descriptor.waitSemaphoreValues
             //             (\.signalSemaphoreValueCount, \.pSignalSemaphoreValues) <- descriptor.signalSemaphoreValues
             //         }

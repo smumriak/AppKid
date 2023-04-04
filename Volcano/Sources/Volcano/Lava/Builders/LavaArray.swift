@@ -1,5 +1,5 @@
 //
-//  LavaBuilderArray.swift
+//  LavaArray.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 28.12.2021.
@@ -8,9 +8,9 @@
 import TinyFoundation
 import CVulkan
 
-internal extension LavaBuilder {
+internal extension Lava {
     @inlinable @_transparent
-    func withApplied<R>(to result: inout [Struct], tail: ArraySlice<LavaBuilder<Struct>>, _ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
+    func withApplied<R>(to result: inout [Struct], tail: ArraySlice<Lava<Struct>>, _ body: (UnsafeBufferPointer<Struct>) throws -> (R)) rethrows -> R {
         return try withUnsafeResultPointer {
             result.append($0.pointee)
 
@@ -28,7 +28,7 @@ internal extension LavaBuilder {
 }
 
 @resultBuilder
-public struct LavaBuilderArray<Struct: VulkanStructure> {
+public struct LavaArray<Struct: VulkanStructure> {
     public typealias Component = [LavaContainer<Struct>]
 
     static func buildExpression() -> Component {
@@ -83,7 +83,7 @@ public struct LavaBuilderArray<Struct: VulkanStructure> {
     internal var elements: Component
 
     @usableFromInline
-    internal init(@LavaBuilderArray<Struct> _ content: () throws -> (Component)) rethrows {
+    internal init(@LavaArray<Struct> _ content: () throws -> (Component)) rethrows {
         self.elements = try content()
     }
 
@@ -123,7 +123,7 @@ public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
         }
     }
 
-    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, @LavaBuilderArray<Info> _ content: () throws -> (LavaContainerArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
+    func buildEntities<Info: PipelineEntityInfo>(context: UnsafePointer<Info.Context>?, @LavaArray<Info> _ content: () throws -> (LavaContainerArray<Info>)) throws -> [SharedPointer<Info.Result>] where Info.Parent == Handle.Pointee {
         try buildEntities(context: context, content())
     }
 }

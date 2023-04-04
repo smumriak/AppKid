@@ -158,7 +158,7 @@
 //     func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R
 // }
 
-// extension LavaBuilder: AnyBuilder {
+// extension Lava: AnyBuilder {
 //     @inlinable @inline(__always)
 //     public func withUnsafeMutableRawPointer<R>(_ body: (UnsafeMutableRawPointer) throws -> (R)) rethrows -> R {
 //         return try withUnsafeMutableResultPointer {

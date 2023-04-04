@@ -14,7 +14,7 @@ public protocol VulkanBaseStructure: InitializableWithNew {
 
 public extension VulkanBaseStructure {
     @inlinable @_transparent
-    static func lava(@LavaBuilder<Self> _ content: () throws -> (LavaContainer<Self>)) rethrows -> LavaContainer<Self> {
+    static func lava(@Lava<Self> _ content: () throws -> (LavaContainer<Self>)) rethrows -> LavaContainer<Self> {
         try content()
     }
 }
