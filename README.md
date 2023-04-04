@@ -95,7 +95,7 @@ final class AppDelegate: ApplicationDelegate {
   </details>
 After the necessary dependencies were set up just add this package in your SwiftPM manifest file as a dependency and add **AppKid** product as a dependency to your target:
 ```swift
-// swift-tools-version:5.7
+// swift-tools-version:5.8
 import PackageDescription
 
 let package = Package(
