@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 29.01.2020.
 //
 
-module CXlib [system] {
+module CXlib [system] [extern_c] {
     module Xlib {
         header "CXlib_umbrella.h"
     }

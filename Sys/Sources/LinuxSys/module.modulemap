@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 11.01.2023
 //
 
-module LinuxSys [system] {
+module LinuxSys [system] [extern_c] {
     header "LinuxSys_umbrella.h"
     export *
 }

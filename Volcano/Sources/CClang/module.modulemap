@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 13.06.2021.
 //
 
-module CClang [system] {
+module CClang [system] [extern_c] {
     header "CClang_umbrella.h"
     link "clang"
     export *

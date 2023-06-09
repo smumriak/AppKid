@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 29.01.2020.
 //
 
-module CVulkan [system] {
+module CVulkan [system] [extern_c] {
     header "CVulkan_umbrella.h"
     link "vulkan"
     export *

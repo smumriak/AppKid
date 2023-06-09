@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 20.11.2021.
 //
 
-module CGlib [system] {
+module CGlib [system] [extern_c] {
     header "CGLib_umbrella.h"
     link "glib-2.0"
     export *

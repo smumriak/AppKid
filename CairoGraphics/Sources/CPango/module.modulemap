@@ -5,7 +5,7 @@
 //  Created by Serhii Mumriak on 12.02.2020.
 //
 
-module CPango [system] {
+module CPango [system] [extern_c] {
     header "CPango_umbrella.h"
     link "pango-1.0"
     link "pangocairo-1.0"
