@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class Swapchain: DeviceEntity<VkSwapchainKHR_T> {
     public unowned let surface: Surface

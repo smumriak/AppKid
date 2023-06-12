@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public protocol VulkanBaseStructure: InitializableWithNew {
     var sType: VkStructureType { get set }

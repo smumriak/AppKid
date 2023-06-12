@@ -5,7 +5,6 @@
 //  Created by Serhii Mumriak on 26.09.2021.
 //
 
-import CVulkan
 import Foundation
 import TinyFoundation
 

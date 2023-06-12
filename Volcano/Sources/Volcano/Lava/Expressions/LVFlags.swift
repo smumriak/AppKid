@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value: RawRepresentable>(path: WritableKeyPath<Struct, Value.RawValue>, value: Value) -> LVFlags<Struct, Value> where Value.RawValue == VkFlags {

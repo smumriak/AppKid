@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public typealias VkAccelerationStructureBuildTypeKHR = CVulkan.VkAccelerationStructureBuildTypeKHR
 

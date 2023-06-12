@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 internal extension Lava {
     @inlinable @_transparent

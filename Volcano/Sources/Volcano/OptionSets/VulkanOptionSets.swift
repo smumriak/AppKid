@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public typealias VkAccelerationStructureCreateFlagBitsKHR = CVulkan.VkAccelerationStructureCreateFlagBitsKHR
 

@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public struct TextureUsage: OptionSet {
     public typealias RawValue = UInt

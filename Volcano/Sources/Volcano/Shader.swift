@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public final class Shader: DeviceEntity<VkShaderModule_T> {
     public static let defaultShaderEntryPointName = "main"

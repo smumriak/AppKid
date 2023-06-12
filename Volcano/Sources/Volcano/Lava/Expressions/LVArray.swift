@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<Value>?>), value: [Value]) -> LVArray<Struct, Value> {

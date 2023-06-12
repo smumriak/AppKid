@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: VulkanStructure, SubStruct: VulkanStructure>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<SubStruct>?>), builder: LavaContainerArray<SubStruct>) -> LVSubArray<Struct, SubStruct> {

@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 internal protocol DataLoader {}
 

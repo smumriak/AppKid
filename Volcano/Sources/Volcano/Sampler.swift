@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class Sampler: DeviceEntity<VkSampler_T> {
     public struct AddressModes {

@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: InitializableWithNew, SubStruct: InitializableWithNew>(path: WritableKeyPath<Struct, UnsafePointer<SubStruct>?>, builder: LavaContainer<SubStruct>) -> LVSubStruct<Struct, SubStruct> {

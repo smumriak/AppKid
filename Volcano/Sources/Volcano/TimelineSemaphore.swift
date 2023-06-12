@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public final class TimelineSemaphore: AbstractSemaphore {
     public init(device: Device, initialValue: UInt64 = 0) throws {

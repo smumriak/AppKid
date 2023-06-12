@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 import SimpleGLM
 
 public protocol VertexInput: PublicInitializable {

@@ -8,7 +8,6 @@
 import Foundation
 import CoreFoundation
 import Volcano
-import CVulkan
 import TinyFoundation
 
 protocol KeySomething: Hashable {}

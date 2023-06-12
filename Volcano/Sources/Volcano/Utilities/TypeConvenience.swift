@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 16.08.2020.
 //
 
-import CVulkan
-
 public extension Bool {
     @_transparent
     var vkBool: VkBool32 { self ? VkBool32(VK_TRUE) : VkBool32(VK_FALSE) }

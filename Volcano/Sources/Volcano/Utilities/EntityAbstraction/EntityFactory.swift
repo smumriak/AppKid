@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @_marker
 public protocol EntityFactory {}

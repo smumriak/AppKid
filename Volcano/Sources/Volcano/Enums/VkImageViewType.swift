@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 30.12.2020.
 //
 
-import CVulkan
-
 public extension VkImageViewType {
     var imageType: VkImageType {
         switch self {

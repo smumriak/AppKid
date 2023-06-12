@@ -8,7 +8,6 @@
 import Foundation
 import Volcano
 import TinyFoundation
-import CVulkan
 
 @_spi(AppKid) public final class VolcanoRenderStack {
     public enum Error: Swift.Error {

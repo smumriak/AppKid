@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value>(paths: (WritableKeyPath<Struct, CUnsignedInt>, WritableKeyPath<Struct, UnsafePointer<UnsafeMutablePointer<Value>?>?>), value: [SharedPointer<Value>]) -> LVSmartMutablePointersArray<Struct, Value> {

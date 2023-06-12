@@ -7,7 +7,7 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
+
 import CXlib
 
 extension VkPhysicalDevice_T: EntityFactory {}

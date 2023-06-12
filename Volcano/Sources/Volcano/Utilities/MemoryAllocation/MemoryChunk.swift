@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 import VulkanMemoryAllocatorAdapted
 
 open class MemoryChunk: DeviceEntity<VkDeviceMemory_T> {

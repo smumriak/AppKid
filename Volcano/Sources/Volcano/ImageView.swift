@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class ImageView: DeviceEntity<VkImageView_T> {
     public unowned let image: Image

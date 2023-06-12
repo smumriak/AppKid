@@ -9,7 +9,6 @@ import Foundation
 import CoreFoundation
 import Volcano
 import TinyFoundation
-import CVulkan
 import SimpleGLM
 import CairoGraphics
 import LayerRenderingData

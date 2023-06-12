@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public class GraphicsPipelineDescriptor {
     public var vertexShader: Shader?

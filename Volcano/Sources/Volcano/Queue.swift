@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public final class Queue: SharedPointerStorage<VkQueue_T> {
     public internal(set) unowned var device: Device

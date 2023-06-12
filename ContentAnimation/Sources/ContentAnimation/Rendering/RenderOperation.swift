@@ -10,7 +10,6 @@ import CoreFoundation
 import DequeModule
 @_spi(AppKid) import CairoGraphics
 @_spi(AppKid) import Volcano
-import CVulkan
 import TinyFoundation
 import LayerRenderingData
 

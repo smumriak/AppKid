@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 internal extension SharedPointer where Pointee == VkDevice_T {
     func loadFunction<Function>(named name: String) throws -> Function {

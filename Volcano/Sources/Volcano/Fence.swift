@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class Fence: DeviceEntity<VkFence_T> {
     public init(device: Device, flags: VkFenceCreateFlagBits = []) throws {

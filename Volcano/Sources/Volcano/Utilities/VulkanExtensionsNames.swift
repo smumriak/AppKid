@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public enum InstanceExtension: String {
     case headlessSurfaceExt = "VK_EXT_headless_surface"

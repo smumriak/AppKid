@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import CVulkan
 
 public typealias VkOffset2D = CVulkan.VkOffset2D
 public typealias VkExtent2D = CVulkan.VkExtent2D

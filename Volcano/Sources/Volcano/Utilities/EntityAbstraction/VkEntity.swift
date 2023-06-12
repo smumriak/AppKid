@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 03.10.2021.
 //
 
-import CVulkan
-
 @_marker
 public protocol VkEntity {}
 

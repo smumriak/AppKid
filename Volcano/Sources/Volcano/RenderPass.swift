@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public class RenderPass: DeviceEntity<VkRenderPass_T> {
     public init(device: Device, subpasses: [Subpass], dependencies: [Subpass.Dependency]) throws {

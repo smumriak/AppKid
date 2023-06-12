@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 internal protocol VulkanExtension {
     init?(rawValue: String)

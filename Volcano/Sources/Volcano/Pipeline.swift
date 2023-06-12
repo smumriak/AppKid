@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public class Pipeline: DeviceEntity<VkPipeline_T> {
     public internal(set) var layout: SharedPointer<VkPipelineLayout_T>

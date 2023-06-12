@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public class AbstractSemaphore: DeviceEntity<VkSemaphore_T> {}
 

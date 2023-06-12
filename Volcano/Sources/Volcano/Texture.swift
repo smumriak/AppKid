@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 import Atomics
 
 internal var globalTextureCounter = ManagedAtomic<UInt>(0)

@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @resultBuilder
 public struct Lava<Struct: InitializableWithNew> {

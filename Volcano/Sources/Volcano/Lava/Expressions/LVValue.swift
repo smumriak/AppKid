@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 @inlinable @_transparent
 public func <- <Struct: InitializableWithNew, Value>(path: WritableKeyPath<Struct, Value>, value: Value) -> LVValue<Struct, Value> {

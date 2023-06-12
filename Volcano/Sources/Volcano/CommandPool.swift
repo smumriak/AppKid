@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class CommandPool: DeviceEntity<VkCommandPool_T> {
     public let queue: Queue

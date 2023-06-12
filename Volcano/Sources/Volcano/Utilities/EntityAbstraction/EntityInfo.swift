@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 23.07.2020.
 //
 
-import CVulkan
-
 public typealias AllocationCallbacks = UnsafePointer<VkAllocationCallbacks>
 
 public protocol EntityInfo<Result>: VulkanChainableStructure {

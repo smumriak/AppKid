@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 
 public struct QueueFamilyDescriptor {
     public let index: Int

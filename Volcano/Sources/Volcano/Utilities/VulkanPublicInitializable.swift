@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 import SimpleGLM
 
 extension VkPhysicalDeviceProperties: PublicInitializable {}

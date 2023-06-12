@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 open class InstanceEntity<Entity>: SharedPointerStorage<Entity> {
     public internal(set) var instance: Instance

@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 14.01.2021.
 //
 
-import CVulkan
-
 public typealias VkClearColorValue = CVulkan.VkClearColorValue
 
 public extension VkClearColorValue {

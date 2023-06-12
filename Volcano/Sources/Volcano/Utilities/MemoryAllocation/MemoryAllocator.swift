@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public protocol MemoryAllocateDescriptor<Result, Info> {
     associatedtype Result

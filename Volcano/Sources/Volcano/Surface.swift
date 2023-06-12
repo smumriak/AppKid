@@ -7,7 +7,6 @@
 
 import Foundation
 import TinyFoundation
-import CVulkan
 import CXlib
 
 public final class Surface: InstanceEntity<VkSurfaceKHR_T> {

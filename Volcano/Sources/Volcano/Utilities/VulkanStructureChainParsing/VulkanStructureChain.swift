@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class VulkanStructureChain<Root: VulkanChainableStructure> {
     var root: Root

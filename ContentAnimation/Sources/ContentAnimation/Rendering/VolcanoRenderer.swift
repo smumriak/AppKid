@@ -12,7 +12,6 @@ import Foundation
 import CoreFoundation
 @_spi(AppKid) import Volcano
 import TinyFoundation
-import CVulkan
 import SimpleGLM
 @_spi(AppKid) import CairoGraphics
 import LayerRenderingData

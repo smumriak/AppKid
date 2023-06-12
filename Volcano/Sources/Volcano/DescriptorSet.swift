@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
     public let maxSets: UInt

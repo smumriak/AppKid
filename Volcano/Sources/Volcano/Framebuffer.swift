@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class Framebuffer: DeviceEntity<VkFramebuffer_T> {
     public fileprivate(set) var attachments: [ImageView]

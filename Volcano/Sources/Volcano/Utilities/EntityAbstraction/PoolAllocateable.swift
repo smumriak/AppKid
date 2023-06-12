@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 05.10.2022
 //
 
-import CVulkan
-
 public protocol EntityPool: VkDeviceEntity {
     associatedtype Allocateable: PoolAllocateable where Allocateable.Pool == Self
 }

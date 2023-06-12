@@ -5,8 +5,6 @@
 //  Created by Serhii Mumriak on 15.08.2020.
 //
 
-import CVulkan
-
 public extension VkColorComponentFlagBits {
     static let red: VkColorComponentFlagBits = .VK_COLOR_COMPONENT_R_BIT
     static let green: VkColorComponentFlagBits = .VK_COLOR_COMPONENT_G_BIT

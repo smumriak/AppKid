@@ -6,7 +6,6 @@
 // //
 
 // import TinyFoundation
-// import CVulkan
 
 // @inlinable @inline(__always)
 // public prefix func <- <Struct: VulkanStructure>(builder: VkChainBuilder) -> Chain<Struct> {

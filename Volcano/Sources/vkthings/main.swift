@@ -757,7 +757,6 @@ struct VulkanStructureGenerator: ParsableCommand {
                     Templates.vulkanSwiftStructuresLicense,
                     """
                     import TinyFoundation
-                    import CVulkan
                     """,
                 ]
 
@@ -781,7 +780,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     Templates.vulkanSwiftEnumsLicense,
                     """
                     import TinyFoundation
-                    import CVulkan
+                    
                     """,
                 ]
 
@@ -808,7 +807,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     Templates.vulkanSwiftOptionSetsLicense,
                     """
                     import TinyFoundation
-                    import CVulkan
+                    
                     """,
                 ]
 
@@ -908,7 +907,7 @@ struct VulkanStructureGenerator: ParsableCommand {
                     "",
                     "import Foundation",
                     "import TinyFoundation",
-                    "import CVulkan",
+                    "",
                     "",
                 ]
 

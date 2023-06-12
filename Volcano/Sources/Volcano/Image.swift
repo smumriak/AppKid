@@ -6,7 +6,6 @@
 //
 
 import TinyFoundation
-import CVulkan
 
 public final class Image: DeviceEntity<VkImage_T> {
     public let format: VkFormat
