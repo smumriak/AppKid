@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import cglm
 
 public typealias mat2s = cglm.mat2s
 public typealias mat3s = cglm.mat3s

@@ -10,7 +10,6 @@
 #else
     import Foundation
 #endif
-import cglm
 
 public extension CGPoint {
     @_transparent

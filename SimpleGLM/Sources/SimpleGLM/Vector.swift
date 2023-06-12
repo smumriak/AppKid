@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import cglm
 
 public typealias vec2s = cglm.vec2s
 public typealias vec3s = cglm.vec3s
