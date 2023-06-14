@@ -30,15 +30,15 @@ internal extension Lava {
 public struct LavaArray<Struct: VulkanStructure> {
     public typealias Component = [LavaContainer<Struct>]
 
-    static func buildExpression() -> Component {
+    public static func buildExpression() -> Component {
         return []
     }
 
-    static func buildExpression(_ expression: LavaContainer<Struct>) -> Component {
+    public static func buildExpression(_ expression: LavaContainer<Struct>) -> Component {
         return [expression]
     }
 
-    static func buildExpression(_ expression: LavaContainer<Struct>?) -> Component {
+    public static func buildExpression(_ expression: LavaContainer<Struct>?) -> Component {
         if let expression = expression {
             return [expression]
         } else {
@@ -46,35 +46,35 @@ public struct LavaArray<Struct: VulkanStructure> {
         }
     }
 
-    static func buildBlock(_ elements: [LavaContainer<Struct>?]) -> Component {
+    public static func buildBlock(_ elements: [LavaContainer<Struct>?]) -> Component {
         return elements.compactMap { $0 }
     }
 
-    static func buildBlock(_ elements: Component...) -> Component {
+    public static func buildBlock(_ elements: Component...) -> Component {
         return elements.flatMap { $0 }
     }
 
-    static func buildOptional(_ component: Component?) -> Component {
+    public static func buildOptional(_ component: Component?) -> Component {
         return component ?? []
     }
 
-    static func buildEither(first: Component) -> Component {
+    public static func buildEither(first: Component) -> Component {
         return first
     }
 
-    static func buildEither(second: Component) -> Component {
+    public static func buildEither(second: Component) -> Component {
         return second
     }
 
-    static func buildArray(_ elements: [Component]) -> Component {
+    public static func buildArray(_ elements: [Component]) -> Component {
         return elements.flatMap { $0 }
     }
 
-    static func buildFinalResult(_ elements: Component) -> Component {
+    public static func buildFinalResult(_ elements: Component) -> Component {
         return elements
     }
 
-    static func buildFinalResult(_ elements: Component) -> LavaContainerArray<Struct> {
+    public static func buildFinalResult(_ elements: Component) -> LavaContainerArray<Struct> {
         return LavaContainerArray(elements)
     }
 

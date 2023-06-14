@@ -7,15 +7,15 @@
 
 import TinyFoundation
 
-public struct LVTuplePath<Struct: InitializableWithNew, L: LVPath, R: LVPath>: LVPath where L.Struct == Struct, R.Struct == Struct {
+public struct LVTuplePath<Struct: InitializableWithNew, Left: LVPath, Right: LVPath>: LVPath where Left.Struct == Struct, Right.Struct == Struct {
     @usableFromInline
-    let left: L
-    
+    let left: Left
+
     @usableFromInline
-    let right: R
+    let right: Right
 
     @inlinable @_transparent
-    init(left: L, right: R) {
+    init(left: Left, right: Right) {
         self.left = left
         self.right = right
     }
