@@ -12,8 +12,6 @@
 
 #ifdef __linux__
 
-#define _GNU_SOURCE
-
 AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 
 #include <sys/epoll.h>
