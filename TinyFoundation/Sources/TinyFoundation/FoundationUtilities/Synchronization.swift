@@ -106,3 +106,24 @@ public struct AtomicAcquiring<Value> where Value: AtomicValue, Value.AtomicRepre
         }
     }
 }
+
+@propertyWrapper
+public struct AtomicRelaxed<Value> where Value: AtomicValue, Value.AtomicRepresentation.Value == Value {
+    @usableFromInline
+    internal var value: ManagedAtomic<Value>
+
+    @_transparent
+    public init(wrappedValue value: Value) {
+        self.value = ManagedAtomic(value)
+    }
+
+    @_transparent
+    public var wrappedValue: Value {
+        get {
+            value.load(ordering: .relaxed)
+        }
+        set {
+            value.store(newValue, ordering: .relaxed)
+        }
+    }
+}
