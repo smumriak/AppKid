@@ -118,6 +118,7 @@ public extension VkBuildAccelerationStructureFlagBitsKHR {
     static let allowOpacityMicromapUpdateExt: VkBuildAccelerationStructureFlagBitsKHR = .VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_UPDATE_EXT
     static let allowDisableOpacityMicromapsExt: VkBuildAccelerationStructureFlagBitsKHR = .VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DISABLE_OPACITY_MICROMAPS_EXT
     static let allowOpacityMicromapDataUpdateExt: VkBuildAccelerationStructureFlagBitsKHR = .VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_OPACITY_MICROMAP_DATA_UPDATE_EXT
+    static let allowDataAccess: VkBuildAccelerationStructureFlagBitsKHR = .VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_DATA_ACCESS_KHR
 }
 
 public typealias VkBuildMicromapFlagBitsEXT = CVulkan.VkBuildMicromapFlagBitsEXT
@@ -1013,6 +1014,18 @@ public typealias VkSemaphoreWaitFlagBits = CVulkan.VkSemaphoreWaitFlagBits
 public extension VkSemaphoreWaitFlagBits {
     static let any: VkSemaphoreWaitFlagBits = .VK_SEMAPHORE_WAIT_ANY_BIT
     static let anyKhr: VkSemaphoreWaitFlagBits = .VK_SEMAPHORE_WAIT_ANY_BIT_KHR
+}
+
+public typealias VkShaderCreateFlagBitsEXT = CVulkan.VkShaderCreateFlagBitsEXT
+
+public extension VkShaderCreateFlagBitsEXT {
+    static let linkStage: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_LINK_STAGE_BIT_EXT
+    static let allowVaryingSubgroupSize: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_ALLOW_VARYING_SUBGROUP_SIZE_BIT_EXT
+    static let requireFullSubgroups: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_REQUIRE_FULL_SUBGROUPS_BIT_EXT
+    static let noTaskShader: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_NO_TASK_SHADER_BIT_EXT
+    static let dispatchBase: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_DISPATCH_BASE_BIT_EXT
+    static let fragmentShadingRateAttachment: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_EXT
+    static let fragmentDensityMapAttachment: VkShaderCreateFlagBitsEXT = .VK_SHADER_CREATE_FRAGMENT_DENSITY_MAP_ATTACHMENT_BIT_EXT
 }
 
 public typealias VkShaderStageFlagBits = CVulkan.VkShaderStageFlagBits

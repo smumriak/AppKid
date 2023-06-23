@@ -96,6 +96,7 @@ AK_EXISTING_OPTIONS(VkSampleCountFlagBits);
 AK_EXISTING_OPTIONS(VkSamplerCreateFlagBits);
 AK_EXISTING_OPTIONS(VkSemaphoreImportFlagBits);
 AK_EXISTING_OPTIONS(VkSemaphoreWaitFlagBits);
+AK_EXISTING_OPTIONS(VkShaderCreateFlagBitsEXT);
 AK_EXISTING_OPTIONS(VkShaderStageFlagBits);
 AK_EXISTING_OPTIONS(VkSparseImageFormatFlagBits);
 AK_EXISTING_OPTIONS(VkSparseMemoryBindFlagBits);

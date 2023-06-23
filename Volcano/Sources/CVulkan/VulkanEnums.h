@@ -108,6 +108,7 @@ AK_EXISTING_ENUM(VkSamplerYcbcrModelConversion);
 AK_EXISTING_ENUM(VkSamplerYcbcrRange);
 AK_EXISTING_ENUM(VkScopeNV);
 AK_EXISTING_ENUM(VkSemaphoreType);
+AK_EXISTING_ENUM(VkShaderCodeTypeEXT);
 AK_EXISTING_ENUM(VkShaderFloatControlsIndependence);
 AK_EXISTING_ENUM(VkShaderGroupShaderKHR);
 AK_EXISTING_ENUM(VkShaderInfoTypeAMD);

@@ -595,6 +595,7 @@ public extension VkDynamicState {
     static let shadingRateImageEnableNv: VkDynamicState = .VK_DYNAMIC_STATE_SHADING_RATE_IMAGE_ENABLE_NV
     static let representativeFragmentTestEnableNv: VkDynamicState = .VK_DYNAMIC_STATE_REPRESENTATIVE_FRAGMENT_TEST_ENABLE_NV
     static let coverageReductionModeNv: VkDynamicState = .VK_DYNAMIC_STATE_COVERAGE_REDUCTION_MODE_NV
+    static let attachmentFeedbackLoopEnableExt: VkDynamicState = .VK_DYNAMIC_STATE_ATTACHMENT_FEEDBACK_LOOP_ENABLE_EXT
 }
 
 public typealias VkFilter = CVulkan.VkFilter
@@ -1172,6 +1173,7 @@ public extension VkObjectType {
     static let bufferCollectionFuchsia: VkObjectType = .VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA
     static let micromapExt: VkObjectType = .VK_OBJECT_TYPE_MICROMAP_EXT
     static let opticalFlowSessionNv: VkObjectType = .VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV
+    static let shaderExt: VkObjectType = .VK_OBJECT_TYPE_SHADER_EXT
 }
 
 public typealias VkOpacityMicromapFormatEXT = CVulkan.VkOpacityMicromapFormatEXT
@@ -1517,6 +1519,7 @@ public extension VkResult {
     static let pipelineCompileRequiredExt: VkResult = .VK_PIPELINE_COMPILE_REQUIRED_EXT
     static let errorPipelineCompileRequiredExt: VkResult = .VK_ERROR_PIPELINE_COMPILE_REQUIRED_EXT
     static let errorCompressionExhaustedExt: VkResult = .VK_ERROR_COMPRESSION_EXHAUSTED_EXT
+    static let errorIncompatibleShaderBinaryExt: VkResult = .VK_ERROR_INCOMPATIBLE_SHADER_BINARY_EXT
 }
 
 public typealias VkSamplerAddressMode = CVulkan.VkSamplerAddressMode
@@ -1588,6 +1591,13 @@ public extension VkSemaphoreType {
     static let timeline: VkSemaphoreType = .VK_SEMAPHORE_TYPE_TIMELINE
     static let binaryKhr: VkSemaphoreType = .VK_SEMAPHORE_TYPE_BINARY_KHR
     static let timelineKhr: VkSemaphoreType = .VK_SEMAPHORE_TYPE_TIMELINE_KHR
+}
+
+public typealias VkShaderCodeTypeEXT = CVulkan.VkShaderCodeTypeEXT
+
+public extension VkShaderCodeTypeEXT {
+    static let binary: VkShaderCodeTypeEXT = .VK_SHADER_CODE_TYPE_BINARY_EXT
+    static let spirv: VkShaderCodeTypeEXT = .VK_SHADER_CODE_TYPE_SPIRV_EXT
 }
 
 public typealias VkShaderFloatControlsIndependence = CVulkan.VkShaderFloatControlsIndependence
@@ -2367,6 +2377,8 @@ public extension VkStructureType {
     static let pipelineExecutableInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INFO_KHR
     static let pipelineExecutableStatisticKhr: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_STATISTIC_KHR
     static let pipelineExecutableInternalRepresentationKhr: VkStructureType = .VK_STRUCTURE_TYPE_PIPELINE_EXECUTABLE_INTERNAL_REPRESENTATION_KHR
+    static let memoryMapInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_MAP_INFO_KHR
+    static let memoryUnmapInfoKhr: VkStructureType = .VK_STRUCTURE_TYPE_MEMORY_UNMAP_INFO_KHR
     static let physicalDeviceShaderAtomicFloat2FeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT_2_FEATURES_EXT
     static let surfacePresentModeExt: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT
     static let surfacePresentScalingCapabilitiesExt: VkStructureType = .VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT
@@ -2572,6 +2584,8 @@ public extension VkStructureType {
     static let physicalDeviceMultiDrawFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_FEATURES_EXT
     static let physicalDeviceMultiDrawPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTI_DRAW_PROPERTIES_EXT
     static let physicalDeviceImageTwoDimensionsViewOfThreeDimensionsFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_2D_VIEW_OF_3D_FEATURES_EXT
+    static let physicalDeviceShaderTileImageFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_FEATURES_EXT
+    static let physicalDeviceShaderTileImagePropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_TILE_IMAGE_PROPERTIES_EXT
     static let micromapBuildInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_MICROMAP_BUILD_INFO_EXT
     static let micromapVersionInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_MICROMAP_VERSION_INFO_EXT
     static let copyMicromapInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_COPY_MICROMAP_INFO_EXT
@@ -2633,6 +2647,11 @@ public extension VkStructureType {
     static let opticalFlowSessionCreatePrivateDataInfoNv: VkStructureType = .VK_STRUCTURE_TYPE_OPTICAL_FLOW_SESSION_CREATE_PRIVATE_DATA_INFO_NV
     static let physicalDeviceLegacyDitheringFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_DITHERING_FEATURES_EXT
     static let physicalDevicePipelineProtectedAccessFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_PROTECTED_ACCESS_FEATURES_EXT
+    static let physicalDeviceRayTracingPositionFetchFeaturesKhr: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_POSITION_FETCH_FEATURES_KHR
+    static let physicalDeviceShaderObjectFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT
+    static let physicalDeviceShaderObjectPropertiesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_PROPERTIES_EXT
+    static let shaderCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SHADER_CREATE_INFO_EXT
+    static let shaderRequiredSubgroupSizeCreateInfoExt: VkStructureType = .VK_STRUCTURE_TYPE_SHADER_REQUIRED_SUBGROUP_SIZE_CREATE_INFO_EXT
     static let physicalDeviceTilePropertiesFeaturesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_TILE_PROPERTIES_FEATURES_QCOM
     static let tilePropertiesQcom: VkStructureType = .VK_STRUCTURE_TYPE_TILE_PROPERTIES_QCOM
     static let physicalDeviceAmigoProfilingFeaturesSec: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_AMIGO_PROFILING_FEATURES_SEC
@@ -2647,6 +2666,7 @@ public extension VkStructureType {
     static let physicalDevicePipelineLibraryGroupHandlesFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_LIBRARY_GROUP_HANDLES_FEATURES_EXT
     static let physicalDeviceMultiviewPerViewRenderAreasFeaturesQcom: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_PER_VIEW_RENDER_AREAS_FEATURES_QCOM
     static let multiviewPerViewRenderAreasRenderPassBeginInfoQcom: VkStructureType = .VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM
+    static let physicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesExt: VkStructureType = .VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ATTACHMENT_FEEDBACK_LOOP_DYNAMIC_STATE_FEATURES_EXT
 }
 
 public typealias VkSubpassContents = CVulkan.VkSubpassContents
