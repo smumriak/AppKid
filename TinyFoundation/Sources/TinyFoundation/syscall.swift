@@ -13,6 +13,10 @@
     import Glibc
 #endif
 
+#if canImport(Darwin)
+    import Darwin
+#endif
+
 #if os(Linux) || os(macOS) || os(iOS) || os(tvOS) || os(watchOS) || os(Android) || os(OpenBSD)
     @discardableResult
     @_transparent
