@@ -61,11 +61,11 @@ public class DirectMemoryAllocator: MemoryAllocator {
         self.device = device
     }
 
-    public func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk) {
+    public func create<Descriptor: MemoryAllocateDescriptor>(with descriptor: __shared Descriptor) throws -> (result: Descriptor.Result, memoryChunk: MemoryChunk) {
         fatalError()
     }
 
-    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorage, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
+    public func allocate<Descriptor: MemoryAllocateDescriptor>(for memoryBacked: Descriptor.Result.Handle, descriptor: __shared Descriptor) throws -> MemoryChunk where Descriptor.Result: HandleStorage, Descriptor.Result.Handle: SmartPointer, Descriptor.Result.Handle.Pointee: MemoryBacked {
         let memoryTypes = device.physicalDevice.memoryTypes
 
         let memoryRequirements = try device.memoryRequirements(for: memoryBacked)

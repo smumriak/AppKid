@@ -10,7 +10,7 @@ import TinyFoundation
 
 public typealias VkDeviceSize = CVulkan.VkDeviceSize
 
-public final class BufferDescriptor {
+public struct BufferDescriptor {
     public var size: VkDeviceSize = .zero
     public var usage: VkBufferUsageFlagBits = []
     public var flags: VkBufferCreateFlagBits = []
@@ -18,7 +18,7 @@ public final class BufferDescriptor {
     public var preferredMemoryProperties: VkMemoryPropertyFlagBits = []
 
     public var accessQueueFamiliesIndices: [CUnsignedInt] = []
-    public func setAccessQueues(_ accessQueues: [Queue]) {
+    public mutating func setAccessQueues(_ accessQueues: [Queue]) {
         accessQueueFamiliesIndices = accessQueues.familyIndices
     }
 
@@ -27,7 +27,7 @@ public final class BufferDescriptor {
     }
 
     @Lava<VkBufferCreateInfo>
-    public var builder: LavaContainer<VkBufferCreateInfo> {
+    public var lavaContainer: LavaContainer<VkBufferCreateInfo> {
         \.flags <- flags
         \.size <- size
         \.usage <- usage
@@ -36,7 +36,7 @@ public final class BufferDescriptor {
     }
 
     public func withUnsafeBufferCreateInfoPointer<T>(_ body: (UnsafePointer<VkBufferCreateInfo>) throws -> (T)) rethrows -> T {
-        try builder(body)
+        try lavaContainer(body)
     }
 
     public init() {}

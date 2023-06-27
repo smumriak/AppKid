@@ -63,7 +63,7 @@ public extension TextureDescriptor {
 
 public extension TextureDescriptor {
     var imageDescriptor: ImageDescriptor {
-        let result = ImageDescriptor()
+        var result = ImageDescriptor()
 
         result.imageType = textureType.imageType
         result.format = pixelFormat

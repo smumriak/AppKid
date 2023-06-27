@@ -94,7 +94,7 @@ import LayerRenderingData
     private func createVertexBuffer() throws -> Buffer {
         let bufferSize = VkDeviceSize(MemoryLayout<LayerRenderDescriptor>.stride * descriptors.count)
 
-        let vertexBufferDescriptor = BufferDescriptor()
+        var vertexBufferDescriptor = BufferDescriptor()
         vertexBufferDescriptor.size = bufferSize
         vertexBufferDescriptor.usage = [.vertexBuffer, .transferDestination]
         vertexBufferDescriptor.requiredMemoryProperties = .deviceLocal
@@ -177,7 +177,7 @@ import LayerRenderingData
         self.transferCommandPool = try renderStack.queues.transfer.createCommandPool(flags: .transient)
         self.imageFormat = imageFormat
 
-        let modelViewProjectionBufferDescriptor = BufferDescriptor()
+        var modelViewProjectionBufferDescriptor = BufferDescriptor()
         modelViewProjectionBufferDescriptor.size = VkDeviceSize(MemoryLayout<ModelViewProjection>.size)
         modelViewProjectionBufferDescriptor.usage = [.uniformBuffer]
         modelViewProjectionBufferDescriptor.requiredMemoryProperties = [.hostVisible, .hostCoherent]

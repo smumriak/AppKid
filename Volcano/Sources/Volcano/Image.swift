@@ -19,7 +19,7 @@ public final class Image: DeviceEntity<VkImage_T> {
         try self.init(device: device, handle: SharedPointer(nonOwning: handle), format: format)
     }
     
-    public convenience init(device: Device, descriptor: ImageDescriptor) throws {
+    public convenience init(device: Device, descriptor: __shared ImageDescriptor) throws {
         let handle = try descriptor.withUnsafeImageCreateInfoPointer { info in
             try device.create(with: info)
         }
@@ -28,7 +28,7 @@ public final class Image: DeviceEntity<VkImage_T> {
     }
 }
 
-public class ImageDescriptor {
+public struct ImageDescriptor {
     public var flags: VkImageCreateFlagBits = []
     public var imageType: VkImageType = .twoDimensions
     public var format: VkFormat = .rgba8UNorm
@@ -44,12 +44,12 @@ public class ImageDescriptor {
     public var requiredMemoryProperties: VkMemoryPropertyFlagBits = []
     public var preferredMemoryProperties: VkMemoryPropertyFlagBits = []
 
-    public func setAccessQueues(_ accessQueues: [Queue]) {
+    public mutating func setAccessQueues(_ accessQueues: [Queue]) {
         queueFamilyIndices = accessQueues.familyIndices
     }
 
     @Lava<VkImageCreateInfo>
-    public var builder: LavaContainer<VkImageCreateInfo> {
+    public var lavaContainer: LavaContainer<VkImageCreateInfo> {
         \.flagsBits <- flags
         \.imageType <- imageType
         \.format <- format
@@ -65,7 +65,7 @@ public class ImageDescriptor {
     }
 
     public func withUnsafeImageCreateInfoPointer<T>(_ body: (UnsafePointer<VkImageCreateInfo>) throws -> (T)) rethrows -> T {
-        try builder(body)
+        try lavaContainer(body)
     }
 }
 
