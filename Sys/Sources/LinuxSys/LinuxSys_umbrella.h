@@ -22,6 +22,7 @@ AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 #include <sys/sysinfo.h>
 #include <sys/timerfd.h>
 #include <sys/types.h>
+#include <sys/uio.h>
 
 #include <dlfcn.h>
 #include <errno.h>
