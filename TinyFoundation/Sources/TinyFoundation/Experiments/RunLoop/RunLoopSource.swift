@@ -4,8 +4,10 @@
 //
 //  Created by Serhii Mumriak on 14.01.2023
 //
+
 import Atomics
 
+// #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
 public protocol RunLoopSourceContext0: AnyObject, Hashable, Equatable {
     func didSchedule(runLoop: RunLoop1, mode: RunLoop1.Mode)
     func didCancel(runLoop: RunLoop1, mode: RunLoop1.Mode)
@@ -218,3 +220,5 @@ public extension RunLoop1 {
         }
     }
 }
+
+// #endif

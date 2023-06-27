@@ -7,8 +7,11 @@
 
 import Foundation
 import HijackingHacks
+import Atomics
 
-import CoreFoundation
+#if canImport(CoreFoundatio)
+    import CoreFoundation
+#endif
 
 #if os(Linux)
     import LinuxSys
@@ -19,6 +22,10 @@ import CoreFoundation
     import Darwin
 #endif
 
+// Jargon:
+// - TSD: Thread Specific Data, some data stored in thread-specific stordage. Can have destructors and stuff
+// - TSR: have no idea. Tick something something"
+
 // TODO: Track main thread exit via __CFMainThreadHasExited and check all public APIs for main runloop and exiting thread
 // TODO: Callout sources when they are removed in CFRunLoopRemoveSource
 // TODO: Replace array of runloops in runloop source with Bag type
@@ -26,37 +33,49 @@ import CoreFoundation
 // TODO: Clear ports from run loop observers found in modes in deinit of RunLoop
 // TODO: Clear ports from timers found in modes in deinit of RunLoop
 // TODO: Traverses list of stored blocks in runloop and check if any block is scheduled in current runloop while determining if mode is empty
+// TODO: Reposition timer in timers list
+// TODO: Arm next timer
 
 // smumriak: original CoreFoundation code performs weakCompareExchange operation with sequentially consistend rules for success and failure. this code does not need that since it explicitly checks initial state on every operation, so it is safe to use atomic sequentially consistend storage operation
 public typealias TFValid = AtomicSequentiallyConsistent
 
-internal let tsrRate: TimeInterval = {
-    #if os(Linux)
-        var timespec = timespec()
-        let result = clock_getres(CLOCK_MONOTONIC /* clock_id */,
-                                  &timespec /* res */ )
-        if result != 0 {
-            fatalError("Sorry, getting clock resulution failed with error: \(POSIXErrorCode(rawValue: errno)!)")
-        }
-        return TimeInterval(timespec.tv_sec) + (1_000_000_000 * TimeInterval(timespec.tv_nsec))
-    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-        return 1
-    #elseif os(Android)
-        return 1
-    #elseif os(Windows)
-        // QueryUnbiasedInterruptTimePrecise returns system time in units of 100 nanoseconds. Divide it by 10^7 to get seconds
-        return 10_000_000
-    #else
-        return 1
-    #endif
-}()
+@_spi(AppKid) public enum TF {
+    @AtomicRelaxed
+    public static var mainThreadExited: Bool = false
 
-internal let oneOverTSRRate: TimeInterval = 1.0 / tsrRate
+    public static let tsrRate: TimeInterval = {
+        #if os(Linux)
+            var timespec = timespec()
+            do {
+                try syscall {
+                    // smumriak: Original is using CLOCK_MONOTONIC clock, but it's semantically wrong since CLOCK_MONOTONIC can be adjusted by syscall adjtime. Doc for mach_absolute_time tells that it's equivalent to clock_gettime_nsec_np(CLOCK_UPTIME_RAW), which means that we should use here CLOCK_MONOTONIC_RAW. BEWARE!!! CLOCK_MONOTONIC_RAW in mach kernel is not the same as in Linux
+                    clock_gettime(CLOCK_MONOTONIC_RAW /* clock_id */,
+                                  &timespec /* res */ )
+                }
+            } catch {
+                assertionFailure("Sorry, failed to get clock resolution from OS with error: \(error)")
+            }
+
+            return TimeInterval(timespec.tv_nsec) + (1_000_000_000 * TimeInterval(timespec.tv_sec))
+        #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+            return 1
+        #elseif os(Android)
+            return 1
+        #elseif os(Windows)
+            // QueryUnbiasedInterruptTimePrecise returns system time in units of 100 nanoseconds. Divide it by 10^7 to get seconds
+            return 10_000_000
+        #else
+            return 1
+        #endif
+    }()
+}
+
+internal let oneOverTSRRate: TimeInterval = 1.0 / TF.tsrRate
 
 internal extension TimeInterval {
     @_transparent
     var toTSR: UInt64 {
-        let result = Int64(self * tsrRate)
+        let result = Int64(self * TF.tsrRate)
         if result > Int64.max / 2 {
             return UInt64(Int64.max / 2)
         } else {
@@ -83,7 +102,7 @@ internal extension UInt64 {
 
     @_transparent
     var tsrToNanoseconds: UInt64 {
-        UInt64((TimeInterval(self) * tsrRate * 1_000_000_000).rounded(.down))
+        UInt64((TimeInterval(self) * TF.tsrRate * 1_000_000_000).rounded(.down))
     }
 }
 

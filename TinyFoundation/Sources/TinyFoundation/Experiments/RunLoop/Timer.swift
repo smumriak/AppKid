@@ -29,7 +29,7 @@ import Foundation
 
         internal let lock = RecursiveLock()
         internal unowned var runLoop: RunLoop1? = nil
-        internal var modes: Set<RunLoopMode> = []
+        internal var modes: Set<RunLoop1.Mode> = []
 
         deinit {
             invalidate()
@@ -75,7 +75,6 @@ import Foundation
     }
 
     public extension RunLoop1 {
-        @_transparent
         internal func removeTimer(_ timer: Timer1) {
             lock.synchronized {
                 commonModeItems.timers.remove(timer)
@@ -89,17 +88,36 @@ import Foundation
         }
 
         func addTimer(_ timer: Timer1, forMode modeName: Mode) {
+            guard timer.isValid else { return }
+
+            // smumriak: this is not necessary and will be checked later. original does this tho probably beacause of some private code
+            // let timerIsInOtherRunLoop = timer.lock.synchronized {
+            //     timer.runLoop != nil && timer.runLoop != self
+            // }
+            // if timerIsInOtherRunLoop { return }
+
             lock.synchronized {
                 if modeName == .common {
                     commonModeItems.timers.insert(timer)
                     commonModes.forEach {
-                        modes[$0]?.addTimer(timer)
+                        modes[$0]?.addTimer(timer, runLoop: self)
                     }
                 } else {
-                    modes[modeName]?.addTimer(timer)
+                    let mode = createModeForNameIfNeeded(modeName)
+                    mode.addTimer(timer, runLoop: self)
                 }
-                timer.lock.synchronized {
-                    timer.runLoop = self
+            }
+        }
+
+        func removeTimer(_ timer: Timer1, forMode modeName: Mode) {
+            lock.synchronized {
+                if modeName == .common {
+                    commonModeItems.timers.remove(timer)
+                    commonModes.forEach {
+                        modes[$0]?.removeTimer(timer)
+                    }
+                } else {
+                    modes[modeName]?.removeTimer(timer)
                 }
             }
         }

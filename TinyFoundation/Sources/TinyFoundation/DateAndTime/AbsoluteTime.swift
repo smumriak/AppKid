@@ -27,7 +27,8 @@ public extension UInt64 {
             var timespec = timespec()
             do {
                 try syscall {
-                    clock_gettime(CLOCK_MONOTONIC /* clock_id */,
+                    // smumriak: Original is using CLOCK_MONOTONIC clock, but it's semantically wrong since CLOCK_MONOTONIC can be adjusted by syscall adjtime. Doc for mach_absolute_time tells that it's equivalent to clock_gettime_nsec_np(CLOCK_UPTIME_RAW), which means that we should use here CLOCK_MONOTONIC_RAW. BEWARE!!! CLOCK_MONOTONIC_RAW in mach kernel is not the same as in Linux
+                    clock_gettime(CLOCK_MONOTONIC_RAW /* clock_id */,
                                   &timespec /* res */ )
                 }
             } catch {

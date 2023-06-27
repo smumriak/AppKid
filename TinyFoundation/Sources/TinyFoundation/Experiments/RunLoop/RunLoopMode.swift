@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 14.01.2023
 //
 
+// #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
 @_spi(AppKid)
 public final class RunLoopMode: Hashable {
     public let name: RunLoop1.Mode
@@ -82,9 +83,19 @@ internal extension RunLoopMode {
     }
 
     @_transparent
-    func addTimer(_ timer: Timer1) {
+    func addTimer(_ timer: Timer1, runLoop: RunLoop1) {
         lock.synchronized {
-            timers.append(timer)
+            timer.lock.synchronized {
+                if timer.modes.contains(name) { return }
+
+                if timer.runLoop == nil {
+                    timer.runLoop = runLoop
+                } else if timer.runLoop != runLoop {
+                    return
+                }
+                
+                // TODO: Reposition timer in timers list
+            }
         }
     }
 
@@ -93,8 +104,30 @@ internal extension RunLoopMode {
         lock.synchronized {
             if let index = timers.firstIndex(of: timer) {
                 timers.remove(at: index)
+                timer.modes.remove(self.name)
+                if timer.modes.isEmpty {
+                    timer.runLoop = nil
+                }
+
+                // TODO: Arm next timer
             }
         }
+    }
+
+    @_transparent
+    func repositionTimer(_ timer: Timer1, isAlreadyPresent: Bool) {
+        // smumriak: mode is locked on enter and exit
+        if isAlreadyPresent {
+            if let index = timers.firstIndex(of: timer) {
+                timers.remove(at: index)
+            } else {
+                return
+            }
+        }
+
+        let newIndex = timers.findInsertionIndex(for: timer, keyPath: \.fireDate, options: .anyEqual)
+        timers.insert(timer, at: newIndex)
+        // TODO: Arm next timer
     }
 }
 

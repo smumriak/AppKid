@@ -5,6 +5,7 @@
 //  Created by Serhii Mumriak on 24.01.2023
 //
 
+// #if !(os(macOS) || os(iOS) || os(tvOS) || os(watchOS))
 public extension RunLoop1 {
     final class Observer: Hashable {
         public typealias CallBack = (_ observer: Observer, _ activity: RunLoop1.Activity) -> ()
@@ -105,3 +106,5 @@ public extension RunLoop1 {
         }
     }
 }
+
+// #endif

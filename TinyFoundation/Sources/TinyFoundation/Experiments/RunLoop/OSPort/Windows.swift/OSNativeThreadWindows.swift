@@ -13,6 +13,7 @@
     public typealias OSNativeThreadSpecificKey = CUnsignedLong
         
     public extension OSNativeThread {
+        @_transparent
         internal(set) static lazy var initialThread: HANDLE = {
             var result: HANDLE = INVALID_HANDLE_VALUE
             DuplicateHandle(GetCurrentProcess(), GetCurrentThread(),
