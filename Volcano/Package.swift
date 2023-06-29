@@ -35,6 +35,7 @@ let package = Package(
         .executable(name: "vkthings", targets: ["vkthings"]),
         .executable(name: "volcanosl", targets: ["VolcanoSL"]),
         .plugin(name: "VolcanoSLPlugin", targets: ["VolcanoSLPlugin"]),
+        .plugin(name: "VkThingsPlugin", targets: ["VkThingsPlugin"]),
     ],
     dependencies: [
         tinyFoundationDependency,
@@ -113,6 +114,11 @@ let package = Package(
             ]),
         .plugin(
             name: "VolcanoSLPlugin",
+            capability: .buildTool(),
+            dependencies: [.target(name: "vkthings")]
+        ),
+        .plugin(
+            name: "VkThingsPlugin",
             capability: .buildTool(),
             dependencies: [.target(name: "VolcanoSL")]
         ),

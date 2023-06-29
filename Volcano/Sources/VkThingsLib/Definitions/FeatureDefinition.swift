@@ -5,27 +5,30 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
-    enum API: String, Codable, Equatable {
+import TinyFoundation
+import XMLCoder
+
+public struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
+    public enum API: String, Codable, Equatable {
         case vulkan
         case disabled
         case vulkansc
     }
 
-    let api: Set<API>
-    let name: String
-    let number: String
+    public let api: Set<API>
+    public let name: String
+    public let number: String
 
-    let requirements: [RequirementDefinition]
+    public let requirements: [RequirementDefinition]
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case api
         case name
         case number
         case requirements = "require"
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.api: return .attribute
             case CodingKeys.name: return .attribute
@@ -35,7 +38,7 @@ struct FeatureDefinition: Codable, Equatable, DynamicNodeDecoding {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         name = try values.decode(.name)
         number = try values.decode(.number)

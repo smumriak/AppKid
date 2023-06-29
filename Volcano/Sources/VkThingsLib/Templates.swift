@@ -5,22 +5,22 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-enum Templates {
-    static let outputStructureExtension =
+public enum Templates {
+    public static let outputStructureExtension =
         """
         extension <NAME>: VulkanOutStructure {
             public static let type: VkStructureType = <TYPE>
         }
         """
 
-    static let inputStructureExtension =
+    public static let inputStructureExtension =
         """
         extension <NAME>: VulkanInStructure {
             public static let type: VkStructureType = <TYPE>
         }
         """
 
-    static let vulkanCEnumsLicense =
+    public static let vulkanCEnumsLicense =
         """
         //
         //  VulkanEnums.h
@@ -30,7 +30,7 @@ enum Templates {
         //
         """
 
-    static let vulkanCOptionSetsLicense =
+    public static let vulkanCOptionSetsLicense =
         """
         //
         //  VulkanOptionSets.h
@@ -40,7 +40,7 @@ enum Templates {
         //
         """
 
-    static let vulkanSwiftStructuresLicense =
+    public static let vulkanSwiftStructuresLicense =
         """
         //
         //  VulkanStructureConformance.swift
@@ -50,7 +50,7 @@ enum Templates {
         //
         """
 
-    static let vulkanSwiftEnumsLicense =
+    public static let vulkanSwiftEnumsLicense =
         """
         //
         //  VulkanEnums.swift
@@ -60,7 +60,7 @@ enum Templates {
         //
         """
 
-    static let vulkanSwiftOptionSetsLicense =
+    public static let vulkanSwiftOptionSetsLicense =
         """
         //
         //  VulkanOptionSets.swift
@@ -70,7 +70,7 @@ enum Templates {
         //
         """
 
-    static let vulkanSwiftExtensionsLicense =
+    public static let vulkanSwiftExtensionsLicense =
         """
         //
         //  VulkanExtensionsNames.swift

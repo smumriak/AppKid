@@ -5,35 +5,38 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-struct ExtensionsContainer: Codable, Equatable {
-    let elements: [ExtensionDefinition]
+import TinyFoundation
+import XMLCoder
 
-    enum CodingKeys: String, CodingKey {
+public struct ExtensionsContainer: Codable, Equatable {
+    public let elements: [ExtensionDefinition]
+
+    public enum CodingKeys: String, CodingKey {
         case elements = "extension"
     }
 }
 
-struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
-    enum ExtensionType: String, Codable, Equatable {
+public struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
+    public enum ExtensionType: String, Codable, Equatable {
         case instance
         case device
     }
 
-    enum Supported: String, Codable, Equatable {
+    public enum Supported: String, Codable, Equatable {
         case vulkan
         case disabled
         case vulkansc
     }
 
-    let name: String
-    let number: String
-    let extensionType: ExtensionType?
-    let supported: Set<Supported>
-    let requirements: [RequirementDefinition]?
-    let platformName: String?
-    let deprecatedBy: String?
+    public let name: String
+    public let number: String
+    public let extensionType: ExtensionType?
+    public let supported: Set<Supported>
+    public let requirements: [RequirementDefinition]?
+    public let platformName: String?
+    public let deprecatedBy: String?
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case name
         case number
         case extensionType = "type"
@@ -43,7 +46,7 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
         case deprecatedBy = "deprecatedby"
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.name: return .attribute
             case CodingKeys.number: return .attribute
@@ -56,7 +59,7 @@ struct ExtensionDefinition: Codable, Equatable, DynamicNodeDecoding {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         name = try values.decode(.name)
         number = try values.decode(.number)

@@ -44,6 +44,7 @@ let package = Package(
         .volcano,
         .vulkanMemoryAllocatorAdapted,
         .vkthings,
+        .vkthingsPlugin,
         .volcanosl,
         .volcanoSLPlugin,
     ],
@@ -110,8 +111,10 @@ let package = Package(
         .volcano,
         .vulkanMemoryAllocatorAdapted,
         .vkthings,
+        .vkthingsLib,
         .volcanoSL,
         .volcanoSLPlugin,
+        .vkthingsPlugin,
     ]
 )
 
@@ -144,6 +147,7 @@ extension Product {
     static let volcano: Product = library(name: "Volcano", type: .dynamic, targets: [Target.volcano.name])
     static let vulkanMemoryAllocatorAdapted: Product = library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: [Target.vulkanMemoryAllocatorAdapted.name])
     static let vkthings: Product = executable(name: "vkthings", targets: [Target.vkthings.name])
+    static let vkthingsPlugin: Product = plugin(name: "vkthingsPlugin", targets: [Target.vkthingsPlugin.name])
     static let volcanosl: Product = executable(name: "volcanosl", targets: [Target.volcanoSL.name])
     static let volcanoSLPlugin: Product = plugin(name: "VolcanoSLPlugin", targets: [Target.volcanoSLPlugin.name])
 }
@@ -185,6 +189,8 @@ extension Target.Dependency {
     static let volcano = Target.volcano.asDependency()
     static let vulkanMemoryAllocatorAdapted = Target.vulkanMemoryAllocatorAdapted.asDependency()
     static let vkthings = Target.vkthings.asDependency()
+    static let vkthingsLib = Target.vkthingsLib.asDependency()
+    static let vkthingsPlugin = Target.vkthingsPlugin.asDependency()
     static let volcanoSL = Target.volcanoSL.asDependency()
     static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency()
 }
@@ -452,6 +458,9 @@ extension Target {
             .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
             .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
+        ],
+        plugins: [
+            .plugin(name: "vkthingsPlugin"),
         ]
     )
     static let vulkanMemoryAllocatorAdapted: Target = target(
@@ -467,14 +476,29 @@ extension Target {
             .unsafeFlags(["-Wno-nullability-completeness", "-std=c++17"]),
         ]
     )
+    static let vkthingsLib: Target = target(
+        name: "VkThingsLib",
+        dependencies: [
+            .product(name: "XMLCoder", package: "XMLCoder"),
+            .tinyFoundation,
+        ],
+        path: "Volcano/Sources/VkThingsLib"
+    )
     static let vkthings: Target = executableTarget(
         name: "vkthings",
         dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
             .product(name: "XMLCoder", package: "XMLCoder"),
             .tinyFoundation,
+            .vkthingsLib,
         ],
         path: "Volcano/Sources/vkthings"
+    )
+    static let vkthingsPlugin: Target = plugin(
+        name: "vkthingsPlugin",
+        capability: .buildTool(),
+        dependencies: [.vkthings],
+        path: "Volcano/Plugins/vkthingsPlugin"
     )
     static let volcanoSL: Target = executableTarget(
         name: "VolcanoSL",

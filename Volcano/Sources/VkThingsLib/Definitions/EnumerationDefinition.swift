@@ -5,37 +5,40 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-struct EnumerationDefinition: Codable, Equatable, DynamicNodeDecoding {
-    struct Case: Codable, Equatable {
-        let name: String
-        let value: String?
-        let bitPosition: String?
+import TinyFoundation
+import XMLCoder
 
-        enum CodingKeys: String, CodingKey {
+public struct EnumerationDefinition: Codable, Equatable, DynamicNodeDecoding {
+    public struct Case: Codable, Equatable {
+        public let name: String
+        public let value: String?
+        public let bitPosition: String?
+
+        public enum CodingKeys: String, CodingKey {
             case name
             case value
             case bitPosition = "bitpos"
         }
     }
 
-    enum Subtype: String, Codable, Equatable {
+    public enum Subtype: String, Codable, Equatable {
         case unknown
         case enumeration = "enum"
         case bitmask
     }
 
-    let cases: [Case]
-    let name: String
+    public let cases: [Case]
+    public let name: String
     private let _subtype: Subtype?
-    var subtype: Subtype { _subtype ?? .unknown }
+    public var subtype: Subtype { _subtype ?? .unknown }
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case cases = "enum"
         case name
         case _subtype = "type"
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.cases: return .element
             case CodingKeys.name: return .attribute

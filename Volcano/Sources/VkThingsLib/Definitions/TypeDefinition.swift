@@ -5,16 +5,19 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-struct TypesContainer: Codable, Equatable, DynamicNodeDecoding {
-    let elements: [TypeDefinition]
-    let comment: String?
+import TinyFoundation
+import XMLCoder
 
-    enum CodingKeys: String, CodingKey {
+public struct TypesContainer: Codable, Equatable, DynamicNodeDecoding {
+    public let elements: [TypeDefinition]
+    public let comment: String?
+
+    public enum CodingKeys: String, CodingKey {
         case elements = "type"
         case comment
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.elements: return .element
             case CodingKeys.comment: return .attribute
@@ -23,8 +26,8 @@ struct TypesContainer: Codable, Equatable, DynamicNodeDecoding {
     }
 }
 
-struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
-    enum Category: String, Codable, Equatable {
+public struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
+    public enum Category: String, Codable, Equatable {
         case structure = "struct"
         case enumeration = "enum"
         case bitmask
@@ -36,20 +39,20 @@ struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
         case union
     }
 
-    struct Member: Codable, Equatable, DynamicNodeDecoding {
-        let textElements: [String]?
-        let name: String
-        let type: String
-        let values: String?
+    public struct Member: Codable, Equatable, DynamicNodeDecoding {
+        public let textElements: [String]?
+        public let name: String
+        public let type: String
+        public let values: String?
 
-        enum CodingKeys: String, CodingKey {
+        public enum CodingKeys: String, CodingKey {
             case textElements = ""
             case name
             case type
             case values
         }
 
-        static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+        public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
             switch key {
                 case CodingKeys.textElements: return .element
                 case CodingKeys.name: return .element
@@ -60,13 +63,13 @@ struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
         }
     }
 
-    let name: String?
-    let category: Category?
-    let parent: String?
-    let bandwidth: String?
-    private(set) var members: [Member] = []
+    public let name: String?
+    public let category: Category?
+    public let parent: String?
+    public let bandwidth: String?
+    public private(set) var members: [Member] = []
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case name
         case category
         case members = "member"
@@ -74,7 +77,7 @@ struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
         case bandwidth
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.name: return .elementOrAttribute
             case CodingKeys.category: return .attribute

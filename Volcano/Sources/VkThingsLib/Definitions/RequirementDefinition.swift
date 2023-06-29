@@ -5,43 +5,46 @@
 //  Created by Serhii Mumriak on 13.06.2023
 //
 
-struct RequirementDefinition: Codable, Equatable {
-    struct Enumerant: Codable, Equatable {
-        let name: String
-        let extends: String?
-        let protectingDefine: String?
+import TinyFoundation
+import XMLCoder
 
-        enum CodingKeys: String, CodingKey {
+public struct RequirementDefinition: Codable, Equatable {
+    public struct Enumerant: Codable, Equatable {
+        public let name: String
+        public let extends: String?
+        public let protectingDefine: String?
+
+        public enum CodingKeys: String, CodingKey {
             case name
             case extends
             case protectingDefine = "protect"
         }
     }
 
-    struct TypeEntry: Codable, Equatable {
-        let name: String
+    public struct TypeEntry: Codable, Equatable {
+        public let name: String
     }
 
-    enum API: String, Codable, Equatable {
+    public enum API: String, Codable, Equatable {
         case vulkan
         case disabled
         case vulkansc
     }
 
-    let depends: String?
-    let api: Set<API>
+    public let depends: String?
+    public let api: Set<API>
 
-    let enumerants: [Enumerant]?
-    let typeEntries: [TypeEntry]?
+    public let enumerants: [Enumerant]?
+    public let typeEntries: [TypeEntry]?
 
-    enum CodingKeys: String, CodingKey {
+    public enum CodingKeys: String, CodingKey {
         case enumerants = "enum"
         case typeEntries = "type"
         case depends
         case api
     }
 
-    static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
+    public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
         switch key {
             case CodingKeys.enumerants: return .element
             case CodingKeys.typeEntries: return .element
@@ -51,7 +54,7 @@ struct RequirementDefinition: Codable, Equatable {
         }
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         enumerants = try values.decodeIfPresent(.enumerants)
         typeEntries = try values.decodeIfPresent(.typeEntries)
