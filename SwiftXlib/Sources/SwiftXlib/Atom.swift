@@ -77,7 +77,7 @@ public enum KnownAtomName: String, CaseIterable, AtomName {
     case stateSticky = "_NET_WM_STATE_STICKY"
     case stateMaximizedVert = "_NET_WM_STATE_MAXIMIZED_VERT"
     case stateMaximizedHorz = "_NET_WM_STATE_MAXIMIZED_HORZ"
-    case stateShaded = "_NET_WM_STATE_SHADED"
+    // case stateShaded = "_NET_WM_STATE_SHADED"
     case stateSkipTaskbar = "_NET_WM_STATE_SKIP_TASKBAR"
     case stateSkipPager = "_NET_WM_STATE_SKIP_PAGER"
     case stateHidden = "_NET_WM_STATE_HIDDEN"

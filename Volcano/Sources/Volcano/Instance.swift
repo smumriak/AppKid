@@ -66,8 +66,8 @@ public final class Instance: SharedPointerStorage<VkInstance_T> {
             #endif
 
             #if DEBUG
-                layers.append("VK_LAYER_KHRONOS_validation")
-                extensions.insert(.debugUtilsExt)
+                // layers.append("VK_LAYER_KHRONOS_validation")
+                // extensions.insert(.debugUtilsExt)
             #endif
 
             let handle = try VkInstanceCreateInfo.lava {
