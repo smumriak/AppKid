@@ -50,7 +50,7 @@ public final class Instance: SharedPointerStorage<VkInstance_T> {
     
     public init(extensions: Set<InstanceExtension> = []) {
         do {
-            let vulkanVersion: CUnsignedInt = (1 << 22) | (0 << 12) | 0
+            let vulkanVersion: CUnsignedInt = (1 << 22) | (3 << 12) | 0
 
             var layers: [String] = []
             
