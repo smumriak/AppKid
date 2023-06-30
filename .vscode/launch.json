@@ -14,6 +14,18 @@
             "program": "${workspaceFolder}/.build/debug/AppKidDemo"
         },
         {
+            "name": "Runvkthings",
+            "type": "lldb",
+            "request": "launch",
+            "args": ["/usr/share/vulkan/registry/vk.xml", "-o", "./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift", "--swift-structs"],
+            "preLaunchTask": "buildvkthings",
+            "env": {
+                "DEBUG": "1",
+                "APPKID_FORCE_SCALE_FACTOR": "2.0"
+            },
+            "program": "${workspaceFolder}/.build/debug/vkthings"
+        },
+        {
             "name": "RunWithoutBuilding",
             "type": "lldb",
             "request": "launch",
