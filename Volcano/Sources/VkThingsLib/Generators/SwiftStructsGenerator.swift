@@ -6,13 +6,14 @@
 //
 
 public struct SwiftStructsGenerator: SwiftFileGenerator {
+    public let license: String = Templates.vulkanSwiftStructuresLicense
+    
     public init() {}
     
-    public func resultString(with parser: Parser) throws -> String {
-        var result: [String] = []
+    public func resultString(with parser: __shared Parser) throws -> String {
+        var result: [String] = try [header(from: parser)]
 
         result += [
-            Templates.vulkanSwiftStructuresLicense,
             tinyFoundation,
         ]
 

@@ -7,8 +7,72 @@
 
 import XMLCoder
 import Foundation
+import SemanticVersion
+
+public struct VulkanValidUsage: Codable {
+    public struct VersionInfo: Codable {
+        public let schemaVersion: Int
+        public let apiVersion: SemanticVersion
+        public let comment: String
+
+        public enum CodingKeys: String, CodingKey {
+            case schemaVersion = "schema version"
+            case apiVersion = "api version"
+            case comment = "comment"
+        }
+
+        public init(from decoder: Decoder) throws {
+            let values = try decoder.container(keyedBy: CodingKeys.self)
+            
+            self.schemaVersion = try values.decode(.schemaVersion)
+            let apiVersionString: String = try values.decode(.apiVersion)
+            if let apiVersion = SemanticVersion(apiVersionString) {
+                self.apiVersion = apiVersion
+            } else {
+                throw Parser.Error.versionNotParsable
+            }
+            self.comment = try values.decode(.comment)
+        }
+    }
+
+    public let versionInfo: VersionInfo
+
+    public enum CodingKeys: String, CodingKey {
+        case versionInfo = "version info"
+    }
+
+    public init(registryFileURL: URL) throws {
+        let validUsageFileURL = registryFileURL.deletingLastPathComponent().appendingPathComponent("validusage.json")
+
+        if FileManager.default.fileExists(atPath: validUsageFileURL.absoluteURL.path) == false {
+            throw Parser.Error.validUsageNotFound
+        }
+
+        let validUsageData = try Data(contentsOf: validUsageFileURL)
+
+        let validUsageDecoder = JSONDecoder()
+        validUsageDecoder.dateDecodingStrategy = .iso8601
+
+        self = try validUsageDecoder.decode(VulkanValidUsage.self, from: validUsageData)
+    }
+}
 
 public struct Parser {
+    public enum Error: Swift.Error {
+        case validUsageNotFound
+        case versionNotParsable
+
+        public var localizedDescription: String {
+            switch self {
+                case .validUsageNotFound:
+                    return "Specified vulkan registry xml is not accompanied by validusage.json file"
+
+                case .versionNotParsable:
+                    return "validusage.json specified API version is not parsable"
+            }
+        }
+    }
+
     public let registry: RegistryDefinition
     public let structures: Dictionary<String, ParsedStruct>
     public let enumerations: Dictionary<String, ParsedEnum>
@@ -16,16 +80,18 @@ public struct Parser {
     public let enabledExtensions: [ExtensionDefinition]
     public let instanceExtensions: Dictionary<String, ParsedInstanceExtension>
     public let deviceExtensions: Dictionary<String, ParsedDeviceExtension>
+    public let version: SemanticVersion
 
-    public init(registryFilePath: String) throws {
-        let registryFileURL = URL(fileURLWithPath: registryFilePath, isDirectory: false)
+    public init(registryFileURL: URL) throws {
+        let validUsage = try VulkanValidUsage(registryFileURL: registryFileURL)
+
         let registryXMLData = try Data(contentsOf: registryFileURL)
 
-        let decoder = XMLDecoder()
-        decoder.shouldProcessNamespaces = false
-        decoder.trimValueWhitespaces = false
+        let registryDecoder = XMLDecoder()
+        registryDecoder.shouldProcessNamespaces = false
+        registryDecoder.trimValueWhitespaces = false
 
-        let registry = try decoder.decode(RegistryDefinition.self, from: registryXMLData)
+        let registry = try registryDecoder.decode(RegistryDefinition.self, from: registryXMLData)
 
         var structures = Dictionary(uniqueKeysWithValues:
             registry.types.elements
@@ -286,5 +352,6 @@ public struct Parser {
         self.enabledExtensions = enabledExtensions
         self.instanceExtensions = instanceExtensions
         self.deviceExtensions = deviceExtensions
+        self.version = validUsage.versionInfo.apiVersion
     }
 }

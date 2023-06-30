@@ -68,6 +68,8 @@ public struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
     public let parent: String?
     public let bandwidth: String?
     public private(set) var members: [Member] = []
+    public let subtypes: [TypeDefinition]?
+    public let textElements: [String]?
 
     public enum CodingKeys: String, CodingKey {
         case name
@@ -75,6 +77,8 @@ public struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
         case members = "member"
         case parent
         case bandwidth
+        case subtypes = "type"
+        case textElements = ""
     }
 
     public static func nodeDecoding(for key: CodingKey) -> XMLDecoder.NodeDecoding {
@@ -84,6 +88,8 @@ public struct TypeDefinition: Codable, Equatable, DynamicNodeDecoding {
             case CodingKeys.members: return .element
             case CodingKeys.parent: return .attribute
             case CodingKeys.bandwidth: return .elementOrAttribute
+            case CodingKeys.subtypes: return .element
+            case CodingKeys.textElements: return .element
             default: return .elementOrAttribute
         }
     }

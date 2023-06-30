@@ -12,6 +12,7 @@ public extension NumberFormatter {
         let result = NumberFormatter()
         result.numberStyle = .spellOut
         result.locale = Locale(identifier: "en_US")
+
         return result
     }()
 }

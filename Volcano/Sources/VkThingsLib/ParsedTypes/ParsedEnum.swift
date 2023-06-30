@@ -57,7 +57,7 @@ public struct ParsedEnum: VulkanType {
             return strings.map {
                 "    " + $0
             }
-            .joined(separator: "\n")
+            .joined(separator: .newline)
         }
 
         result.append("}")
@@ -66,7 +66,7 @@ public struct ParsedEnum: VulkanType {
             "#endif"
         }
 
-        return result.joined(separator: "\n")
+        return result.joined(separator: .newline)
     }
 
     public var cDeclaration: String {
@@ -86,7 +86,7 @@ public struct ParsedEnum: VulkanType {
             "#endif"
         }
 
-        return result.joined(separator: "\n")
+        return result.joined(separator: .newline)
     }
 }
 

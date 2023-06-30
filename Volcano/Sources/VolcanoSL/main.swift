@@ -388,7 +388,7 @@ struct VolcanoSL: ParsableCommand {
             }
         }
 
-        let result: String = parsedShaderLines.joined(separator: "\n")
+        let result: String = parsedShaderLines.joined(separator: .newline)
 
         let glslOutputFileURL: URL = {
             if let glslOutput = glslOutput {

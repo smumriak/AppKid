@@ -55,6 +55,8 @@ let package = Package(
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
         .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", branch: "main"),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
     ],
     targets: [
         .executableTarget(
@@ -480,6 +482,8 @@ extension Target {
         name: "VkThingsLib",
         dependencies: [
             .product(name: "XMLCoder", package: "XMLCoder"),
+            .product(name: "SemanticVersion", package: "SemanticVersion"),
+            .product(name: "Yams", package: "Yams"),
             .tinyFoundation,
         ],
         path: "Volcano/Sources/VkThingsLib"
@@ -497,7 +501,9 @@ extension Target {
     static let vkthingsPlugin: Target = plugin(
         name: "vkthingsPlugin",
         capability: .buildTool(),
-        dependencies: [.vkthings],
+        dependencies: [
+            .vkthings,
+        ],
         path: "Volcano/Plugins/vkthingsPlugin"
     )
     static let volcanoSL: Target = executableTarget(

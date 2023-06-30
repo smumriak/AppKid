@@ -6,17 +6,17 @@
 //
 
 public struct SwiftExtensionsGenerator: SwiftFileGenerator {
+    public let license: String = Templates.vulkanSwiftExtensionsLicense
+    
     public init() {}
     
-    public func resultString(with parser: Parser) throws -> String {
-        var result: [String] = []
+    public func resultString(with parser: __shared Parser) throws -> String {
+        var result: [String] = try [header(from: parser)]
                 
         result += [
-            Templates.vulkanSwiftExtensionsLicense,
             "",
-            "import Foundation",
-            "import TinyFoundation",
-            "",
+            foundation,
+            tinyFoundation,
             "",
         ]
 
@@ -36,6 +36,6 @@ public struct SwiftExtensionsGenerator: SwiftFileGenerator {
 
         result += ["}", ""]
 
-        return result.joined(separator: "\n")
+        return result.joined(separator: .newline)
     }
 }

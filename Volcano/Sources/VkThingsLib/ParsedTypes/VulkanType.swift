@@ -25,6 +25,6 @@ public extension VulkanType {
             "#endif"
         }
 
-        return result.joined(separator: "\n")
+        return result.joined(separator: .newline)
     }
 }

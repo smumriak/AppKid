@@ -7,16 +7,16 @@
 
 public struct COptionSetsGenerator: CHeaderGenerator {
     public let headerName: String
+    public let license: String = Templates.vulkanCOptionSetsLicense
 
     public init(headerName: String) {
         self.headerName = headerName
     }
 
     public func resultString(with parser: __shared Parser) throws -> String {
-        var result: [String] = []
+        var result: [String] = try [header(from: parser)]
 
         result += [
-            Templates.vulkanCOptionSetsLicense,
             top,
         ]
                 
@@ -38,6 +38,6 @@ public struct COptionSetsGenerator: CHeaderGenerator {
             bottom,
         ]
 
-        return result.joined(separator: "\n")
+        return result.joined(separator: .newline)
     }
 }

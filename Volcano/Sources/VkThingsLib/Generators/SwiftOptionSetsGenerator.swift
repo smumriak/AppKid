@@ -6,14 +6,17 @@
 //
 
 public struct SwiftOptionSetsGenerator: SwiftFileGenerator {
+    public let license: String = Templates.vulkanSwiftOptionSetsLicense
+    
     public init() {}
     
-    public func resultString(with parser: Parser) throws -> String {
-        var result: [String] = []
+    public func resultString(with parser: __shared Parser) throws -> String {
+        var result: [String] = try [header(from: parser)]
 
         result += [
-            Templates.vulkanSwiftOptionSetsLicense,
+            "",
             tinyFoundation,
+            "",
         ]
 
         result += parser.optionSets.map { $0.value }

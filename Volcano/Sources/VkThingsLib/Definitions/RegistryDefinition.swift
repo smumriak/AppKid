@@ -15,7 +15,7 @@ public struct RegistryDefinition: Codable, Equatable {
     public let enumerations: [EnumerationDefinition]
     public let features: [FeatureDefinition]
     public let extensions: ExtensionsContainer
-
+    
     public enum CodingKeys: String, CodingKey {
         case platforms
         case types

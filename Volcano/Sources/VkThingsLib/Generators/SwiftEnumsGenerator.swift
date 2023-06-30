@@ -5,18 +5,18 @@
 //  Created by Serhii Mumriak on 29.06.2023
 //
 
-public struct SwiftEnumsGenerator: Generator {
+public struct SwiftEnumsGenerator: SwiftFileGenerator {
+    public let license: String = Templates.vulkanSwiftEnumsLicense
+
     public init() {}
     
     public func resultString(with parser: __shared Parser) throws -> String {
-        var result: [String] = []
+        var result: [String] = try [header(from: parser)]
 
         result += [
-            Templates.vulkanSwiftEnumsLicense,
-            """
-            import TinyFoundation
-            
-            """,
+            "",
+            tinyFoundation,
+            "",
         ]
 
         result += parser.enumerations.map { $0.value }

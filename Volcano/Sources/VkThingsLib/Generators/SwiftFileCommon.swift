@@ -9,9 +9,10 @@ public protocol SwiftFileGenerator: Generator {}
 
 public extension SwiftFileGenerator {
     var tinyFoundation: String {
-        """
-        import TinyFoundation
-        
-        """
+        "import TinyFoundation"
+    }
+
+    var foundation: String {
+        "import Foundation"
     }
 }
