@@ -60,13 +60,19 @@ final class AppDelegate: ApplicationDelegate {
 - <details>
     <summary>Vulkan SDK</summary>
 
-	LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via `SupportingFiles`
-	```bash
-    wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
-	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/lunarg-vulkan-focal.list -O /etc/apt/sources.list.d/lunarg-vulkan-focal.list
-	sudo apt update
-	sudo apt install vulkan-sdk -y
-	```
+	- Vulkan SDK from LunarG repository
+		LunarG is using deprecated apt-key to verify signature so this repo provides more modern and safe configuration via `SupportingFiles`
+		```bash
+		wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
+		sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/lunarg-vulkan-jammy.list -O /etc/apt/sources.list.d/lunarg-vulkan-jammy.list
+		sudo apt update
+		sudo apt install vulkan-sdk -y
+		```
+	- Alternativelly you can try to install Vulkan SDK from tarballs provided by LunarG or if you are using Debian 12 and newer or Ubuntu 22.04 and newer you can substitute Vulkan SDK from LunarG by installing 	libvulkan-dev
+		```
+		sudo apt install libvulkan-dev
+		```
+		But you will have to manually install `glslc` compiler from Gooogle's shaderc project located [here](https://github.com/google/shaderc).
   </details>
 - <details>
 	<summary>System libraries</summary>
@@ -146,6 +152,7 @@ Before jumping straight into writing code there is some development setup requir
 	sudo mkdir -p /usr/local/lib/pkgconfig
 	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
 	```
+	If you are going to install different version of libclang - adjust clang.pc accordingly.
   </details>
 
 #### **macOS**

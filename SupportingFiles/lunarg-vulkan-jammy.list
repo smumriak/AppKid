@@ -1,0 +1,9 @@
+#
+#  lunarg-vulkan-focal.list
+#  AppKid
+#  
+#  Created by Serhii Mumriak on 01.07.2023
+#
+
+deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan jammy main
+deb-src [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan jammy main
