@@ -14,20 +14,21 @@ public struct SwiftStructsGenerator: SwiftFileGenerator {
         var result: [String] = try [header(from: parser)]
 
         result += [
+            "",
             tinyFoundation,
+            "",
         ]
 
         result += parser.structures.map { $0.value }
-            .sorted {
-                $0.name < $1.name
-            }
+            .sorted { $0.name < $1.name }
             .flatMap {
                 [
                     $0.exportString,
                     $0.vulkanStructureExtensionString,
+                    "",
                 ]
             }
                     
-        return result.joined(separator: "\n\n")
+        return result.joined(separator: .newline)
     }
 }

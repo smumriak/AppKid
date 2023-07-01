@@ -6,7 +6,7 @@
 //
 
 public struct ParsedEnum: VulkanType {
-    public struct Case {
+    public struct Case: VulkanType {
         public let name: String
         public let value: String?
         public var cDefines: [String] = []
@@ -41,11 +41,9 @@ public struct ParsedEnum: VulkanType {
     
         var result: [String] = []
 
-        result += swiftDefines.map {
-            "#if \($0)"
-        }
+        result += swiftProtectiveIfs
 
-        result.append("public extension \(name) {")
+        result.append(indentation + "public extension \(name) {")
 
         result += cases.compactMap {
             let strings = $0.convenienceGenerated(enumerationName: name, isOptionSet: isOptionSet, tags: tags, enumTagToStrip: enumTagToStrip)
@@ -55,16 +53,14 @@ public struct ParsedEnum: VulkanType {
             }
 
             return strings.map {
-                "    " + $0
+                indentation + kIndentationUnit + $0
             }
             .joined(separator: .newline)
         }
 
-        result.append("}")
+        result.append(indentation + "}")
 
-        result += swiftDefines.map { _ in
-            "#endif"
-        }
+        result += swiftProtectiveEndifs
 
         return result.joined(separator: .newline)
     }
@@ -72,20 +68,15 @@ public struct ParsedEnum: VulkanType {
     public var cDeclaration: String {
         var result: [String] = []
 
-        result += cDefines.map {
-            "#ifdef \($0)"
-        }
+        result += cProtectiveIfs
 
         if isOptionSet {
-            result += ["AK_EXISTING_OPTIONS(\(name));"]
+            result += [indentation + "AK_EXISTING_OPTIONS(\(name));"]
         } else {
-            result += ["AK_EXISTING_ENUM(\(name));"]
+            result += [indentation + "AK_EXISTING_ENUM(\(name));"]
         }
 
-        result += cDefines.map { _ in
-            "#endif"
-        }
-
+        result += cProtectiveEndifs
         return result.joined(separator: .newline)
     }
 }
@@ -187,9 +178,7 @@ public extension ParsedEnum.Case {
         }
 
         var resultingArray: [String] = []
-        resultingArray += swiftDefines.map {
-            "#if \($0)"
-        }
+        resultingArray += swiftProtectiveIfs
 
         let adjustedName: String
 
@@ -199,11 +188,9 @@ public extension ParsedEnum.Case {
             adjustedName = ".\(name)"
         }
 
-        resultingArray += [(swiftDefines.isEmpty ? "" : "    ") + "static let \(result): \(enumerationName) = \(adjustedName)"]
+        resultingArray += [indentation + "static let \(result): \(enumerationName) = \(adjustedName)"]
 
-        resultingArray += swiftDefines.map { _ in
-            "#endif"
-        }
+        resultingArray += swiftProtectiveEndifs
 
         return resultingArray
     }

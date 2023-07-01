@@ -18,7 +18,7 @@
         {
             "label": "generateVolcanoCEnums",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanEnums.h --c-enums --force",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -37,7 +37,7 @@
         {
             "label": "generateVolcanoCOptionSets",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/CVulkan/VulkanOptionSets.h --c-option-sets --force",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -56,7 +56,7 @@
         {
             "label": "generateVolcanoSwiftStructures",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanStructureChainParsing/VulkanStructureConformance.swift --swift-structs --force",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -75,7 +75,7 @@
         {
             "label": "generateVolcanoSwiftEnums",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums && swiftformat ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Enums/VulkanEnums.swift --swift-enums --force",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -94,7 +94,7 @@
         {
             "label": "generateVolcanoSwiftOptionSets",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets && swiftformat ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/OptionSets/VulkanOptionSets.swift --swift-option-sets --force",
             "group": "none",
             "presentation": {
                 "echo": false,
@@ -113,7 +113,7 @@
         {
             "label": "generateVolcanoSwiftExtensionsNames",
             "type": "shell",
-            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions && swiftformat ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift",
+            "command": "swift run --build-path ${workspaceFolder}/.build vkthings /usr/share/vulkan/registry/vk.xml -o ./Volcano/Sources/Volcano/Utilities/VulkanExtensionsNames.swift --swift-extensions --force",
             "group": "none",
             "presentation": {
                 "echo": false,

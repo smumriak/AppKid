@@ -73,7 +73,7 @@ struct VulkanStructureGenerator: ParsableCommand {
     @Flag(help: "")
     var generatedFileType: GeneratedFileType
 
-    @Flag
+    @Flag(name: .shortAndLong)
     var force: Bool = false
 
     mutating func run() throws {
@@ -96,7 +96,7 @@ struct VulkanStructureGenerator: ParsableCommand {
             var headerFound = false
 
             try String(contentsOfFile: outputFilePath).enumerateLines { line, stop in
-                if line.starts(with: MetadataSerializedPrefix) {
+                if line.starts(with: kMetadataSerializedPrefix) {
                     headerFound = true
                     metadataHeader.append(line)
                 } else if headerFound == true {
@@ -109,7 +109,7 @@ struct VulkanStructureGenerator: ParsableCommand {
             }
 
             let metadataString = metadataHeader
-                .map { $0.dropFirst(MetadataSerializedPrefix.count) }
+                .map { $0.dropFirst(kMetadataSerializedPrefix.count) }
                 .joined(separator: .newline)
 
             let yamlDecoder = YAMLDecoder()

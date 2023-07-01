@@ -10,7 +10,8 @@ import SemanticVersion
 import TinyFoundation
 import Yams
 
-public let MetadataSerializedPrefix = "// #*# "
+public let kMetadataSerializedPrefix = "// #*# "
+internal let kIndentationUnit = String(repeating: " ", count: 4)
 
 public protocol Generator {
     func resultString(with parser: __shared Parser) throws -> String
@@ -30,7 +31,7 @@ public extension Generator {
         let metadata = try yamlEncoder.encode(metadataHeader)
             .components(separatedBy: .newlines)
             .filter { $0.isEmpty == false }
-            .map { MetadataSerializedPrefix + $0 }
+            .map { kMetadataSerializedPrefix + $0 }
             .joined(separator: .newline)
             
         return

@@ -62,19 +62,17 @@ public struct ParsedStruct: VulkanType {
 
         var result: [String] = []
 
-        result += swiftDefines.map {
-            "#if \($0)"
-        }
+        result += swiftProtectiveIfs
 
         result += [
-            template
+            template.components(separatedBy: .newlines)
+                .map { indentation + $0 }
+                .joined(separator: .newline)
                 .replacingOccurrences(of: "<NAME>", with: name)
                 .replacingOccurrences(of: "<TYPE>", with: "." + typeName),
         ]
 
-        result += swiftDefines.map { _ in
-            "#endif"
-        }
+        result += swiftProtectiveEndifs
 
         return result.joined(separator: .newline)
     }

@@ -30,9 +30,10 @@ public struct SwiftEnumsGenerator: SwiftFileGenerator {
                 [
                     $0.exportString,
                     $0.convenienceCasesString(tags: parser.registry.tags.elements),
+                    "",
                 ]
             }
 
-        return result.joined(separator: "\n\n")
+        return result.joined(separator: .newline)
     }
 }

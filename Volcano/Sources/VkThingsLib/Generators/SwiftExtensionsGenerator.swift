@@ -22,19 +22,27 @@ public struct SwiftExtensionsGenerator: SwiftFileGenerator {
 
         result += ["public enum InstanceExtension: String {"]
 
-        result += parser.instanceExtensions.map {
-            $0.1.caseName(tags: parser.registry.tags.elements)
-        }
+        result += parser.instanceExtensions
+            .map { $0.1.caseName(tags: parser.registry.tags.elements) }
+            .sorted { $0 < $1 }
+            .map { kIndentationUnit + $0 }
 
-        result += ["}", ""]
+        result += [
+            "}",
+            "",
+        ]
 
         result += ["public enum DeviceExtension: String {"]
 
-        result += parser.deviceExtensions.map {
-            $0.1.caseName(tags: parser.registry.tags.elements)
-        }
+        result += parser.deviceExtensions
+            .map { $0.1.caseName(tags: parser.registry.tags.elements) }
+            .sorted { $0 < $1 }
+            .map { kIndentationUnit + $0 }
 
-        result += ["}", ""]
+        result += [
+            "}",
+            "",
+        ]
 
         return result.joined(separator: .newline)
     }

@@ -20,21 +20,16 @@ public struct SwiftOptionSetsGenerator: SwiftFileGenerator {
         ]
 
         result += parser.optionSets.map { $0.value }
-            .sorted {
-                $0.name < $1.name
-            }
-            .filter {
-                $0.cases.isEmpty == false
-            }
+            .filter { $0.cases.isEmpty == false }
+            .sorted { $0.name < $1.name }
             .flatMap {
                 [
                     $0.exportString,
                     $0.convenienceCasesString(tags: parser.registry.tags.elements),
+                    "",
                 ]
             }
 
-        result += [""]
-
-        return result.joined(separator: "\n\n")
+        return result.joined(separator: .newline)
     }
 }
