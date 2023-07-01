@@ -11,6 +11,27 @@ import Foundation
 @main
 struct VkThingsPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) throws -> [Command] {
-        return []
+        // smumriak: plugins can generate only swift code. sad
+        let files = [
+            (name: "VulkanStructureConformance-generated.swift", type: "--swift-structs"),
+            (name: "VulkanEnums-generated.swift", type: "--swift-enums"),
+            (name: "VulkanOptionSets-generated.swift", type: "--swift-option-sets"),
+            (name: "VulkanExtensionsNames-generated.swift", type: "--swift-extensions"),
+        ]
+
+        // smumriak: it looks like build command works fine with empty inputFiles argument. so for now it's what is going to be used
+        return try files.map {
+            return .buildCommand(
+                displayName: "Generating \($0.name)",
+                executable: try context.tool(named: "vkthings").path,
+                arguments: [
+                    "-o",
+                    context.pluginWorkDirectory.appending($0.name),
+                    $0.type,
+                ],
+                inputFiles: [],
+                outputFiles: [context.pluginWorkDirectory.appending($0.name)]
+            )
+        }
     }
 }

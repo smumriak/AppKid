@@ -19,7 +19,7 @@ var defaultRegistryFilePath: String {
 
         #if os(Linux)
             let possibleLocations = [
-                "/usr/share/vulkan/registry/",
+                "/usr/share/vulkan/registry/vk.xml",
             ]
         #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
             #error("FIX ME")
@@ -30,7 +30,7 @@ var defaultRegistryFilePath: String {
         #endif
 
         for path in possibleLocations {
-            if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue == true {
+            if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue == false {
                 return path
             }
         }
