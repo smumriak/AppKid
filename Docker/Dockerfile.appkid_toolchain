@@ -30,7 +30,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
     libpango1.0-dev \
     libglib2.0-dev \
     libpython3-dev \
-    libclang-12-dev
+    libclang-15-dev
 
 RUN mkdir -p /usr/local/lib/pkgconfig && wget -qO /usr/local/lib/pkgconfig/clang.pc \
     https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc 

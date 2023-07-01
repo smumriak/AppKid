@@ -6,7 +6,6 @@
 //
 
 internal let kMultisamplingEnabled: Bool = ProcessInfo.processInfo.environment["APPKID_MULTISAMPLED_RENDERING"] != nil
-internal let kShadersSubdirectoryName = "ShaderBinaries"
 
 import Foundation
 import CoreFoundation

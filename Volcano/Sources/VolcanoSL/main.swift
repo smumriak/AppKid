@@ -325,7 +325,7 @@ struct VolcanoSL: ParsableCommand {
     @Argument(help: "Path to shader source file")
     var filePath: String
 
-    @Option(name: .customShort("I"), help: "Addition hader search path, no recursion")
+    @Option(name: .customShort("I"), help: "Additional hader search path, no recursion")
     var include: [String] = []
 
     @Option(name: .shortAndLong, help: "GLSL output file path. Leave empty to get generated file path")

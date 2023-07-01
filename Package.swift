@@ -287,17 +287,14 @@ extension Target {
             .product(name: "OrderedCollections", package: "swift-collections"),
         ],
         path: "ContentAnimation/Sources/ContentAnimation",
-        exclude: [
-            "Resources/ShaderSources",
-        ],
-        resources: [
-            .copy("Resources/ShaderBinaries"),
-        ],
+        // exclude: [
+        //     "Resources/ShaderSources",
+        // ],
         swiftSettings: [
             .unsafeFlags(["-emit-module"]),
         ],
         plugins: [
-            // .plugin(name: "VolcanoSLPlugin", package: "Volcano"),
+            .plugin(name: "VolcanoSLPlugin"),
         ]
     )
     static let layerRenderingData: Target = target(
@@ -436,7 +433,7 @@ extension Target {
         path: "Volcano/Sources/CClang",
         pkgConfig: "clang",
         providers: [
-            .apt(["libclang-12-dev"]),
+            .apt(["libclang-15-dev"]),
         ]
     )
     static let volcano: Target = target(
@@ -505,7 +502,7 @@ extension Target {
         path: "Volcano/Plugins/VkThingsPlugin"
     )
     static let volcanoSL: Target = executableTarget(
-        name: "VolcanoSL",
+        name: "volcanosl",
         dependencies: [
             .cClang,
             .tinyFoundation,

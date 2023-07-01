@@ -304,8 +304,8 @@ extension RenderContext {
                         let fragmentShaderName = type.fragmentShaderBaseName + roundedName + fragmentShaderNameSuffix
 
                         let descriptor = renderPass.sharedGraphicsPipelineDescriptor(subpassIndex: subpassIndex, descriptorSetLayouts: descriptorSetLayouts, antiAliased: antiAliased)
-                        descriptor.vertexShader = try device.shader(named: vertexShaderName, in: bundle, subdirectory: kShadersSubdirectoryName)
-                        descriptor.fragmentShader = try device.shader(named: fragmentShaderName, in: bundle, subdirectory: kShadersSubdirectoryName)
+                        descriptor.vertexShader = try device.shader(named: vertexShaderName, in: bundle)
+                        descriptor.fragmentShader = try device.shader(named: fragmentShaderName, in: bundle)
 
                         let key = Key(type: type, antiAliased: antiAliased, rounded: rounded)
                         let value = try GraphicsPipeline(device: device, descriptor: descriptor)

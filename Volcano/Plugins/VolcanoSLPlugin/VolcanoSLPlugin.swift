@@ -29,13 +29,15 @@ struct VolcanoSLPlugin: BuildToolPlugin {
                 ["-I", $0]
             }
             
-        let glslOutputPath = context.pluginWorkDirectory.appending("Shaders")
-        let spvOutputPath = target.directory.appending(["Resources", "ShaderBinaries"])
+        let glslOutputPath = context.pluginWorkDirectory.appending("glsl")
+        let spvOutputPath = context.pluginWorkDirectory.appending("spv")
 
-        try FileManager.default.createDirectory(atPath: glslOutputPath.string, withIntermediateDirectories: true)
-        try FileManager.default.createDirectory(atPath: spvOutputPath.string, withIntermediateDirectories: true)
+        let fileManager = FileManager.default
 
-        let volcanoslPath = try context.tool(named: "VolcanoSL").path
+        try fileManager.createDirectory(atPath: glslOutputPath.string, withIntermediateDirectories: true)
+        try fileManager.createDirectory(atPath: spvOutputPath.string, withIntermediateDirectories: true)
+
+        let volcanoslPath = try context.tool(named: "volcanosl").path
 
         return target.sourceFiles
             .filter {
@@ -52,7 +54,11 @@ struct VolcanoSLPlugin: BuildToolPlugin {
                 let volcanoslArguments: [String] = [inputFilePath.string, "-g", glslOutputFilePath.string, "-s", spvOutputFilePath.string] + headersSearchPaths
 
                 let volcanoSLCommand: Command = .buildCommand(
-                    displayName: "VolcanoSL: processing \(inputFilePath.lastComponent)", executable: volcanoslPath, arguments: volcanoslArguments, inputFiles: [inputFilePath], outputFiles: [spvOutputFilePath]
+                    displayName: "VolcanoSL: processing \(inputFilePath.lastComponent)",
+                    executable: volcanoslPath,
+                    arguments: volcanoslArguments,
+                    inputFiles: [inputFilePath],
+                    outputFiles: [spvOutputFilePath]
                 )
 
                 return volcanoSLCommand

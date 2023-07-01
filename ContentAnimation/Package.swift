@@ -56,9 +56,6 @@ let package = Package(
             exclude: [
                 "Resources/ShaderSources",
             ],
-            resources: [
-                .copy("Resources/ShaderBinaries"),
-            ],
             swiftSettings: [
                 .unsafeFlags(["-emit-module"]),
             ],

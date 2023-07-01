@@ -132,14 +132,14 @@ Before jumping straight into writing code there is some development setup requir
 - <details>
 	<summary>libclang for shaders preprocessing</summary>
 
-	> **NOTE:** If you have no intention to modify internal **AppKid** shaders you can skip this step
+	> **NOTE:** This is now a required dependency since shader compilation is now part of the pipeline
 
 	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang.
 	
 	Install libclang itself
 	```bash
 	sudo apt install -y \
-		libclang-12-dev 
+		libclang-15-dev 
 	```
 	Install provided package config file for libclang because llvm does not provide one:
 	```bash
