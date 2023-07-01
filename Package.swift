@@ -44,7 +44,7 @@ let package = Package(
         .library(.volcano, type: .dynamic),
         .library(.vulkanMemoryAllocatorAdapted, type: .static),
         .tool(.vkthings),
-        .plugin(.vkthingsPlugin),
+        .plugin(.vkThingsPlugin),
         .tool(.volcanoSL),
         .plugin(.volcanoSLPlugin),
     ],
@@ -116,7 +116,7 @@ let package = Package(
         .vkthingsLib,
         .volcanoSL,
         .volcanoSLPlugin,
-        .vkthingsPlugin,
+        .vkThingsPlugin,
     ]
 )
 
@@ -180,7 +180,7 @@ extension Target.Dependency {
     static let vulkanMemoryAllocatorAdapted = Target.vulkanMemoryAllocatorAdapted.asDependency()
     static let vkthings = Target.vkthings.asDependency()
     static let vkthingsLib = Target.vkthingsLib.asDependency()
-    static let vkthingsPlugin = Target.vkthingsPlugin.asDependency()
+    static let vkThingsPlugin = Target.vkThingsPlugin.asDependency()
     static let volcanoSL = Target.volcanoSL.asDependency()
     static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency()
 }
@@ -460,7 +460,7 @@ extension Target {
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
         ],
         plugins: [
-            .plugin(.vkthingsPlugin),
+            .plugin(.vkThingsPlugin),
         ]
     )
     static let vulkanMemoryAllocatorAdapted: Target = target(
@@ -496,13 +496,13 @@ extension Target {
         ],
         path: "Volcano/Sources/vkthings"
     )
-    static let vkthingsPlugin: Target = plugin(
-        name: "vkthingsPlugin",
+    static let vkThingsPlugin: Target = plugin(
+        name: "VkThingsPlugin",
         capability: .buildTool(),
         dependencies: [
             .vkthings,
         ],
-        path: "Volcano/Plugins/vkthingsPlugin"
+        path: "Volcano/Plugins/VkThingsPlugin"
     )
     static let volcanoSL: Target = executableTarget(
         name: "VolcanoSL",
