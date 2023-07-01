@@ -16,37 +16,37 @@ let package = Package(
     products: [
         .executable(name: "AppKidDemo", targets: ["AppKidDemo"]),
         
-        .appKid,
+        .library(.appKid, type: .dynamic),
 
-        .cCairo,
-        .cPango,
-        .cairoGraphics,
-        .sTBImage,
-        .sTBImageRead,
-        .sTBImageWrite,
-        .sTBImageResize,
+        .library(.cCairo),
+        .library(.cPango),
+        .library(.cairoGraphics, type: .dynamic),
+        .library("STBImage", [.stbImageRead, .stbImageWrite, .stbImageResize], type: .static),
+        .library(.stbImageRead, type: .static),
+        .library(.stbImageWrite, type: .static),
+        .library(.stbImageResize, type: .static),
 
-        .contentAnimation,
+        .library(.contentAnimation, type: .dynamic),
 
-        .simpleGLM,
+        .library(.simpleGLM, type: .dynamic),
 
-        .cXlib,
-        .swiftXlib,
+        .library(.cXlib),
+        .library(.swiftXlib, type: .dynamic),
 
-        // .cGLib,
-        // .swiftyGLib,
+        // .library(.cGLib),
+        // .library(.swiftyGLib, type: .dynamic),
 
-        .linuxSys,
+        .library(.linuxSys),
 
-        .tinyFoundation,
+        .library(.tinyFoundation),
 
-        .cVulkan,
-        .volcano,
-        .vulkanMemoryAllocatorAdapted,
-        .vkthings,
-        .vkthingsPlugin,
-        .volcanosl,
-        .volcanoSLPlugin,
+        .library(.cVulkan),
+        .library(.volcano, type: .dynamic),
+        .library(.vulkanMemoryAllocatorAdapted, type: .static),
+        .tool(.vkthings),
+        .plugin(.vkthingsPlugin),
+        .tool(.volcanoSL),
+        .plugin(.volcanoSLPlugin),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
@@ -121,37 +121,25 @@ let package = Package(
 )
 
 extension Product {
-    static let appKid: Product = library(name: "AppKid", type: .dynamic, targets: [Target.appKid.name])
+    static func library(_ target: Target, type: Library.LibraryType? = nil) -> Product {
+        library(target.name, [target], type: type)
+    }
 
-    static let cCairo: Product = library(name: "CCairo", targets: [Target.cCairo.name])
-    static let cPango: Product = library(name: "CPango", targets: [Target.cPango.name])
-    static let cairoGraphics: Product = library(name: "CairoGraphics", type: .dynamic, targets: [Target.cairoGraphics.name])
-    static let sTBImage: Product = library(name: "STBImage", type: .static, targets: [Target.stbImageRead.name, Target.stbImageWrite.name, Target.stbImageResize.name])
-    static let sTBImageRead: Product = library(name: "STBImageRead", type: .static, targets: [Target.stbImageRead.name])
-    static let sTBImageWrite: Product = library(name: "STBImageWrite", type: .static, targets: [Target.stbImageWrite.name])
-    static let sTBImageResize: Product = library(name: "STBImageResize", type: .static, targets: [Target.stbImageResize.name])
+    static func library(_ name: String, _ targets: [Target], type: Library.LibraryType? = nil) -> Product {
+        library(name: name, type: type, targets: targets.map { $0.name })
+    }
 
-    static let contentAnimation: Product = library(name: "ContentAnimation", type: .dynamic, targets: [Target.contentAnimation.name])
+    static func tool(_ target: Target) -> Product {
+        executable(name: target.name.lowercased(), targets: [target.name])
+    }
 
-    static let simpleGLM: Product = library(name: "SimpleGLM", type: .dynamic, targets: [Target.simpleGLM.name])
+    static func plugin(_ target: Target) -> Product {
+        plugin(name: target.name, targets: [target.name])
+    }
 
-    static let cXlib: Product = library(name: "CXlib", targets: [Target.cXlib.name])
-    static let swiftXlib: Product = library(name: "SwiftXlib", type: .dynamic, targets: [Target.swiftXlib.name])
-
-    static let cGLib: Product = library(name: "CGLib", targets: [Target.cGLib.name])
-    static let swiftyGLib: Product = library(name: "SwiftyGLib", type: .dynamic, targets: [Target.swiftyGLib.name])
-
-    static let linuxSys: Product = library(name: "LinuxSys", targets: [Target.linuxSys.name])
-
-    static let tinyFoundation: Product = library(name: "TinyFoundation", targets: [Target.tinyFoundation.name])
-
-    static let cVulkan: Product = library(name: "CVulkan", targets: [Target.cVulkan.name])
-    static let volcano: Product = library(name: "Volcano", type: .dynamic, targets: [Target.volcano.name])
-    static let vulkanMemoryAllocatorAdapted: Product = library(name: "VulkanMemoryAllocatorAdapted", type: .static, targets: [Target.vulkanMemoryAllocatorAdapted.name])
-    static let vkthings: Product = executable(name: "vkthings", targets: [Target.vkthings.name])
-    static let vkthingsPlugin: Product = plugin(name: "vkthingsPlugin", targets: [Target.vkthingsPlugin.name])
-    static let volcanosl: Product = executable(name: "volcanosl", targets: [Target.volcanoSL.name])
-    static let volcanoSLPlugin: Product = plugin(name: "VolcanoSLPlugin", targets: [Target.volcanoSLPlugin.name])
+    static func plugin(_ name: String, _ targets: [Target]) -> Product {
+        plugin(name: name, targets: targets.map { $0.name })
+    }
 }
 
 extension Target.Dependency {
@@ -197,9 +185,19 @@ extension Target.Dependency {
     static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency()
 }
 
+extension Target.PluginUsage {
+    static func plugin(_ target: Target) -> Target.PluginUsage {
+        plugin(name: target.name)
+    }
+}
+
 extension Target {
-    func asDependency(condition: PackageDescription.TargetDependencyCondition? = nil) -> Dependency {
+    func asDependency(condition: TargetDependencyCondition? = nil) -> Dependency {
         return .targetItem(name: name, condition: condition)
+    }
+
+    func asLibraryProduct(type: Product.Library.LibraryType? = nil) -> Product {
+        .library(name: name, type: type, targets: [name])
     }
 }
 
@@ -462,7 +460,7 @@ extension Target {
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
         ],
         plugins: [
-            .plugin(name: "vkthingsPlugin"),
+            .plugin(.vkthingsPlugin),
         ]
     )
     static let vulkanMemoryAllocatorAdapted: Target = target(
