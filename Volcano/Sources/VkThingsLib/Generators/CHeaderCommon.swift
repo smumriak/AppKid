@@ -10,22 +10,18 @@ public protocol CHeaderGenerator: Generator {
 }
 
 public extension CHeaderGenerator {
-    var top: String {
+    func top(from parser: Parser) throws -> String {
         """
-
         #ifndef \(headerName)_h
         #define \(headerName)_h 1
 
         #include \"../../../CCore/include/CCore.h\"
-        
         """
     }
 
-    var bottom: String {
+    func bottom(from parser: Parser) throws -> String {
         """
-        
         #endif /* \(headerName)_h */
-        
         """
     }
 }

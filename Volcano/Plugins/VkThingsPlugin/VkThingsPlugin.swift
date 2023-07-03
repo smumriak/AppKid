@@ -21,9 +21,9 @@ struct VkThingsPlugin: BuildToolPlugin {
 
         // smumriak: it looks like build command works fine with empty inputFiles argument. so for now it's what is going to be used
         return try files.map {
-            return .buildCommand(
+            return try .buildCommand(
                 displayName: "Generating \($0.name)",
-                executable: try context.tool(named: "vkthings").path,
+                executable: context.tool(named: "vkthings").path,
                 arguments: [
                     "-o",
                     context.pluginWorkDirectory.appending($0.name),

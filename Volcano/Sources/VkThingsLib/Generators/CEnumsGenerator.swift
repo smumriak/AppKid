@@ -17,10 +17,6 @@ public struct CEnumsGenerator: CHeaderGenerator {
     public func resultString(with parser: __shared Parser) throws -> String {
         var result: [String] = try [header(from: parser)]
 
-        result += [
-            top,
-        ]
-                
         result += parser.enumerations.map { $0.value }
             .sorted {
                 $0.name < $1.name
@@ -35,9 +31,7 @@ public struct CEnumsGenerator: CHeaderGenerator {
                 ]
             }
 
-        result += [
-            bottom,
-        ]
+        try result.append(footer(from: parser))
 
         return result.joined(separator: .newline)
     }

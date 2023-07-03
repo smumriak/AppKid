@@ -128,7 +128,7 @@ let package = Package(
         .package(url: "https://github.com/CoreOffice/XMLCoder.git", from: "0.13.1"),
         .package(url: "https://github.com/apple/swift-tools-support-core", branch: "main"),
         .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/SwiftPackageIndex/SemanticVersion.git", branch: "main"),
+        .package(url: "https://github.com/smumriak/SemanticVersion.git", branch: "main"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
     ],
     targets: [

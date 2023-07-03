@@ -15,10 +15,6 @@ public struct COptionSetsGenerator: CHeaderGenerator {
 
     public func resultString(with parser: __shared Parser) throws -> String {
         var result: [String] = try [header(from: parser)]
-
-        result += [
-            top,
-        ]
                 
         result += parser.optionSets.map { $0.value }
             .sorted {
@@ -34,9 +30,7 @@ public struct COptionSetsGenerator: CHeaderGenerator {
                 ]
             }
 
-        result += [
-            bottom,
-        ]
+        try result.append(footer(from: parser))
 
         return result.joined(separator: .newline)
     }

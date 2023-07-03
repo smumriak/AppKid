@@ -14,7 +14,6 @@ public struct SwiftStructsGenerator: SwiftFileGenerator {
         var result: [String] = try [header(from: parser)]
 
         result += [
-            "",
             tinyFoundation,
             "",
         ]
@@ -28,7 +27,9 @@ public struct SwiftStructsGenerator: SwiftFileGenerator {
                     "",
                 ]
             }
-                    
+
+        try result.append(footer(from: parser))
+        
         return result.joined(separator: .newline)
     }
 }

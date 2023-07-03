@@ -14,7 +14,6 @@ public struct SwiftEnumsGenerator: SwiftFileGenerator {
         var result: [String] = try [header(from: parser)]
 
         result += [
-            "",
             tinyFoundation,
             "",
         ]
@@ -33,6 +32,8 @@ public struct SwiftEnumsGenerator: SwiftFileGenerator {
                     "",
                 ]
             }
+
+        try result.append(footer(from: parser))
 
         return result.joined(separator: .newline)
     }

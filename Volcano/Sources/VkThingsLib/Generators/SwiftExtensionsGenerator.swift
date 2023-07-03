@@ -43,6 +43,8 @@ public struct SwiftExtensionsGenerator: SwiftFileGenerator {
             "}",
             "",
         ]
+        
+        try result.append(footer(from: parser))
 
         return result.joined(separator: .newline)
     }
