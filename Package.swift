@@ -7,6 +7,79 @@
 //
 
 import PackageDescription
+import Foundation
+
+// MARK: Vulkan pre-build parsing
+
+enum Vulkan {
+    struct ValidUsage: Codable {
+        let versionInfo: VersionInfo
+        public enum CodingKeys: String, CodingKey {
+            case versionInfo = "version info"
+        }
+    }
+
+    struct VersionInfo: Codable {
+        public let apiVersion: String
+        public enum CodingKeys: String, CodingKey {
+            case apiVersion = "api version"
+        }
+    }
+
+    #if os(Linux)
+        static let possibleRevistryLocations = [
+            "/usr/share/vulkan/registry/vk.xml",
+        ]
+    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+        #error("FIX ME")
+    #elseif os(Android)
+        #error("FIX ME")
+    #elseif os(Windows)
+        #error("FIX ME")
+    #endif
+}
+
+let vulkanVersion: String = {
+    let fileManager = FileManager.default
+    var isDirectory: ObjCBool = false
+
+    #if os(Linux)
+        let possibleLocations = [
+            "/usr/share/vulkan/registry",
+        ]
+    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
+        #error("FIX ME")
+    #elseif os(Android)
+        #error("FIX ME")
+    #elseif os(Windows)
+        #error("FIX ME")
+    #endif
+
+    let path: String? = {
+        for path in possibleLocations {
+            if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue == true {
+                return path
+            }
+        }
+
+        return nil
+    }()
+
+    guard let path else {
+        fatalError("Can not find vulkan registry in known locations \(possibleLocations)")
+    }
+
+    let validUsageURL = URL(fileURLWithPath: path, isDirectory: true).appendingPathComponent("validusage.json")
+
+    do {
+        let validUsage = try JSONDecoder().decode(Vulkan.ValidUsage.self, from: Data(contentsOf: validUsageURL))
+        return validUsage.versionInfo.apiVersion
+    } catch {
+        fatalError("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error)")
+    }
+}()
+
+// MARK: Package
 
 let package = Package(
     name: "AppKid",
@@ -455,6 +528,7 @@ extension Target {
             .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
             .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
+            .define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))"),
         ],
         plugins: [
             .plugin(.vkThingsPlugin),
