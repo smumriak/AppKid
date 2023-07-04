@@ -18,7 +18,7 @@
         {
             "label": "buildProject",
             "type": "shell",
-            "command": "swift build --build-path ${workspaceFolder}/.build"
+            "command": "swift build --build-path ${workspaceFolder}/.build",
             "group": "build",
             "presentation": {
                 "echo": false,
@@ -50,7 +50,7 @@
         {
             "label": "build_tests",
             "type": "shell",
-            "command": "swift build --build-tests --build-path ${workspaceFolder}/.build"
+            "command": "swift build --build-tests --build-path ${workspaceFolder}/.build",
             "group": "test",
             "presentation": {
                 "echo": false,

@@ -16,7 +16,7 @@ let package = Package(
                 .product(name: "Cuisine", package: "Cuisine"),
                 .product(name: "CuisineArgumentParser", package: "Cuisine"),
                 .product(name: "SemanticVersion", package: "SemanticVersion"),
-            ],
-            path: "Sources"),
+            ]
+        ),
     ]
 )
