@@ -1,0 +1,19 @@
+--swiftversion 5.7
+--exclude .build,.vscode,.swiftpm
+--indent 4
+--tabwidth 4
+--xcodeindentation enabled
+--decimalgrouping none
+--binarygrouping none
+--octalgrouping none
+--hexgrouping none
+--hexliteralcase uppercase
+--exponentcase lowercase
+--nospaceoperators ...,..<
+--trimwhitespace nonblank-lines
+--ifdef indent
+--indentcase true
+--modifierorder open,public,internal,internal(set),private,private(set),fileprivate,fileprivate(set),mutating,override,static,class,convenience,required,lazy,weak,unowned
+--marktypes never
+
+--disable andOperator,emptyBraces,enumNamespaces,hoistPatternLet,preferKeyPath,redundantFileprivate,redundantGet,redundantLet,redundantLetError,redundantNilInit,redundantObjc,redundantRawValues,redundantReturn,redundantSelf,sortedImports,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapMultilineStatementBraces,yodaConditions,typeSugar,redundantPattern,redundantType,enumNamespaces

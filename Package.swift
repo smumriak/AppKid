@@ -117,7 +117,8 @@ let package = Package(
         .library(.volcano, type: .dynamic),
         .library(.vulkanMemoryAllocatorAdapted, type: .static),
         .tool(.vkthings),
-        .plugin(.vkThingsPlugin),
+        .plugin(.vkThingsBuildToolPlugin),
+        .plugin(.vkThingsCommandPlugin),
         .tool(.volcanoSL),
         .plugin(.volcanoSLPlugin),
     ],
@@ -187,9 +188,10 @@ let package = Package(
         .vulkanMemoryAllocatorAdapted,
         .vkthings,
         .vkthingsLib,
+        .vkThingsBuildToolPlugin,
+        .vkThingsCommandPlugin,
         .volcanoSL,
         .volcanoSLPlugin,
-        .vkThingsPlugin,
     ]
 )
 
@@ -253,7 +255,8 @@ extension Target.Dependency {
     static let vulkanMemoryAllocatorAdapted = Target.vulkanMemoryAllocatorAdapted.asDependency()
     static let vkthings = Target.vkthings.asDependency()
     static let vkthingsLib = Target.vkthingsLib.asDependency()
-    static let vkThingsPlugin = Target.vkThingsPlugin.asDependency()
+    static let vkThingsBuildToolPlugin = Target.vkThingsBuildToolPlugin.asDependency()
+    static let vkThingsCommandPlugin = Target.vkThingsCommandPlugin.asDependency()
     static let volcanoSL = Target.volcanoSL.asDependency()
     static let volcanoSLPlugin = Target.volcanoSLPlugin.asDependency()
 }
@@ -531,7 +534,8 @@ extension Target {
             .define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))"),
         ],
         plugins: [
-            .plugin(.vkThingsPlugin),
+            // SourceKit-lsp does not support generated source code. this means no autocompletion, which is WORSE than manual codegen trigger
+            // .plugin(.vkThingsBuildToolPlugin),
         ]
     )
     static let vulkanMemoryAllocatorAdapted: Target = target(
@@ -562,18 +566,31 @@ extension Target {
         dependencies: [
             .product(name: "ArgumentParser", package: "swift-argument-parser"),
             .product(name: "XMLCoder", package: "XMLCoder"),
+            .product(name: "SemanticVersion", package: "SemanticVersion"),
             .tinyFoundation,
             .vkthingsLib,
         ],
         path: "Volcano/Sources/vkthings"
     )
-    static let vkThingsPlugin: Target = plugin(
-        name: "VkThingsPlugin",
+    static let vkThingsBuildToolPlugin: Target = plugin(
+        name: "VkThingsBuildToolPlugin",
         capability: .buildTool(),
         dependencies: [
             .vkthings,
         ],
-        path: "Volcano/Plugins/VkThingsPlugin"
+        path: "Volcano/Plugins/VkThingsBuildToolPlugin"
+    )
+    static let vkThingsCommandPlugin: Target = plugin(
+        // VK is not a typo here! for unknown reasons swift package manager refuses to consume this name if K is lowerkased in Vk
+        name: "VKThingsCommandPlugin",
+        capability: .command(
+            intent: .custom(verb: "vkthings", description: "VkThings codegen"),
+            permissions: [.writeToPackageDirectory(reason: "Generating code")]
+        ),
+        dependencies: [
+            .vkthings,
+        ],
+        path: "Volcano/Plugins/VkThingsCommandPlugin"
     )
     static let volcanoSL: Target = executableTarget(
         name: "volcanosl",

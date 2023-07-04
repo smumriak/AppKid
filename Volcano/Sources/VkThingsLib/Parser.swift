@@ -82,8 +82,13 @@ public struct Parser {
     public let deviceExtensions: Dictionary<String, ParsedDeviceExtension>
     public let version: SemanticVersion
 
-    public init(registryFileURL: URL) throws {
-        let validUsage = try VulkanValidUsage(registryFileURL: registryFileURL)
+    public init(registryFileURL: URL, version: SemanticVersion? = nil) throws {
+        if let version {
+            self.version = version
+        } else {
+            let validUsage = try VulkanValidUsage(registryFileURL: registryFileURL)
+            self.version = validUsage.versionInfo.apiVersion
+        }
 
         let registryXMLData = try Data(contentsOf: registryFileURL)
 
@@ -352,6 +357,5 @@ public struct Parser {
         self.enabledExtensions = enabledExtensions
         self.instanceExtensions = instanceExtensions
         self.deviceExtensions = deviceExtensions
-        self.version = validUsage.versionInfo.apiVersion
     }
 }

@@ -1,0 +1,42 @@
+{
+    "version": "2.0.0",
+    "configurations": [
+        {
+            "name": "Run",
+            "type": "lldb",
+            "request": "launch",
+            "args": [
+                "--minimal-version",
+                "1.3.204",
+                "--max-patch",
+                "256",
+                "--output-directory",
+                "/home/palkovnik/Documents/AppKid",
+            ],
+            "preLaunchTask": "build",
+            "env": {
+                "DEBUG": "1"
+            },
+            "program": "${workspaceFolder}/.build/debug/vulkancodegen"
+        },
+        {
+            "name": "RunWithoutBuilding",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "env": {
+                "DEBUG": "1"
+            },
+            "program": "${workspaceFolder}/.build/debug/vulkancodegen"
+        },
+        {
+            "name": "Test",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "preLaunchTask": "build_tests",
+            "terminal": "console",
+            "program": "${workspaceFolder}/.buildTests/debug/vulkancodegenPackageTests.xctest"
+        }
+    ]
+}

@@ -1,0 +1,98 @@
+{
+    "sourcekit-lsp.serverArguments": [
+        "--configuration",
+        "debug"
+    ],
+    "sourcekit-lsp.inlayHints.enabled": false,
+    "swift.autoGenerateLaunchConfigurations": false,
+    "swift.buildArguments": [
+        "--configuration",
+        "debug"
+    ],
+    "swift.buildPath": ".build",
+    "swift.testEnvironmentVariables": {
+    },
+    "swiftformat.configSearchPaths": [
+        ".swiftformat"
+    ],
+    "lldb.adapterEnv": {
+        "LLDB_DEBUGSERVER_PATH": "/opt/swift/usr/bin/lldb-server"
+    },
+    "lldb.verboseLogging": false,
+    "lldb.launch.expressions": "native",
+    "lldb.commandCompletions": true,
+    "lldb.launch.terminal": "console",
+    "lldb.launch.sourceLanguages": [
+        "cpp",
+        "c",
+        "swift"
+    ],
+    "lldb.launch.cwd": "${workspaceFolder}",
+    "lldb.showDisassembly": "auto",
+    "lldb.evaluateForHovers": true,
+    "[swift]": {},
+    "files.associations": {
+    },
+    "debug.toolBarLocation": "docked",
+    "debug.focusWindowOnBreak": true,
+    "debug.showInStatusBar": "always",
+    "debug.saveBeforeStart": "allEditorsInActiveGroup",
+    "debug.openDebug": "openOnDebugBreak",
+    "debug.internalConsoleOptions": "openOnSessionStart",
+    "debug.showSubSessionsInToolBar": true,
+    "debug.onTaskErrors": "abort",
+    "debug.console.collapseIdenticalLines": false,
+    "debug.console.wordWrap": true,
+    "debug.console.historySuggestions": true,
+    "launches": {
+        "Run": "Run",
+        "RunWithoutBuilding": "RunWithoutBuilding",
+        "Test": "Test"
+    },
+    "terminal.integrated.scrollback": 200000,
+    "editor.wordWrap": "on",
+    "diffEditor.wordWrap": "on",
+    "launch-config.ifDebugSessionRunning": "stop/start",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.bracketPairColorization.enabled": false,
+    "swift.swiftEnvironmentVariables": {
+    },
+    "files.exclude": {
+        "**/.build": true
+    },
+    "files.watcherExclude": {
+        "**/.build": true
+    },
+    "search.exclude": {
+        "**/.build": true
+    },
+    "psi-header.config": {
+        "forceToTop": true,
+        "blankLinesAfter": 1,
+    },
+    "psi-header.changes-tracking": {
+        "isActive": false,
+        "autoHeader": "autoSave"
+    },
+    "psi-header.lang-config": [
+        {
+            "language": "*",
+            "begin": "//",
+            "prefix": "//  ",
+            "end": "//",
+            "forceToTop": true,
+            "rootDirFileName": "Package.swift",
+        }
+    ],
+    "psi-header.templates": [
+        {
+            "language": "*",
+            "template": [
+                "<<filename>>",
+                "<<projectname>>",
+                "",
+                "Created by <<author>> on <<filecreated('DD.MM.YYYY')>>"
+            ]
+        }
+    ],
+}

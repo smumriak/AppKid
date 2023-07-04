@@ -11,6 +11,7 @@ import XMLCoder
 import TinyFoundation
 import VkThingsLib
 import Yams
+import SemanticVersion
 
 var defaultRegistryFilePath: String {
     get throws {
@@ -36,6 +37,12 @@ var defaultRegistryFilePath: String {
         }
 
         throw VulkanStructureGenerator.Error.vulkanRegistryNotFound
+    }
+}
+
+extension SemanticVersion: ExpressibleByArgument {
+    public init?(argument: String) {
+        self.init(argument)
     }
 }
 
@@ -75,6 +82,9 @@ struct VulkanStructureGenerator: ParsableCommand {
 
     @Flag(name: .shortAndLong)
     var force: Bool = false
+
+    @Option(name: .long)
+    var vulkanVersion: SemanticVersion? = nil
 
     mutating func run() throws {
         if registryFilePath.isEmpty {
@@ -154,7 +164,7 @@ struct VulkanStructureGenerator: ParsableCommand {
         
         let outputFileURL = URL(fileURLWithPath: outputFilePath, isDirectory: false)
 
-        let parser = try Parser(registryFileURL: registryFileURL)
+        let parser = try Parser(registryFileURL: registryFileURL, version: vulkanVersion)
         try generator.write(to: outputFileURL, parser: parser)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  VkThingsPlugin.swift
+//  VkThingsBuildToolPlugin.swift
 //  Volcano
 //
 //  Created by Serhii Mumriak on 28.06.2023
@@ -9,7 +9,7 @@ import PackagePlugin
 import Foundation
 
 @main
-struct VkThingsPlugin: BuildToolPlugin {
+struct VkThingsBuildToolPlugin: BuildToolPlugin {
     func createBuildCommands(context: PluginContext, target: Target) throws -> [Command] {
         // smumriak: plugins can generate only swift code. sad
         let files = [
