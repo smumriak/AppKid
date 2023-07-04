@@ -66,11 +66,14 @@ final class AppDelegate: ApplicationDelegate {
 		wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor | sudo tee -a /usr/share/keyrings/lunarg-archive-keyring.gpg
 		sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/lunarg-vulkan-jammy.list -O /etc/apt/sources.list.d/lunarg-vulkan-jammy.list
 		sudo apt update
-		sudo apt install vulkan-sdk -y
+		sudo apt install -y vulkan-sdk
 		```
-	- Alternativelly you can try to install Vulkan SDK from tarballs provided by LunarG or if you are using Debian 12 and newer or Ubuntu 22.04 and newer you can substitute Vulkan SDK from LunarG by installing 	libvulkan-dev
+	- Alternativelly you can try to install Vulkan SDK from tarballs provided by LunarG or if you are using Debian 12 and newer or Ubuntu 22.04 and newer you can substitute Vulkan SDK from LunarG by installing packages form distro's repository
 		```
-		sudo apt install libvulkan-dev
+		sudo apt install -y \
+			libvulkan-dev \
+			vulkan-validationlayers \
+			glslc
 		```
 		But you will have to manually install `glslc` compiler from Gooogle's shaderc project located [here](https://github.com/google/shaderc).
   </details>
@@ -86,6 +89,25 @@ final class AppDelegate: ApplicationDelegate {
 		libpango1.0-dev \
 		libglib2.0-dev
 	```
+  </details>
+- <details>
+	<summary>libclang for shaders preprocessing</summary>
+
+	> **NOTE:** This is now a required dependency since shader compilation is now part of the pipeline
+
+	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang.
+	
+	Install libclang itself
+	```bash
+	sudo apt install -y \
+		libclang-15-dev 
+	```
+	Install provided package config file for libclang because llvm does not provide one:
+	```bash
+	sudo mkdir -p /usr/local/lib/pkgconfig
+	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
+	```
+	If you are going to install different version of libclang - adjust clang.pc accordingly.
   </details>
 - <details>
 	<summary>libpython3.8 for debugger support</summary>
@@ -125,7 +147,7 @@ let package = Package(
 ## **Contributing**
 Contributions are very welcome. Before you dive in it is recommended to [setup your local development environment](#development).
 
-You can use provided sample applicatio called **AppKidDemo**, it is located in this repository and is one of the products. **AppKidDemo** is written in swift and provides a sample environment for **AppKid** development. 
+You can use provided sample application called **AppKidDemo**, it is located in this repository and is one of the products. **AppKidDemo** is written in swift and provides a sample environment for **AppKid** development. 
 
 https://user-images.githubusercontent.com/4306641/177026612-370dbd73-b414-4551-9341-9bd580389d53.mp4
 
@@ -135,25 +157,7 @@ https://user-images.githubusercontent.com/4306641/177026512-4524bd22-895b-4205-a
 Before jumping straight into writing code there is some development setup required. Below are instructions on how to setup development environment for Debian-based Linux or for macOS
 #### Debian-based Linux
 - Follow steps from [Getting started with **AppKid** in your project](#getting-started-with-appkid-in-your-project) to get the dependencies installed
-- <details>
-	<summary>libclang for shaders preprocessing</summary>
-
-	> **NOTE:** This is now a required dependency since shader compilation is now part of the pipeline
-
-	AppKid is using its own GLSL dialect for internal shaders. It is preprocessed via custom tool that is build on top of libclang.
-	
-	Install libclang itself
-	```bash
-	sudo apt install -y \
-		libclang-15-dev 
-	```
-	Install provided package config file for libclang because llvm does not provide one:
-	```bash
-	sudo mkdir -p /usr/local/lib/pkgconfig
-	sudo wget -q https://raw.githubusercontent.com/smumriak/AppKid/main/SupportingFiles/clang.pc -O /usr/local/lib/pkgconfig/clang.pc
-	```
-	If you are going to install different version of libclang - adjust clang.pc accordingly.
-  </details>
+- That's it
 
 #### **macOS**
 - Xcode via [AppStore](https://apps.apple.com/us/app/xcode/id497799835) or [developer.apple.com](https://developer.apple.com/download/more/)
