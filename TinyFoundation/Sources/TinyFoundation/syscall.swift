@@ -8,11 +8,9 @@
 #if canImport(LinuxSys)
     import LinuxSys
 #endif
-
 #if canImport(Glibc)
     import Glibc
 #endif
-
 #if canImport(Darwin)
     import Darwin
 #endif

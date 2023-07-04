@@ -32,6 +32,8 @@ AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 #include <sched.h>
 #include <unistd.h>
 
+#include "macros.h"
+
 #endif
 
 #endif
