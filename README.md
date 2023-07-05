@@ -38,6 +38,8 @@ final class AppDelegate: ApplicationDelegate {
 ## Getting started with **AppKid** in your project
 **AppKid** depends on mulitple opensource projects. Below are the instructrions on how to set those up for Debian-based Linux distributions. RPM-Based instructions will be added some time later.
 
+To use this in your own project see also [Documentation/GETTING_STARTED.md](Documentation/GETTING_STARTED.md)
+
 - <details>
 	<summary>Swift language</summary>
 	
