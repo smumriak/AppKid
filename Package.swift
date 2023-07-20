@@ -66,7 +66,8 @@ let vulkanVersion: String = {
     }()
 
     guard let path else {
-        fatalError("Can not find vulkan registry in known locations \(possibleLocations)")
+        print("Can not find vulkan registry in known locations \(possibleLocations). Building anything related to Vulkan will fail.")
+        return "0.0.0"
     }
 
     let validUsageURL = URL(fileURLWithPath: path, isDirectory: true).appendingPathComponent("validusage.json")
@@ -75,7 +76,8 @@ let vulkanVersion: String = {
         let validUsage = try JSONDecoder().decode(Vulkan.ValidUsage.self, from: Data(contentsOf: validUsageURL))
         return validUsage.versionInfo.apiVersion
     } catch {
-        fatalError("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error)")
+        print("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error). Building anything related to Vulkan will fail.")
+        return "0.0.0"
     }
 }()
 
