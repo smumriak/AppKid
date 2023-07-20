@@ -39,7 +39,7 @@ enum Vulkan {
     #endif
 }
 
-let vulkanVersion: String = {
+let vulkanVersion: String? = {
     let fileManager = FileManager.default
     var isDirectory: ObjCBool = false
 
@@ -67,7 +67,7 @@ let vulkanVersion: String = {
 
     guard let path else {
         print("Can not find vulkan registry in known locations \(possibleLocations). Building anything related to Vulkan will fail.")
-        return "0.0.0"
+        return nil
     }
 
     let validUsageURL = URL(fileURLWithPath: path, isDirectory: true).appendingPathComponent("validusage.json")
@@ -77,7 +77,7 @@ let vulkanVersion: String = {
         return validUsage.versionInfo.apiVersion
     } catch {
         print("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error). Building anything related to Vulkan will fail.")
-        return "0.0.0"
+        return nil
     }
 }()
 
@@ -118,12 +118,16 @@ let package = Package(
         .library(.cVulkan),
         .library(.volcano, type: .dynamic),
         .library(.vulkanMemoryAllocatorAdapted, type: .static),
-        .tool(.vkthings),
-        .plugin(.vkThingsBuildToolPlugin),
-        .plugin(.vkThingsCommandPlugin),
-        .tool(.volcanoSL),
-        .plugin(.volcanoSLPlugin),
-    ],
+    ] + {
+        guard vulkanVersion != nil else { return [] }
+        return [
+            .tool(.vkthings),
+            .plugin(.vkThingsBuildToolPlugin),
+            .plugin(.vkThingsCommandPlugin),
+            .tool(.volcanoSL),
+            .plugin(.volcanoSLPlugin),
+        ]
+    }(),
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/recp/cglm", branch: "master"),
@@ -188,13 +192,17 @@ let package = Package(
         .cClang,
         .volcano,
         .vulkanMemoryAllocatorAdapted,
-        .vkthings,
-        .vkthingsLib,
-        .vkThingsBuildToolPlugin,
-        .vkThingsCommandPlugin,
-        .volcanoSL,
-        .volcanoSLPlugin,
-    ]
+    ] + {
+        guard vulkanVersion != nil else { return [] }
+        return [
+            .vkthings,
+            .vkthingsLib,
+            .vkThingsBuildToolPlugin,
+            .vkThingsCommandPlugin,
+            .volcanoSL,
+            .volcanoSLPlugin,
+        ]
+    }()
 )
 
 extension Product {
@@ -371,9 +379,9 @@ extension Target {
         swiftSettings: [
             .unsafeFlags(["-emit-module"]),
         ],
-        plugins: [
-            .plugin(name: "VolcanoSLPlugin"),
-        ]
+        plugins: [] + {
+            vulkanVersion != nil ? [.plugin(name: "VolcanoSLPlugin")] : []
+        }()
     )
     static let layerRenderingData: Target = target(
         name: "LayerRenderingData",
@@ -533,8 +541,13 @@ extension Target {
             .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
             .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
-            .define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))"),
-        ],
+        ] + {
+            if let vulkanVersion {
+                return [.define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))")]
+            } else {
+                return []
+            }
+        }(),
         plugins: [
             // SourceKit-lsp does not support generated source code. this means no autocompletion, which is WORSE than manual codegen trigger
             // .plugin(.vkThingsBuildToolPlugin),
