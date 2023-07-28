@@ -4,7 +4,7 @@
         "debug"
     ],
     // "sourcekit-lsp.trace.server": "messages",
-    "sourcekit-lsp.inlayHints.enabled": false,
+    "editor.inlayHints.enabled": "off",
     "swift.autoGenerateLaunchConfigurations": false,
     "swift.buildArguments": [
         "--configuration",
