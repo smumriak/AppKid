@@ -1,4 +1,4 @@
---swiftversion 5.7
+--swiftversion 5.8
 --exclude .build,.vscode,.swiftpm
 --indent 4
 --tabwidth 4
@@ -15,5 +15,7 @@
 --indentcase true
 --modifierorder open,public,internal,internal(set),private,private(set),fileprivate,fileprivate(set),mutating,override,static,class,convenience,required,lazy,weak,unowned
 --marktypes never
+--extensionacl on-extension
+--wrapenumcases always
 
---disable andOperator,emptyBraces,enumNamespaces,hoistPatternLet,preferKeyPath,redundantFileprivate,redundantGet,redundantLet,redundantLetError,redundantNilInit,redundantObjc,redundantRawValues,redundantReturn,redundantSelf,sortedImports,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapMultilineStatementBraces,yodaConditions,typeSugar,redundantPattern,redundantType,enumNamespaces
+--disable andOperator,assertionFailures,blankLinesBetweenImports,conditionalAssignment,emptyBraces,genericExtensions,opaqueGenericParameters,organizeDeclarations,preferKeyPath,redundantFileprivate,redundantGet,redundantLetError,redundantNilInit,redundantObjc,redundantOptionalBinding,redundantPattern,redundantRawValues,redundantReturn,redundantSelf,redundantType,redundantVoidReturnType,sortDeclarations,sortedImports,typeSugar,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapConditionalBodies,wrapMultilineStatementBraces,wrapSingleLineComments,wrapSwitchCases,yodaConditions
