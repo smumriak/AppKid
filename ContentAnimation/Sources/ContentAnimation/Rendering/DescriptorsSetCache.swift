@@ -10,8 +10,6 @@ import CoreFoundation
 import Volcano
 import TinyFoundation
 
-protocol KeySomething: Hashable {}
-
 internal class DescriptorsSetCache {
     let lock = RecursiveLock()
     let device: Device
