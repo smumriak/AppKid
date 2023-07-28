@@ -137,6 +137,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-atomics.git", .upToNextMajor(from: "1.0.0")),
         .package(url: "https://github.com/smumriak/SemanticVersion.git", branch: "main"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
+        .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
