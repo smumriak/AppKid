@@ -18,7 +18,7 @@ extension VkInstance_T: ReleasableCType {
 
 internal extension SharedPointer where Pointee == VkInstance_T {
     func loadFunction<Function>(named name: String) throws -> Function {
-        guard let result = volcanoGetInstanceProcAddr(pointer, name) else {
+        guard let result = vkGetInstanceProcAddr(pointer, name) else {
             throw VulkanError.instanceFunctionNotFound(name)
         }
 

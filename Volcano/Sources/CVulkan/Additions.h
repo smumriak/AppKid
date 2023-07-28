@@ -12,16 +12,6 @@
 
 #ifndef __cplusplus
 
-static inline void * volcanoGetInstanceProcAddr(VkInstance instance, const char* pName)
-{
-    return vkGetInstanceProcAddr(instance, pName);
-}
-
-static inline void * volcanoGetDeviceProcAddr(VkDevice device, const char* pName)
-{
-    return vkGetDeviceProcAddr(device, pName);
-}
-
 typedef struct {
     VkPipelineCache pipelineCache;
 } VolcanoGraphicsPipelineContext;
@@ -127,6 +117,7 @@ static VKAPI_ATTR VkResult VKAPI_CALL volcanoCreateRayTracingPipelinesNV(
         pPipelines /* pPipelines */
     );
 }
+
 
 #endif
 

@@ -10,7 +10,7 @@ import TinyFoundation
 
 internal extension SharedPointer where Pointee == VkDevice_T {
     func loadFunction<Function>(named name: String) throws -> Function {
-        guard let result = volcanoGetDeviceProcAddr(pointer, name) else {
+        guard let result = vkGetDeviceProcAddr(pointer, name) else {
             throw VulkanError.deviceFunctionNotFound(name)
         }
         
