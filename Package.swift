@@ -30,8 +30,10 @@ enum Vulkan {
         static let possibleRevistryLocations = [
             "/usr/share/vulkan/registry/vk.xml",
         ]
-    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-        #error("FIX ME")
+    #elseif os(macOS)
+        static let possibleRevistryLocations = [
+            "/usr/local/share/vulkan/registry",
+        ]
     #elseif os(Android)
         #error("FIX ME")
     #elseif os(Windows)
@@ -47,8 +49,10 @@ let vulkanVersion: String? = {
         let possibleLocations = [
             "/usr/share/vulkan/registry",
         ]
-    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-        #error("FIX ME")
+    #elseif os(macOS)
+        let possibleLocations = [
+            "/usr/local/share/vulkan/registry",
+        ]
     #elseif os(Android)
         #error("FIX ME")
     #elseif os(Windows)
