@@ -73,6 +73,25 @@
             }
         },
         {
+            "label": "buildVolcano",
+            "type": "shell",
+            "command": "swift build --build-path ${workspaceFolder}/.build --target Volcano",
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "env": {
+                    "APPKID_LOCAL_BUILD": "1"
+                }
+            }
+        },
+        {
             "label": "buildvkthings",
             "type": "shell",
             "command": "swift build --build-path ${workspaceFolder}/.build --product vkthings",
