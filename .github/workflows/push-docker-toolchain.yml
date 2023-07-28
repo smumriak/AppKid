@@ -1,0 +1,23 @@
+#
+#  push-docker-toolchain.yml
+#  AppKid
+#  
+#  Created by Serhii Mumriak on 01.07.2023
+#
+
+# name: 'Build and Push Docker toolchain image'
+# on: 
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   test_everything:
+#     runs-on: [self-hosted, ubuntu]
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v3
+#       with:
+#         submodules: recursive
+
+#     - name: Build docker image
+#       run: cd Docker && docker build -f Dockerfile.appkid_toolchain --no-cache --build-arg swift_version=5.8.1 .

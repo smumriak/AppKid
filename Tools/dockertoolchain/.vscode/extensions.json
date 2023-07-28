@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "sswg.swift-lang",
+        "vadimcn.vscode-lldb",
+        "vknabel.vscode-swiftformat",
+        "arturodent.launch-config",
+        "wmaurer.change-case",
+        "psioniq.psi-header"
+    ]
+}

@@ -1,0 +1,86 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "clearShell",
+            "type": "shell",
+            "command": "clear",
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "buildProject",
+            "type": "shell",
+            "command": "swift build --build-path ${workspaceFolder}/.build",
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "env": {
+                }
+            }
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "swift package --build-path ${workspaceFolder}/.build clean; rm -rf ${workspaceFolder}/.build",
+            "group": "none",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build_tests",
+            "type": "shell",
+            "command": "swift build --build-tests --build-path ${workspaceFolder}/.build",
+            "group": "test",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "options": {
+                "env": {
+                }
+            }
+        },
+        {
+            "label": "build",
+            "dependsOn": [
+                "clearShell",
+                "buildProject"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "presentation": {
+                "echo": false,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        }
+    ]
+}

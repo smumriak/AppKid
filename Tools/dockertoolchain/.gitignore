@@ -1,0 +1,15 @@
+.DS_Store
+.build
+Packages
+*.xcodeproj
+xcuserdata/
+Build
+*.xccheckout
+*.xcscmblueprint
+*.xcuserstate
+*.lock
+.Trashes
+.swiftpm/
+.DS_Store
+DerivedData/
+.netrc
