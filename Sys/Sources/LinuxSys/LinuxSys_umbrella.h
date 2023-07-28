@@ -14,12 +14,15 @@
 
 AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 
+#include <sys/cdefs.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <sys/param.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
 #include <sys/sysinfo.h>
+#include <sys/sysmacros.h>
 #include <sys/timerfd.h>
 #include <sys/types.h>
 #include <sys/uio.h>
