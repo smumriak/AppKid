@@ -1,0 +1,11 @@
+#
+#  push-docker-toolchain.yml
+#  AppKid
+#  
+#  Created by Serhii Mumriak on 18.07.2023
+#
+
+name: 'Update documentation'
+on: 
+  push:
+    branches: [ main ]

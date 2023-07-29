@@ -5,10 +5,10 @@
 #  Created by Serhii Mumriak on 01.07.2023
 #
 
-# name: 'Build and Push Docker toolchain image'
-# on: 
-#   push:
-#     branches: [ main ]
+name: 'Build and Push Docker toolchain image'
+on: 
+  push:
+    branches: [ main ]
 
 # jobs:
 #   test_everything:
