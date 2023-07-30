@@ -98,50 +98,26 @@ public extension SharedPointerStorage where Handle.Pointee: EntityFactory {
     }
 
     @inlinable @_transparent
-    func buildEntity<Result: CreateableFromSingleEntityInfo>(_ container: LavaContainer<Result.Info>) throws -> SharedPointer<Result> where Result.Info: SimpleEntityInfo, Result.Info.Parent == Handle.Pointee {
+    func buildEntity<Info: SimpleEntityInfo>(_ info: Info.Type, _ container: LavaContainer<Info>) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
         try container {
             try create(with: $0)
         }
     }
 
     @inlinable @_transparent
-    func buildEntity<Result: CreateableFromSingleEntityInfo>(@Lava<Result.Info> _ content: () throws -> (LavaContainer<Result.Info>)) throws -> SharedPointer<Result> where Result.Info: SimpleEntityInfo, Result.Info.Parent == Handle.Pointee {
-        try buildEntity(content())
-    }
-
-    @inlinable @_transparent
-    func buildEntity<Result: CreateableFromTwoEntityInfos>(_ container: LavaContainer<Result.Info2>) throws -> SharedPointer<Result> where Result.Info2: SimpleEntityInfo, Result.Info2.Parent == Handle.Pointee {
+    func buildEntity<Result: CreateableFromEntityInfo>(_ container: LavaContainer<Result.Info>) throws -> SharedPointer<Result> where Result.Info: SimpleEntityInfo, Result.Info.Parent == Handle.Pointee {
         try container {
             try create(with: $0)
         }
     }
 
     @inlinable @_transparent
-    func buildEntity<Result: CreateableFromTwoEntityInfos>(@Lava<Result.Info2> _ content: () throws -> (LavaContainer<Result.Info2>)) throws -> SharedPointer<Result> where Result.Info2: SimpleEntityInfo, Result.Info2.Parent == Handle.Pointee {
-        try buildEntity(content())
+    func buildEntity<Info: SimpleEntityInfo>(_ info: Info.Type, @Lava<Info> _ content: () throws -> (LavaContainer<Info>)) throws -> SharedPointer<Info.Result> where Info.Parent == Handle.Pointee {
+        try buildEntity(Info.self, content())
     }
 
     @inlinable @_transparent
-    func buildEntity<Result: CreateableFromThreeEntityInfos>(_ container: LavaContainer<Result.Info3>) throws -> SharedPointer<Result> where Result.Info3: SimpleEntityInfo, Result.Info3.Parent == Handle.Pointee {
-        try container {
-            try create(with: $0)
-        }
-    }
-
-    @inlinable @_transparent
-    func buildEntity<Result: CreateableFromThreeEntityInfos>(@Lava<Result.Info3> _ content: () throws -> (LavaContainer<Result.Info3>)) throws -> SharedPointer<Result> where Result.Info3: SimpleEntityInfo, Result.Info3.Parent == Handle.Pointee {
-        try buildEntity(content())
-    }
-
-    @inlinable @_transparent
-    func buildEntity<Result: CreateableFromFourEntityInfos>(_ container: LavaContainer<Result.Info4>) throws -> SharedPointer<Result> where Result.Info4: SimpleEntityInfo, Result.Info4.Parent == Handle.Pointee {
-        try container {
-            try create(with: $0)
-        }
-    }
-
-    @inlinable @_transparent
-    func buildEntity<Result: CreateableFromFourEntityInfos>(@Lava<Result.Info4> _ content: () throws -> (LavaContainer<Result.Info4>)) throws -> SharedPointer<Result> where Result.Info4: SimpleEntityInfo, Result.Info4.Parent == Handle.Pointee {
+    func buildEntity<Result: CreateableFromEntityInfo>(@Lava<Result.Info> _ content: () throws -> (LavaContainer<Result.Info>)) throws -> SharedPointer<Result> where Result.Info: SimpleEntityInfo, Result.Info.Parent == Handle.Pointee {
         try buildEntity(content())
     }
 }

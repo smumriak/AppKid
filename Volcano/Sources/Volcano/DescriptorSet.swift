@@ -14,7 +14,7 @@ public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
 
         self.maxSets = maxSets
 
-        try super.init(device: device) {
+        try super.init(info: VkDescriptorPoolCreateInfo.self, device: device) {
             (\.poolSizeCount, \.pPoolSizes) <- sizes
             \.maxSets <- maxSets
         }
@@ -50,7 +50,7 @@ public final class DescriptorPool: DeviceEntity<VkDescriptorPool_T> {
 
 public final class DescriptorSetLayout: DeviceEntity<VkDescriptorSetLayout_T> {
     public init(device: Device, bindings: [VkDescriptorSetLayoutBinding]) throws {
-        try super.init(device: device) {
+        try super.init(info: VkDescriptorSetLayoutCreateInfo.self, device: device) {
             (\.bindingCount, \.pBindings) <- bindings
         }
     }

@@ -13,7 +13,7 @@ public final class Framebuffer: DeviceEntity<VkFramebuffer_T> {
     public init(device: Device, size: VkExtent2D, renderPass: RenderPass, attachments: [ImageView], layersCount: CUnsignedInt = 1) throws {
         self.attachments = attachments
         
-        try super.init(device: device) {
+        try super.init(info: VkFramebufferCreateInfo.self, device: device) {
             \ .renderPass <- renderPass
             (\.attachmentCount, \.pAttachments) <- attachments.map { $0.pointer as VkImageView? }
             \.width <- size.width

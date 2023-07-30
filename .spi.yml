@@ -9,5 +9,16 @@ version: 1
 builder:
   configs:
   - platform: linux
-    swift_version: '5.8'
+    swift_version:
+    - '5.8'
+    - '5.9'
     image: registry.gitlab.com/finestructure/spi-images:AppKid-5.8-latest
+    documentation_targets:
+    - AppKid
+    - CairoGraphics
+    - ContentAnimation
+    - SimpleGLM
+    - SwiftXlib
+    - SwiftyGLib
+    - TinyFoundation
+    - Volcano

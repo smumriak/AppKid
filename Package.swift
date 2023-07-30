@@ -27,63 +27,54 @@ enum Vulkan {
     }
 
     #if os(Linux)
-        static let possibleRevistryLocations = [
-            "/usr/share/vulkan/registry/vk.xml",
-        ]
-    #elseif os(macOS)
-        static let possibleRevistryLocations = [
-            "/usr/local/share/vulkan/registry",
-        ]
-    #elseif os(Android)
-        #error("FIX ME")
-    #elseif os(Windows)
-        #error("FIX ME")
-    #endif
-}
-
-let vulkanVersion: String? = {
-    let fileManager = FileManager.default
-    var isDirectory: ObjCBool = false
-
-    #if os(Linux)
-        let possibleLocations = [
+        static let possibleRegistryLocations = [
             "/usr/share/vulkan/registry",
         ]
     #elseif os(macOS)
-        let possibleLocations = [
+        static let possibleRegistryLocations = [
             "/usr/local/share/vulkan/registry",
         ]
     #elseif os(Android)
         #error("FIX ME")
+        static let possibleRegistryLocations = []
     #elseif os(Windows)
         #error("FIX ME")
+        static let possibleRegistryLocations = []
+    #else
+        #error("Platform not supported")
+        static let possibleRegistryLocations = []
     #endif
 
-    let path: String? = {
-        for path in possibleLocations {
+    static let registryPath: String? = {
+        let fileManager = FileManager.default
+        var isDirectory: ObjCBool = false
+
+        for path in possibleRegistryLocations {
             if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) && isDirectory.boolValue == true {
                 return path
             }
         }
 
+        print("Can not find vulkan registry in known locations. Building anything related to Vulkan will fail. Locations checked: \(possibleRegistryLocations)")
         return nil
     }()
 
-    guard let path else {
-        print("Can not find vulkan registry in known locations \(possibleLocations). Building anything related to Vulkan will fail.")
-        return nil
-    }
+    static let version: String? = {
+        guard let registryPath else {
+            return nil
+        }
 
-    let validUsageURL = URL(fileURLWithPath: path, isDirectory: true).appendingPathComponent("validusage.json")
+        let validUsageURL = URL(fileURLWithPath: registryPath, isDirectory: true).appendingPathComponent("validusage.json")
 
-    do {
-        let validUsage = try JSONDecoder().decode(Vulkan.ValidUsage.self, from: Data(contentsOf: validUsageURL))
-        return validUsage.versionInfo.apiVersion
-    } catch {
-        print("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error). Building anything related to Vulkan will fail.")
-        return nil
-    }
-}()
+        do {
+            let validUsage = try JSONDecoder().decode(Vulkan.ValidUsage.self, from: Data(contentsOf: validUsageURL))
+            return validUsage.versionInfo.apiVersion
+        } catch {
+            print("Vulkan valid usage parsing failed. You need to have valid vulkan SDK installed before the build. Error \(error). Building anything related to Vulkan will fail.")
+            return nil
+        }
+    }()
+}
 
 // MARK: Package
 
@@ -123,7 +114,7 @@ let package = Package(
         .library(.volcano, type: .dynamic),
         .library(.vulkanMemoryAllocatorAdapted, type: .static),
     ] + {
-        guard vulkanVersion != nil else { return [] }
+        guard Vulkan.version != nil else { return [] }
         return [
             .tool(.vkthings),
             .plugin(.vkThingsBuildToolPlugin),
@@ -198,7 +189,7 @@ let package = Package(
         .volcano,
         .vulkanMemoryAllocatorAdapted,
     ] + {
-        guard vulkanVersion != nil else { return [] }
+        guard Vulkan.version != nil else { return [] }
         return [
             .vkthings,
             .vkthingsLib,
@@ -385,7 +376,7 @@ extension Target {
             .unsafeFlags(["-emit-module"]),
         ],
         plugins: [] + {
-            vulkanVersion != nil ? [.plugin(name: "VolcanoSLPlugin")] : []
+            Vulkan.version != nil ? [.plugin(name: "VolcanoSLPlugin")] : []
         }()
     )
     static let layerRenderingData: Target = target(
@@ -547,7 +538,7 @@ extension Target {
             .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
             .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
         ] + {
-            if let vulkanVersion {
+            if let vulkanVersion = Vulkan.version {
                 return [.define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))")]
             } else {
                 return []

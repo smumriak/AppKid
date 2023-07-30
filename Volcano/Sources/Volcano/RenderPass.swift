@@ -27,7 +27,7 @@ internal final class RenderPassBuilder {
 
     func buid(device: Device) throws -> SharedPointer<VkRenderPass_T> {
         try subpasses.withUnsafeSubpassDescriptionBufferPointer(renderPassBuilder: self) { subpasses in
-            try device.buildEntity {
+            try device.buildEntity(VkRenderPassCreateInfo.self) {
                 (\.attachmentCount, \.pAttachments) <- attachments.map { $0.description }
                 (\.subpassCount, \.pSubpasses) <- subpasses
                 (\.dependencyCount, \.pDependencies) <- dependencies

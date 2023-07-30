@@ -41,7 +41,7 @@ internal class DescriptorSetContainer {
     let descriptorSet: VkDescriptorSet
 
     init(bindings: [VkDescriptorSetLayoutBinding], pool: SharedPointer<VkDescriptorPool_T>, device: Device) throws {
-        layout = try device.buildEntity {
+        layout = try device.buildEntity(VkDescriptorSetLayoutCreateInfo.self) {
             (\.bindingCount, \.pBindings) <- bindings
         }
 
@@ -330,10 +330,10 @@ internal class DescriptorSetContainer {
 
                 if needsDisplay {
                     switch layer.contents {
-                        case .some(let image as CGImage):
+                        case let .some(image as CGImage):
                             drawableContents = image
 
-                        case .some(let backingStore as CABackingStore):
+                        case let .some(backingStore as CABackingStore):
                             backingStore.frontContext.flush()
                             drawableContents = backingStore
 
@@ -446,10 +446,10 @@ internal class DescriptorSetContainer {
 
         if needsDisplay {
             switch layer.contents {
-                case .some(let image as CGImage):
+                case let .some(image as CGImage):
                     drawableContents = image
 
-                case .some(let backingStore as CABackingStore):
+                case let .some(backingStore as CABackingStore):
                     backingStore.frontContext.flush()
                     drawableContents = backingStore
 

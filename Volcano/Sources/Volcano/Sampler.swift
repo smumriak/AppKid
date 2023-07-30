@@ -51,7 +51,7 @@ public final class Sampler: DeviceEntity<VkSampler_T> {
     }
 
     public init(device: Device, addressModes: AddressModes = .repeat, flags: VkSamplerCreateFlagBits = [], filters: Filters = .linear, mipMapMode: VkSamplerMipmapMode = .linear, levelOfDetails: LevelOfDetails = .none, borderColor: VkBorderColor = .intOpaqueBlack, maxAnisotropy: Float? = nil, compareOperation: VkCompareOp? = nil, unnormalizedCoordinates: Bool = false) throws {
-        try super.init(device: device) {
+        try super.init(info: VkSamplerCreateInfo.self, device: device) {
             \.flags <- flags
 
             \.magFilter <- filters.magnification

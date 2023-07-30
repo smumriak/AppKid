@@ -13,7 +13,7 @@ public final class CommandPool: DeviceEntity<VkCommandPool_T> {
     public init(device: Device, queue: Queue, flags: VkCommandPoolCreateFlagBits = .resetCommandBuffer) throws {
         self.queue = queue
 
-        try super.init(device: device) {
+        try super.init(info: VkCommandPoolCreateInfo.self, device: device) {
             \.flags <- flags
             \.queueFamilyIndex <- queue.familyIndex
         }
