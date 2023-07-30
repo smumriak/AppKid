@@ -3,10 +3,10 @@
 --indent 4
 --tabwidth 4
 --xcodeindentation enabled
---decimalgrouping none
---binarygrouping none
---octalgrouping none
---hexgrouping none
+--decimalgrouping 3,6
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 4,8
 --hexliteralcase uppercase
 --exponentcase lowercase
 --nospaceoperators ...,..<
@@ -18,4 +18,4 @@
 --extensionacl on-extension
 --wrapenumcases always
 
---disable andOperator,assertionFailures,blankLinesBetweenImports,conditionalAssignment,emptyBraces,genericExtensions,opaqueGenericParameters,organizeDeclarations,preferKeyPath,redundantFileprivate,redundantGet,redundantLetError,redundantNilInit,redundantObjc,redundantOptionalBinding,redundantPattern,redundantRawValues,redundantReturn,redundantSelf,redundantType,redundantVoidReturnType,sortDeclarations,sortedImports,typeSugar,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapConditionalBodies,wrapMultilineStatementBraces,wrapSingleLineComments,wrapSwitchCases,yodaConditions
+--disable andOperator,assertionFailures,blankLinesBetweenImports,conditionalAssignment,emptyBraces,genericExtensions,hoistPatternLet,opaqueGenericParameters,organizeDeclarations,preferKeyPath,redundantFileprivate,redundantGet,redundantLetError,redundantNilInit,redundantObjc,redundantOptionalBinding,redundantPattern,redundantRawValues,redundantReturn,redundantSelf,redundantType,redundantVoidReturnType,sortDeclarations,sortedImports,typeSugar,unusedArguments,void,wrap,wrapArguments,wrapAttributes,wrapConditionalBodies,wrapMultilineStatementBraces,wrapSingleLineComments,wrapSwitchCases,yodaConditions
