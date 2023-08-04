@@ -7,6 +7,8 @@
 
 import Foundation
 
+/// Defines a non-null property that is backed by optional
+/// Use this in places where you "guarantee" this property will be initialized before first use. Generally unsafe.
 @propertyWrapper
 public struct IvarBacked<Value> {
     private var value: Value!
