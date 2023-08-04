@@ -22,18 +22,6 @@ enum Vulkan {
             case apiVersion = "api version"
         }
     }
-
-    #if os(Linux)
-        static let possibleRevistryLocations = [
-            "/usr/share/vulkan/registry/vk.xml",
-        ]
-    #elseif os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
-        #error("FIX ME")
-    #elseif os(Android)
-        #error("FIX ME")
-    #elseif os(Windows)
-        #error("FIX ME")
-    #endif
 }
 
 @main
