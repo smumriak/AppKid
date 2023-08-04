@@ -56,8 +56,8 @@ public struct Isolated<Value> {
     }
 
     @_transparent
-    public mutating func replace(with newValue: @autoclosure @Sendable () throws -> Value) {
-        isolated {
+    public mutating func replace(with newValue: @autoclosure @Sendable () throws -> Value) rethrows {
+        try isolated {
             _value = try newValue()
         }
     }
