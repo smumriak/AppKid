@@ -268,9 +268,39 @@ extension Target.Dependency {
 }
 
 extension Target.PluginUsage {
-    static func plugin(_ target: Target) -> Target.PluginUsage {
+    static func plugin(_ target: Target) -> Self {
         plugin(name: target.name)
     }
+
+    static let volcanoSL: Self? = Vulkan.version != nil ? .plugin(.volcanoSLPlugin) : nil
+}
+
+extension Array where Element == Target.PluginUsage {
+    static let volcanoSL: Self = [] + Element.volcanoSL
+}
+
+extension SwiftSetting {
+    static let emitModule: Self = .unsafeFlags(["-emit-module"])
+
+    static let vulkanVersion: Self? = {
+        if let vulkanVersion = Vulkan.version {
+            return .define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))")
+        } else {
+            return nil
+        }
+    }()
+}
+
+extension Array where Element == SwiftSetting {
+    static let emitModule: Self = [.emitModule]
+    static let vulkanPlatform: Self = [
+        .define("VOLCANO_PLATFORM_LINUX", .when(platforms: [.linux])),
+        .define("VOLCANO_PLATFORM_MACOS", .when(platforms: [.macOS])),
+        .define("VOLCANO_PLATFORM_IOS", .when(platforms: [.iOS])),
+        .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
+        .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
+        .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
+    ]
 }
 
 extension Target {
@@ -296,9 +326,7 @@ extension Target {
             .swiftXlib,
         ],
         path: "AppKid/Sources/AppKid",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ]
+        swiftSettings: .emitModule
     )
 }
 
@@ -333,9 +361,7 @@ extension Target {
             .stbImageResize,
         ],
         path: "CairoGraphics/Sources/CairoGraphics",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ]
+        swiftSettings: .emitModule
     )
     static let stbImageRead: Target = target(
         name: "STBImageRead",
@@ -370,14 +396,13 @@ extension Target {
         ],
         path: "ContentAnimation/Sources/ContentAnimation",
         // exclude: [
-        //     "Resources/ShaderSources",
+        //     "Resources/Shaders",
         // ],
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ],
-        plugins: [] + {
-            Vulkan.version != nil ? [.plugin(name: "VolcanoSLPlugin")] : []
-        }()
+        // resources: [
+        //     .process("Resources/Shaders"),
+        // ],
+        swiftSettings: .emitModule,
+        plugins: .volcanoSL
     )
     static let layerRenderingData: Target = target(
         name: "LayerRenderingData",
@@ -400,9 +425,8 @@ extension Target {
             .product(name: "cglm", package: "cglm"),
         ],
         path: "SimpleGLM/Sources/SimpleGLM",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ])
+        swiftSettings: .emitModule
+    )
     static let simpleGLMTests: Target = testTarget(
         name: "SimpleGLMTests",
         dependencies: [
@@ -429,9 +453,7 @@ extension Target {
             .tinyFoundation,
         ],
         path: "SwiftXlib/Sources/SwiftXlib",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ]
+        swiftSettings: .emitModule
     )
     static let swiftXlibTests: Target = testTarget(
         name: "SwiftXlibTests",
@@ -457,9 +479,8 @@ extension Target {
             .cGLib,
         ],
         path: "SwiftyGLib/Sources/SwiftyGLib",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-        ])
+        swiftSettings: .emitModule
+    )
     static let swiftyGLibTests: Target = testTarget(
         name: "SwiftyGLibTests",
         dependencies: [.swiftyGLib],
@@ -529,21 +550,9 @@ extension Target {
             .vulkanMemoryAllocatorAdapted,
         ],
         path: "Volcano/Sources/Volcano",
-        swiftSettings: [
-            .unsafeFlags(["-emit-module"]),
-            .define("VOLCANO_PLATFORM_LINUX", .when(platforms: [.linux])),
-            .define("VOLCANO_PLATFORM_MACOS", .when(platforms: [.macOS])),
-            .define("VOLCANO_PLATFORM_IOS", .when(platforms: [.iOS])),
-            .define("VOLCANO_PLATFORM_APPLE_METAL", .when(platforms: [.iOS, .macOS])),
-            .define("VOLCANO_PLATFORM_WINDOWS", .when(platforms: [.windows])),
-            .define("VOLCANO_PLATFORM_ANDROID", .when(platforms: [.android])),
-        ] + {
-            if let vulkanVersion = Vulkan.version {
-                return [.define("VULKAN_VERSION_\(vulkanVersion.replacingOccurrences(of: ".", with: "_"))")]
-            } else {
-                return []
-            }
-        }(),
+        swiftSettings: .emitModule
+            + .vulkanPlatform
+            + .vulkanVersion,
         plugins: [
             // SourceKit-lsp does not support generated source code. this means no autocompletion, which is WORSE than manual codegen trigger
             // .plugin(.vkThingsBuildToolPlugin),
@@ -622,4 +631,15 @@ extension Target {
         dependencies: [.volcanoSL],
         path: "Volcano/Plugins/VolcanoSLPlugin"
     )
+}
+
+// MARK: Utility
+
+extension Array {
+    static func + (lhs: Self, rhs: Element?) -> Self {
+        if let rhs {
+            return lhs + [rhs]
+        }
+        return lhs
+    }
 }
