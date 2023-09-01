@@ -68,7 +68,7 @@ final class AppDelegate: ApplicationDelegate {
 		sudo apt update
 		sudo apt install -y vulkan-sdk
 		```
-	- Alternativelly you can try to install Vulkan SDK from tarballs provided by LunarG or if you are using Debian 12 and newer or Ubuntu 22.04 and newer you can substitute Vulkan SDK from LunarG by installing packages form distro's repository
+	- Alternativelly you can try to install Vulkan SDK from tarballs provided by LunarG or if you are using Debian 12 and newer or Ubuntu 23.04 and newer you can substitute Vulkan SDK from LunarG by installing packages form distro's repository
 		```
 		sudo apt install -y \
 			libvulkan-dev \
