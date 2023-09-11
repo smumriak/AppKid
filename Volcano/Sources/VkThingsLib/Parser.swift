@@ -9,6 +9,15 @@ import XMLCoder
 import Foundation
 import SemanticVersion
 
+let ignoredOptionSets = Set([
+    "VkAccessFlagBits2",
+    "VkFormatFeatureFlagBits2",
+    "VkPipelineStageFlagBits2",
+    "VkMemoryDecompressionMethodFlagBitsNV",
+    "VkBufferUsageFlagBits2KHR",
+    "VkPipelineCreateFlagBits2KHR",
+])
+
 public struct VulkanValidUsage: Codable {
     public struct VersionInfo: Codable {
         public let schemaVersion: Int
@@ -115,13 +124,7 @@ public struct Parser {
         var optionSets = Dictionary(uniqueKeysWithValues:
             registry.enumerations
                 .filter { $0.subtype == .bitmask }
-                .filter {
-                    ["VkAccessFlagBits2",
-                     "VkFormatFeatureFlagBits2",
-                     "VkPipelineStageFlagBits2",
-                     "VkMemoryDecompressionMethodFlagBitsNV"]
-                        .contains($0.name) == false
-                }
+                .filter { ignoredOptionSets.contains($0.name) == false }
                 .map { ParsedEnum(enumerationDefinition: $0) }
                 .map { ($0.name, $0) }
         )
