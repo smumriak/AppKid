@@ -523,12 +523,11 @@ extension Target {
 }
 
 extension Target {
-    static let cVulkan: Target = systemLibrary(
+    static let cVulkan: Target = target(
         name: "CVulkan",
         path: "Volcano/Sources/CVulkan",
-        pkgConfig: "vulkan",
-        providers: [
-            .apt(["vulkan-sdk libwayland-dev libx11-dev"]),
+        linkerSettings: [
+            .linkedLibrary("vulkan"),
         ]
     )
     static let cClang: Target = systemLibrary(

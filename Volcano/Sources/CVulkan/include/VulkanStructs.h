@@ -8,7 +8,7 @@
 #ifndef VulkanStructs_h
 #define VulkanStructs_h 1
 
-#include "../../../CCore/include/CCore.h"
+#include "../../../../CCore/include/CCore.h"
 
 #ifndef __cplusplus
 

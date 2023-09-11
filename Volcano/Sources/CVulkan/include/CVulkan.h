@@ -1,12 +1,12 @@
 //
-//  CVulkan_umbrella.h
+//  CVulkan.h
 //  Volcano
-//
+//  
 //  Created by Serhii Mumriak on 15.05.2020.
 //
 
-#ifndef CVulkan_umbrella_h
-#define CVulkan_umbrella_h 1
+#ifndef CVulkan_h
+#define CVulkan_h 1
 
 #if __linux__
 
