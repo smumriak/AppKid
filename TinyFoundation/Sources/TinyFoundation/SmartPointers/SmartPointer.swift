@@ -74,32 +74,53 @@ public final class SharedPointer<Pointee>: SmartPointer {
         }
     }
 
+    public enum Deinitializer {
+        case none
+        case system(count: Int = 1)
+        case custom((Pointer) -> ())
+
+        func callAsFunction(_ pointer: Pointer) {
+            switch self {
+                case .none:
+                    break
+                case .system(let count):
+                    pointer.deinitialize(count: count)
+                case .custom(let deleter):
+                    deleter(pointer)
+            }
+        }
+    }
+
     public let pointer: Pointer
     internal let deleter: Deleter
+    internal let deinitializer: Deinitializer
 
     deinit {
+        deinitializer(pointer)
         deleter(pointer)
     }
 
-    public class func allocate(capacity: Int = 1, deleter: Deleter = .system) -> SharedPointer<Pointee> {
-        return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: deleter)
+    public class func allocate(capacity: Int = 1, deleter: Deleter = .system, deinitializer: Deinitializer? = nil) -> SharedPointer<Pointee> {
+        let deinitializer = deinitializer ?? .system(count: capacity)
+        return SharedPointer<Pointee>(with: Pointer.allocate(capacity: capacity), deleter: deleter, deinitializer: deinitializer)
     }
 
-    public init(with pointer: Pointer, deleter: Deleter) {
+    public init(with pointer: Pointer, deleter: Deleter, deinitializer: Deinitializer = .none) {
         #if DEBUG
             defer { globalRetainCount.wrappingIncrement(by: 1, ordering: .relaxed) }
         #endif
         
         self.pointer = pointer
         self.deleter = deleter
+        self.deinitializer = deinitializer
     }
 
-    public convenience init(with pointer: Pointer, deleter: @escaping (Pointer) -> ()) {
-        self.init(with: pointer, deleter: .custom(deleter))
+    public convenience init(with pointer: Pointer, deleter: @escaping (Pointer) -> (), deinitializer: Deinitializer = .none) {
+        self.init(with: pointer, deleter: .custom(deleter), deinitializer: deinitializer)
     }
 
-    public convenience init(nonOwning pointer: Pointer) {
-        self.init(with: pointer, deleter: .none)
+    public convenience init(nonOwning pointer: Pointer, deinitializer: Deinitializer = .none) {
+        self.init(with: pointer, deleter: .none, deinitializer: deinitializer)
     }
 
     public func assumingMemoryBound<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
