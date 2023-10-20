@@ -8,6 +8,8 @@
 #ifndef CXlib_umbrella_h
 #define CXlib_umbrella_h 1
 
+#include "../../../CCore/include/CCore.h"
+
 #ifndef XLIB_ILLEGAL_ACCESS
 #define XLIB_ILLEGAL_ACCESS 1
 #endif
@@ -31,8 +33,6 @@ struct _XIC {};
 #include <X11/extensions/sync.h>
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XI.h>
-
-#include "../../../CCore/include/CCore.h"
 
 #include "XlibResult.h"
 #include "XlibEventKeyMask.h"

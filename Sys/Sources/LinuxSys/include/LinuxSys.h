@@ -8,7 +8,7 @@
 #ifndef LinuxSys_umbrella_h
 #define LinuxSys_umbrella_h 1
 
-#include "../../../CCore/include/CCore.h"
+#include "../../../../CCore/include/CCore.h"
 
 #ifdef __linux__
 
@@ -36,6 +36,12 @@ AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 #include <unistd.h>
 
 #include "wait_macros.h"
+
+extern __pid_t gettid (void) __THROW;
+extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
+		  const struct timespec *__timeout,
+		  const __sigset_t *__ss)
+    __fortified_attr_access (__write_only__, 1, 2);
 
 #endif
 

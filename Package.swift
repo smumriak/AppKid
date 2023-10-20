@@ -106,11 +106,11 @@ let package = Package(
         // .library(.cGLib),
         // .library(.swiftyGLib, type: .dynamic),
 
-        .library(.linuxSys),
+        .library(.linuxSys, type: .static),
 
         .library(.tinyFoundation),
 
-        .library(.cVulkan),
+        .library(.cVulkan, type: .static),
         .library(.volcano, type: .dynamic),
         .library(.vulkanMemoryAllocatorAdapted, type: .static),
     ] + {
@@ -489,7 +489,7 @@ extension Target {
 }
 
 extension Target {
-    static let linuxSys: Target = systemLibrary(
+    static let linuxSys: Target = target(
         name: "LinuxSys",
         path: "Sys/Sources/LinuxSys"
     )

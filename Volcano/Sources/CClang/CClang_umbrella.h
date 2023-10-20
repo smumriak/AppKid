@@ -8,9 +8,9 @@
 #ifndef CClang_umbrella_h
 #define CClang_umbrella_h 1
 
-struct CXTranslationUnitImpl {};
-
 #include "../../../CCore/include/CCore.h"
+
+struct CXTranslationUnitImpl {};
 
 AK_EXISTING_ENUM(CXCursorKind);
 AK_EXISTING_ENUM(CXChildVisitResult);
