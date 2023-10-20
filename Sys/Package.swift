@@ -14,6 +14,6 @@ let package = Package(
         .library(name: "LinuxSys", targets: ["LinuxSys"]),
     ],
     targets: [
-        .systemLibrary(name: "LinuxSys"),
+        .target(name: "LinuxSys"),
     ]
 )
