@@ -46,6 +46,35 @@ public extension Array where Element: StringProtocol {
             try $0.withUnsafeBufferPointer(body)
         }
     }
+
+    @_transparent
+    func withUnsafeNulllTerminatedCStringsArray<R>(_ body: (UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>) throws -> (R)) rethrows -> R {
+        let array = nullTerminatedArrayOfCStrings
+        defer {
+            for i in 0..<count {
+                (array + i).pointee?.deallocate()
+            }
+            nullTerminatedArrayOfCStrings.deinitialize(count: count + 1)
+            nullTerminatedArrayOfCStrings.deallocate()
+        }
+
+        return try body(array)
+    }
+
+    @_transparent
+    var nullTerminatedArrayOfCStrings: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> {
+        let size = count + 1
+        let result: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> = .allocate(capacity: size)
+        result.initialize(repeating: nil, count: size)
+
+        let buffer = UnsafeMutableBufferPointer(start: result, count: size)
+
+        for (index, element) in enumerated() {
+            buffer[index] = element.withCString { strdup($0) }
+        }
+        
+        return result
+    }
 }
 
 public extension Set where Element: StringProtocol {

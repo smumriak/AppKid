@@ -133,6 +133,7 @@ let package = Package(
         .package(url: "https://github.com/smumriak/SemanticVersion.git", branch: "main"),
         .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.6"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
+        .package(url: "https://github.com/apple/swift-system", from: "1.0.0"),
     ],
     targets: [
         .executableTarget(
@@ -182,6 +183,7 @@ let package = Package(
 
         .tinyFoundation,
         .hijackingHacks,
+        .spoon,
         .tinyFoundationTests,
     
         .cVulkan,
@@ -253,6 +255,7 @@ extension Target.Dependency {
 
     static let tinyFoundation = Target.tinyFoundation.asDependency()
     static let hijackingHacks = Target.hijackingHacks.asDependency()
+    static let spoon = Target.spoon.asDependency()
     static let tinyFoundationTests = Target.tinyFoundationTests.asDependency()
     
     static let cVulkan = Target.cVulkan.asDependency()
@@ -501,8 +504,10 @@ extension Target {
         dependencies: [
             .product(name: "DequeModule", package: "swift-collections"),
             .product(name: "Atomics", package: "swift-atomics"),
+            .product(name: "SystemPackage", package: "swift-system"),
             .linuxSys,
             .hijackingHacks,
+            .spoon,
         ],
         path: "TinyFoundation/Sources/TinyFoundation"
     )
@@ -514,6 +519,10 @@ extension Target {
                 "-I/opt/swift/usr/lib/swift",
             ]),
         ]
+    )
+    static let spoon: Target = target(
+        name: "Spoon",
+        path: "TinyFoundation/Sources/Spoon"
     )
     static let tinyFoundationTests: Target = testTarget(
         name: "TinyFoundationTests",
