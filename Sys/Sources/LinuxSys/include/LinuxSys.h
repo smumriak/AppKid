@@ -39,9 +39,12 @@ AK_EXISTING_OPTIONS(EPOLL_EVENTS);
 
 extern __pid_t gettid (void) __THROW;
 extern int ppoll (struct pollfd *__fds, nfds_t __nfds,
-		  const struct timespec *__timeout,
-		  const __sigset_t *__ss)
-    __fortified_attr_access (__write_only__, 1, 2);
+		  		  const struct timespec *__timeout,
+		  		  const __sigset_t *__ss)
+    			__fortified_attr_access (__write_only__, 1, 2);
+extern int execvpe (const char *__file, char *const __argv[],
+					char *const __envp[])
+     				__THROW __nonnull ((1, 2));
 
 #endif
 

@@ -15,6 +15,7 @@ fileprivate struct ForkMetadata {
     // this stuff should be pre-allocated since we should not really do ANY allocations after forking due to the fact that vfork does not copy original process' memory. it's a very shady gray zone in memory management on OS side
     // essentially, the only thing allocated will be the stack for the `forkedCall` function call
     let executablePath: UnsafePointer<CChar>
+    let isAbsolute: Bool
     let arguments: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>
     let environment: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?>
     let workDirectoryPath: UnsafePointer<CChar>?
@@ -27,9 +28,15 @@ fileprivate func forkedCall(info: UnsafeMutableRawPointer!) -> CInt {
         chdir(workDirectoryPath)
     }
 
-    return execve(metadata.executablePath /* path */,
-                  metadata.arguments /* argv */,
-                  metadata.environment /* envp */ )
+    if metadata.isAbsolute {
+        return execve(metadata.executablePath /* path */,
+                      metadata.arguments /* argv */,
+                      metadata.environment /* envp */ )
+    } else {
+        return execvpe(metadata.executablePath /* path */,
+                       metadata.arguments /* argv */,
+                       metadata.environment /* envp */ )
+    }
 }
 
 public func spoonProcess(executablePath: FilePath, arguments: [String] = [], environment: [String: String]? = nil, workDirectoryPath: FilePath? = nil) throws -> CInt {
@@ -37,6 +44,7 @@ public func spoonProcess(executablePath: FilePath, arguments: [String] = [], env
     let environment = (environment ?? ProcessInfo.processInfo.environment).map { "\($0)=\($1)" }
     var metadata = ForkMetadata(
         executablePath: arguments[0].withCString { strdup($0) },
+        isAbsolute: executablePath.isAbsolute,
         arguments: arguments.nullTerminatedArrayOfCStrings,
         environment: environment.nullTerminatedArrayOfCStrings,
         workDirectoryPath: workDirectoryPath?.withCString { strdup($0) }
