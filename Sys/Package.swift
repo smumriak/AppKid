@@ -11,9 +11,13 @@ import PackageDescription
 let package = Package(
     name: "Sys",
     products: [
-        .library(name: "LinuxSys", targets: ["LinuxSys"]),
+        .library(
+            name: "LinuxSys",
+            type: .static,
+            targets: ["LinuxSys"]
+        ),
     ],
     targets: [
-        .systemLibrary(name: "LinuxSys"),
+        .target(name: "LinuxSys"),
     ]
 )
